@@ -62,6 +62,8 @@ async fn main() {
     let right = (1, 0);
     let left = (-1, 0);
 
+    let mut last_key_pressed : Option<KeyCode> = None;
+
     loop {
         if !game_over {
             if is_key_down(KeyCode::Right) && snake.dir != left && !navigation_lock {
@@ -76,6 +78,12 @@ async fn main() {
             } else if is_key_down(KeyCode::Down) && snake.dir != up && !navigation_lock {
                 snake.dir = down;
                 navigation_lock = true;
+            }
+
+            // TODO: Way of expressing assign and test on same line?
+            let key = get_last_key_pressed();
+            if key.is_some() {
+                last_key_pressed = key;
             }
 
             if get_time() - last_update > speed {
@@ -103,7 +111,7 @@ async fn main() {
                 }
                 navigation_lock = false;
 
-                if let Some(key) = get_last_key_pressed() {
+                if let Some(key) = last_key_pressed {
                     match key {
                         KeyCode::Left  => a.fruit.0 -= 1,
                         KeyCode::Right => a.fruit.0 += 1,
@@ -112,6 +120,7 @@ async fn main() {
                         _ => (),
                     }
                 }
+                last_key_pressed = None;
             }
         }
         if !game_over {
