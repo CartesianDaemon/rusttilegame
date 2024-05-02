@@ -2,8 +2,6 @@ use macroquad::prelude::*;
 
 use std::collections::LinkedList;
 
-const SQUARES: i16 = 16;
-
 type Point = (i16, i16);
 
 struct Snake {
@@ -13,6 +11,8 @@ struct Snake {
 }
 
 struct Angel {
+    // Number of squares on each side of map.
+    squares: i16,
     // Size of grid squares. Set proportional to window size at start of current frame.
     sq_size: f32,
 }
@@ -45,14 +45,14 @@ async fn main() {
         dir: (1, 0),
         body: LinkedList::new(),
     };
-    let mut fruit: Point = (rand::gen_range(0, SQUARES), rand::gen_range(0, SQUARES));
+    let mut a = Angel { squares: 16, sq_size: 32.0 };
+
+    let mut fruit: Point = (rand::gen_range(0, a.squares), rand::gen_range(0, a.squares));
     let mut score = 0;
     let mut speed = 0.3;
     let mut last_update = get_time();
     let mut navigation_lock = false;
     let mut game_over = false;
-
-    let mut a = Angel { sq_size: 32.0 };
 
     let up = (0, -1);
     let down = (0, 1);
@@ -80,7 +80,7 @@ async fn main() {
                 snake.body.push_front(snake.head);
                 snake.head = (snake.head.0 + snake.dir.0, snake.head.1 + snake.dir.1);
                 if snake.head == fruit {
-                    fruit = (rand::gen_range(0, SQUARES), rand::gen_range(0, SQUARES));
+                    fruit = (rand::gen_range(0, a.squares), rand::gen_range(0, a.squares));
                     score += 100;
                     speed *= 0.9;
                 } else {
@@ -88,8 +88,8 @@ async fn main() {
                 }
                 if snake.head.0 < 0
                     || snake.head.1 < 0
-                    || snake.head.0 >= SQUARES
-                    || snake.head.1 >= SQUARES
+                    || snake.head.0 >= a.squares
+                    || snake.head.1 >= a.squares
                 {
                     game_over = true;
                 }
@@ -107,11 +107,11 @@ async fn main() {
             let game_size = screen_width().min(screen_height());
             let offset_x = (screen_width() - game_size) / 2. + 10.;
             let offset_y = (screen_height() - game_size) / 2. + 10.;
-            a.sq_size = (screen_height() - offset_y * 2.) / SQUARES as f32;
+            a.sq_size = (screen_height() - offset_y * 2.) / a.squares as f32;
 
             draw_rectangle(offset_x, offset_y, game_size - 20., game_size - 20., WHITE);
 
-            for i in 1..SQUARES {
+            for i in 1..a.squares {
                 draw_line(
                     offset_x,
                     offset_y + a.sq_size * i as f32,
@@ -122,7 +122,7 @@ async fn main() {
                 );
             }
 
-            for i in 1..SQUARES {
+            for i in 1..a.squares {
                 draw_line(
                     offset_x + a.sq_size * i as f32,
                     offset_y,
@@ -187,7 +187,7 @@ async fn main() {
                     dir: (1, 0),
                     body: LinkedList::new(),
                 };
-                fruit = (rand::gen_range(0, SQUARES), rand::gen_range(0, SQUARES));
+                fruit = (rand::gen_range(0, a.squares), rand::gen_range(0, a.squares));
                 score = 0;
                 speed = 0.3;
                 last_update = get_time();
