@@ -102,6 +102,16 @@ async fn main() {
                     }
                 }
                 navigation_lock = false;
+
+                if let Some(key) = get_last_key_pressed() {
+                    match key {
+                        KeyCode::Left  => a.fruit.0 -= 1,
+                        KeyCode::Right => a.fruit.0 += 1,
+                        KeyCode::Up    => a.fruit.1 -= 1,
+                        KeyCode::Down  => a.fruit.1 += 1,
+                        _ => (),
+                    }
+                }
             }
         }
         if !game_over {
