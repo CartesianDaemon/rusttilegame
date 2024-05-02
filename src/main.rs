@@ -14,6 +14,8 @@ struct Snake {
 
 #[macroquad::main("Snake")]
 async fn main() {
+    let tex_crab: Texture2D = load_texture("imgs/ferris.png").await.unwrap();
+
     let mut snake = Snake {
         head: (0, 0),
         dir: (1, 0),
@@ -129,6 +131,17 @@ async fn main() {
                 sq_size,
                 sq_size,
                 GOLD,
+            );
+
+            draw_texture_ex(
+                &tex_crab,
+                offset_x + fruit.0 as f32 * sq_size,
+                offset_y + fruit.1 as f32 * sq_size,
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(vec2(sq_size, sq_size)),
+                    ..Default::default()
+                },
             );
 
             draw_text(format!("SCORE: {score}").as_str(), 10., 20., 20., DARKGRAY);
