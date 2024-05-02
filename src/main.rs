@@ -15,6 +15,8 @@ struct Angel {
     squares: i16,
     // Size of grid squares. Set proportional to window size at start of current frame.
     sq_size: f32,
+    // Coordinates of fruit (soon to be character).
+    fruit: Point,
 }
 
 // Draw a tile's texture given the object's window coordinates.
@@ -45,9 +47,10 @@ async fn main() {
         dir: (1, 0),
         body: LinkedList::new(),
     };
-    let mut a = Angel { squares: 16, sq_size: 32.0 };
+    let mut a = Angel { squares: 16, sq_size: 32.0, fruit: (0,0) };
 
-    let mut fruit: Point = (rand::gen_range(0, a.squares), rand::gen_range(0, a.squares));
+    a.fruit = (rand::gen_range(0, a.squares), rand::gen_range(0, a.squares));
+
     let mut score = 0;
     let mut speed = 0.3;
     let mut last_update = get_time();
@@ -79,8 +82,8 @@ async fn main() {
                 last_update = get_time();
                 snake.body.push_front(snake.head);
                 snake.head = (snake.head.0 + snake.dir.0, snake.head.1 + snake.dir.1);
-                if snake.head == fruit {
-                    fruit = (rand::gen_range(0, a.squares), rand::gen_range(0, a.squares));
+                if snake.head == a.fruit {
+                    a.fruit = (rand::gen_range(0, a.squares), rand::gen_range(0, a.squares));
                     score += 100;
                     speed *= 0.9;
                 } else {
@@ -152,8 +155,8 @@ async fn main() {
             }
 
             draw_rectangle(
-                offset_x + fruit.0 as f32 * a.sq_size,
-                offset_y + fruit.1 as f32 * a.sq_size,
+                offset_x + a.fruit.0 as f32 * a.sq_size,
+                offset_y + a.fruit.1 as f32 * a.sq_size,
                 a.sq_size,
                 a.sq_size,
                 GOLD,
@@ -162,8 +165,8 @@ async fn main() {
             draw_sq(
                 &a,
                 &tex_crab,
-                offset_x + fruit.0 as f32 * a.sq_size,
-                offset_y + fruit.1 as f32 * a.sq_size,
+                offset_x + a.fruit.0 as f32 * a.sq_size,
+                offset_y + a.fruit.1 as f32 * a.sq_size,
             );
 
             draw_text(format!("SCORE: {score}").as_str(), 10., 20., 20., DARKGRAY);
@@ -187,7 +190,7 @@ async fn main() {
                     dir: (1, 0),
                     body: LinkedList::new(),
                 };
-                fruit = (rand::gen_range(0, a.squares), rand::gen_range(0, a.squares));
+                a.fruit = (rand::gen_range(0, a.squares), rand::gen_range(0, a.squares));
                 score = 0;
                 speed = 0.3;
                 last_update = get_time();
