@@ -12,6 +12,30 @@ struct Snake {
     dir: Point,
 }
 
+struct Angel {
+    // Size of grid squares. Set proportional to window size at start of current frame.
+    sq_size: f32,
+}
+
+// Draw a tile's texture given the object's window coordinates.
+fn draw_sq(
+    a: &Angel,
+    tex: &Texture2D,
+    x: f32,
+    y: f32,
+) {
+    draw_texture_ex(
+        &tex,
+        x,
+        y,
+        WHITE,
+        DrawTextureParams {
+            dest_size: Some(vec2(a.sq_size, a.sq_size)),
+            ..Default::default()
+        },
+    );
+}
+
 #[macroquad::main("Snake")]
 async fn main() {
     let tex_crab: Texture2D = load_texture("imgs/ferris.png").await.unwrap();
@@ -27,6 +51,8 @@ async fn main() {
     let mut last_update = get_time();
     let mut navigation_lock = false;
     let mut game_over = false;
+
+    let mut a = Angel { sq_size: 32.0 };
 
     let up = (0, -1);
     let down = (0, 1);
@@ -81,16 +107,16 @@ async fn main() {
             let game_size = screen_width().min(screen_height());
             let offset_x = (screen_width() - game_size) / 2. + 10.;
             let offset_y = (screen_height() - game_size) / 2. + 10.;
-            let sq_size = (screen_height() - offset_y * 2.) / SQUARES as f32;
+            a.sq_size = (screen_height() - offset_y * 2.) / SQUARES as f32;
 
             draw_rectangle(offset_x, offset_y, game_size - 20., game_size - 20., WHITE);
 
             for i in 1..SQUARES {
                 draw_line(
                     offset_x,
-                    offset_y + sq_size * i as f32,
+                    offset_y + a.sq_size * i as f32,
                     screen_width() - offset_x,
-                    offset_y + sq_size * i as f32,
+                    offset_y + a.sq_size * i as f32,
                     2.,
                     LIGHTGRAY,
                 );
@@ -98,9 +124,9 @@ async fn main() {
 
             for i in 1..SQUARES {
                 draw_line(
-                    offset_x + sq_size * i as f32,
+                    offset_x + a.sq_size * i as f32,
                     offset_y,
-                    offset_x + sq_size * i as f32,
+                    offset_x + a.sq_size * i as f32,
                     screen_height() - offset_y,
                     2.,
                     LIGHTGRAY,
@@ -108,40 +134,36 @@ async fn main() {
             }
 
             draw_rectangle(
-                offset_x + snake.head.0 as f32 * sq_size,
-                offset_y + snake.head.1 as f32 * sq_size,
-                sq_size,
-                sq_size,
+                offset_x + snake.head.0 as f32 * a.sq_size,
+                offset_y + snake.head.1 as f32 * a.sq_size,
+                a.sq_size,
+                a.sq_size,
                 DARKGREEN,
             );
 
             for (x, y) in &snake.body {
                 draw_rectangle(
-                    offset_x + *x as f32 * sq_size,
-                    offset_y + *y as f32 * sq_size,
-                    sq_size,
-                    sq_size,
+                    offset_x + *x as f32 * a.sq_size,
+                    offset_y + *y as f32 * a.sq_size,
+                    a.sq_size,
+                    a.sq_size,
                     LIME,
                 );
             }
 
             draw_rectangle(
-                offset_x + fruit.0 as f32 * sq_size,
-                offset_y + fruit.1 as f32 * sq_size,
-                sq_size,
-                sq_size,
+                offset_x + fruit.0 as f32 * a.sq_size,
+                offset_y + fruit.1 as f32 * a.sq_size,
+                a.sq_size,
+                a.sq_size,
                 GOLD,
             );
 
-            draw_texture_ex(
+            draw_sq(
+                &a,
                 &tex_crab,
-                offset_x + fruit.0 as f32 * sq_size,
-                offset_y + fruit.1 as f32 * sq_size,
-                WHITE,
-                DrawTextureParams {
-                    dest_size: Some(vec2(sq_size, sq_size)),
-                    ..Default::default()
-                },
+                offset_x + fruit.0 as f32 * a.sq_size,
+                offset_y + fruit.1 as f32 * a.sq_size,
             );
 
             draw_text(format!("SCORE: {score}").as_str(), 10., 20., 20., DARKGRAY);
