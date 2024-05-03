@@ -49,7 +49,7 @@ struct Ent {
 }
 
 // "Location": Everything at a single coordinate in the current room.
-#[derive(Clone)]
+// #[derive(Clone)]
 struct Loc {
     ents: Vec<Ent>,
 }
@@ -57,6 +57,13 @@ struct Loc {
 impl Loc {
     fn new() -> Loc {
         Loc { ents: vec![] }
+    }
+}
+
+impl Clone for Loc {
+    fn clone(&self) -> Loc {
+        assert!(self.ents.is_empty());
+        Loc::new()
     }
 }
 
