@@ -86,17 +86,30 @@ async fn main() {
                 last_key_pressed = key;
             }
 
+            // Update grid with all beings moving.
             if get_time() - last_update > speed {
+                // Remember time we drew current frame, to know when to draw next frame.
                 last_update = get_time();
+
+                // Move snake
+
+                // add old head to top of body (LISP thanks us :))
                 snake.body.push_front(snake.head);
+
+                // calculate new direction
+
+                // move head to new location
                 snake.head = (snake.head.0 + snake.dir.0, snake.head.1 + snake.dir.1);
                 if snake.head == a.fruit {
+                    // If new head is on fruit, eat it. Body is already the right length.
                     a.fruit = (rand::gen_range(0, a.squares), rand::gen_range(0, a.squares));
                     score += 100;
                     speed *= 0.9;
                 } else {
+                    // If snake didn't eat anything, remove tip of tail.
                     snake.body.pop_back();
                 }
+                // die if head out of bounds
                 if snake.head.0 < 0
                     || snake.head.1 < 0
                     || snake.head.0 >= a.squares
@@ -104,6 +117,7 @@ async fn main() {
                 {
                     game_over = true;
                 }
+                // die if head intersects body
                 for (x, y) in &snake.body {
                     if *x == snake.head.0 && *y == snake.head.1 {
                         game_over = true;
@@ -111,6 +125,7 @@ async fn main() {
                 }
                 navigation_lock = false;
 
+                // Move character
                 if let Some(key) = last_key_pressed {
                     match key {
                         KeyCode::Left  => a.fruit.0 -= 1,
