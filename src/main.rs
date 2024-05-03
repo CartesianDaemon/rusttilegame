@@ -60,10 +60,9 @@ async fn main() {
 
     loop {
         // Read input each frame
-        // TODO: Way of expressing assign and test on same line?
-        let key = get_last_key_pressed();
-        if key.is_some() {
-            last_key_pressed = key;
+        // TODO: Maybe glob all keys in queue.
+        if let Some(key) = get_last_key_pressed() {
+            last_key_pressed = Some(key);
         }
 
         // Update game state each tick
