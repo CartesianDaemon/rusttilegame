@@ -12,7 +12,7 @@ struct Snake {
 
 struct Angel {
     // Number of squares on each side of map.
-    squares: i16,
+    squares: u16,
     // Size of grid squares. Set proportional to window size at start of current frame.
     sq_size: f32,
     // Coordinates of fruit (soon to be character).
@@ -97,7 +97,7 @@ async fn main() {
     };
     let mut a = Angel { squares: 16, sq_size: 32.0, fruit: (0,0) };
 
-    a.fruit = (rand::gen_range(0, a.squares), rand::gen_range(0, a.squares));
+    a.fruit = (3, 8); 
 
     let mut score = 0;
     let mut speed = 0.3;
@@ -105,6 +105,8 @@ async fn main() {
     let mut game_over = false;
 
     let mut last_key_pressed : Option<KeyCode> = None;
+
+    let mut map = Map::new(a.squares);
 
     loop {
         // Read input each frame
@@ -132,7 +134,7 @@ async fn main() {
             snake.head = (snake.head.0 + snake.dir.0, snake.head.1 + snake.dir.1);
             if snake.head == a.fruit {
                 // If new head is on fruit, eat it. Body is already the right length.
-                a.fruit = (rand::gen_range(0, a.squares), rand::gen_range(0, a.squares));
+                a.fruit = (3, 8); // TODO: Removed the random here as not wanted long term.
                 score += 100;
                 speed *= 0.9;
             } else {
@@ -142,8 +144,8 @@ async fn main() {
             // die if head out of bounds
             if snake.head.0 < 0
                 || snake.head.1 < 0
-                || snake.head.0 >= a.squares
-                || snake.head.1 >= a.squares
+                || snake.head.0 as i32 >= a.squares as i32 // TODO: Better comparisons
+                || snake.head.1 as i32>= a.squares as i32
             {
                 game_over = true;
             }
@@ -252,7 +254,7 @@ async fn main() {
                     dir: (1, 0),
                     body: LinkedList::new(),
                 };
-                a.fruit = (rand::gen_range(0, a.squares), rand::gen_range(0, a.squares));
+                a.fruit = (3, 8);
                 score = 0;
                 speed = 0.3;
                 last_update = get_time();
