@@ -39,17 +39,44 @@ fn draw_sq(
 }
 
 // "Entity": Anything tile-sized and drawable including floor, wall, object, being.
+#[derive(Clone)]
 struct Ent {
     x: i16,
     y: i16,
-    tex: Texture2D,
+    border: Color,
+    fill: Color,
+    tex: Option<Texture2D>,
 }
 
 // "Location": Everything at a single coordinate in the current room.
+#[derive(Clone)]
 struct Loc {
-    x: i16,
-    y: i16,
     ents: Vec<Ent>,
+}
+
+impl Loc {
+    fn new() -> Loc {
+        Loc { ents: vec![] }
+    }
+}
+
+// "Map": Grid of locations. Most of the current state of game.
+// Might have more than one in future.
+struct Map {
+    w: u16,
+    h: u16,
+    // Stored as a collection of columns
+    locs: Vec<Vec<Loc>>,
+}
+
+impl Map {
+    fn new(sz: u16) -> Map {
+        Map {
+            w: sz,
+            h: sz,
+            locs: vec!(vec!(Loc::new(); sz.into()); sz.into()),
+        }
+    }
 }
 
 #[macroquad::main("Snake")]
