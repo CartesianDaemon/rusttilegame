@@ -38,6 +38,20 @@ fn draw_sq(
     );
 }
 
+// "Entity": Anything tile-sized and drawable including floor, wall, object, being.
+struct Ent {
+    x: i16,
+    y: i16,
+    tex: Texture2D,
+}
+
+// "Location": Everything at a single coordinate in the current room.
+struct Loc {
+    x: i16,
+    y: i16,
+    ents: Vec<Ent>,
+}
+
 #[macroquad::main("Snake")]
 async fn main() {
     let tex_crab: Texture2D = load_texture("imgs/ferris.png").await.unwrap();
