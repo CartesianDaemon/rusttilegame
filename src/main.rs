@@ -66,6 +66,7 @@ async fn main() {
 
     loop {
         if !game_over {
+            /*
             if is_key_down(KeyCode::Right) && snake.dir != left && !navigation_lock {
                 snake.dir = right;
                 navigation_lock = true;
@@ -79,6 +80,7 @@ async fn main() {
                 snake.dir = down;
                 navigation_lock = true;
             }
+            */
 
             // TODO: Way of expressing assign and test on same line?
             let key = get_last_key_pressed();
@@ -96,7 +98,10 @@ async fn main() {
                 // add old head to top of body (LISP thanks us :))
                 snake.body.push_front(snake.head);
 
-                // calculate new direction
+                // if snake on same row xor column as fruit, change dir to face fruit
+                if (snake.head.0 == a.fruit.0) != (snake.head.1 == a.fruit.1) {
+                    snake.dir = ((a.fruit.0 - snake.head.0).signum(),(a.fruit.1 - snake.head.1).signum())
+                }
 
                 // move head to new location
                 snake.head = (snake.head.0 + snake.dir.0, snake.head.1 + snake.dir.1);
