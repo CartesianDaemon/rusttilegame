@@ -54,94 +54,70 @@ async fn main() {
     let mut score = 0;
     let mut speed = 0.3;
     let mut last_update = get_time();
-    let mut navigation_lock = false;
     let mut game_over = false;
-
-    let up = (0, -1);
-    let down = (0, 1);
-    let right = (1, 0);
-    let left = (-1, 0);
 
     let mut last_key_pressed : Option<KeyCode> = None;
 
     loop {
-        if !game_over {
-            /*
-            if is_key_down(KeyCode::Right) && snake.dir != left && !navigation_lock {
-                snake.dir = right;
-                navigation_lock = true;
-            } else if is_key_down(KeyCode::Left) && snake.dir != right && !navigation_lock {
-                snake.dir = left;
-                navigation_lock = true;
-            } else if is_key_down(KeyCode::Up) && snake.dir != down && !navigation_lock {
-                snake.dir = up;
-                navigation_lock = true;
-            } else if is_key_down(KeyCode::Down) && snake.dir != up && !navigation_lock {
-                snake.dir = down;
-                navigation_lock = true;
+        // Read input each frame
+        // TODO: Way of expressing assign and test on same line?
+        let key = get_last_key_pressed();
+        if key.is_some() {
+            last_key_pressed = key;
+        }
+
+        // Update game state each tick
+        if !game_over && get_time() - last_update > speed {
+            // Remember time we drew current frame, to know when to draw next frame.
+            last_update = get_time();
+
+            // Move snake
+
+            // add old head to top of body
+            snake.body.push_front(snake.head);
+
+            // if snake on same row xor column as fruit, change dir to face fruit
+            if (snake.head.0 == a.fruit.0) != (snake.head.1 == a.fruit.1) {
+                snake.dir = ((a.fruit.0 - snake.head.0).signum(),(a.fruit.1 - snake.head.1).signum())
             }
-            */
 
-            // TODO: Way of expressing assign and test on same line?
-            let key = get_last_key_pressed();
-            if key.is_some() {
-                last_key_pressed = key;
+            // move head to new location
+            snake.head = (snake.head.0 + snake.dir.0, snake.head.1 + snake.dir.1);
+            if snake.head == a.fruit {
+                // If new head is on fruit, eat it. Body is already the right length.
+                a.fruit = (rand::gen_range(0, a.squares), rand::gen_range(0, a.squares));
+                score += 100;
+                speed *= 0.9;
+            } else {
+                // If snake didn't eat anything, remove tip of tail.
+                snake.body.pop_back();
             }
-
-            // Update grid with all beings moving.
-            if get_time() - last_update > speed {
-                // Remember time we drew current frame, to know when to draw next frame.
-                last_update = get_time();
-
-                // Move snake
-
-                // add old head to top of body (LISP thanks us :))
-                snake.body.push_front(snake.head);
-
-                // if snake on same row xor column as fruit, change dir to face fruit
-                if (snake.head.0 == a.fruit.0) != (snake.head.1 == a.fruit.1) {
-                    snake.dir = ((a.fruit.0 - snake.head.0).signum(),(a.fruit.1 - snake.head.1).signum())
-                }
-
-                // move head to new location
-                snake.head = (snake.head.0 + snake.dir.0, snake.head.1 + snake.dir.1);
-                if snake.head == a.fruit {
-                    // If new head is on fruit, eat it. Body is already the right length.
-                    a.fruit = (rand::gen_range(0, a.squares), rand::gen_range(0, a.squares));
-                    score += 100;
-                    speed *= 0.9;
-                } else {
-                    // If snake didn't eat anything, remove tip of tail.
-                    snake.body.pop_back();
-                }
-                // die if head out of bounds
-                if snake.head.0 < 0
-                    || snake.head.1 < 0
-                    || snake.head.0 >= a.squares
-                    || snake.head.1 >= a.squares
-                {
+            // die if head out of bounds
+            if snake.head.0 < 0
+                || snake.head.1 < 0
+                || snake.head.0 >= a.squares
+                || snake.head.1 >= a.squares
+            {
+                game_over = true;
+            }
+            // die if head intersects body
+            for (x, y) in &snake.body {
+                if *x == snake.head.0 && *y == snake.head.1 {
                     game_over = true;
                 }
-                // die if head intersects body
-                for (x, y) in &snake.body {
-                    if *x == snake.head.0 && *y == snake.head.1 {
-                        game_over = true;
-                    }
-                }
-                navigation_lock = false;
-
-                // Move character
-                if let Some(key) = last_key_pressed {
-                    match key {
-                        KeyCode::Left  => a.fruit.0 -= 1,
-                        KeyCode::Right => a.fruit.0 += 1,
-                        KeyCode::Up    => a.fruit.1 -= 1,
-                        KeyCode::Down  => a.fruit.1 += 1,
-                        _ => (),
-                    }
-                }
-                last_key_pressed = None;
             }
+
+            // Move character
+            if let Some(key) = last_key_pressed {
+                match key {
+                    KeyCode::Left  => a.fruit.0 -= 1,
+                    KeyCode::Right => a.fruit.0 += 1,
+                    KeyCode::Up    => a.fruit.1 -= 1,
+                    KeyCode::Down  => a.fruit.1 += 1,
+                    _ => (),
+                }
+            }
+            last_key_pressed = None;
         }
         if !game_over {
             clear_background(LIGHTGRAY);
