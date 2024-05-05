@@ -10,6 +10,7 @@ struct Snake {
     dir: Point,
 }
 
+// Subunit of game state. Need to combine with rest of game state.
 struct Angel {
     // Number of squares on each side of map.
     squares: u16,
@@ -40,6 +41,7 @@ fn draw_sq(
 
 // "Entity": Anything tile-sized and drawable including floor, wall, object, being.
 #[derive(Clone)]
+#[allow(dead_code)]
 struct Ent {
     x: i16,
     y: i16,
@@ -69,6 +71,7 @@ impl Clone for Loc {
 
 // "Map": Grid of locations. Most of the current state of game.
 // Might have more than one in future.
+#[allow(dead_code)]
 struct Map {
     w: u16,
     h: u16,
@@ -106,7 +109,7 @@ async fn main() {
 
     let mut last_key_pressed : Option<KeyCode> = None;
 
-    let mut map = Map::new(a.squares);
+    let mut _map = Map::new(a.squares);
 
     loop {
         // Read input each frame
