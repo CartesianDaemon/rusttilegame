@@ -45,9 +45,23 @@ fn draw_sq(
 struct Ent {
     x: i16,
     y: i16,
-    border: Color,
-    fill: Color,
+    border: Option<Color>,
+    fill: Option<Color>,
     tex: Option<Texture2D>,
+}
+
+impl Ent {
+    // TODO: Want to combine into a "make_at" function which initialises locations ok.
+    // TODO: Should be global or part of map, or part of Ent?
+    fn new_floor(x: u16, y: u16) -> Ent {
+        Ent {
+            x: x as i16,
+            y: y as i16,
+            border: Some(LIGHTGRAY),
+            fill: Some(WHITE),
+            tex: None,
+        }
+    }
 }
 
 // "Location": Everything at a single coordinate in the current room.
@@ -77,6 +91,8 @@ struct Map {
     h: u16,
     // Stored as a collection of columns
     locs: Vec<Vec<Loc>>,
+
+    // Consider "for x,y in map.coords()" to iterate over x and y at the same time.
 }
 
 impl Map {
@@ -100,8 +116,6 @@ async fn main() {
     };
     let mut a = Angel { squares: 16, sq_size: 32.0, fruit: (0,0) };
 
-    a.fruit = (3, 8); 
-
     let mut score = 0;
     let mut speed = 0.3;
     let mut last_update = get_time();
@@ -109,7 +123,22 @@ async fn main() {
 
     let mut last_key_pressed : Option<KeyCode> = None;
 
-    let mut _map = Map::new(a.squares);
+    let mut map = Map::new(a.squares);
+
+    // Initialise Floor
+    {
+        for x in 0..map.w {
+            for y in 0..map.h {
+                map.locs[x as usize][y as usize].ents.push(Ent::new_floor(x, y))
+            }
+        }
+    }
+
+    // Initialise fruit
+    {
+        a.fruit = (3, 8);
+        // PUSH ONTO MAP
+    }
 
     loop {
         // Read input each frame
