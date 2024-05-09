@@ -208,8 +208,10 @@ async fn main() {
             let offset_y = (screen_height() - game_size) / 2. + 10.;
             a.sq_size = (screen_height() - offset_y * 2.) / a.squares as f32;
 
-            draw_rectangle(offset_x, offset_y, game_size - 20., game_size - 20., WHITE);
+            // Expect to be overwritten by tile contents
+            draw_rectangle(offset_x, offset_y, game_size - 20., game_size - 20., GREEN);
 
+            // Expect to be overwritten by tile contents
             for i in 1..a.squares {
                 draw_line(
                     offset_x,
@@ -217,10 +219,11 @@ async fn main() {
                     screen_width() - offset_x,
                     offset_y + a.sq_size * i as f32,
                     2.,
-                    LIGHTGRAY,
+                    RED,
                 );
             }
 
+            // Expect to be overwritten by tile contents
             for i in 1..a.squares {
                 draw_line(
                     offset_x + a.sq_size * i as f32,
@@ -228,8 +231,28 @@ async fn main() {
                     offset_x + a.sq_size * i as f32,
                     screen_height() - offset_y,
                     2.,
-                    LIGHTGRAY,
+                    RED,
                 );
+            }
+
+            for x in 0..map.w {
+                for y in 0..map.h {
+                    draw_rectangle(
+                        offset_x + a.sq_size * x as f32,
+                        offset_y + a.sq_size * y as f32,
+                        a.sq_size as f32,
+                        a.sq_size as f32,
+                        WHITE,
+                    );
+                    draw_rectangle_lines(
+                        offset_x + a.sq_size * x as f32,
+                        offset_y + a.sq_size * y as f32,
+                        a.sq_size as f32,
+                        a.sq_size as f32,
+                        2.,
+                        LIGHTGRAY
+                    );
+                }
             }
 
             draw_rectangle(
