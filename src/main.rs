@@ -81,6 +81,8 @@ impl Clone for Loc {
         assert!(self.ents.is_empty());
         Loc::new()
     }
+
+    // Consider implementing index [idx] for Loc returning loc.ents[idx]
 }
 
 // "Map": Grid of locations. Most of the current state of game.
@@ -91,8 +93,6 @@ struct Map {
     h: u16,
     // Stored as a collection of columns
     locs: Vec<Vec<Loc>>,
-
-    // Consider "for x,y in map.coords()" to iterate over x and y at the same time.
 }
 
 impl Map {
@@ -103,6 +103,9 @@ impl Map {
             locs: vec!(vec!(Loc::new(); sz.into()); sz.into()),
         }
     }
+
+    // Consider implementing index [idx] for map returning map.locs[idx]
+    // Consider "for x,y in map.coords()" to iterate over x and y at the same time.
 }
 
 #[macroquad::main("Snake")]
@@ -208,50 +211,27 @@ async fn main() {
             let offset_y = (screen_height() - game_size) / 2. + 10.;
             a.sq_size = (screen_height() - offset_y * 2.) / a.squares as f32;
 
-            // Expect to be overwritten by tile contents
-            draw_rectangle(offset_x, offset_y, game_size - 20., game_size - 20., GREEN);
-
-            // Expect to be overwritten by tile contents
-            for i in 1..a.squares {
-                draw_line(
-                    offset_x,
-                    offset_y + a.sq_size * i as f32,
-                    screen_width() - offset_x,
-                    offset_y + a.sq_size * i as f32,
-                    2.,
-                    RED,
-                );
-            }
-
-            // Expect to be overwritten by tile contents
-            for i in 1..a.squares {
-                draw_line(
-                    offset_x + a.sq_size * i as f32,
-                    offset_y,
-                    offset_x + a.sq_size * i as f32,
-                    screen_height() - offset_y,
-                    2.,
-                    RED,
-                );
-            }
-
             for x in 0..map.w {
                 for y in 0..map.h {
-                    draw_rectangle(
-                        offset_x + a.sq_size * x as f32,
-                        offset_y + a.sq_size * y as f32,
-                        a.sq_size as f32,
-                        a.sq_size as f32,
-                        WHITE,
-                    );
-                    draw_rectangle_lines(
-                        offset_x + a.sq_size * x as f32,
-                        offset_y + a.sq_size * y as f32,
-                        a.sq_size as f32,
-                        a.sq_size as f32,
-                        2.,
-                        LIGHTGRAY
-                    );
+                    for ent in &map.locs[x as usize][y as usize].ents {
+                        if let Some(col) = ent.fill {
+                            draw_rectangle(
+                                offset_x + a.sq_size * x as f32,
+                                offset_y + a.sq_size * y as f32,
+                                a.sq_size as f32,
+                                a.sq_size as f32,
+                                col,
+                            );
+                        }
+                        draw_rectangle_lines(
+                            offset_x + a.sq_size * x as f32,
+                            offset_y + a.sq_size * y as f32,
+                            a.sq_size as f32,
+                            a.sq_size as f32,
+                            2.,
+                            LIGHTGRAY
+                        );
+                    }
                 }
             }
 
