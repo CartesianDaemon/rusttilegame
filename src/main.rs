@@ -223,14 +223,16 @@ async fn main() {
                                 col,
                             );
                         }
-                        draw_rectangle_lines(
-                            offset_x + a.sq_size * x as f32,
-                            offset_y + a.sq_size * y as f32,
-                            a.sq_size as f32,
-                            a.sq_size as f32,
-                            2.,
-                            LIGHTGRAY
-                        );
+                        if let Some(col) = ent.border {
+                            draw_rectangle_lines(
+                                offset_x + a.sq_size * x as f32,
+                                offset_y + a.sq_size * y as f32,
+                                a.sq_size as f32,
+                                a.sq_size as f32,
+                                2.,
+                                col,
+                            );
+                        }
                     }
                 }
             }
