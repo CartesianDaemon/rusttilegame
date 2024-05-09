@@ -45,6 +45,7 @@ fn draw_sq(
 struct Ent {
     x: i16,
     y: i16,
+    h: i16,
     border: Option<Color>,
     fill: Option<Color>,
     tex: Option<Texture2D>,
@@ -57,6 +58,7 @@ impl Ent {
         Ent {
             x: x as i16,
             y: y as i16,
+            h: 0,
             border: Some(LIGHTGRAY),
             fill: Some(WHITE),
             tex: None,
