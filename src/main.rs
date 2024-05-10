@@ -140,14 +140,13 @@ impl Game {
             sq_size as f32,
         );
 
-        draw_text(format!("SCORE: {}", g.p.score).as_str(), 10., 20., 20., DARKGRAY);
+        draw_text(format!("SCORE: {}", 42).as_str(), 10., 20., 20., DARKGRAY);
     }
 }
 
 // Gameplay state: current level, map, etc.
 // May split out values relevant to current mode (level, menu, etc).
 struct Play {
-    score: i32,
     game_over: bool,
 
     // Layout of current level.
@@ -157,7 +156,6 @@ struct Play {
 impl Play {
     fn new_empty_level() -> Play {
         Play {
-            score: 0,
             game_over: false,
             map: Map::new_example_level(16),
         }
@@ -211,7 +209,6 @@ impl Play {
         if self.map.snake.head == self.map.fruit {
             // If new head is on fruit, eat it. Body is already the right length.
             self.map.fruit = (3, 8); // TODO: Removed the random here as not wanted long term.
-            self.score += 100;
         } else {
             // If snake didn't eat anything, remove tip of tail.
             self.map.snake.body.pop_back();
@@ -252,7 +249,6 @@ impl Play {
                 body: LinkedList::new(),
             };
             self.map.fruit = (3, 8);
-            self.score = 0;
             self.game_over = false;
         }
     }
