@@ -293,6 +293,8 @@ struct Snake {
 struct Input {
     speed: f64,
     last_update: f64,
+    // Should change to list.
+    // Ideally contain Move(1,0) action not KeyRight.
     last_key_pressed: Option<KeyCode>,
 }
 
@@ -302,6 +304,21 @@ impl Input {
             speed: 0.3,
             last_update: get_time(),
             last_key_pressed: None,
+        }
+    }
+
+    fn read_input(&mut self) {
+        if let Some(key) = get_last_key_pressed() {
+            self.last_key_pressed = Some(key);
+        }
+    }
+
+    fn ready_for_tick(&mut self) -> bool {
+        if get_time() - self.last_update > self.speed {
+            self.last_update = get_time();
+            true
+        } else {
+            false
         }
     }
 }
@@ -359,16 +376,10 @@ async fn main() {
     let mut g = Game::new_default().await;
 
     loop {
-        // Read input each frame
-        // TODO: Maybe glob all keys in queue.
-        if let Some(key) = get_last_key_pressed() {
-            g.i.last_key_pressed = Some(key);
-        }
+        g.i.read_input();
 
         // Update game state each tick
-        if !g.p.game_over && get_time() - g.i.last_update > g.i.speed {
-            // Remember when we advanced game state, to know when next time is due.
-            g.i.last_update = get_time();
+        if !g.p.game_over && g.i.ready_for_tick() {
 
             g.p.advance(g.i.last_key_pressed);
 
