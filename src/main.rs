@@ -56,19 +56,23 @@ impl Clone for Loc {
 // Might have more than one in future.
 #[allow(dead_code)]
 struct Map {
-    w: u16,
-    h: u16,
-    // Stored as a collection of columns
+    // Stored as a collection of columns.
+    // Must always be square.
     locs: Vec<Vec<Loc>>,
 }
 
 impl Map {
     fn new(sz: u16) -> Map {
         Map {
-            w: sz,
-            h: sz,
             locs: vec!(vec!(Loc::new(); sz.into()); sz.into()),
         }
+    }
+    fn w(&self) -> u16 {
+        // TODO: Could return usize, most callers need to cast anyway.
+        self.locs.len() as u16
+    }
+    fn h(&self) -> u16 {
+        self.locs[0].len() as u16
     }
 
     // Consider implementing index [idx] for map returning map.locs[idx]
@@ -84,9 +88,6 @@ struct Snake {
 // Gameplay state: current level, map, etc.
 #[allow(dead_code)]
 struct Play {
-    // Number of squares on each side of map.
-    // Should be removed in favour of map size
-    squares: u16,
     // map
     map: Map,
     // Coordinates of fruit (soon to be character).
@@ -96,7 +97,6 @@ struct Play {
 impl Play {
     fn new() -> Play {
         Play {
-            squares: 0,
             map: Map::new(16),
             fruit: (0, 0),
         }
@@ -144,17 +144,8 @@ impl Render {
 struct Game {
     p: Play,
     r: Render,
-
-    // TO BE REMOVED:
-    squares: u16,
 }
 
-// Functions requiring only gameplay state
-impl Game {
-    // update state? needing some form of keypress input etc
-}
-
-// Functions requiring all of game state
 impl Game {
     // draw frame?
 }
@@ -168,7 +159,7 @@ async fn main() {
         dir: (1, 0),
         body: LinkedList::new(),
     };
-    let mut g = Game { squares: 16, p: Play::new(), r: Render::new() };
+    let mut g = Game { p: Play::new(), r: Render::new() };
 
     let mut score = 0;
     let mut speed = 0.3;
@@ -181,8 +172,8 @@ async fn main() {
 
     // Initialise Floor
     {
-        for x in 0..map.w {
-            for y in 0..map.h {
+        for x in 0..map.w() {
+            for y in 0..map.h() {
                 map.locs[x as usize][y as usize].ents.push(Ent::new_floor(x, y))
             }
         }
@@ -230,8 +221,8 @@ async fn main() {
             // die if head out of bounds
             if snake.head.0 < 0
                 || snake.head.1 < 0
-                || snake.head.0 as i32 >= g.squares as i32 // TODO: Better comparisons
-                || snake.head.1 as i32>= g.squares as i32
+                || snake.head.0 as i32 >= map.w() as i32 // TODO: Better comparisons
+                || snake.head.1 as i32>= map.h() as i32
             {
                 game_over = true;
             }
@@ -259,13 +250,15 @@ async fn main() {
 
             clear_background(LIGHTGRAY);
 
+            // TODO: Make sure sizing works with non-square maps.
+            // It SHOULD work with windows portrait not landscape but not tested.
             let game_size = screen_width().min(screen_height());
             let offset_x = (screen_width() - game_size) / 2. + 10.;
             let offset_y = (screen_height() - game_size) / 2. + 10.;
-            g.r.sq_size = (screen_height() - offset_y * 2.) / g.squares as f32;
+            g.r.sq_size = (screen_height() - offset_y * 2.) / map.w() as f32;
 
-            for x in 0..map.w {
-                for y in 0..map.h {
+            for x in 0..map.w() {
+                for y in 0..map.h() {
                     for ent in &map.locs[x as usize][y as usize].ents {
                         if let Some(col) = ent.fill {
                             draw_rectangle(
