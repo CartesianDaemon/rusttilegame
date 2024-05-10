@@ -12,7 +12,7 @@ struct Game {
 }
 
 impl Game {
-    async fn draw_frame(&self) {
+    fn draw_frame(&self) {
         let g = self;
 
         clear_background(LIGHTGRAY);
@@ -76,10 +76,8 @@ impl Game {
             GOLD,
         );
 
-        let tex_crab: Texture2D = load_texture("imgs/ferris.png").await.unwrap();
-
         g.r.draw_sq(
-            &tex_crab,
+            &g.p.map.locs[0][0].ents[0].tex.as_ref().unwrap(), // Should only be temporary. If not can we use ?.
             offset_x + g.p.fruit.0 as f32 * sq_size,
             offset_y + g.p.fruit.1 as f32 * sq_size,
             sq_size as f32,
@@ -122,7 +120,7 @@ impl Play {
             }
         }
     }
-    fn new_default_level() -> Play {
+    async fn new_default_level() -> Play {
         // Some of this may move to Map, or to a new intermediate struct.
 
         let mut play = Self::new_empty_level();
@@ -140,6 +138,9 @@ impl Play {
         {
             play.fruit = (3, 8);
             // PUSH ONTO MAP
+
+            // Crab texture
+            play.map.locs[0][0].ents[0].tex = Some(load_texture("imgs/ferris.png").await.unwrap()); // Some() necessary?
         }
 
         play
@@ -310,7 +311,7 @@ impl Render {
 
 #[macroquad::main("Snake")]
 async fn main() {
-    let mut g = Game { p: Play::new_default_level(), r: Render::new_default() };
+    let mut g = Game { p: Play::new_default_level().await, r: Render::new_default() };
 
     let mut speed = 0.3; // NOTE: Doesn't speed up now. TODO: Move to render?
     let mut last_update = get_time();
@@ -329,13 +330,12 @@ async fn main() {
             // Remember when we advanced game state, to know when next time is due.
             last_update = get_time();
 
-            // TODO: game_over, snake, last_key_pressed
             g.p.advance(last_key_pressed);
 
             last_key_pressed = None;
         }
         if !g.p.game_over {
-            g.draw_frame().await;
+            g.draw_frame();
         } else {
             clear_background(WHITE);
             let text = "Game Over. Press [enter] to play again.";
