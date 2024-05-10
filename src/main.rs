@@ -334,6 +334,22 @@ async fn main() {
 
             last_key_pressed = None;
         }
+
+        if g.p.game_over {
+            if is_key_down(KeyCode::Enter) {
+                g.p.snake = Snake {
+                    head: (0, 0),
+                    dir: (1, 0),
+                    body: LinkedList::new(),
+                };
+                g.p.fruit = (3, 8);
+                g.p.score = 0;
+                speed = 0.3;
+                last_update = get_time();
+                g.p.game_over = false;
+            }
+        }
+
         if !g.p.game_over {
             g.draw_frame();
         }
@@ -351,21 +367,6 @@ async fn main() {
                 font_size,
                 DARKGRAY,
             );
-        }
-
-        if g.p.game_over {
-            if is_key_down(KeyCode::Enter) {
-                g.p.snake = Snake {
-                    head: (0, 0),
-                    dir: (1, 0),
-                    body: LinkedList::new(),
-                };
-                g.p.fruit = (3, 8);
-                g.p.score = 0;
-                speed = 0.3;
-                last_update = get_time();
-                g.p.game_over = false;
-            }
         }
 
         next_frame().await;
