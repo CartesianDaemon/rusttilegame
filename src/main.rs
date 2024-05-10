@@ -12,14 +12,19 @@ struct Snake {
 
 // Overall game state. Might be broken up.
 struct Game {
+    // GAMEPLAY STATE
+
     // Number of squares on each side of map.
     // Should be split into w and h. Should be properties of map not game.
     squares: u16,
+    // Coordinates of fruit (soon to be character).
+    fruit: Point,
+
+    // RENDERING STATE
+
     // Size of grid squares. Set proportional to window size at start of current frame.
     // Should be moved into drawing code, not global.
     sq_size: f32,
-    // Coordinates of fruit (soon to be character).
-    fruit: Point,
 }
 
 // "Entity": Anything tile-sized and drawable including floor, wall, object, being.
