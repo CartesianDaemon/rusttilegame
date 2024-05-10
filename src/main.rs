@@ -388,7 +388,7 @@ async fn main() {
         }
 
         if g.p.game_over {
-            if is_key_down(KeyCode::Enter) {
+            if Some(KeyCode::Enter) == g.i.consume_keypresses() {
                 g.p.snake = Snake {
                     head: (0, 0),
                     dir: (1, 0),
