@@ -12,8 +12,8 @@ struct Game {
 }
 
 impl Game {
-    fn draw_frame(&mut self) {
-        let mut g = self;
+    async fn draw_frame(&self) {
+        let g = self;
 
         clear_background(LIGHTGRAY);
 
@@ -22,26 +22,26 @@ impl Game {
         let game_size = screen_width().min(screen_height());
         let offset_x = (screen_width() - game_size) / 2. + 10.;
         let offset_y = (screen_height() - game_size) / 2. + 10.;
-        g.r.sq_size = (screen_height() - offset_y * 2.) / g.p.map.w() as f32;
+        let sq_size = (screen_height() - offset_y * 2.) / g.p.map.w() as f32;
 
         for x in 0..g.p.map.w() {
             for y in 0..g.p.map.h() {
                 for ent in &g.p.map.locs[x as usize][y as usize].ents {
                     if let Some(col) = ent.fill {
                         draw_rectangle(
-                            offset_x + g.r.sq_size * x as f32,
-                            offset_y + g.r.sq_size * y as f32,
-                            g.r.sq_size as f32,
-                            g.r.sq_size as f32,
+                            offset_x + sq_size * x as f32,
+                            offset_y + sq_size * y as f32,
+                            sq_size as f32,
+                            sq_size as f32,
                             col,
                         );
                     }
                     if let Some(col) = ent.border {
                         draw_rectangle_lines(
-                            offset_x + g.r.sq_size * x as f32,
-                            offset_y + g.r.sq_size * y as f32,
-                            g.r.sq_size as f32,
-                            g.r.sq_size as f32,
+                            offset_x + sq_size * x as f32,
+                            offset_y + sq_size * y as f32,
+                            sq_size as f32,
+                            sq_size as f32,
                             2.,
                             col,
                         );
@@ -51,35 +51,39 @@ impl Game {
         }
 
         draw_rectangle(
-            offset_x + g.p.snake.head.0 as f32 * g.r.sq_size,
-            offset_y + g.p.snake.head.1 as f32 * g.r.sq_size,
-            g.r.sq_size,
-            g.r.sq_size,
+            offset_x + g.p.snake.head.0 as f32 * sq_size,
+            offset_y + g.p.snake.head.1 as f32 * sq_size,
+            sq_size,
+            sq_size,
             DARKGREEN,
         );
 
         for (x, y) in &g.p.snake.body {
             draw_rectangle(
-                offset_x + *x as f32 * g.r.sq_size,
-                offset_y + *y as f32 * g.r.sq_size,
-                g.r.sq_size,
-                g.r.sq_size,
+                offset_x + *x as f32 * sq_size,
+                offset_y + *y as f32 * sq_size,
+                sq_size,
+                sq_size,
                 LIME,
             );
         }
 
         draw_rectangle(
-            offset_x + g.p.fruit.0 as f32 * g.r.sq_size,
-            offset_y + g.p.fruit.1 as f32 * g.r.sq_size,
-            g.r.sq_size,
-            g.r.sq_size,
+            offset_x + g.p.fruit.0 as f32 * sq_size,
+            offset_y + g.p.fruit.1 as f32 * sq_size,
+            sq_size,
+            sq_size,
             GOLD,
         );
 
+        let tex_crab: Texture2D = load_texture("imgs/ferris.png").await.unwrap();
+
         g.r.draw_sq(
             &tex_crab,
-            offset_x + g.p.fruit.0 as f32 * g.r.sq_size,
-            offset_y + g.p.fruit.1 as f32 * g.r.sq_size,
+            offset_x + g.p.fruit.0 as f32 * sq_size,
+            offset_y + g.p.fruit.1 as f32 * sq_size,
+            sq_size as f32,
+            sq_size as f32,
         );
 
         draw_text(format!("SCORE: {}", g.p.score).as_str(), 10., 20., 20., DARKGRAY);
@@ -273,15 +277,11 @@ struct Snake {
 // Render state: screen size, etc.
 #[allow(dead_code)]
 struct Render {
-    // Size of grid squares. Set proportional to window size at start of current frame.
-    // Should not be kept around outside a frame?
-    sq_size: f32,
 }
 
 impl Render {
     fn new_default() -> Render {
         Render {
-            sq_size: 0.,
         }
     }
 
@@ -289,8 +289,11 @@ impl Render {
     fn draw_sq(
         self: &Render,
         tex: &Texture2D,
+        // All in gl coords (approximately pixels).
         x: f32,
         y: f32,
+        w: f32,
+        h: f32,
     ) {
         draw_texture_ex(
             &tex,
@@ -298,7 +301,7 @@ impl Render {
             y,
             WHITE,
             DrawTextureParams {
-                dest_size: Some(vec2(self.sq_size, self.sq_size)),
+                dest_size: Some(vec2(w, h)),
                 ..Default::default()
             },
         );
@@ -307,8 +310,6 @@ impl Render {
 
 #[macroquad::main("Snake")]
 async fn main() {
-    let tex_crab: Texture2D = load_texture("imgs/ferris.png").await.unwrap();
-
     let mut g = Game { p: Play::new_default_level(), r: Render::new_default() };
 
     let mut speed = 0.3; // NOTE: Doesn't speed up now. TODO: Move to render?
@@ -334,6 +335,7 @@ async fn main() {
             last_key_pressed = None;
         }
         if !g.p.game_over {
+            g.draw_frame().await;
         } else {
             clear_background(WHITE);
             let text = "Game Over. Press [enter] to play again.";
