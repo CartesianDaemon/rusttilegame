@@ -336,7 +336,9 @@ async fn main() {
         }
         if !g.p.game_over {
             g.draw_frame();
-        } else {
+        }
+
+        if g.p.game_over {
             clear_background(WHITE);
             let text = "Game Over. Press [enter] to play again.";
             let font_size = 30.;
@@ -349,7 +351,9 @@ async fn main() {
                 font_size,
                 DARKGRAY,
             );
+        }
 
+        if g.p.game_over {
             if is_key_down(KeyCode::Enter) {
                 g.p.snake = Snake {
                     head: (0, 0),
@@ -363,6 +367,7 @@ async fn main() {
                 g.p.game_over = false;
             }
         }
+
         next_frame().await;
     }
 }
