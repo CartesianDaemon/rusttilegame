@@ -1,5 +1,6 @@
 use macroquad::prelude::*;
 
+#[allow(unused_imports)]
 use std::collections::LinkedList;
 
 type Point = (i16, i16);
@@ -114,16 +115,6 @@ impl Game {
             DARKGREEN,
         );
 
-        for (x, y) in &g.p.map.snake.body {
-            draw_rectangle(
-                offset_x + *x as f32 * sq_size,
-                offset_y + *y as f32 * sq_size,
-                sq_size,
-                sq_size,
-                LIME,
-            );
-        }
-
         draw_rectangle(
             offset_x + g.p.map.fruit.0 as f32 * sq_size,
             offset_y + g.p.map.fruit.1 as f32 * sq_size,
@@ -196,9 +187,6 @@ impl Play {
     fn advance_level(&mut self, last_key_pressed: Option<KeyCode>) {
         // Move snake
 
-        // add old head to top of body
-        self.map.snake.body.push_front(self.map.snake.head);
-
         // if snake on same row xor column as fruit, change dir to face fruit
         if (self.map.snake.head.0 == self.map.fruit.0) != (self.map.snake.head.1 == self.map.fruit.1) {
             self.map.snake.dir = ((self.map.fruit.0 - self.map.snake.head.0).signum(),(self.map.fruit.1 - self.map.snake.head.1).signum())
@@ -209,10 +197,8 @@ impl Play {
         if self.map.snake.head == self.map.fruit {
             // If new head is on fruit, eat it. Body is already the right length.
             self.map.fruit = (3, 8); // TODO: Removed the random here as not wanted long term.
-        } else {
-            // If snake didn't eat anything, remove tip of tail.
-            self.map.snake.body.pop_back();
         }
+
         // die if head out of bounds
         if self.map.snake.head.0 < 0
             || self.map.snake.head.1 < 0
@@ -220,12 +206,6 @@ impl Play {
             || self.map.snake.head.1 as i32>= self.map.h() as i32
         {
             self.game_over = true;
-        }
-        // die if head intersects body
-        for (x, y) in &self.map.snake.body {
-            if *x == self.map.snake.head.0 && *y == self.map.snake.head.1 {
-                self.game_over = true;
-            }
         }
 
         // Move character
@@ -246,7 +226,6 @@ impl Play {
             self.map.snake = Snake {
                 head: (0, 0),
                 dir: (1, 0),
-                body: LinkedList::new(),
             };
             self.map.fruit = (3, 8);
             self.game_over = false;
@@ -283,7 +262,6 @@ impl Map {
             snake: Snake {
                 head: (0, 0),
                 dir: (1, 0),
-                body: LinkedList::new(),
             }
         }
     }
@@ -351,7 +329,6 @@ impl Ent {
 
 struct Snake {
     head: Point,
-    body: LinkedList<Point>,
     dir: Point,
 }
 
