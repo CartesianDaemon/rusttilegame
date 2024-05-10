@@ -21,20 +21,39 @@ impl Game {
     }
 
     fn do_frame(&mut self) {
+        // Can I make a single function for this and ready_for_tick()?
         self.i.read_input();
 
-        // Update game state each tick
-        if !self.p.game_over && self.i.ready_for_tick() {
-            self.p.advance_level(self.i.consume_keypresses());
-        }
+        // Would it be easier to read with a layout like:
+        //
+        // while (not ready for tick) {
+        //     accumulate_input();
+        //     draw_frame();
+        // }
+        //
+        // advance();
+        //
+        // draw_frame();
+        //
+        // ?
+        //
+        // But probably needs yield which we don't actually have?
 
-        if self.p.game_over {
-            self.p.advance_game_over(self.i.consume_keypresses());
+        // Wait for tick if needed.
+        // Need to know at this level to treat input differently on a tick
+        // But maybe ready_for_tick can take a "tick wanted" parameter from Play mode.
+        if self.p.continuous() || self.i.ready_for_tick() {
+            // Advance game state according to current mode (level, menu, game over, etc)
+            if !self.p.game_over {
+                self.p.advance_level(self.i.consume_keypresses());
+            } else {
+                self.p.advance_game_over(self.i.consume_keypresses());
 
-            // Reset "most recent tick" when leaving menu.
-            // Need to move into input code. Maybe "when starting level"?
-            // As part of some standard mode transition code?
-            self.i.last_update = get_time();
+                // Reset "most recent tick" when leaving menu.
+                // Need to move into input code. Maybe "when starting level"?
+                // As part of some standard mode transition code?
+                self.i.last_update = get_time();
+            }
         }
 
         self.draw_frame();
@@ -156,6 +175,7 @@ impl Play {
             }
         }
     }
+
     async fn new_default_level() -> Play {
         // Some of this may move to Map, or to a new intermediate struct.
 
@@ -180,6 +200,12 @@ impl Play {
         }
 
         play
+    }
+
+    // Does current mode need UI to wait for tick before updating state?
+    // Currently yes in level, no in game over.
+    fn continuous(&self) -> bool {
+        self.game_over
     }
 
     fn advance_level(&mut self, last_key_pressed: Option<KeyCode>) {
