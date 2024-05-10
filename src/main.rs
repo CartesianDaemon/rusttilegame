@@ -20,6 +20,26 @@ impl Game {
         }
     }
 
+    fn do_frame(&mut self) {
+        self.i.read_input();
+
+        // Update game state each tick
+        if !self.p.game_over && self.i.ready_for_tick() {
+            self.p.advance_level(self.i.consume_keypresses());
+        }
+
+        if self.p.game_over {
+            self.p.advance_game_over(self.i.consume_keypresses());
+
+            // Reset "most recent tick" when leaving menu.
+            // Need to move into input code. Maybe "when starting level"?
+            // As part of some standard mode transition code?
+            self.i.last_update = get_time();
+        }
+
+        self.draw_frame();
+    }
+
     fn draw_frame(&self) {
         if !self.p.game_over {
             self.draw_level();
@@ -105,6 +125,7 @@ impl Game {
 }
 
 // Gameplay state: current level, map, etc.
+// May split out values relevant to current mode (level, menu, etc).
 struct Play {
     score: i32,
     game_over: bool,
@@ -161,7 +182,7 @@ impl Play {
         play
     }
 
-    fn advance(&mut self, last_key_pressed: Option<KeyCode>) {
+    fn advance_level(&mut self, last_key_pressed: Option<KeyCode>) {
         // Move snake
 
         // add old head to top of body
@@ -207,6 +228,19 @@ impl Play {
                 KeyCode::Down  => self.fruit.1 += 1,
                 _ => (),
             }
+        }
+    }
+
+    fn advance_game_over(&mut self, key: Option<KeyCode>) {
+        if Some(KeyCode::Enter) == key {
+            self.snake = Snake {
+                head: (0, 0),
+                dir: (1, 0),
+                body: LinkedList::new(),
+            };
+            self.fruit = (3, 8);
+            self.score = 0;
+            self.game_over = false;
         }
     }
 }
@@ -380,29 +414,7 @@ async fn main() {
     let mut g = Game::new_default().await;
 
     loop {
-        g.i.read_input();
-
-        // Update game state each tick
-        if !g.p.game_over && g.i.ready_for_tick() {
-            g.p.advance(g.i.consume_keypresses());
-        }
-
-        if g.p.game_over {
-            if Some(KeyCode::Enter) == g.i.consume_keypresses() {
-                g.p.snake = Snake {
-                    head: (0, 0),
-                    dir: (1, 0),
-                    body: LinkedList::new(),
-                };
-                g.p.fruit = (3, 8);
-                g.p.score = 0;
-                g.i.speed = 0.3;
-                g.i.last_update = get_time();
-                g.p.game_over = false;
-            }
-        }
-
-        g.draw_frame();
+        g.do_frame();
 
         next_frame().await;
     }
