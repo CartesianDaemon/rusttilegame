@@ -88,16 +88,19 @@ struct Snake {
 // Gameplay state: current level, map, etc.
 #[allow(dead_code)]
 struct Play {
-    // map
+    // Layout of current level.
     map: Map,
     // Coordinates of fruit (soon to be character).
+    // Will have vec of enemies etc too.
+    // Those all need to have "pointers" into map
+    // And act like a cache?
     fruit: Point,
 }
 
 impl Play {
     fn new() -> Play {
         Play {
-            map: Map::new(16),
+            map: Map::new(16), // TODO: Combine with other Play state init.
             fruit: (0, 0),
         }
     }
@@ -168,13 +171,11 @@ async fn main() {
 
     let mut last_key_pressed : Option<KeyCode> = None;
 
-    let mut map = Map::new(16);
-
     // Initialise Floor
     {
-        for x in 0..map.w() {
-            for y in 0..map.h() {
-                map.locs[x as usize][y as usize].ents.push(Ent::new_floor(x, y))
+        for x in 0..g.p.map.w() {
+            for y in 0..g.p.map.h() {
+                g.p.map.locs[x as usize][y as usize].ents.push(Ent::new_floor(x, y))
             }
         }
     }
@@ -221,8 +222,8 @@ async fn main() {
             // die if head out of bounds
             if snake.head.0 < 0
                 || snake.head.1 < 0
-                || snake.head.0 as i32 >= map.w() as i32 // TODO: Better comparisons
-                || snake.head.1 as i32>= map.h() as i32
+                || snake.head.0 as i32 >= g.p.map.w() as i32 // TODO: Better comparisons
+                || snake.head.1 as i32>= g.p.map.h() as i32
             {
                 game_over = true;
             }
@@ -255,11 +256,11 @@ async fn main() {
             let game_size = screen_width().min(screen_height());
             let offset_x = (screen_width() - game_size) / 2. + 10.;
             let offset_y = (screen_height() - game_size) / 2. + 10.;
-            g.r.sq_size = (screen_height() - offset_y * 2.) / map.w() as f32;
+            g.r.sq_size = (screen_height() - offset_y * 2.) / g.p.map.w() as f32;
 
-            for x in 0..map.w() {
-                for y in 0..map.h() {
-                    for ent in &map.locs[x as usize][y as usize].ents {
+            for x in 0..g.p.map.w() {
+                for y in 0..g.p.map.h() {
+                    for ent in &g.p.map.locs[x as usize][y as usize].ents {
                         if let Some(col) = ent.fill {
                             draw_rectangle(
                                 offset_x + g.r.sq_size * x as f32,
