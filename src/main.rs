@@ -4,6 +4,17 @@ use std::collections::LinkedList;
 
 type Point = (i16, i16);
 
+// Overall game state.
+#[allow(dead_code)]
+struct Game {
+    p: Play,
+    r: Render,
+}
+
+impl Game {
+    // draw frame?
+}
+
 // "Entity": Anything tile-sized and drawable including floor, wall, object, being.
 #[derive(Clone)]
 #[allow(dead_code)]
@@ -104,18 +115,40 @@ struct Play {
 }
 
 impl Play {
-    fn new() -> Play {
+    fn new_empty_level() -> Play {
         Play {
             score: 0,
             game_over: false,
-            map: Map::new(16), // TODO: Combine with other Play state init.
+            map: Map::new(16),
             fruit: (0, 0),
-            snake: Snake { // TODO: Combine with other init etc
+            snake: Snake {
                 head: (0, 0),
                 dir: (1, 0),
                 body: LinkedList::new(),
             }
         }
+    }
+    fn new_default_level() -> Play {
+        // Some of this may move to Map, or to a new intermediate struct.
+
+        let mut play = Self::new_empty_level();
+
+        // Initialise Floor
+        {
+            for x in 0..play.map.w() {
+                for y in 0..play.map.h() {
+                    play.map.locs[x as usize][y as usize].ents.push(Ent::new_floor(x, y))
+                }
+            }
+        }
+
+        // Initialise fruit
+        {
+            play.fruit = (3, 8);
+            // PUSH ONTO MAP
+        }
+
+        play
     }
     fn advance(&mut self, last_key_pressed: Option<KeyCode>) {
         // Move snake
@@ -176,7 +209,7 @@ struct Render {
 }
 
 impl Render {
-    fn new() -> Render {
+    fn new_default() -> Render {
         Render {
             sq_size: 0.,
         }
@@ -202,43 +235,16 @@ impl Render {
     }
 }
 
-
-// Overall game state.
-#[allow(dead_code)]
-struct Game {
-    p: Play,
-    r: Render,
-}
-
-impl Game {
-    // draw frame?
-}
-
 #[macroquad::main("Snake")]
 async fn main() {
     let tex_crab: Texture2D = load_texture("imgs/ferris.png").await.unwrap();
 
-    let mut g = Game { p: Play::new(), r: Render::new() };
+    let mut g = Game { p: Play::new_default_level(), r: Render::new_default() };
 
     let mut speed = 0.3; // NOTE: Doesn't speed up now. TODO: Move to render?
     let mut last_update = get_time();
 
     let mut last_key_pressed : Option<KeyCode> = None;
-
-    // Initialise Floor
-    {
-        for x in 0..g.p.map.w() {
-            for y in 0..g.p.map.h() {
-                g.p.map.locs[x as usize][y as usize].ents.push(Ent::new_floor(x, y))
-            }
-        }
-    }
-
-    // Initialise fruit
-    {
-        g.p.fruit = (3, 8);
-        // PUSH ONTO MAP
-    }
 
     loop {
         // Read input each frame
