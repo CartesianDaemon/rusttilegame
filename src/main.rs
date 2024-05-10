@@ -88,20 +88,81 @@ struct Snake {
 // Gameplay state: current level, map, etc.
 #[allow(dead_code)]
 struct Play {
+    score: i32,
+    game_over: bool,
+
     // Layout of current level.
     map: Map,
+
     // Coordinates of fruit (soon to be character).
     // Will have vec of enemies etc too.
     // Those all need to have "pointers" into map
     // And act like a cache?
     fruit: Point,
+
+    snake: Snake,
 }
 
 impl Play {
     fn new() -> Play {
         Play {
+            score: 0,
+            game_over: false,
             map: Map::new(16), // TODO: Combine with other Play state init.
             fruit: (0, 0),
+            snake: Snake { // TODO: Combine with other init etc
+                head: (0, 0),
+                dir: (1, 0),
+                body: LinkedList::new(),
+            }
+        }
+    }
+    fn advance(&mut self, last_key_pressed: Option<KeyCode>) {
+        // Move snake
+
+        // add old head to top of body
+        self.snake.body.push_front(self.snake.head);
+
+        // if snake on same row xor column as fruit, change dir to face fruit
+        if (self.snake.head.0 == self.fruit.0) != (self.snake.head.1 == self.fruit.1) {
+            self.snake.dir = ((self.fruit.0 - self.snake.head.0).signum(),(self.fruit.1 - self.snake.head.1).signum())
+        }
+
+        // move head to new location
+        self.snake.head = (self.snake.head.0 + self.snake.dir.0, self.snake.head.1 + self.snake.dir.1);
+        if self.snake.head == self.fruit {
+            // If new head is on fruit, eat it. Body is already the right length.
+            self.fruit = (3, 8); // TODO: Removed the random here as not wanted long term.
+            self.score += 100;
+        } else {
+            // If snake didn't eat anything, remove tip of tail.
+            self.snake.body.pop_back();
+        }
+        // die if head out of bounds
+        if self.snake.head.0 < 0
+            || self.snake.head.1 < 0
+            || self.snake.head.0 as i32 >= self.map.w() as i32 // TODO: Better comparisons
+            || self.snake.head.1 as i32>= self.map.h() as i32
+        {
+            self.game_over = true;
+        }
+        // die if head intersects body
+        for (x, y) in &self.snake.body {
+            if *x == self.snake.head.0 && *y == self.snake.head.1 {
+                self.game_over = true;
+            }
+        }
+
+        // Move character
+
+        if let Some(key) = last_key_pressed {
+            match key {
+                KeyCode::Left  => self.fruit.0 -= 1,
+                KeyCode::Right => self.fruit.0 += 1,
+                KeyCode::Up    => self.fruit.1 -= 1,
+                KeyCode::Down  => self.fruit.1 += 1,
+                _ => (),
+            }
         }
     }
 }
@@ -157,17 +218,10 @@ impl Game {
 async fn main() {
     let tex_crab: Texture2D = load_texture("imgs/ferris.png").await.unwrap();
 
-    let mut snake = Snake {
-        head: (0, 0),
-        dir: (1, 0),
-        body: LinkedList::new(),
-    };
     let mut g = Game { p: Play::new(), r: Render::new() };
 
-    let mut score = 0;
-    let mut speed = 0.3;
+    let mut speed = 0.3; // NOTE: Doesn't speed up now. TODO: Move to render?
     let mut last_update = get_time();
-    let mut game_over = false;
 
     let mut last_key_pressed : Option<KeyCode> = None;
 
@@ -194,59 +248,16 @@ async fn main() {
         }
 
         // Update game state each tick
-        if !game_over && get_time() - last_update > speed {
-            // Remember time we drew current frame, to know when to draw next frame.
+        if !g.p.game_over && get_time() - last_update > speed {
+            // Remember when we advanced game state, to know when next time is due.
             last_update = get_time();
 
-            // Move snake
+            // TODO: game_over, snake, last_key_pressed
+            g.p.advance(last_key_pressed);
 
-            // add old head to top of body
-            snake.body.push_front(snake.head);
-
-            // if snake on same row xor column as fruit, change dir to face fruit
-            if (snake.head.0 == g.p.fruit.0) != (snake.head.1 == g.p.fruit.1) {
-                snake.dir = ((g.p.fruit.0 - snake.head.0).signum(),(g.p.fruit.1 - snake.head.1).signum())
-            }
-
-            // move head to new location
-            snake.head = (snake.head.0 + snake.dir.0, snake.head.1 + snake.dir.1);
-            if snake.head == g.p.fruit {
-                // If new head is on fruit, eat it. Body is already the right length.
-                g.p.fruit = (3, 8); // TODO: Removed the random here as not wanted long term.
-                score += 100;
-                speed *= 0.9;
-            } else {
-                // If snake didn't eat anything, remove tip of tail.
-                snake.body.pop_back();
-            }
-            // die if head out of bounds
-            if snake.head.0 < 0
-                || snake.head.1 < 0
-                || snake.head.0 as i32 >= g.p.map.w() as i32 // TODO: Better comparisons
-                || snake.head.1 as i32>= g.p.map.h() as i32
-            {
-                game_over = true;
-            }
-            // die if head intersects body
-            for (x, y) in &snake.body {
-                if *x == snake.head.0 && *y == snake.head.1 {
-                    game_over = true;
-                }
-            }
-
-            // Move character
-            if let Some(key) = last_key_pressed {
-                match key {
-                    KeyCode::Left  => g.p.fruit.0 -= 1,
-                    KeyCode::Right => g.p.fruit.0 += 1,
-                    KeyCode::Up    => g.p.fruit.1 -= 1,
-                    KeyCode::Down  => g.p.fruit.1 += 1,
-                    _ => (),
-                }
-            }
             last_key_pressed = None;
         }
-        if !game_over {
+        if !g.p.game_over {
             // TODO: MOVE ALL THIS BRANCH INTO GAME, CALLING RENDER.
 
             clear_background(LIGHTGRAY);
@@ -285,14 +296,14 @@ async fn main() {
             }
 
             draw_rectangle(
-                offset_x + snake.head.0 as f32 * g.r.sq_size,
-                offset_y + snake.head.1 as f32 * g.r.sq_size,
+                offset_x + g.p.snake.head.0 as f32 * g.r.sq_size,
+                offset_y + g.p.snake.head.1 as f32 * g.r.sq_size,
                 g.r.sq_size,
                 g.r.sq_size,
                 DARKGREEN,
             );
 
-            for (x, y) in &snake.body {
+            for (x, y) in &g.p.snake.body {
                 draw_rectangle(
                     offset_x + *x as f32 * g.r.sq_size,
                     offset_y + *y as f32 * g.r.sq_size,
@@ -316,7 +327,7 @@ async fn main() {
                 offset_y + g.p.fruit.1 as f32 * g.r.sq_size,
             );
 
-            draw_text(format!("SCORE: {score}").as_str(), 10., 20., 20., DARKGRAY);
+            draw_text(format!("SCORE: {}", g.p.score).as_str(), 10., 20., 20., DARKGRAY);
         } else {
             clear_background(WHITE);
             let text = "Game Over. Press [enter] to play again.";
@@ -332,16 +343,16 @@ async fn main() {
             );
 
             if is_key_down(KeyCode::Enter) {
-                snake = Snake {
+                g.p.snake = Snake {
                     head: (0, 0),
                     dir: (1, 0),
                     body: LinkedList::new(),
                 };
                 g.p.fruit = (3, 8);
-                score = 0;
+                g.p.score = 0;
                 speed = 0.3;
                 last_update = get_time();
-                game_over = false;
+                g.p.game_over = false;
             }
         }
         next_frame().await;
