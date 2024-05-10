@@ -67,6 +67,7 @@ impl Game {
         }
     }
 
+    // Some of this needs to move into Render. Some may be in Map.
     fn draw_level(&self) {
         let g = self;
 
@@ -106,14 +107,14 @@ impl Game {
         }
 
         draw_rectangle(
-            offset_x + g.p.snake.head.0 as f32 * sq_size,
-            offset_y + g.p.snake.head.1 as f32 * sq_size,
+            offset_x + g.p.map.snake.head.0 as f32 * sq_size,
+            offset_y + g.p.map.snake.head.1 as f32 * sq_size,
             sq_size,
             sq_size,
             DARKGREEN,
         );
 
-        for (x, y) in &g.p.snake.body {
+        for (x, y) in &g.p.map.snake.body {
             draw_rectangle(
                 offset_x + *x as f32 * sq_size,
                 offset_y + *y as f32 * sq_size,
@@ -124,8 +125,8 @@ impl Game {
         }
 
         draw_rectangle(
-            offset_x + g.p.fruit.0 as f32 * sq_size,
-            offset_y + g.p.fruit.1 as f32 * sq_size,
+            offset_x + g.p.map.fruit.0 as f32 * sq_size,
+            offset_y + g.p.map.fruit.1 as f32 * sq_size,
             sq_size,
             sq_size,
             GOLD,
@@ -133,8 +134,8 @@ impl Game {
 
         g.r.draw_sq(
             &g.p.map.locs[0][0].ents[0].tex.as_ref().unwrap(), // Should only be temporary. If not can we use ?.
-            offset_x + g.p.fruit.0 as f32 * sq_size,
-            offset_y + g.p.fruit.1 as f32 * sq_size,
+            offset_x + g.p.map.fruit.0 as f32 * sq_size,
+            offset_y + g.p.map.fruit.1 as f32 * sq_size,
             sq_size as f32,
             sq_size as f32,
         );
@@ -151,14 +152,6 @@ struct Play {
 
     // Layout of current level.
     map: Map,
-
-    // Coordinates of fruit (soon to be character).
-    // Will have vec of enemies etc too.
-    // Those all need to have "pointers" into map
-    // And act like a cache?
-    fruit: Point,
-
-    snake: Snake,
 }
 
 impl Play {
@@ -166,13 +159,7 @@ impl Play {
         Play {
             score: 0,
             game_over: false,
-            map: Map::new(16),
-            fruit: (0, 0),
-            snake: Snake {
-                head: (0, 0),
-                dir: (1, 0),
-                body: LinkedList::new(),
-            }
+            map: Map::new_example_level(16),
         }
     }
 
@@ -192,7 +179,7 @@ impl Play {
 
         // Initialise fruit
         {
-            play.fruit = (3, 8);
+            play.map.fruit = (3, 8);
             // PUSH ONTO MAP
 
             // Crab texture
@@ -212,34 +199,34 @@ impl Play {
         // Move snake
 
         // add old head to top of body
-        self.snake.body.push_front(self.snake.head);
+        self.map.snake.body.push_front(self.map.snake.head);
 
         // if snake on same row xor column as fruit, change dir to face fruit
-        if (self.snake.head.0 == self.fruit.0) != (self.snake.head.1 == self.fruit.1) {
-            self.snake.dir = ((self.fruit.0 - self.snake.head.0).signum(),(self.fruit.1 - self.snake.head.1).signum())
+        if (self.map.snake.head.0 == self.map.fruit.0) != (self.map.snake.head.1 == self.map.fruit.1) {
+            self.map.snake.dir = ((self.map.fruit.0 - self.map.snake.head.0).signum(),(self.map.fruit.1 - self.map.snake.head.1).signum())
         }
 
         // move head to new location
-        self.snake.head = (self.snake.head.0 + self.snake.dir.0, self.snake.head.1 + self.snake.dir.1);
-        if self.snake.head == self.fruit {
+        self.map.snake.head = (self.map.snake.head.0 + self.map.snake.dir.0, self.map.snake.head.1 + self.map.snake.dir.1);
+        if self.map.snake.head == self.map.fruit {
             // If new head is on fruit, eat it. Body is already the right length.
-            self.fruit = (3, 8); // TODO: Removed the random here as not wanted long term.
+            self.map.fruit = (3, 8); // TODO: Removed the random here as not wanted long term.
             self.score += 100;
         } else {
             // If snake didn't eat anything, remove tip of tail.
-            self.snake.body.pop_back();
+            self.map.snake.body.pop_back();
         }
         // die if head out of bounds
-        if self.snake.head.0 < 0
-            || self.snake.head.1 < 0
-            || self.snake.head.0 as i32 >= self.map.w() as i32 // TODO: Better comparisons
-            || self.snake.head.1 as i32>= self.map.h() as i32
+        if self.map.snake.head.0 < 0
+            || self.map.snake.head.1 < 0
+            || self.map.snake.head.0 as i32 >= self.map.w() as i32 // TODO: Better comparisons
+            || self.map.snake.head.1 as i32>= self.map.h() as i32
         {
             self.game_over = true;
         }
         // die if head intersects body
-        for (x, y) in &self.snake.body {
-            if *x == self.snake.head.0 && *y == self.snake.head.1 {
+        for (x, y) in &self.map.snake.body {
+            if *x == self.map.snake.head.0 && *y == self.map.snake.head.1 {
                 self.game_over = true;
             }
         }
@@ -248,10 +235,10 @@ impl Play {
 
         if let Some(key) = last_key_pressed {
             match key {
-                KeyCode::Left  => self.fruit.0 -= 1,
-                KeyCode::Right => self.fruit.0 += 1,
-                KeyCode::Up    => self.fruit.1 -= 1,
-                KeyCode::Down  => self.fruit.1 += 1,
+                KeyCode::Left  => self.map.fruit.0 -= 1,
+                KeyCode::Right => self.map.fruit.0 += 1,
+                KeyCode::Up    => self.map.fruit.1 -= 1,
+                KeyCode::Down  => self.map.fruit.1 += 1,
                 _ => (),
             }
         }
@@ -259,12 +246,12 @@ impl Play {
 
     fn advance_game_over(&mut self, key: Option<KeyCode>) {
         if Some(KeyCode::Enter) == key {
-            self.snake = Snake {
+            self.map.snake = Snake {
                 head: (0, 0),
                 dir: (1, 0),
                 body: LinkedList::new(),
             };
-            self.fruit = (3, 8);
+            self.map.fruit = (3, 8);
             self.score = 0;
             self.game_over = false;
         }
@@ -276,18 +263,40 @@ struct Map {
     // Stored as a collection of columns.
     // Must always be square.
     locs: Vec<Vec<Loc>>,
+
+    // Coordinates of fruit (soon to be character).
+    // Will have vec of enemies etc too.
+    // Those all need to have "pointers" into map
+    // And act like a cache?
+    fruit: Point,
+
+    snake: Snake,
 }
 
 impl Map {
+    /*
     fn new(sz: u16) -> Map {
+        panic!("New default Map unimplemented.");
+    }*/
+
+    fn new_example_level(sz: u16) -> Map {
+        // Some of this may move back up to Play, or from there to here.
         Map {
             locs: vec!(vec!(Loc::new(); sz.into()); sz.into()),
+            fruit: (0, 0),
+            snake: Snake {
+                head: (0, 0),
+                dir: (1, 0),
+                body: LinkedList::new(),
+            }
         }
     }
+
     fn w(&self) -> u16 {
         // TODO: Could return usize, most callers need to cast anyway.
         self.locs.len() as u16
     }
+
     fn h(&self) -> u16 {
         self.locs[0].len() as u16
     }
