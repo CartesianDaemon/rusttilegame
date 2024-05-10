@@ -4,29 +4,6 @@ use std::collections::LinkedList;
 
 type Point = (i16, i16);
 
-struct Snake {
-    head: Point,
-    body: LinkedList<Point>,
-    dir: Point,
-}
-
-// Overall game state. Might be broken up.
-struct Game {
-    // GAMEPLAY STATE
-
-    // Number of squares on each side of map.
-    // Should be split into w and h. Should be properties of map not game.
-    squares: u16,
-    // Coordinates of fruit (soon to be character).
-    fruit: Point,
-
-    // RENDERING STATE
-
-    // Size of grid squares. Set proportional to window size at start of current frame.
-    // Should be moved into drawing code, not global.
-    sq_size: f32,
-}
-
 // "Entity": Anything tile-sized and drawable including floor, wall, object, being.
 #[derive(Clone)]
 #[allow(dead_code)]
@@ -98,6 +75,64 @@ impl Map {
     // Consider "for x,y in map.coords()" to iterate over x and y at the same time.
 }
 
+struct Snake {
+    head: Point,
+    body: LinkedList<Point>,
+    dir: Point,
+}
+
+// Gameplay state: current level, map, etc.
+#[allow(dead_code)]
+struct Play {
+    // Number of squares on each side of map.
+    // Should be removed in favour of map size
+    squares: u16,
+    // map
+    map: Map,
+    // Coordinates of fruit (soon to be character).
+    fruit: Point,
+}
+
+impl Play {
+    fn new() -> Play {
+        Play {
+            squares: 0,
+            map: Map::new(16),
+            fruit: (0, 0),
+        }
+    }
+}
+
+// Render state: screen size, etc.
+#[allow(dead_code)]
+struct Render {
+    // Size of grid squares. Set proportional to window size at start of current frame.
+    // Should not be kept around outside a frame?
+    sq_size: f32,
+}
+
+impl Render {
+    fn new() -> Render {
+        Render {
+            sq_size: 0.,
+        }
+    }
+}
+
+// Overall game state.
+#[allow(dead_code)]
+struct Game {
+    p: Play,
+    r: Render,
+
+    // TO BE REMOVED:
+    squares: u16,
+    fruit: Point,
+
+    // TO BE REMOVED:
+    sq_size: f32,
+}
+
 // Functions requiring only gameplay state
 impl Game {
     // update state? needing some form of keypress input etc
@@ -139,7 +174,7 @@ async fn main() {
         dir: (1, 0),
         body: LinkedList::new(),
     };
-    let mut g = Game { squares: 16, sq_size: 32.0, fruit: (0,0) };
+    let mut g = Game { squares: 16, sq_size: 32.0, fruit: (0,0), p: Play::new(), r: Render::new() };
 
     let mut score = 0;
     let mut speed = 0.3;
@@ -148,7 +183,7 @@ async fn main() {
 
     let mut last_key_pressed : Option<KeyCode> = None;
 
-    let mut map = Map::new(g.squares);
+    let mut map = Map::new(16);
 
     // Initialise Floor
     {
