@@ -5,7 +5,6 @@ use std::collections::LinkedList;
 type Point = (i16, i16);
 
 // Overall game state.
-#[allow(dead_code)]
 struct Game {
     p: Play,
     r: Render,
@@ -106,7 +105,6 @@ impl Game {
 }
 
 // Gameplay state: current level, map, etc.
-#[allow(dead_code)]
 struct Play {
     score: i32,
     game_over: bool,
@@ -214,7 +212,6 @@ impl Play {
 }
 
 // "Map": Grid of locations. Most of the current state of game.
-#[allow(dead_code)]
 struct Map {
     // Stored as a collection of columns.
     // Must always be square.
@@ -310,7 +307,6 @@ impl Input {
 }
 
 // Render state: screen size, etc.
-#[allow(dead_code)]
 struct Render {
 }
 
