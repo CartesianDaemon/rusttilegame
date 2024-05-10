@@ -86,6 +86,21 @@ impl Game {
 
         draw_text(format!("SCORE: {}", g.p.score).as_str(), 10., 20., 20., DARKGRAY);
     }
+
+    fn draw_game_over(&self) {
+        clear_background(WHITE);
+        let text = "Game Over. Press [enter] to play again.";
+        let font_size = 30.;
+        let text_size = measure_text(text, None, font_size as _, 1.0);
+
+        draw_text(
+            text,
+            screen_width() / 2. - text_size.width / 2.,
+            screen_height() / 2. + text_size.height / 2.,
+            font_size,
+            DARKGRAY,
+        );
+    }
 }
 
 // Gameplay state: current level, map, etc.
@@ -355,18 +370,7 @@ async fn main() {
         }
 
         if g.p.game_over {
-            clear_background(WHITE);
-            let text = "Game Over. Press [enter] to play again.";
-            let font_size = 30.;
-            let text_size = measure_text(text, None, font_size as _, 1.0);
-
-            draw_text(
-                text,
-                screen_width() / 2. - text_size.width / 2.,
-                screen_height() / 2. + text_size.height / 2.,
-                font_size,
-                DARKGRAY,
-            );
+            g.draw_game_over();
         }
 
         next_frame().await;
