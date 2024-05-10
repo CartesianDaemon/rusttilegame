@@ -321,6 +321,10 @@ impl Input {
             false
         }
     }
+
+    fn consume_keypresses(&mut self) -> Option<KeyCode> {
+        self.last_key_pressed.take()
+    }
 }
 
 // Render state: screen size, etc.
@@ -380,10 +384,7 @@ async fn main() {
 
         // Update game state each tick
         if !g.p.game_over && g.i.ready_for_tick() {
-
-            g.p.advance(g.i.last_key_pressed);
-
-            g.i.last_key_pressed = None;
+            g.p.advance(g.i.consume_keypresses());
         }
 
         if g.p.game_over {
