@@ -12,7 +12,78 @@ struct Game {
 }
 
 impl Game {
-    // draw frame?
+    fn draw_frame(&mut self) {
+        let mut g = self;
+
+        clear_background(LIGHTGRAY);
+
+        // TODO: Make sure sizing works with non-square maps.
+        // It SHOULD work with windows portrait not landscape but not tested.
+        let game_size = screen_width().min(screen_height());
+        let offset_x = (screen_width() - game_size) / 2. + 10.;
+        let offset_y = (screen_height() - game_size) / 2. + 10.;
+        g.r.sq_size = (screen_height() - offset_y * 2.) / g.p.map.w() as f32;
+
+        for x in 0..g.p.map.w() {
+            for y in 0..g.p.map.h() {
+                for ent in &g.p.map.locs[x as usize][y as usize].ents {
+                    if let Some(col) = ent.fill {
+                        draw_rectangle(
+                            offset_x + g.r.sq_size * x as f32,
+                            offset_y + g.r.sq_size * y as f32,
+                            g.r.sq_size as f32,
+                            g.r.sq_size as f32,
+                            col,
+                        );
+                    }
+                    if let Some(col) = ent.border {
+                        draw_rectangle_lines(
+                            offset_x + g.r.sq_size * x as f32,
+                            offset_y + g.r.sq_size * y as f32,
+                            g.r.sq_size as f32,
+                            g.r.sq_size as f32,
+                            2.,
+                            col,
+                        );
+                    }
+                }
+            }
+        }
+
+        draw_rectangle(
+            offset_x + g.p.snake.head.0 as f32 * g.r.sq_size,
+            offset_y + g.p.snake.head.1 as f32 * g.r.sq_size,
+            g.r.sq_size,
+            g.r.sq_size,
+            DARKGREEN,
+        );
+
+        for (x, y) in &g.p.snake.body {
+            draw_rectangle(
+                offset_x + *x as f32 * g.r.sq_size,
+                offset_y + *y as f32 * g.r.sq_size,
+                g.r.sq_size,
+                g.r.sq_size,
+                LIME,
+            );
+        }
+
+        draw_rectangle(
+            offset_x + g.p.fruit.0 as f32 * g.r.sq_size,
+            offset_y + g.p.fruit.1 as f32 * g.r.sq_size,
+            g.r.sq_size,
+            g.r.sq_size,
+            GOLD,
+        );
+
+        g.r.draw_sq(
+            &tex_crab,
+            offset_x + g.p.fruit.0 as f32 * g.r.sq_size,
+            offset_y + g.p.fruit.1 as f32 * g.r.sq_size,
+        );
+
+        draw_text(format!("SCORE: {}", g.p.score).as_str(), 10., 20., 20., DARKGRAY);
+    }
 }
 
 // Gameplay state: current level, map, etc.
@@ -263,76 +334,6 @@ async fn main() {
             last_key_pressed = None;
         }
         if !g.p.game_over {
-            // TODO: MOVE ALL THIS BRANCH INTO GAME, CALLING RENDER.
-
-            clear_background(LIGHTGRAY);
-
-            // TODO: Make sure sizing works with non-square maps.
-            // It SHOULD work with windows portrait not landscape but not tested.
-            let game_size = screen_width().min(screen_height());
-            let offset_x = (screen_width() - game_size) / 2. + 10.;
-            let offset_y = (screen_height() - game_size) / 2. + 10.;
-            g.r.sq_size = (screen_height() - offset_y * 2.) / g.p.map.w() as f32;
-
-            for x in 0..g.p.map.w() {
-                for y in 0..g.p.map.h() {
-                    for ent in &g.p.map.locs[x as usize][y as usize].ents {
-                        if let Some(col) = ent.fill {
-                            draw_rectangle(
-                                offset_x + g.r.sq_size * x as f32,
-                                offset_y + g.r.sq_size * y as f32,
-                                g.r.sq_size as f32,
-                                g.r.sq_size as f32,
-                                col,
-                            );
-                        }
-                        if let Some(col) = ent.border {
-                            draw_rectangle_lines(
-                                offset_x + g.r.sq_size * x as f32,
-                                offset_y + g.r.sq_size * y as f32,
-                                g.r.sq_size as f32,
-                                g.r.sq_size as f32,
-                                2.,
-                                col,
-                            );
-                        }
-                    }
-                }
-            }
-
-            draw_rectangle(
-                offset_x + g.p.snake.head.0 as f32 * g.r.sq_size,
-                offset_y + g.p.snake.head.1 as f32 * g.r.sq_size,
-                g.r.sq_size,
-                g.r.sq_size,
-                DARKGREEN,
-            );
-
-            for (x, y) in &g.p.snake.body {
-                draw_rectangle(
-                    offset_x + *x as f32 * g.r.sq_size,
-                    offset_y + *y as f32 * g.r.sq_size,
-                    g.r.sq_size,
-                    g.r.sq_size,
-                    LIME,
-                );
-            }
-
-            draw_rectangle(
-                offset_x + g.p.fruit.0 as f32 * g.r.sq_size,
-                offset_y + g.p.fruit.1 as f32 * g.r.sq_size,
-                g.r.sq_size,
-                g.r.sq_size,
-                GOLD,
-            );
-
-            g.r.draw_sq(
-                &tex_crab,
-                offset_x + g.p.fruit.0 as f32 * g.r.sq_size,
-                offset_y + g.p.fruit.1 as f32 * g.r.sq_size,
-            );
-
-            draw_text(format!("SCORE: {}", g.p.score).as_str(), 10., 20., 20., DARKGRAY);
         } else {
             clear_background(WHITE);
             let text = "Game Over. Press [enter] to play again.";
