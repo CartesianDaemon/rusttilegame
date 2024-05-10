@@ -15,87 +15,6 @@ impl Game {
     // draw frame?
 }
 
-// "Entity": Anything tile-sized and drawable including floor, wall, object, being.
-#[derive(Clone)]
-#[allow(dead_code)]
-struct Ent {
-    x: i16,
-    y: i16,
-    h: i16,
-    border: Option<Color>,
-    fill: Option<Color>,
-    tex: Option<Texture2D>,
-}
-
-impl Ent {
-    // TODO: Want to combine into a "make_at" function which initialises locations ok.
-    // TODO: Should be global or part of map, or part of Ent?
-    fn new_floor(x: u16, y: u16) -> Ent {
-        Ent {
-            x: x as i16,
-            y: y as i16,
-            h: 0,
-            border: Some(LIGHTGRAY),
-            fill: Some(WHITE),
-            tex: None,
-        }
-    }
-}
-
-// "Location": Everything at a single coordinate in the current room.
-// #[derive(Clone)]
-struct Loc {
-    ents: Vec<Ent>,
-}
-
-impl Loc {
-    fn new() -> Loc {
-        Loc { ents: vec![] }
-    }
-}
-
-impl Clone for Loc {
-    fn clone(&self) -> Loc {
-        assert!(self.ents.is_empty());
-        Loc::new()
-    }
-
-    // Consider implementing index [idx] for Loc returning loc.ents[idx]
-}
-
-// "Map": Grid of locations. Most of the current state of game.
-// Might have more than one in future.
-#[allow(dead_code)]
-struct Map {
-    // Stored as a collection of columns.
-    // Must always be square.
-    locs: Vec<Vec<Loc>>,
-}
-
-impl Map {
-    fn new(sz: u16) -> Map {
-        Map {
-            locs: vec!(vec!(Loc::new(); sz.into()); sz.into()),
-        }
-    }
-    fn w(&self) -> u16 {
-        // TODO: Could return usize, most callers need to cast anyway.
-        self.locs.len() as u16
-    }
-    fn h(&self) -> u16 {
-        self.locs[0].len() as u16
-    }
-
-    // Consider implementing index [idx] for map returning map.locs[idx]
-    // Consider "for x,y in map.coords()" to iterate over x and y at the same time.
-}
-
-struct Snake {
-    head: Point,
-    body: LinkedList<Point>,
-    dir: Point,
-}
-
 // Gameplay state: current level, map, etc.
 #[allow(dead_code)]
 struct Play {
@@ -198,6 +117,86 @@ impl Play {
             }
         }
     }
+}
+
+// "Map": Grid of locations. Most of the current state of game.
+#[allow(dead_code)]
+struct Map {
+    // Stored as a collection of columns.
+    // Must always be square.
+    locs: Vec<Vec<Loc>>,
+}
+
+impl Map {
+    fn new(sz: u16) -> Map {
+        Map {
+            locs: vec!(vec!(Loc::new(); sz.into()); sz.into()),
+        }
+    }
+    fn w(&self) -> u16 {
+        // TODO: Could return usize, most callers need to cast anyway.
+        self.locs.len() as u16
+    }
+    fn h(&self) -> u16 {
+        self.locs[0].len() as u16
+    }
+
+    // Consider implementing index [idx] for map returning map.locs[idx]
+    // Consider "for x,y in map.coords()" to iterate over x and y at the same time.
+}
+
+// "Location": Everything at a single coordinate in the current room.
+// #[derive(Clone)]
+struct Loc {
+    ents: Vec<Ent>,
+}
+
+impl Loc {
+    fn new() -> Loc {
+        Loc { ents: vec![] }
+    }
+}
+
+impl Clone for Loc {
+    fn clone(&self) -> Loc {
+        assert!(self.ents.is_empty());
+        Loc::new()
+    }
+
+    // Consider implementing index [idx] for Loc returning loc.ents[idx]
+}
+
+// "Entity": Anything tile-sized and drawable including floor, wall, object, being.
+#[derive(Clone)]
+#[allow(dead_code)]
+struct Ent {
+    x: i16,
+    y: i16,
+    h: i16,
+    border: Option<Color>,
+    fill: Option<Color>,
+    tex: Option<Texture2D>,
+}
+
+impl Ent {
+    // TODO: Want to combine into a "make_at" function which initialises locations ok.
+    // TODO: Should be global or part of map, or part of Ent?
+    fn new_floor(x: u16, y: u16) -> Ent {
+        Ent {
+            x: x as i16,
+            y: y as i16,
+            h: 0,
+            border: Some(LIGHTGRAY),
+            fill: Some(WHITE),
+            tex: None,
+        }
+    }
+}
+
+struct Snake {
+    head: Point,
+    body: LinkedList<Point>,
+    dir: Point,
 }
 
 // Render state: screen size, etc.
