@@ -10,33 +10,16 @@ struct Snake {
     dir: Point,
 }
 
-// Subunit of game state. Need to combine with rest of game state.
-struct Angel {
+// Overall game state. Might be broken up.
+struct Game {
     // Number of squares on each side of map.
+    // Should be split into w and h. Should be properties of map not game.
     squares: u16,
     // Size of grid squares. Set proportional to window size at start of current frame.
+    // Should be moved into drawing code, not global.
     sq_size: f32,
     // Coordinates of fruit (soon to be character).
     fruit: Point,
-}
-
-// Draw a tile's texture given the object's window coordinates.
-fn draw_sq(
-    a: &Angel,
-    tex: &Texture2D,
-    x: f32,
-    y: f32,
-) {
-    draw_texture_ex(
-        &tex,
-        x,
-        y,
-        WHITE,
-        DrawTextureParams {
-            dest_size: Some(vec2(a.sq_size, a.sq_size)),
-            ..Default::default()
-        },
-    );
 }
 
 // "Entity": Anything tile-sized and drawable including floor, wall, object, being.
@@ -110,6 +93,25 @@ impl Map {
     // Consider "for x,y in map.coords()" to iterate over x and y at the same time.
 }
 
+// Draw a tile's texture given the object's window coordinates.
+fn draw_sq(
+    g: &Game,
+    tex: &Texture2D,
+    x: f32,
+    y: f32,
+) {
+    draw_texture_ex(
+        &tex,
+        x,
+        y,
+        WHITE,
+        DrawTextureParams {
+            dest_size: Some(vec2(g.sq_size, g.sq_size)),
+            ..Default::default()
+        },
+    );
+}
+
 #[macroquad::main("Snake")]
 async fn main() {
     let tex_crab: Texture2D = load_texture("imgs/ferris.png").await.unwrap();
@@ -119,7 +121,7 @@ async fn main() {
         dir: (1, 0),
         body: LinkedList::new(),
     };
-    let mut a = Angel { squares: 16, sq_size: 32.0, fruit: (0,0) };
+    let mut g = Game { squares: 16, sq_size: 32.0, fruit: (0,0) };
 
     let mut score = 0;
     let mut speed = 0.3;
@@ -128,7 +130,7 @@ async fn main() {
 
     let mut last_key_pressed : Option<KeyCode> = None;
 
-    let mut map = Map::new(a.squares);
+    let mut map = Map::new(g.squares);
 
     // Initialise Floor
     {
@@ -141,7 +143,7 @@ async fn main() {
 
     // Initialise fruit
     {
-        a.fruit = (3, 8);
+        g.fruit = (3, 8);
         // PUSH ONTO MAP
     }
 
@@ -163,15 +165,15 @@ async fn main() {
             snake.body.push_front(snake.head);
 
             // if snake on same row xor column as fruit, change dir to face fruit
-            if (snake.head.0 == a.fruit.0) != (snake.head.1 == a.fruit.1) {
-                snake.dir = ((a.fruit.0 - snake.head.0).signum(),(a.fruit.1 - snake.head.1).signum())
+            if (snake.head.0 == g.fruit.0) != (snake.head.1 == g.fruit.1) {
+                snake.dir = ((g.fruit.0 - snake.head.0).signum(),(g.fruit.1 - snake.head.1).signum())
             }
 
             // move head to new location
             snake.head = (snake.head.0 + snake.dir.0, snake.head.1 + snake.dir.1);
-            if snake.head == a.fruit {
+            if snake.head == g.fruit {
                 // If new head is on fruit, eat it. Body is already the right length.
-                a.fruit = (3, 8); // TODO: Removed the random here as not wanted long term.
+                g.fruit = (3, 8); // TODO: Removed the random here as not wanted long term.
                 score += 100;
                 speed *= 0.9;
             } else {
@@ -181,8 +183,8 @@ async fn main() {
             // die if head out of bounds
             if snake.head.0 < 0
                 || snake.head.1 < 0
-                || snake.head.0 as i32 >= a.squares as i32 // TODO: Better comparisons
-                || snake.head.1 as i32>= a.squares as i32
+                || snake.head.0 as i32 >= g.squares as i32 // TODO: Better comparisons
+                || snake.head.1 as i32>= g.squares as i32
             {
                 game_over = true;
             }
@@ -196,10 +198,10 @@ async fn main() {
             // Move character
             if let Some(key) = last_key_pressed {
                 match key {
-                    KeyCode::Left  => a.fruit.0 -= 1,
-                    KeyCode::Right => a.fruit.0 += 1,
-                    KeyCode::Up    => a.fruit.1 -= 1,
-                    KeyCode::Down  => a.fruit.1 += 1,
+                    KeyCode::Left  => g.fruit.0 -= 1,
+                    KeyCode::Right => g.fruit.0 += 1,
+                    KeyCode::Up    => g.fruit.1 -= 1,
+                    KeyCode::Down  => g.fruit.1 += 1,
                     _ => (),
                 }
             }
@@ -211,26 +213,26 @@ async fn main() {
             let game_size = screen_width().min(screen_height());
             let offset_x = (screen_width() - game_size) / 2. + 10.;
             let offset_y = (screen_height() - game_size) / 2. + 10.;
-            a.sq_size = (screen_height() - offset_y * 2.) / a.squares as f32;
+            g.sq_size = (screen_height() - offset_y * 2.) / g.squares as f32;
 
             for x in 0..map.w {
                 for y in 0..map.h {
                     for ent in &map.locs[x as usize][y as usize].ents {
                         if let Some(col) = ent.fill {
                             draw_rectangle(
-                                offset_x + a.sq_size * x as f32,
-                                offset_y + a.sq_size * y as f32,
-                                a.sq_size as f32,
-                                a.sq_size as f32,
+                                offset_x + g.sq_size * x as f32,
+                                offset_y + g.sq_size * y as f32,
+                                g.sq_size as f32,
+                                g.sq_size as f32,
                                 col,
                             );
                         }
                         if let Some(col) = ent.border {
                             draw_rectangle_lines(
-                                offset_x + a.sq_size * x as f32,
-                                offset_y + a.sq_size * y as f32,
-                                a.sq_size as f32,
-                                a.sq_size as f32,
+                                offset_x + g.sq_size * x as f32,
+                                offset_y + g.sq_size * y as f32,
+                                g.sq_size as f32,
+                                g.sq_size as f32,
                                 2.,
                                 col,
                             );
@@ -240,36 +242,36 @@ async fn main() {
             }
 
             draw_rectangle(
-                offset_x + snake.head.0 as f32 * a.sq_size,
-                offset_y + snake.head.1 as f32 * a.sq_size,
-                a.sq_size,
-                a.sq_size,
+                offset_x + snake.head.0 as f32 * g.sq_size,
+                offset_y + snake.head.1 as f32 * g.sq_size,
+                g.sq_size,
+                g.sq_size,
                 DARKGREEN,
             );
 
             for (x, y) in &snake.body {
                 draw_rectangle(
-                    offset_x + *x as f32 * a.sq_size,
-                    offset_y + *y as f32 * a.sq_size,
-                    a.sq_size,
-                    a.sq_size,
+                    offset_x + *x as f32 * g.sq_size,
+                    offset_y + *y as f32 * g.sq_size,
+                    g.sq_size,
+                    g.sq_size,
                     LIME,
                 );
             }
 
             draw_rectangle(
-                offset_x + a.fruit.0 as f32 * a.sq_size,
-                offset_y + a.fruit.1 as f32 * a.sq_size,
-                a.sq_size,
-                a.sq_size,
+                offset_x + g.fruit.0 as f32 * g.sq_size,
+                offset_y + g.fruit.1 as f32 * g.sq_size,
+                g.sq_size,
+                g.sq_size,
                 GOLD,
             );
 
             draw_sq(
-                &a,
+                &g,
                 &tex_crab,
-                offset_x + a.fruit.0 as f32 * a.sq_size,
-                offset_y + a.fruit.1 as f32 * a.sq_size,
+                offset_x + g.fruit.0 as f32 * g.sq_size,
+                offset_y + g.fruit.1 as f32 * g.sq_size,
             );
 
             draw_text(format!("SCORE: {score}").as_str(), 10., 20., 20., DARKGRAY);
@@ -293,7 +295,7 @@ async fn main() {
                     dir: (1, 0),
                     body: LinkedList::new(),
                 };
-                a.fruit = (3, 8);
+                g.fruit = (3, 8);
                 score = 0;
                 speed = 0.3;
                 last_update = get_time();
