@@ -9,6 +9,7 @@ type Point = (i16, i16);
 struct Game {
     p: Play,
     r: Render,
+    i: Input,
 }
 
 impl Game {
@@ -153,6 +154,7 @@ impl Play {
 
         play
     }
+
     fn advance(&mut self, last_key_pressed: Option<KeyCode>) {
         // Move snake
 
@@ -283,6 +285,22 @@ struct Snake {
     dir: Point,
 }
 
+struct Input {
+    speed: f64,
+    last_update: f64,
+    last_key_pressed: Option<KeyCode>,
+}
+
+impl Input {
+    fn new_default() -> Input {
+        Input {
+            speed: 0.3,
+            last_update: get_time(),
+            last_key_pressed: None,
+        }
+    }
+}
+
 // Render state: screen size, etc.
 #[allow(dead_code)]
 struct Render {
@@ -334,28 +352,23 @@ impl Render {
 
 #[macroquad::main("Snake")]
 async fn main() {
-    let mut g = Game { p: Play::new_default_level().await, r: Render::new_default() };
-
-    let mut speed = 0.3; // NOTE: Doesn't speed up now. TODO: Move to render?
-    let mut last_update = get_time();
-
-    let mut last_key_pressed : Option<KeyCode> = None;
+    let mut g = Game { p: Play::new_default_level().await, r: Render::new_default(), i: Input::new_default()};
 
     loop {
         // Read input each frame
         // TODO: Maybe glob all keys in queue.
         if let Some(key) = get_last_key_pressed() {
-            last_key_pressed = Some(key);
+            g.i.last_key_pressed = Some(key);
         }
 
         // Update game state each tick
-        if !g.p.game_over && get_time() - last_update > speed {
+        if !g.p.game_over && get_time() - g.i.last_update > g.i.speed {
             // Remember when we advanced game state, to know when next time is due.
-            last_update = get_time();
+            g.i.last_update = get_time();
 
-            g.p.advance(last_key_pressed);
+            g.p.advance(g.i.last_key_pressed);
 
-            last_key_pressed = None;
+            g.i.last_key_pressed = None;
         }
 
         if g.p.game_over {
@@ -367,8 +380,8 @@ async fn main() {
                 };
                 g.p.fruit = (3, 8);
                 g.p.score = 0;
-                speed = 0.3;
-                last_update = get_time();
+                g.i.speed = 0.3;
+                g.i.last_update = get_time();
                 g.p.game_over = false;
             }
         }
