@@ -98,23 +98,36 @@ impl Map {
     // Consider "for x,y in map.coords()" to iterate over x and y at the same time.
 }
 
-// Draw a tile's texture given the object's window coordinates.
-fn draw_sq(
-    g: &Game,
-    tex: &Texture2D,
-    x: f32,
-    y: f32,
-) {
-    draw_texture_ex(
-        &tex,
-        x,
-        y,
-        WHITE,
-        DrawTextureParams {
-            dest_size: Some(vec2(g.sq_size, g.sq_size)),
-            ..Default::default()
-        },
-    );
+// Functions requiring only gameplay state
+impl Game {
+    // update state? needing some form of keypress input etc
+}
+
+// Functions requiring only render state
+impl Game {
+    // Draw a tile's texture given the object's window coordinates.
+    fn draw_sq(
+        self: &Game,
+        tex: &Texture2D,
+        x: f32,
+        y: f32,
+    ) {
+        draw_texture_ex(
+            &tex,
+            x,
+            y,
+            WHITE,
+            DrawTextureParams {
+                dest_size: Some(vec2(self.sq_size, self.sq_size)),
+                ..Default::default()
+            },
+        );
+    }
+}
+
+// Functions requiring all of game state
+impl Game {
+    // draw frame?
 }
 
 #[macroquad::main("Snake")]
@@ -272,8 +285,7 @@ async fn main() {
                 GOLD,
             );
 
-            draw_sq(
-                &g,
+            g.draw_sq(
                 &tex_crab,
                 offset_x + g.fruit.0 as f32 * g.sq_size,
                 offset_y + g.fruit.1 as f32 * g.sq_size,
