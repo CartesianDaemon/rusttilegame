@@ -13,6 +13,14 @@ struct Game {
 }
 
 impl Game {
+    async fn new_default() -> Game {
+        Game {
+            p: Play::new_default_level().await,
+            r: Render::new_default(),
+            i: Input::new_default(),
+        }
+    }
+
     fn draw_frame(&self) {
         if !self.p.game_over {
             self.draw_level();
@@ -352,7 +360,7 @@ impl Render {
 
 #[macroquad::main("Snake")]
 async fn main() {
-    let mut g = Game { p: Play::new_default_level().await, r: Render::new_default(), i: Input::new_default()};
+    let mut g = Game::new_default().await;
 
     loop {
         // Read input each frame
