@@ -104,6 +104,7 @@ impl Game {
                             col,
                         );
                     }
+                    // INSERT: draw texture
                 }
             }
         }
@@ -170,9 +171,9 @@ impl Play {
         // Initialise fruit
         {
             play.map.fruit = (3, 8);
-            // PUSH ONTO MAP
+            play.map.locs[3][8].ents.push(Ent::new_tex(3, 8, load_texture("imgs/ferris.png").await.unwrap()));
 
-            // Crab texture
+            // Placeholder place for crab texture
             play.map.locs[0][0].ents[0].tex = Some(load_texture("imgs/ferris.png").await.unwrap()); // Some() necessary?
         }
 
