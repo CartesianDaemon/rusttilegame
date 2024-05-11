@@ -104,7 +104,15 @@ impl Game {
                             col,
                         );
                     }
-                    // INSERT: draw texture
+                    if let Some(tex) = &ent.tex {
+                        g.r.draw_sq(
+                            &tex,
+                            offset_x + sq_size * x as f32,
+                            offset_y + sq_size * y as f32,
+                            sq_size as f32,
+                            sq_size as f32,
+                        );
+                    }
                 }
             }
         }
@@ -123,14 +131,6 @@ impl Game {
             sq_size,
             sq_size,
             GOLD,
-        );
-
-        g.r.draw_sq(
-            &g.p.map.locs[0][0].ents[0].tex.as_ref().unwrap(), // Should only be temporary. If not can we use ?.
-            offset_x + g.p.map.fruit.0 as f32 * sq_size,
-            offset_y + g.p.map.fruit.1 as f32 * sq_size,
-            sq_size as f32,
-            sq_size as f32,
         );
 
         draw_text(format!("SCORE: {}", 42).as_str(), 10., 20., 20., DARKGRAY);
@@ -172,9 +172,6 @@ impl Play {
         {
             play.map.fruit = (3, 8);
             play.map.locs[3][8].ents.push(Ent::new_tex(3, 8, load_texture("imgs/ferris.png").await.unwrap()));
-
-            // Placeholder place for crab texture
-            play.map.locs[0][0].ents[0].tex = Some(load_texture("imgs/ferris.png").await.unwrap()); // Some() necessary?
         }
 
         play
