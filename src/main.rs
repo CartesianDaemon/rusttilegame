@@ -3,7 +3,8 @@ use macroquad::prelude::*;
 #[allow(unused_imports)]
 use std::collections::LinkedList;
 
-type Point = (i16, i16);
+// Tile coords (but without specifying height)
+type Pos = (i16, i16);
 
 // Overall game state.
 struct Game {
@@ -243,7 +244,7 @@ struct Map {
     // Will have vec of enemies etc too.
     // Those all need to have "pointers" into map
     // And act like a cache?
-    fruit: Point,
+    fruit: Pos,
 
     snake: Snake,
 }
@@ -274,6 +275,8 @@ impl Map {
     fn h(&self) -> u16 {
         self.locs[0].len() as u16
     }
+
+    // INSERT: move_to(&self, Pos, To) fn
 
     // Consider implementing index [idx] for map returning map.locs[idx]
     // Consider "for x,y in map.coords()" to iterate over x and y at the same time.
@@ -313,6 +316,26 @@ struct Ent {
 }
 
 impl Ent {
+    fn invalid() -> Ent {
+        Ent {
+            x: -1,
+            y: -1,
+            h: -1,
+            border: None,
+            fill: None,
+            tex: None,
+        }
+    }
+
+    fn new_tex(x: i16, y:i16, tex: Texture2D) -> Ent {
+        Ent {
+            x: x,
+            y: y,
+            h: 1, // TODO
+            tex: Some(tex),
+            ..Ent::invalid()
+        }
+    }
     // TODO: Want to combine into a "make_at" function which initialises locations ok.
     // TODO: Should be global or part of map, or part of Ent?
     fn new_floor(x: u16, y: u16) -> Ent {
@@ -328,8 +351,8 @@ impl Ent {
 }
 
 struct Snake {
-    head: Point,
-    dir: Point,
+    head: Pos,
+    dir: Pos,
 }
 
 struct Input {
