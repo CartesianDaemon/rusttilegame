@@ -125,12 +125,13 @@ impl Game {
             DARKGREEN,
         );
 
+        // TODO: Remove this once move code exists.
         draw_rectangle(
             offset_x + g.p.map.fruit.0 as f32 * sq_size,
             offset_y + g.p.map.fruit.1 as f32 * sq_size,
             sq_size,
             sq_size,
-            GOLD,
+            YELLOW,
         );
 
         draw_text(format!("SCORE: {}", 42).as_str(), 10., 20., 20., DARKGRAY);
@@ -171,7 +172,7 @@ impl Play {
         // Initialise fruit
         {
             play.map.fruit = (3, 8);
-            play.map.locs[3][8].ents.push(Ent::new_tex(3, 8, load_texture("imgs/ferris.png").await.unwrap()));
+            play.map.locs[3][8].ents.push(Ent::new_tex_col(3, 8, load_texture("imgs/ferris.png").await.unwrap(), GOLD));
         }
 
         play
@@ -325,6 +326,7 @@ impl Ent {
         }
     }
 
+    #[allow(dead_code)]
     fn new_tex(x: i16, y:i16, tex: Texture2D) -> Ent {
         Ent {
             x: x,
@@ -334,6 +336,18 @@ impl Ent {
             ..Ent::invalid()
         }
     }
+
+    fn new_tex_col(x: i16, y:i16, tex: Texture2D, fill: Color) -> Ent {
+        Ent {
+            x: x,
+            y: y,
+            h: 1, // TODO
+            tex: Some(tex),
+            fill: Some(fill),
+            ..Ent::invalid()
+        }
+    }
+
     // TODO: Want to combine into a "make_at" function which initialises locations ok.
     // TODO: Should be global or part of map, or part of Ent?
     fn new_floor(x: u16, y: u16) -> Ent {
