@@ -216,10 +216,10 @@ impl Play {
 
         if let Some(key) = last_key_pressed {
             match key {
-                KeyCode::Left  => self.map.fruit.0 -= 1,
-                KeyCode::Right => self.map.fruit.0 += 1,
-                KeyCode::Up    => self.map.fruit.1 -= 1,
-                KeyCode::Down  => self.map.fruit.1 += 1,
+                KeyCode::Left  => self.map.move_delta(&mut self.map.fruit, -1, 0),
+                KeyCode::Right => self.map.move_delta(&mut self.map.fruit, 1, 0),
+                KeyCode::Up    => self.map.move_delta(&mut self.map.fruit, 0, -1),
+                KeyCode::Down  => self.map.move_delta(&mut self.map.fruit, 0, 1),
                 _ => (),
             }
         }
@@ -282,13 +282,17 @@ impl Map {
     // INSERT: create_at ... 
 
     // TODO: Decide how to refer to specific Ents, as Pos. Or ref?
-    fn _move_ent(&mut self, pos: &mut Pos, to: Point) {
+    fn move_ent(&mut self, pos: &mut Pos, to: Point) {
         let tmp = self.locs[pos.0 as usize][pos.1 as usize].ents.remove(pos.2 as usize);
         self.locs[to.0 as usize][to.1 as usize].ents.push(tmp);
         *pos = (to.0, to.1, (self.locs[to.0 as usize][to.1 as usize].ents.len()-1) as u16);
         self.locs[pos.0 as usize][pos.1 as usize].ents.last_mut().unwrap().x = pos.0;
         self.locs[pos.0 as usize][pos.1 as usize].ents.last_mut().unwrap().y = pos.1;
         self.locs[pos.0 as usize][pos.1 as usize].ents.last_mut().unwrap().h = pos.2;
+    }
+
+    fn move_delta(&mut self, pos: &mut Pos, dx: i16, dy: i16) {
+        self.move_ent(pos, (pos.0 + dx, pos.1 + dy));
     }
 
     // Consider implementing index [idx] for map returning map.locs[idx]
