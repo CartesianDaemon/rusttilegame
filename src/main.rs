@@ -4,7 +4,8 @@ use macroquad::prelude::*;
 use std::collections::LinkedList;
 
 // Tile coords (but without specifying height)
-type Pos = (i16, i16);
+type Pos = (i16, i16, u16);
+type Point = (i16, i16);
 
 // Overall game state.
 struct Game {
@@ -171,7 +172,7 @@ impl Play {
 
         // Initialise fruit
         {
-            play.map.fruit = (3, 8);
+            play.map.fruit = (3, 8, 1);
             play.map.locs[3][8].ents.push(Ent::new_tex_col(3, 8, load_texture("imgs/ferris.png").await.unwrap(), GOLD));
         }
 
@@ -189,14 +190,17 @@ impl Play {
 
         // if snake on same row xor column as fruit, change dir to face fruit
         if (self.map.snake.head.0 == self.map.fruit.0) != (self.map.snake.head.1 == self.map.fruit.1) {
-            self.map.snake.dir = ((self.map.fruit.0 - self.map.snake.head.0).signum(),(self.map.fruit.1 - self.map.snake.head.1).signum())
+            self.map.snake.dir = ((self.map.fruit.0 - self.map.snake.head.0).signum(),(self.map.fruit.1 - self.map.snake.head.1).signum(), 0)
         }
 
         // move head to new location
-        self.map.snake.head = (self.map.snake.head.0 + self.map.snake.dir.0, self.map.snake.head.1 + self.map.snake.dir.1);
+        self.map.snake.head = (self.map.snake.head.0 + self.map.snake.dir.0, self.map.snake.head.1 + self.map.snake.dir.1, self.map.snake.head.2);
+
+        // eat fruit?
         if self.map.snake.head == self.map.fruit {
             // If new head is on fruit, eat it. Body is already the right length.
-            self.map.fruit = (3, 8); // TODO: Removed the random here as not wanted long term.
+            // TODO: Reinstate
+            self.map.fruit = (3, 8, 1); // TODO: Removed the random here as not wanted long term.
         }
 
         // die if head out of bounds
@@ -224,10 +228,10 @@ impl Play {
     fn advance_game_over(&mut self, key: Option<KeyCode>) {
         if Some(KeyCode::Enter) == key {
             self.map.snake = Snake {
-                head: (0, 0),
-                dir: (1, 0),
+                head: (0, 0, 1),
+                dir: (1, 0, 0),
             };
-            self.map.fruit = (3, 8);
+            self.map.fruit = (3, 8, 1);
             self.game_over = false;
         }
     }
@@ -258,10 +262,10 @@ impl Map {
         // Some of this may move back up to Play, or from there to here.
         Map {
             locs: vec!(vec!(Loc::new(); sz.into()); sz.into()),
-            fruit: (0, 0),
+            fruit: (0, 0, 1),
             snake: Snake {
-                head: (0, 0),
-                dir: (1, 0),
+                head: (0, 0, 1),
+                dir: (1, 0, 0),
             }
         }
     }
@@ -275,7 +279,17 @@ impl Map {
         self.locs[0].len() as u16
     }
 
-    // INSERT: move_to(&self, Pos, To) fn
+    // INSERT: create_at ... 
+
+    // TODO: Decide how to refer to specific Ents, as Pos. Or ref?
+    fn _move_ent(&mut self, pos: &mut Pos, to: Point) {
+        let tmp = self.locs[pos.0 as usize][pos.1 as usize].ents.remove(pos.2 as usize);
+        self.locs[to.0 as usize][to.1 as usize].ents.push(tmp);
+        *pos = (to.0, to.1, (self.locs[to.0 as usize][to.1 as usize].ents.len()-1) as u16);
+        self.locs[pos.0 as usize][pos.1 as usize].ents.last_mut().unwrap().x = pos.0;
+        self.locs[pos.0 as usize][pos.1 as usize].ents.last_mut().unwrap().y = pos.1;
+        self.locs[pos.0 as usize][pos.1 as usize].ents.last_mut().unwrap().h = pos.2;
+    }
 
     // Consider implementing index [idx] for map returning map.locs[idx]
     // Consider "for x,y in map.coords()" to iterate over x and y at the same time.
@@ -308,7 +322,7 @@ impl Clone for Loc {
 struct Ent {
     x: i16,
     y: i16,
-    h: i16,
+    h: u16,
     border: Option<Color>,
     fill: Option<Color>,
     tex: Option<Texture2D>,
@@ -319,7 +333,7 @@ impl Ent {
         Ent {
             x: -1,
             y: -1,
-            h: -1,
+            h: 0,
             border: None,
             fill: None,
             tex: None,
