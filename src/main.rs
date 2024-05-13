@@ -6,6 +6,7 @@ use std::collections::LinkedList;
 // Tile coords (but without specifying height)
 type Pos = (i16, i16, u16);
 type Point = (i16, i16);
+type Delta = (i16, i16);
 
 // Overall game state.
 struct Game {
@@ -118,13 +119,15 @@ impl Game {
             }
         }
 
+        /*
         draw_rectangle(
-            offset_x + g.p.ros.snake.head.0 as f32 * sq_size,
-            offset_y + g.p.ros.snake.head.1 as f32 * sq_size,
+            offset_x + g.p.ros.snake.pos.0 as f32 * sq_size,
+            offset_y + g.p.ros.snake.pos.1 as f32 * sq_size,
             sq_size,
             sq_size,
             DARKGREEN,
         );
+        */
 
         draw_text(format!("SCORE: {}", 42).as_str(), 10., 20., 20., DARKGRAY);
     }
@@ -163,11 +166,20 @@ impl Play {
             }
         }
 
-        // Initialise fruit
+        // Initialise hero
         {
-            play.ros.fruit = (3, 8, 1);
+            play.ros.hero = (3, 8, 1);
             play.map.locs[3][8].ents.push(Ent::new_tex_col(3, 8, load_texture("imgs/ferris.png").await.unwrap(), GOLD));
         }
+
+        // Initialise snake
+        {
+            // TODO: create_at
+            play.ros.snake.pos = (0, 0, 1);
+            play.ros.snake.dir = (1, 0);
+            play.map.locs[0][0].ents.push(Ent::new_col(3, 8, DARKGREEN));
+        }
+
 
         play
     }
@@ -181,24 +193,26 @@ impl Play {
     fn advance_level(&mut self, last_key_pressed: Option<KeyCode>) {
         // Move snake
 
-        // if snake on same row xor column as fruit, change dir to face fruit
-        if (self.ros.snake.head.0 == self.ros.fruit.0) != (self.ros.snake.head.1 == self.ros.fruit.1) {
-            self.ros.snake.dir = ((self.ros.fruit.0 - self.ros.snake.head.0).signum(),(self.ros.fruit.1 - self.ros.snake.head.1).signum(), 0)
+        // if snake on same row xor column as hero, change dir to face hero
+        if (self.ros.snake.pos.0 == self.ros.hero.0) != (self.ros.snake.pos.1 == self.ros.hero.1) {
+            self.ros.snake.dir = ((self.ros.hero.0 - self.ros.snake.pos.0).signum(),(self.ros.hero.1 - self.ros.snake.pos.1).signum())
         }
 
-        // move head to new location
-        self.ros.snake.head = (self.ros.snake.head.0 + self.ros.snake.dir.0, self.ros.snake.head.1 + self.ros.snake.dir.1, self.ros.snake.head.2);
+        // move snake to new location
+        self.map.move_delta(&mut self.ros.snake.pos, self.ros.snake.dir);
 
-        // eat fruit?
-        if self.ros.snake.head == self.ros.fruit {
-            self.map.move_to(&mut self.ros.fruit, (3, 8));
+        // eat hero?
+        // TODO: Better "at same pos" logic?
+        if self.ros.snake.pos.0 == self.ros.hero.0 && self.ros.snake.pos.1 == self.ros.hero.1 {
+            self.map.move_to(&mut self.ros.hero, (3, 8));
         }
 
-        // die if head out of bounds
-        if self.ros.snake.head.0 < 0
-            || self.ros.snake.head.1 < 0
-            || self.ros.snake.head.0 as i32 >= self.map.w() as i32 // TODO: Better comparisons
-            || self.ros.snake.head.1 as i32>= self.map.h() as i32
+        // die if snake out of bounds
+        // TODO: Instead: Game over if snake eats char; Respawn snake if snake OOB.
+        if self.ros.snake.pos.0 < 0
+            || self.ros.snake.pos.1 < 0
+            || self.ros.snake.pos.0 as i32 >= self.map.w() as i32 // TODO: Better comparisons
+            || self.ros.snake.pos.1 as i32>= self.map.h() as i32
         {
             self.game_over = true;
         }
@@ -207,10 +221,10 @@ impl Play {
 
         if let Some(key) = last_key_pressed {
             match key {
-                KeyCode::Left  => self.map.move_delta(&mut self.ros.fruit, -1, 0),
-                KeyCode::Right => self.map.move_delta(&mut self.ros.fruit, 1, 0),
-                KeyCode::Up    => self.map.move_delta(&mut self.ros.fruit, 0, -1),
-                KeyCode::Down  => self.map.move_delta(&mut self.ros.fruit, 0, 1),
+                KeyCode::Left  => self.map.move_delta(&mut self.ros.hero, (-1, 0)),
+                KeyCode::Right => self.map.move_delta(&mut self.ros.hero, (1, 0)),
+                KeyCode::Up    => self.map.move_delta(&mut self.ros.hero, (0, -1)),
+                KeyCode::Down  => self.map.move_delta(&mut self.ros.hero, (0, 1)),
                 _ => (),
             }
         }
@@ -218,11 +232,9 @@ impl Play {
 
     fn advance_game_over(&mut self, key: Option<KeyCode>) {
         if Some(KeyCode::Enter) == key {
-            self.ros.snake = Snake {
-                head: (0, 0, 1),
-                dir: (1, 0, 0),
-            };
-            self.map.move_to(&mut self.ros.fruit, (8, 3));
+            self.map.move_to(&mut self.ros.hero, (8, 3));
+            self.map.move_to(&mut self.ros.snake.pos, (1,1));
+            self.ros.snake.dir = (1, 0);
             self.game_over = false;
         }
     }
@@ -230,8 +242,8 @@ impl Play {
 
 // "Map": Grid of locations. Most of the current state of game.
 struct Map {
-    // Stored as a collection of columns.
-    // Must always be square.
+    // Stored as a collection of columns, e.g. map.locs[x][y]
+    // Must always be rectangular.
     locs: Vec<Vec<Loc>>,
 }
 
@@ -260,7 +272,6 @@ impl Map {
 
     // INSERT: create_at ... 
 
-    // TODO: Decide how to refer to specific Ents, as Pos. Or ref?
     fn move_to(&mut self, pos: &mut Pos, to: Point) {
         let tmp = self.locs[pos.0 as usize][pos.1 as usize].ents.remove(pos.2 as usize);
         self.locs[to.0 as usize][to.1 as usize].ents.push(tmp);
@@ -270,8 +281,8 @@ impl Map {
         self.locs[pos.0 as usize][pos.1 as usize].ents.last_mut().unwrap().h = pos.2;
     }
 
-    fn move_delta(&mut self, pos: &mut Pos, dx: i16, dy: i16) { // Accept Point not x, y?
-        self.move_to(pos, (pos.0 + dx, pos.1 + dy));
+    fn move_delta(&mut self, pos: &mut Pos, delta: Delta) {
+        self.move_to(pos, (pos.0 + delta.0, pos.1 + delta.1));
     }
 
     // Consider implementing index [idx] for map returning map.locs[idx]
@@ -280,11 +291,11 @@ impl Map {
 
 // Roster of character, enemies, etc. Indexes into map.
 struct Ros {
-    // Coordinates of fruit (soon to be character).
+    // Coordinates of hero (soon to be character).
     // Will have vec of enemies etc too.
     // Those all need to have "pointers" into map
     // And act like a cache?
-    fruit: Pos,
+    hero: Pos, // TODO: Better name for protagonist than "hero".
     snake: Snake,
 }
 
@@ -292,11 +303,10 @@ impl Ros {
     fn new_example_level(sz: u16) -> Ros {
         assert_eq!(sz, 16);
         Ros {
-            // cf coords in Map::new_empty_level() and Map::new_default_level()
-            fruit: (0, 0, 1),
+            hero: (0, 0, 1), // TODO: Put in invalid coords to start?
             snake: Snake {
-                head: (0, 0, 1),
-                dir: (1, 0, 0),
+                pos: (0, 0, 1), // TODO: Shouldn't need to match coords elsewhere but may
+                dir: (1, 0),
             }
         }
     }
@@ -369,6 +379,17 @@ impl Ent {
         }
     }
 
+    fn new_col(x: i16, y:i16, fill: Color) -> Ent {
+        Ent {
+            x: x,
+            y: y,
+            h: 1, // TODO
+            tex: None,
+            fill: Some(fill),
+            ..Ent::invalid()
+        }
+    }
+
     // TODO: Want to combine into a "make_at" function which initialises locations ok.
     // TODO: Should be global or part of map, or part of Ent?
     fn new_floor(x: u16, y: u16) -> Ent {
@@ -384,8 +405,8 @@ impl Ent {
 }
 
 struct Snake {
-    head: Pos,
-    dir: Pos,
+    pos: Pos,
+    dir: Delta,
 }
 
 struct Input {
