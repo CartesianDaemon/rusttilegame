@@ -191,9 +191,7 @@ impl Play {
 
         // eat fruit?
         if self.ros.snake.head == self.ros.fruit {
-            // If new head is on fruit, eat it. Body is already the right length.
-            // TODO: Reinstate
-            self.ros.fruit = (3, 8, 1); // TODO: Removed the random here as not wanted long term.
+            self.map.move_to(&mut self.ros.fruit, (3, 8));
         }
 
         // die if head out of bounds
@@ -224,7 +222,7 @@ impl Play {
                 head: (0, 0, 1),
                 dir: (1, 0, 0),
             };
-            self.ros.fruit = (3, 8, 1);
+            self.map.move_to(&mut self.ros.fruit, (8, 3));
             self.game_over = false;
         }
     }
@@ -263,7 +261,7 @@ impl Map {
     // INSERT: create_at ... 
 
     // TODO: Decide how to refer to specific Ents, as Pos. Or ref?
-    fn move_ent(&mut self, pos: &mut Pos, to: Point) {
+    fn move_to(&mut self, pos: &mut Pos, to: Point) {
         let tmp = self.locs[pos.0 as usize][pos.1 as usize].ents.remove(pos.2 as usize);
         self.locs[to.0 as usize][to.1 as usize].ents.push(tmp);
         *pos = (to.0, to.1, (self.locs[to.0 as usize][to.1 as usize].ents.len()-1) as u16);
@@ -272,8 +270,8 @@ impl Map {
         self.locs[pos.0 as usize][pos.1 as usize].ents.last_mut().unwrap().h = pos.2;
     }
 
-    fn move_delta(&mut self, pos: &mut Pos, dx: i16, dy: i16) {
-        self.move_ent(pos, (pos.0 + dx, pos.1 + dy));
+    fn move_delta(&mut self, pos: &mut Pos, dx: i16, dy: i16) { // Accept Point not x, y?
+        self.move_to(pos, (pos.0 + dx, pos.1 + dy));
     }
 
     // Consider implementing index [idx] for map returning map.locs[idx]
