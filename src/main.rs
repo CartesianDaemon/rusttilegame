@@ -119,20 +119,11 @@ impl Game {
         }
 
         draw_rectangle(
-            offset_x + g.p.map.snake.head.0 as f32 * sq_size,
-            offset_y + g.p.map.snake.head.1 as f32 * sq_size,
+            offset_x + g.p.ros.snake.head.0 as f32 * sq_size,
+            offset_y + g.p.ros.snake.head.1 as f32 * sq_size,
             sq_size,
             sq_size,
             DARKGREEN,
-        );
-
-        // TODO: Remove this once move code exists.
-        draw_rectangle(
-            offset_x + g.p.map.fruit.0 as f32 * sq_size,
-            offset_y + g.p.map.fruit.1 as f32 * sq_size,
-            sq_size,
-            sq_size,
-            YELLOW,
         );
 
         draw_text(format!("SCORE: {}", 42).as_str(), 10., 20., 20., DARKGRAY);
@@ -146,6 +137,7 @@ struct Play {
 
     // Layout of current level.
     map: Map,
+    ros: Ros,
 }
 
 impl Play {
@@ -153,6 +145,7 @@ impl Play {
         Play {
             game_over: false,
             map: Map::new_example_level(16),
+            ros: Ros::new_example_level(16), // These two should be generated together
         }
     }
 
@@ -172,7 +165,7 @@ impl Play {
 
         // Initialise fruit
         {
-            play.map.fruit = (3, 8, 1);
+            play.ros.fruit = (3, 8, 1);
             play.map.locs[3][8].ents.push(Ent::new_tex_col(3, 8, load_texture("imgs/ferris.png").await.unwrap(), GOLD));
         }
 
@@ -189,25 +182,25 @@ impl Play {
         // Move snake
 
         // if snake on same row xor column as fruit, change dir to face fruit
-        if (self.map.snake.head.0 == self.map.fruit.0) != (self.map.snake.head.1 == self.map.fruit.1) {
-            self.map.snake.dir = ((self.map.fruit.0 - self.map.snake.head.0).signum(),(self.map.fruit.1 - self.map.snake.head.1).signum(), 0)
+        if (self.ros.snake.head.0 == self.ros.fruit.0) != (self.ros.snake.head.1 == self.ros.fruit.1) {
+            self.ros.snake.dir = ((self.ros.fruit.0 - self.ros.snake.head.0).signum(),(self.ros.fruit.1 - self.ros.snake.head.1).signum(), 0)
         }
 
         // move head to new location
-        self.map.snake.head = (self.map.snake.head.0 + self.map.snake.dir.0, self.map.snake.head.1 + self.map.snake.dir.1, self.map.snake.head.2);
+        self.ros.snake.head = (self.ros.snake.head.0 + self.ros.snake.dir.0, self.ros.snake.head.1 + self.ros.snake.dir.1, self.ros.snake.head.2);
 
         // eat fruit?
-        if self.map.snake.head == self.map.fruit {
+        if self.ros.snake.head == self.ros.fruit {
             // If new head is on fruit, eat it. Body is already the right length.
             // TODO: Reinstate
-            self.map.fruit = (3, 8, 1); // TODO: Removed the random here as not wanted long term.
+            self.ros.fruit = (3, 8, 1); // TODO: Removed the random here as not wanted long term.
         }
 
         // die if head out of bounds
-        if self.map.snake.head.0 < 0
-            || self.map.snake.head.1 < 0
-            || self.map.snake.head.0 as i32 >= self.map.w() as i32 // TODO: Better comparisons
-            || self.map.snake.head.1 as i32>= self.map.h() as i32
+        if self.ros.snake.head.0 < 0
+            || self.ros.snake.head.1 < 0
+            || self.ros.snake.head.0 as i32 >= self.map.w() as i32 // TODO: Better comparisons
+            || self.ros.snake.head.1 as i32>= self.map.h() as i32
         {
             self.game_over = true;
         }
@@ -216,10 +209,10 @@ impl Play {
 
         if let Some(key) = last_key_pressed {
             match key {
-                KeyCode::Left  => self.map.move_delta(&mut self.map.fruit, -1, 0),
-                KeyCode::Right => self.map.move_delta(&mut self.map.fruit, 1, 0),
-                KeyCode::Up    => self.map.move_delta(&mut self.map.fruit, 0, -1),
-                KeyCode::Down  => self.map.move_delta(&mut self.map.fruit, 0, 1),
+                KeyCode::Left  => self.map.move_delta(&mut self.ros.fruit, -1, 0),
+                KeyCode::Right => self.map.move_delta(&mut self.ros.fruit, 1, 0),
+                KeyCode::Up    => self.map.move_delta(&mut self.ros.fruit, 0, -1),
+                KeyCode::Down  => self.map.move_delta(&mut self.ros.fruit, 0, 1),
                 _ => (),
             }
         }
@@ -227,11 +220,11 @@ impl Play {
 
     fn advance_game_over(&mut self, key: Option<KeyCode>) {
         if Some(KeyCode::Enter) == key {
-            self.map.snake = Snake {
+            self.ros.snake = Snake {
                 head: (0, 0, 1),
                 dir: (1, 0, 0),
             };
-            self.map.fruit = (3, 8, 1);
+            self.ros.fruit = (3, 8, 1);
             self.game_over = false;
         }
     }
@@ -242,14 +235,6 @@ struct Map {
     // Stored as a collection of columns.
     // Must always be square.
     locs: Vec<Vec<Loc>>,
-
-    // Coordinates of fruit (soon to be character).
-    // Will have vec of enemies etc too.
-    // Those all need to have "pointers" into map
-    // And act like a cache?
-    fruit: Pos,
-
-    snake: Snake,
 }
 
 impl Map {
@@ -262,11 +247,7 @@ impl Map {
         // Some of this may move back up to Play, or from there to here.
         Map {
             locs: vec!(vec!(Loc::new(); sz.into()); sz.into()),
-            fruit: (0, 0, 1),
-            snake: Snake {
-                head: (0, 0, 1),
-                dir: (1, 0, 0),
-            }
+            // cf coords in Ros::new_example_level()
         }
     }
 
@@ -297,6 +278,30 @@ impl Map {
 
     // Consider implementing index [idx] for map returning map.locs[idx]
     // Consider "for x,y in map.coords()" to iterate over x and y at the same time.
+}
+
+// Roster of character, enemies, etc. Indexes into map.
+struct Ros {
+    // Coordinates of fruit (soon to be character).
+    // Will have vec of enemies etc too.
+    // Those all need to have "pointers" into map
+    // And act like a cache?
+    fruit: Pos,
+    snake: Snake,
+}
+
+impl Ros {
+    fn new_example_level(sz: u16) -> Ros {
+        assert_eq!(sz, 16);
+        Ros {
+            // cf coords in Map::new_empty_level() and Map::new_default_level()
+            fruit: (0, 0, 1),
+            snake: Snake {
+                head: (0, 0, 1),
+                dir: (1, 0, 0),
+            }
+        }
+    }
 }
 
 // "Location": Everything at a single coordinate in the current room.
