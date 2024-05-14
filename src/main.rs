@@ -87,37 +87,35 @@ impl Game {
         let offset_y = (screen_height() - game_size) / 2. + 10.;
         let sq_size = (screen_height() - offset_y * 2.) / g.p.map.w() as f32;
 
-        for x in 0..g.p.map.w() {
-            for y in 0..g.p.map.h() {
-                for ent in &g.p.map.locs[x as usize][y as usize].ents {
-                    if let Some(col) = ent.fill {
-                        draw_rectangle(
-                            offset_x + sq_size * x as f32,
-                            offset_y + sq_size * y as f32,
-                            sq_size as f32,
-                            sq_size as f32,
-                            col,
-                        );
-                    }
-                    if let Some(col) = ent.border {
-                        draw_rectangle_lines(
-                            offset_x + sq_size * x as f32,
-                            offset_y + sq_size * y as f32,
-                            sq_size as f32,
-                            sq_size as f32,
-                            2.,
-                            col,
-                        );
-                    }
-                    if let Some(tex) = &ent.tex {
-                        g.r.draw_sq(
-                            &tex,
-                            offset_x + sq_size * x as f32,
-                            offset_y + sq_size * y as f32,
-                            sq_size as f32,
-                            sq_size as f32,
-                        );
-                    }
+        for (x, y) in g.p.map.coords() {
+            for ent in &g.p.map.locs[x as usize][y as usize].ents {
+                if let Some(col) = ent.fill {
+                    draw_rectangle(
+                        offset_x + sq_size * x as f32,
+                        offset_y + sq_size * y as f32,
+                        sq_size as f32,
+                        sq_size as f32,
+                        col,
+                    );
+                }
+                if let Some(col) = ent.border {
+                    draw_rectangle_lines(
+                        offset_x + sq_size * x as f32,
+                        offset_y + sq_size * y as f32,
+                        sq_size as f32,
+                        sq_size as f32,
+                        2.,
+                        col,
+                    );
+                }
+                if let Some(tex) = &ent.tex {
+                    g.r.draw_sq(
+                        &tex,
+                        offset_x + sq_size * x as f32,
+                        offset_y + sq_size * y as f32,
+                        sq_size as f32,
+                        sq_size as f32,
+                    );
                 }
             }
         }
@@ -263,35 +261,6 @@ impl IndexMut<Pos> for Map {
     }
 }
 
-struct CoordIterator {
-    // Original dimensions to iterate up to
-    w: i16,
-    h: i16,
-    // Previously returned coords, or (0, -1) initially.
-    x: i16,
-    y: i16,
-}
-
-impl Iterator for CoordIterator {
-    type Item = (i16, i16);
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.y < self.h-1 {
-            // Continue to next coord down current column
-            self.y += 1;
-            Some((self.x, self.y))
-        } else if self.x < self.w-1 {
-            // Continue to top of next column
-            self.x += 1;
-            self.y = 0;
-            Some((self.x, self.y))
-        } else {
-            // Previous coord was w-1, h-1, the last coord.
-            None
-        }
-    }
-}
-
 impl Map {
     /*
     fn new(sz: u16) -> Map {
@@ -353,7 +322,44 @@ impl Map {
         self.at( (x, y, 0) ).push(ent);
     }
 
-    // Consider "for x,y in map.coords()" to iterate over x and y at the same time.
+    // e.g. `for x, y in map.coords()
+    fn coords(&self) -> CoordIterator {
+        CoordIterator {
+            w: self.w(),
+            h: self.h(),
+            x: 0,
+            y: -1,
+        }
+    }
+}
+
+struct CoordIterator {
+    // Original dimensions to iterate up to
+    w: u16,
+    h: u16,
+    // Previously returned coords, or (0, -1) initially.
+    x: i16,
+    y: i16,
+}
+
+impl Iterator for CoordIterator {
+    type Item = (i16, i16);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.y < (self.h-1) as i16 {
+            // Continue to next coord down current column
+            self.y += 1;
+            Some((self.x, self.y))
+        } else if self.x < (self.w-1) as i16 {
+            // Continue to top of next column
+            self.x += 1;
+            self.y = 0;
+            Some((self.x, self.y))
+        } else {
+            // Previous coord was w-1, h-1, the last coord.
+            None
+        }
+    }
 }
 
 // Roster of character, enemies, etc. Indexes into map.
