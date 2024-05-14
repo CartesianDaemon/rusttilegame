@@ -263,6 +263,35 @@ impl IndexMut<Pos> for Map {
     }
 }
 
+struct CoordIterator {
+    // Original dimensions to iterate up to
+    w: i16,
+    h: i16,
+    // Previously returned coords, or (0, -1) initially.
+    x: i16,
+    y: i16,
+}
+
+impl Iterator for CoordIterator {
+    type Item = (i16, i16);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.y < self.h-1 {
+            // Continue to next coord down current column
+            self.y += 1;
+            Some((self.x, self.y))
+        } else if self.x < self.w-1 {
+            // Continue to top of next column
+            self.x += 1;
+            self.y = 0;
+            Some((self.x, self.y))
+        } else {
+            // Previous coord was w-1, h-1, the last coord.
+            None
+        }
+    }
+}
+
 impl Map {
     /*
     fn new(sz: u16) -> Map {
