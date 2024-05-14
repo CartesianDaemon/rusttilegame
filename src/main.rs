@@ -4,6 +4,7 @@ use macroquad::prelude::*;
 use std::collections::LinkedList;
 use std::mem;
 use std::ops::Index;
+use std::ops::IndexMut;
 
 // Tile coords (but without specifying height)
 type Pos = (i16, i16, u16);
@@ -256,6 +257,12 @@ impl Index<Pos> for Map {
     }
 }
 
+impl IndexMut<Pos> for Map {
+    fn index_mut(&mut self, pos: Pos) -> &mut Self::Output {
+        &mut self.locs[pos.0 as usize][pos.1 as usize].ents[pos.2 as usize]
+    }
+}
+
 impl Map {
     /*
     fn new(sz: u16) -> Map {
@@ -287,7 +294,7 @@ impl Map {
         let ent = if pos.2 as usize == self.locs[pos.0 as usize][pos.1 as usize].ents.len() {
             self.locs[pos.0 as usize][pos.1 as usize].ents.pop().unwrap()
         } else {
-            mem::replace(&mut self.locs[pos.0 as usize][pos.1 as usize].ents[pos.2 as usize], Ent::placeholder())
+            mem::replace(&mut self[*pos], Ent::placeholder())
         };
 
         // pop any new or old placeholders from vector
@@ -308,7 +315,10 @@ impl Map {
         self.move_to(pos, (pos.0 + delta.0, pos.1 + delta.1));
     }
 
-    // Consider implementing index [idx] for map returning map.locs[idx]
+    fn at(&mut self, pos: Pos) -> &mut Vec<Ent> {
+        &mut self.locs[pos.0 as usize][pos.1 as usize].ents
+    }
+
     // Consider "for x,y in map.coords()" to iterate over x and y at the same time.
 }
 
