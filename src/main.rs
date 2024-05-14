@@ -160,10 +160,8 @@ impl Play {
 
         // Initialise Floor
         {
-            for x in 0..play.map.w() {
-                for y in 0..play.map.h() {
-                    play.map.make_at(x as i16, y as i16, Ent::new_floor(x, y));
-                }
+            for (x, y) in play.map.coords() {
+                play.map.make_at(x as i16, y as i16, Ent::new_floor(x, y));
             }
         }
 
@@ -322,7 +320,7 @@ impl Map {
         self.at( (x, y, 0) ).push(ent);
     }
 
-    // e.g. `for x, y in map.coords()
+    // e.g. `for ( x, y ) in map.coords()`
     fn coords(&self) -> CoordIterator {
         CoordIterator {
             w: self.w(),
@@ -473,10 +471,10 @@ impl Ent {
 
     // TODO: Want to combine into a "make_at" function which initialises locations ok.
     // TODO: Should be global or part of map, or part of Ent?
-    fn new_floor(x: u16, y: u16) -> Ent {
+    fn new_floor(x: i16, y: i16) -> Ent {
         Ent {
-            x: x as i16,
-            y: y as i16,
+            x: x,
+            y: y,
             h: 0,
             border: Some(LIGHTGRAY),
             fill: Some(WHITE),
