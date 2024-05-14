@@ -2,6 +2,7 @@ use macroquad::prelude::*;
 
 #[allow(unused_imports)]
 use std::collections::LinkedList;
+use std::mem;
 
 // Tile coords (but without specifying height)
 type Pos = (i16, i16, u16);
@@ -271,10 +272,11 @@ impl Map {
 
     // INSERT: create_at ... 
 
+    // All map-altering fns go through a fn like this to keep Map/Ros coords in sync.
     // Nothing happens if target is off map. Higher layer should prevent that.
     fn move_to(&mut self, pos: &mut Pos, to: Point) {
-        let tmp = self.locs[pos.0 as usize][pos.1 as usize].ents.remove(pos.2 as usize);
-        self.locs[to.0 as usize][to.1 as usize].ents.push(tmp);
+        let ent = mem::replace(&mut self.locs[pos.0 as usize][pos.1 as usize].ents[pos.2 as usize], Ent::placeholder());
+        self.locs[to.0 as usize][to.1 as usize].ents.push(ent);
         *pos = (to.0, to.1, (self.locs[to.0 as usize][to.1 as usize].ents.len()-1) as u16);
         self.locs[pos.0 as usize][pos.1 as usize].ents.last_mut().unwrap().x = pos.0;
         self.locs[pos.0 as usize][pos.1 as usize].ents.last_mut().unwrap().y = pos.1;
@@ -349,13 +351,17 @@ struct Ent {
 impl Ent {
     fn invalid() -> Ent {
         Ent {
-            x: -1,
+            x: -1, // For now "-1" flags "this element is a placeholder in height vector"
             y: -1,
             h: 0,
             border: None,
             fill: None,
             tex: None,
         }
+    }
+
+    fn placeholder() -> Ent {
+        Ent::invalid()
     }
 
     #[allow(dead_code)]
