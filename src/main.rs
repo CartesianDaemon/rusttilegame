@@ -88,7 +88,7 @@ impl Game {
         let sq_size = (screen_height() - offset_y * 2.) / g.p.map.w() as f32;
 
         for (x, y) in g.p.map.coords() {
-            for ent in &g.p.map.locs[x as usize][y as usize].ents {
+            for ent in g.p.map.at((x, y, 0)) {
                 if let Some(col) = ent.fill {
                     draw_rectangle(
                         offset_x + sq_size * x as f32,
@@ -288,7 +288,7 @@ impl Map {
     // Nothing happens if target is off map. Higher layer should prevent that.
     fn move_to(&mut self, pos: &mut Pos, to: Point) {
         let ent = if pos.2 as usize == self.at(*pos).len() {
-            self.at(*pos).pop().unwrap()
+            self.atm(*pos).pop().unwrap()
         } else {
             mem::replace(&mut self[*pos], Ent::placeholder())
         };
@@ -296,14 +296,14 @@ impl Map {
         // TODO: Could be moved into "if pop" branch above
         while !self.at(*pos).is_empty() &&
             self.at(*pos).last().unwrap().is_placeholder() {
-            self.at(*pos).pop();
+            self.atm(*pos).pop();
         }
 
         self.make_at( to.0, to.1, ent);
         *pos = (to.0, to.1, (self.locs[to.0 as usize][to.1 as usize].ents.len()-1) as u16);
-        self.at(*pos).last_mut().unwrap().x = pos.0;
-        self.at(*pos).last_mut().unwrap().y = pos.1;
-        self.at(*pos).last_mut().unwrap().h = pos.2;
+        self.atm(*pos).last_mut().unwrap().x = pos.0;
+        self.atm(*pos).last_mut().unwrap().y = pos.1;
+        self.atm(*pos).last_mut().unwrap().h = pos.2;
     }
 
     // Nothing happens if target is off map. Higher layer should prevent that.
@@ -312,12 +312,17 @@ impl Map {
     }
 
     // Access vec of ents stacked at given location (not using height field in Pos)
-    fn at(&mut self, pos: Pos) -> &mut Vec<Ent> {
+    fn at(&self, pos: Pos) -> &Vec<Ent> {
+        &self.locs[pos.0 as usize][pos.1 as usize].ents
+    }
+
+    // As "at" but mutably
+    fn atm(&mut self, pos: Pos) -> &mut Vec<Ent> {
         &mut self.locs[pos.0 as usize][pos.1 as usize].ents
     }
 
     fn make_at(&mut self, x: i16, y: i16, ent: Ent) {
-        self.at( (x, y, 0) ).push(ent);
+        self.atm( (x, y, 0) ).push(ent);
     }
 
     // e.g. `for ( x, y ) in map.coords()`
