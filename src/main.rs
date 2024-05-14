@@ -164,7 +164,7 @@ impl Play {
         {
             for x in 0..play.map.w() {
                 for y in 0..play.map.h() {
-                    play.map.locs[x as usize][y as usize].ents.push(Ent::new_floor(x, y))
+                    play.map.make_at(x as i16, y as i16, Ent::new_floor(x, y));
                 }
             }
         }
@@ -172,7 +172,7 @@ impl Play {
         // Initialise hero
         {
             play.ros.hero = (3, 8, 1);
-            play.map.locs[3][8].ents.push(Ent::new_tex_col(3, 8, load_texture("imgs/ferris.png").await.unwrap(), GOLD));
+            play.map.make_at(3, 8, Ent::new_tex_col(3, 8, load_texture("imgs/ferris.png").await.unwrap(), GOLD));
         }
 
         // Initialise snake
@@ -180,7 +180,7 @@ impl Play {
             // TODO: create_at
             play.ros.snake.pos = (0, 0, 1);
             play.ros.snake.dir = (1, 0);
-            play.map.locs[0][0].ents.push(Ent::new_col(3, 8, DARKGREEN));
+            play.map.make_at(0, 0, Ent::new_col(3, 8, DARKGREEN));
         }
 
 
@@ -303,7 +303,7 @@ impl Map {
             self.at(*pos).pop();
         }
 
-        self.locs[to.0 as usize][to.1 as usize].ents.push(ent);
+        self.make_at( to.0, to.1, ent);
         *pos = (to.0, to.1, (self.locs[to.0 as usize][to.1 as usize].ents.len()-1) as u16);
         self.at(*pos).last_mut().unwrap().x = pos.0;
         self.at(*pos).last_mut().unwrap().y = pos.1;
@@ -315,8 +315,13 @@ impl Map {
         self.move_to(pos, (pos.0 + delta.0, pos.1 + delta.1));
     }
 
+    // Access vec of ents stacked at given location (not using height field in Pos)
     fn at(&mut self, pos: Pos) -> &mut Vec<Ent> {
         &mut self.locs[pos.0 as usize][pos.1 as usize].ents
+    }
+
+    fn make_at(&mut self, x: i16, y: i16, ent: Ent) {
+        self.at( (x, y, 0) ).push(ent);
     }
 
     // Consider "for x,y in map.coords()" to iterate over x and y at the same time.
