@@ -3,6 +3,7 @@ use macroquad::prelude::*;
 #[allow(unused_imports)]
 use std::collections::LinkedList;
 use std::mem;
+use std::ops::Index;
 
 // Tile coords (but without specifying height)
 type Pos = (i16, i16, u16);
@@ -245,6 +246,14 @@ struct Map {
     // Stored as a collection of columns, e.g. map.locs[x][y]
     // Must always be rectangular.
     locs: Vec<Vec<Loc>>,
+}
+
+impl Index<Pos> for Map {
+    type Output = Ent;
+
+    fn index(&self, pos: Pos) -> &Self::Output {
+        &self.locs[pos.0 as usize][pos.1 as usize].ents[pos.2 as usize]
+    }
 }
 
 impl Map {
