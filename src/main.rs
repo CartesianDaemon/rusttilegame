@@ -291,23 +291,23 @@ impl Map {
     // All map-altering fns go through a fn like this to keep Map/Ros coords in sync.
     // Nothing happens if target is off map. Higher layer should prevent that.
     fn move_to(&mut self, pos: &mut Pos, to: Point) {
-        let ent = if pos.2 as usize == self.locs[pos.0 as usize][pos.1 as usize].ents.len() {
-            self.locs[pos.0 as usize][pos.1 as usize].ents.pop().unwrap()
+        let ent = if pos.2 as usize == self.at(*pos).len() {
+            self.at(*pos).pop().unwrap()
         } else {
             mem::replace(&mut self[*pos], Ent::placeholder())
         };
 
-        // pop any new or old placeholders from vector
-        while !self.locs[pos.0 as usize][pos.1 as usize].ents.is_empty() &&
-            self.locs[pos.0 as usize][pos.1 as usize].ents.last().unwrap().is_placeholder() {
-            self.locs[pos.0 as usize][pos.1 as usize].ents.pop();
+        // TODO: Could be moved into "if pop" branch above
+        while !self.at(*pos).is_empty() &&
+            self.at(*pos).last().unwrap().is_placeholder() {
+            self.at(*pos).pop();
         }
 
         self.locs[to.0 as usize][to.1 as usize].ents.push(ent);
         *pos = (to.0, to.1, (self.locs[to.0 as usize][to.1 as usize].ents.len()-1) as u16);
-        self.locs[pos.0 as usize][pos.1 as usize].ents.last_mut().unwrap().x = pos.0;
-        self.locs[pos.0 as usize][pos.1 as usize].ents.last_mut().unwrap().y = pos.1;
-        self.locs[pos.0 as usize][pos.1 as usize].ents.last_mut().unwrap().h = pos.2;
+        self.at(*pos).last_mut().unwrap().x = pos.0;
+        self.at(*pos).last_mut().unwrap().y = pos.1;
+        self.at(*pos).last_mut().unwrap().h = pos.2;
     }
 
     // Nothing happens if target is off map. Higher layer should prevent that.
