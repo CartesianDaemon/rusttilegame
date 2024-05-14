@@ -282,6 +282,10 @@ impl Map {
         };
 
         // pop any new or old placeholders from vector
+        while !self.locs[pos.0 as usize][pos.1 as usize].ents.is_empty() &&
+            self.locs[pos.0 as usize][pos.1 as usize].ents.last().unwrap().is_placeholder() {
+            self.locs[pos.0 as usize][pos.1 as usize].ents.pop();
+        }
 
         self.locs[to.0 as usize][to.1 as usize].ents.push(ent);
         *pos = (to.0, to.1, (self.locs[to.0 as usize][to.1 as usize].ents.len()-1) as u16);
@@ -369,6 +373,10 @@ impl Ent {
 
     fn placeholder() -> Ent {
         Ent::invalid()
+    }
+
+    fn is_placeholder(&self) -> bool {
+        self.x == -1
     }
 
     #[allow(dead_code)]
