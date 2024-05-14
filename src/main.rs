@@ -275,7 +275,14 @@ impl Map {
     // All map-altering fns go through a fn like this to keep Map/Ros coords in sync.
     // Nothing happens if target is off map. Higher layer should prevent that.
     fn move_to(&mut self, pos: &mut Pos, to: Point) {
-        let ent = mem::replace(&mut self.locs[pos.0 as usize][pos.1 as usize].ents[pos.2 as usize], Ent::placeholder());
+        let ent = if pos.2 as usize == self.locs[pos.0 as usize][pos.1 as usize].ents.len() {
+            self.locs[pos.0 as usize][pos.1 as usize].ents.pop().unwrap()
+        } else {
+            mem::replace(&mut self.locs[pos.0 as usize][pos.1 as usize].ents[pos.2 as usize], Ent::placeholder())
+        };
+
+        // pop any new or old placeholders from vector
+
         self.locs[to.0 as usize][to.1 as usize].ents.push(ent);
         *pos = (to.0, to.1, (self.locs[to.0 as usize][to.1 as usize].ents.len()-1) as u16);
         self.locs[pos.0 as usize][pos.1 as usize].ents.last_mut().unwrap().x = pos.0;
