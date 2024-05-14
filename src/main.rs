@@ -198,23 +198,22 @@ impl Play {
             self.ros.snake.dir = ((self.ros.hero.0 - self.ros.snake.pos.0).signum(),(self.ros.hero.1 - self.ros.snake.pos.1).signum())
         }
 
-        // move snake to new location
-        self.map.move_delta(&mut self.ros.snake.pos, self.ros.snake.dir);
-
-        // eat hero?
-        // TODO: Better "at same pos" logic?
-        if self.ros.snake.pos.0 == self.ros.hero.0 && self.ros.snake.pos.1 == self.ros.hero.1 {
-            self.map.move_to(&mut self.ros.hero, (3, 8));
-        }
-
-        // die if snake out of bounds
-        // TODO: Instead: Game over if snake eats char; Respawn snake if snake OOB.
-        if self.ros.snake.pos.0 < 0
-            || self.ros.snake.pos.1 < 0
-            || self.ros.snake.pos.0 as i32 >= self.map.w() as i32 // TODO: Better comparisons
-            || self.ros.snake.pos.1 as i32>= self.map.h() as i32
+        // die if snake would go out of bounds
+        // TODO: Instead: Game over if snake eats char; Respawn snake if dies.
+        if !(0..self.map.w() as i16).contains(&(self.ros.snake.pos.0 + self.ros.snake.dir.0)) ||
+            !(0..self.map.h() as i16).contains(&(self.ros.snake.pos.1 + self.ros.snake.dir.1))
         {
             self.game_over = true;
+        }
+        else
+        {
+            // move snake to new location
+            self.map.move_delta(&mut self.ros.snake.pos, self.ros.snake.dir);
+        }
+
+        // eat hero?
+        if self.ros.snake.pos.0 == self.ros.hero.0 && self.ros.snake.pos.1 == self.ros.hero.1 {
+            self.map.move_to(&mut self.ros.hero, (3, 8));
         }
 
         // Move character
@@ -272,6 +271,7 @@ impl Map {
 
     // INSERT: create_at ... 
 
+    // Nothing happens if target is off map. Higher layer should prevent that.
     fn move_to(&mut self, pos: &mut Pos, to: Point) {
         let tmp = self.locs[pos.0 as usize][pos.1 as usize].ents.remove(pos.2 as usize);
         self.locs[to.0 as usize][to.1 as usize].ents.push(tmp);
@@ -281,6 +281,7 @@ impl Map {
         self.locs[pos.0 as usize][pos.1 as usize].ents.last_mut().unwrap().h = pos.2;
     }
 
+    // Nothing happens if target is off map. Higher layer should prevent that.
     fn move_delta(&mut self, pos: &mut Pos, delta: Delta) {
         self.move_to(pos, (pos.0 + delta.0, pos.1 + delta.1));
     }
