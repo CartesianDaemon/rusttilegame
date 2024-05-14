@@ -87,6 +87,7 @@ impl Game {
         let offset_y = (screen_height() - game_size) / 2. + 10.;
         let sq_size = (screen_height() - offset_y * 2.) / g.p.map.w() as f32;
 
+        // TODO: Would still like "for x, y, loc in map.coords()"?
         for (x, y) in g.p.map.coords() {
             for ent in g.p.map.at((x, y, 0)) {
                 if let Some(col) = ent.fill {
@@ -160,15 +161,17 @@ impl Play {
 
         // Initialise Floor
         {
+            // TODO: Can use "x, y, ents" if I implement Loc::put()?
+            // Or will that fall afoul of borrow checker?
             for (x, y) in play.map.coords() {
-                play.map.make_at(x as i16, y as i16, Ent::new_floor(x, y));
+                play.map.put_at(x as i16, y as i16, Ent::new_floor(x, y));
             }
         }
 
         // Initialise hero
         {
             play.ros.hero = (3, 8, 1);
-            play.map.make_at(3, 8, Ent::new_tex_col(3, 8, load_texture("imgs/ferris.png").await.unwrap(), GOLD));
+            play.map.put_at(3, 8, Ent::new_tex_col(3, 8, load_texture("imgs/ferris.png").await.unwrap(), GOLD));
         }
 
         // Initialise snake
@@ -176,7 +179,7 @@ impl Play {
             // TODO: create_at
             play.ros.snake.pos = (0, 0, 1);
             play.ros.snake.dir = (1, 0);
-            play.map.make_at(0, 0, Ent::new_col(3, 8, DARKGREEN));
+            play.map.put_at(0, 0, Ent::new_col(3, 8, DARKGREEN));
         }
 
 
@@ -299,11 +302,9 @@ impl Map {
             self.atm(*pos).pop();
         }
 
-        self.make_at( to.0, to.1, ent);
-        *pos = (to.0, to.1, (self.locs[to.0 as usize][to.1 as usize].ents.len()-1) as u16);
-        self.atm(*pos).last_mut().unwrap().x = pos.0;
-        self.atm(*pos).last_mut().unwrap().y = pos.1;
-        self.atm(*pos).last_mut().unwrap().h = pos.2;
+        *pos = (to.0, to.1, self.at((to.0, to.1, 0)).len() as u16);
+
+        self.put_at( to.0, to.1, ent);
     }
 
     // Nothing happens if target is off map. Higher layer should prevent that.
@@ -321,7 +322,13 @@ impl Map {
         &mut self.locs[pos.0 as usize][pos.1 as usize].ents
     }
 
-    fn make_at(&mut self, x: i16, y: i16, ent: Ent) {
+    fn put_at(&mut self, x: i16, y: i16, val: Ent) {
+        // Do we need these coords in ent?
+        let mut ent = val;
+        ent.x = x;
+        ent.y = y;
+        ent.h = self.at((x, y, 0)).len() as u16;
+
         self.atm( (x, y, 0) ).push(ent);
     }
 
@@ -413,6 +420,7 @@ impl Clone for Loc {
 #[derive(Clone)]
 #[allow(dead_code)]
 struct Ent {
+    // Do we actually need these or not?
     x: i16,
     y: i16,
     h: u16,
@@ -474,7 +482,7 @@ impl Ent {
         }
     }
 
-    // TODO: Want to combine into a "make_at" function which initialises locations ok.
+    // TODO: Want to combine into a "put_at" function which initialises locations ok.
     // TODO: Should be global or part of map, or part of Ent?
     fn new_floor(x: i16, y: i16) -> Ent {
         Ent {
