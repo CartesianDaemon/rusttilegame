@@ -8,13 +8,16 @@ use std::ops::IndexMut;
 
 // Might like types:
 //
-// Dimension: Width/height of map. Unsigned.
+// Dimension: Width/height of map. Unsigned. Vars w,h.
 // MapCoord: Coords on map. Signed to allow looping past edge.
-//           May need cast to index vector?
-// Delta: Offset of map coord. Signed.
-// PixCoord: Coords on screen. f32.
+//           May need cast to index vector? Vars x,y.
+// ViewCoord: As MapCoord but relative to visible part of map (currently all).
+//            Vars vx, vy.
+// Delta: Offset of map coord. Signed. Vars dx, dy.
+// PixCoord: Coords on screen. f32. Vars px, py.
 //
 // Ideally allowing arithmetic between dimension, map, delta with least casting.
+// And multiplication of p coords by map coords.
 
 // Tile coords (but without specifying height)
 type Pos = (i16, i16, u16);
@@ -75,42 +78,23 @@ impl Game {
     }
 
     fn draw_frame(&self) {
+        let r = RenderFrame::new(self.p.map.w(), self.p.map.h());
         if !self.p.game_over {
-            self.draw_level();
-        } else {
-            let r = RenderFrame::new(self.p.map.w(), self.p.map.h());
-            r.draw_game_over();
-        }
-    }
+            // TODO: Move this into RenderFrame
+            clear_background(LIGHTGRAY);
 
-    fn draw_level(&self) {
-        let g = self;
-
-        let r = RenderFrame::new(g.p.map.w(), g.p.map.h());
-
-        clear_background(LIGHTGRAY);
-
-        // TODO: Would still like "for x, y, loc in map.coords()"?
-        for (x, y, loc) in g.p.map.locs() {
-            for ent in &loc.ents {
-                // NOTE: Using x for coords in map and p1 for coords on screen
-                let px = r.offset_x + r.sq_size * x as f32;
-                let py = r.offset_y + r.sq_size * y as f32;
-                let sq_size = r.sq_size;
-
-                if let Some(col) = ent.fill {
-                    draw_rectangle(px, py, sq_size, sq_size, col);
-                }
-                if let Some(col) = ent.border {
-                    draw_rectangle_lines(px, py, sq_size, sq_size, 2., col);
-                }
-                if let Some(tex) = &ent.tex {
-                    r.draw_sq(tex, px, py, sq_size, sq_size);
+            // Coords of first visible tile. Currently always 0,0.
+            let (ox, oy) = (0, 0);
+            for (x, y, loc) in self.p.map.locs() {
+                for ent in &loc.ents {
+                    r.draw_ent(x - ox, y - oy, ent);
                 }
             }
-        }
 
         draw_text(format!("SCORE: {}", 42).as_str(), 10., 20., 20., DARKGRAY);
+        } else {
+            r.draw_game_over();
+        }
     }
 }
 
@@ -615,7 +599,8 @@ struct RenderFrame {
     // Distance from edge of drawing surface to play area
     offset_y: f32,
     // Size of each tile
-    sq_size: f32,
+    sq_w: f32,
+    sq_h: f32,
 }
 
 impl RenderFrame {
@@ -627,30 +612,44 @@ impl RenderFrame {
             // TODO: Why does this work with landscape orientation?
             offset_x: (screen_width() - game_size) / 2. + 10.,
             offset_y: (screen_height() - game_size) / 2. + 10.,
-            sq_size: (screen_height() - offset_y * 2.) / w as f32,
+            sq_w: (screen_height() - offset_y * 2.) / w as f32,
+            sq_h: (screen_height() - offset_y * 2.) / w as f32,
         }
     }
 
-    // Draw a tile's texture given the object's window coordinates.
-    fn draw_sq(
+    // Draw ent's texture/colour to the screen at specified tile coords.
+    // Works out pixel coords given pixel size of play area in RenderFrame.
+    fn draw_ent(
         self: &RenderFrame,
-        tex: &Texture2D,
-        // All in gl coords (approximately pixels).
-        x: f32,
-        y: f32,
-        w: f32,
-        h: f32,
+        // View coords in map. Relative to first visible tile (currently always the same).
+        vx: i16,
+        vy: i16,
+        // Ent to draw
+        ent: &Ent,
     ) {
-        draw_texture_ex(
-            &tex,
-            x,
-            y,
-            WHITE,
-            DrawTextureParams {
-                dest_size: Some(vec2(w, h)),
-                ..Default::default()
-            },
-        );
+       let px = self.offset_x + self.sq_w * vx as f32;
+       let py = self.offset_y + self.sq_h * vy as f32;
+
+        if let Some(col) = ent.fill {
+            draw_rectangle(px, py, self.sq_w, self.sq_h, col);
+        }
+
+        if let Some(col) = ent.border {
+            draw_rectangle_lines(px, py, self.sq_w, self.sq_h, 2., col);
+        }
+
+        if let Some(tex) = &ent.tex {
+            draw_texture_ex(
+                &tex,
+                px,
+                py,
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(vec2(self.sq_w, self.sq_h)),
+                    ..Default::default()
+                },
+            );
+        }
     }
 
     fn draw_game_over(&self) {
