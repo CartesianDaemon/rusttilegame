@@ -79,10 +79,7 @@ impl Game {
 
     fn draw_frame(&self) {
         if !self.p.game_over {
-        let r = RenderLevel::new(self.p.map.w(), self.p.map.h());
-            // TODO: Move this into RenderLevel
-            clear_background(LIGHTGRAY);
-
+        let r = RenderLevel::begin(self.p.map.w(), self.p.map.h());
             // Coords of first visible tile. Currently always 0,0.
             let (ox, oy) = (0, 0);
             for (x, y, loc) in self.p.map.locs() {
@@ -90,11 +87,8 @@ impl Game {
                     r.draw_ent(x - ox, y - oy, ent);
                 }
             }
-
-        draw_text(format!("SCORE: {}", 42).as_str(), 10., 20., 20., DARKGRAY);
         } else {
-            let r = RenderGameOver {};
-            r.draw_game_over();
+            let _r = RenderGameOver::begin();
         }
     }
 }
@@ -605,17 +599,29 @@ struct RenderLevel {
 }
 
 impl RenderLevel {
-    fn new(w: u16, h: u16) -> RenderLevel {
+    fn begin(w: u16, h: u16) -> RenderLevel {
         assert_eq!(w, h);
         let game_size = screen_width().min(screen_height());
         let offset_y = (screen_height() - game_size) / 2. + 10.;
-        RenderLevel {
+
+        let r = RenderLevel {
             // TODO: Why does this work with landscape orientation?
             offset_x: (screen_width() - game_size) / 2. + 10.,
             offset_y: (screen_height() - game_size) / 2. + 10.,
             sq_w: (screen_height() - offset_y * 2.) / w as f32,
             sq_h: (screen_height() - offset_y * 2.) / w as f32,
-        }
+        };
+        
+        r._draw_backdrop();
+        
+        r
+    }
+
+    fn _draw_backdrop(&self)
+    {
+        clear_background(LIGHTGRAY);
+
+        draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
     }
 
     // Draw ent's texture/colour to the screen at specified tile coords.
@@ -661,7 +667,7 @@ struct RenderGameOver {
 
 impl RenderGameOver
 {
-    fn draw_game_over(&self) {
+    fn begin() -> RenderGameOver {
         clear_background(WHITE);
         let text = "Game Over. Press [enter] to play again.";
         let font_size = 30.;
@@ -674,6 +680,8 @@ impl RenderGameOver
             font_size,
             DARKGRAY,
         );
+
+        RenderGameOver {}
     }
 }
 
