@@ -6,6 +6,16 @@ use std::mem;
 use std::ops::Index;
 use std::ops::IndexMut;
 
+// Might like types:
+//
+// Dimension: Width/height of map. Unsigned.
+// MapCoord: Coords on map. Signed to allow looping past edge.
+//           May need cast to index vector?
+// Delta: Offset of map coord. Signed.
+// PixCoord: Coords on screen. f32.
+//
+// Ideally allowing arithmetic between dimension, map, delta with least casting.
+
 // Tile coords (but without specifying height)
 type Pos = (i16, i16, u16);
 type Point = (i16, i16);
@@ -14,7 +24,6 @@ type Delta = (i16, i16);
 // Overall game state.
 struct Game {
     p: Play,
-    r: Render,
     i: Input,
 }
 
@@ -22,7 +31,6 @@ impl Game {
     async fn new_default() -> Game {
         Game {
             p: Play::new_default_level().await,
-            r: Render::new_default(),
             i: Input::new_default(),
         }
     }
@@ -70,66 +78,37 @@ impl Game {
         if !self.p.game_over {
             self.draw_level();
         } else {
-            self.r.draw_game_over();
+            let r = RenderFrame::new(self.p.map.w(), self.p.map.h());
+            r.draw_game_over();
         }
     }
 
-    // Some of this needs to move into Render. Some may be in Map.
     fn draw_level(&self) {
         let g = self;
 
-        clear_background(LIGHTGRAY);
+        let r = RenderFrame::new(g.p.map.w(), g.p.map.h());
 
-        // TODO: Make sure sizing works with non-square maps.
-        // It SHOULD work with windows portrait not landscape but not tested.
-        let game_size = screen_width().min(screen_height());
-        let offset_x = (screen_width() - game_size) / 2. + 10.;
-        let offset_y = (screen_height() - game_size) / 2. + 10.;
-        let sq_size = (screen_height() - offset_y * 2.) / g.p.map.w() as f32;
+        clear_background(LIGHTGRAY);
 
         // TODO: Would still like "for x, y, loc in map.coords()"?
         for (x, y, loc) in g.p.map.locs() {
             for ent in &loc.ents {
+                // NOTE: Using x for coords in map and p1 for coords on screen
+                let px = r.offset_x + r.sq_size * x as f32;
+                let py = r.offset_y + r.sq_size * y as f32;
+                let sq_size = r.sq_size;
+
                 if let Some(col) = ent.fill {
-                    draw_rectangle(
-                        offset_x + sq_size * x as f32,
-                        offset_y + sq_size * y as f32,
-                        sq_size as f32,
-                        sq_size as f32,
-                        col,
-                    );
+                    draw_rectangle(px, py, sq_size, sq_size, col);
                 }
                 if let Some(col) = ent.border {
-                    draw_rectangle_lines(
-                        offset_x + sq_size * x as f32,
-                        offset_y + sq_size * y as f32,
-                        sq_size as f32,
-                        sq_size as f32,
-                        2.,
-                        col,
-                    );
+                    draw_rectangle_lines(px, py, sq_size, sq_size, 2., col);
                 }
                 if let Some(tex) = &ent.tex {
-                    g.r.draw_sq(
-                        &tex,
-                        offset_x + sq_size * x as f32,
-                        offset_y + sq_size * y as f32,
-                        sq_size as f32,
-                        sq_size as f32,
-                    );
+                    r.draw_sq(tex, px, py, sq_size, sq_size);
                 }
             }
         }
-
-        /*
-        draw_rectangle(
-            offset_x + g.p.ros.snake.pos.0 as f32 * sq_size,
-            offset_y + g.p.ros.snake.pos.1 as f32 * sq_size,
-            sq_size,
-            sq_size,
-            DARKGREEN,
-        );
-        */
 
         draw_text(format!("SCORE: {}", 42).as_str(), 10., 20., 20., DARKGRAY);
     }
@@ -627,19 +606,34 @@ impl Input {
     }
 }
 
-// Render state: screen size, etc.
-struct Render {
+// Render state for one frame
+// Currently not needing any global graphics state
+struct RenderFrame {
+    // COORDS FOR CURRENT FRAME. In gl units which are pixels.
+    // Distance from edge of drawing surface to play area
+    offset_x: f32,
+    // Distance from edge of drawing surface to play area
+    offset_y: f32,
+    // Size of each tile
+    sq_size: f32,
 }
 
-impl Render {
-    fn new_default() -> Render {
-        Render {
+impl RenderFrame {
+    fn new(w: u16, h: u16) -> RenderFrame {
+        assert_eq!(w, h);
+        let game_size = screen_width().min(screen_height());
+        let offset_y = (screen_height() - game_size) / 2. + 10.;
+        RenderFrame {
+            // TODO: Why does this work with landscape orientation?
+            offset_x: (screen_width() - game_size) / 2. + 10.,
+            offset_y: (screen_height() - game_size) / 2. + 10.,
+            sq_size: (screen_height() - offset_y * 2.) / w as f32,
         }
     }
 
     // Draw a tile's texture given the object's window coordinates.
     fn draw_sq(
-        self: &Render,
+        self: &RenderFrame,
         tex: &Texture2D,
         // All in gl coords (approximately pixels).
         x: f32,
