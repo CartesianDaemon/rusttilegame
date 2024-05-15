@@ -78,9 +78,9 @@ impl Game {
     }
 
     fn draw_frame(&self) {
-        let r = RenderFrame::new(self.p.map.w(), self.p.map.h());
         if !self.p.game_over {
-            // TODO: Move this into RenderFrame
+        let r = RenderLevel::new(self.p.map.w(), self.p.map.h());
+            // TODO: Move this into RenderLevel
             clear_background(LIGHTGRAY);
 
             // Coords of first visible tile. Currently always 0,0.
@@ -93,6 +93,7 @@ impl Game {
 
         draw_text(format!("SCORE: {}", 42).as_str(), 10., 20., 20., DARKGRAY);
         } else {
+            let r = RenderGameOver {};
             r.draw_game_over();
         }
     }
@@ -590,9 +591,9 @@ impl Input {
     }
 }
 
-// Render state for one frame
+// Render state for one frame of level
 // Currently not needing any global graphics state
-struct RenderFrame {
+struct RenderLevel {
     // COORDS FOR CURRENT FRAME. In gl units which are pixels.
     // Distance from edge of drawing surface to play area
     offset_x: f32,
@@ -603,12 +604,12 @@ struct RenderFrame {
     sq_h: f32,
 }
 
-impl RenderFrame {
-    fn new(w: u16, h: u16) -> RenderFrame {
+impl RenderLevel {
+    fn new(w: u16, h: u16) -> RenderLevel {
         assert_eq!(w, h);
         let game_size = screen_width().min(screen_height());
         let offset_y = (screen_height() - game_size) / 2. + 10.;
-        RenderFrame {
+        RenderLevel {
             // TODO: Why does this work with landscape orientation?
             offset_x: (screen_width() - game_size) / 2. + 10.,
             offset_y: (screen_height() - game_size) / 2. + 10.,
@@ -618,9 +619,9 @@ impl RenderFrame {
     }
 
     // Draw ent's texture/colour to the screen at specified tile coords.
-    // Works out pixel coords given pixel size of play area in RenderFrame.
+    // Works out pixel coords given pixel size of play area in RenderLevel.
     fn draw_ent(
-        self: &RenderFrame,
+        self: &RenderLevel,
         // View coords in map. Relative to first visible tile (currently always the same).
         vx: i16,
         vy: i16,
@@ -651,7 +652,15 @@ impl RenderFrame {
             );
         }
     }
+}
 
+// Render state for one frame of game over
+// Currently not needing any global graphics state
+struct RenderGameOver {
+}
+
+impl RenderGameOver
+{
     fn draw_game_over(&self) {
         clear_background(WHITE);
         let text = "Game Over. Press [enter] to play again.";
