@@ -462,11 +462,12 @@ impl<'a> Iterator for LocIteratorMut<'a> {
 
 // Roster of character, enemies, etc. Indexes into map.
 struct Ros {
-    // Coordinates of hero (soon to be character).
-    // Will have vec of enemies etc too.
-    // Those all need to have "pointers" into map
-    // And act like a cache?
+    // Hero
     hero: Pos, // TODO: Better name for protagonist than "hero".
+
+    // Enemies. It may be simpler to just not have this and iterate through the map.
+    // Might be replaced by a set of lists of "everything that has this property" etc
+    // like a Component system.
     snake: Snake,
 }
 
