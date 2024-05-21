@@ -127,19 +127,18 @@ impl Play {
         }
 
         // Initialise hero
-        {
-            play.ros.hero = (3, 8, 0);
-            play.map.put_at(&mut play.ros.hero, Ent::new_hero_crab(3, 8).await);
-        }
+        play.spawn_at(3, 8, Ent::new_hero_crab(3, 8).await);
 
         // Initialise snake
-        {
-            play.ros.snake = (1, 1, 0);
-            play.map.put_at(&mut play.ros.snake, Ent::new_snake(3, 8, (1,0)));
-        }
-
+        play.spawn_at(1, 1, Ent::new_snake(1, 1, (1,0)));
 
         play
+    }
+
+    fn spawn_at(&mut self, x: i16, y: i16, ent: Ent) {
+        let mut new_pos = (x, y, 0);
+        self.map.put_at(&mut new_pos, ent);
+        self.ros.add(new_pos);
     }
 
     // Does current mode need UI to wait for tick before updating state?
@@ -149,31 +148,34 @@ impl Play {
     }
 
     fn advance_level(&mut self, last_key_pressed: Option<KeyCode>) {
-        // Move snake
+        // Move movs
 
-        // if snake on same row xor column as hero, change dir to face hero
-        if (self.ros.snake.0 == self.ros.hero.0) != (self.ros.snake.1 == self.ros.hero.1) {
-            let new_dir: Delta = ((self.ros.hero.0 - self.ros.snake.0).signum(),(self.ros.hero.1 - self.ros.snake.1).signum());
-            self.map[self.ros.snake].dir = new_dir;
-        }
+        // TODO: Change `snake` to `mov`
+        for snake in &mut self.ros.movs {
+            // if snake on same row xor column as hero, change dir to face hero
+            if (snake.0 == self.ros.hero.0) != (snake.1 == self.ros.hero.1) {
+                let new_dir: Delta = ((self.ros.hero.0 - snake.0).signum(),(self.ros.hero.1 - snake.1).signum());
+                self.map[*snake].dir = new_dir;
+            }
 
-        // die if snake would go out of bounds
-        // TODO: Instead: Game over if snake eats char; Respawn snake if dies.
-        if !(0..self.map.w() as i16).contains(&(self.ros.snake.0 + self.map[self.ros.snake].dir.0)) ||
-            !(0..self.map.h() as i16).contains(&(self.ros.snake.1 + self.map[self.ros.snake].dir.1))
-        {
-            self.game_over = true;
-        }
-        else
-        {
-            // move snake to new location
-            let dir = self.map[self.ros.snake].dir;
-            self.map.move_delta(&mut self.ros.snake, dir);
-        }
+            // die if snake would go out of bounds
+            // TODO: Instead: Game over if snake eats char; Respawn snake if dies.
+            if !(0..self.map.w() as i16).contains(&(snake.0 + self.map[*snake].dir.0)) ||
+                !(0..self.map.h() as i16).contains(&(snake.1 + self.map[*snake].dir.1))
+            {
+                self.game_over = true;
+            }
+            else
+            {
+                // move snake to new location
+                let dir = self.map[*snake].dir;
+                self.map.move_delta(snake, dir);
+            }
 
-        // eat hero?
-        if self.ros.snake.0 == self.ros.hero.0 && self.ros.snake.1 == self.ros.hero.1 {
-            self.map.move_to(&mut self.ros.hero, (3, 8));
+            // eat hero?
+            if snake.0 == self.ros.hero.0 && snake.1 == self.ros.hero.1 {
+                self.map.move_to(&mut self.ros.hero, (3, 8));
+            }
         }
 
         // Move character
@@ -193,8 +195,8 @@ impl Play {
         if Some(KeyCode::Enter) == key {
             // TODO: Use make_example_level etc instead of specifying the coords.
             self.map.move_to(&mut self.ros.hero, (8, 3));
-            self.map.move_to(&mut self.ros.snake, (1,1));
-            self.map[self.ros.snake].dir = (1, 0);
+            self.map.move_to(&mut self.ros.movs.last_mut().unwrap(), (1,1));
+            // self.map[self.ros.snake].dir = (1, 0);
             self.game_over = false;
         }
     }
@@ -436,10 +438,11 @@ struct Ros {
     // Hero
     hero: Handle, // TODO: Better name for protagonist than "hero".
 
-    // Enemies. It may be simpler to just not have this and iterate through the map.
+    // Anything which updates each tick, especially enemies.
+    //
     // Might be replaced by a set of lists of "everything that has this property" etc
     // like a Component system.
-    snake: Handle,
+    movs: Vec<Handle>,
 }
 
 impl Ros {
@@ -447,8 +450,12 @@ impl Ros {
         assert_eq!(sz, 16);
         Ros {
             hero: (0, 0, 1), // TODO: Put in invalid coords to start?
-            snake: (0, 0, 1), // TODO: Should be initialised for real elsewhere
+            movs: vec![],
         }
+    }
+
+    fn add(&mut self, hdl: Handle) {
+        self.movs.push(hdl);
     }
 }
 
