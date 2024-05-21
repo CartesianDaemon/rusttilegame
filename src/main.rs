@@ -487,6 +487,14 @@ impl Loc {
     fn new() -> Loc {
         Loc { ents: vec![] }
     }
+
+    fn passable(&self) -> bool {
+        !self.passable()
+    }
+
+    fn impassable(&self) -> bool {
+        self.ents.iter().any(|x| x.pass == Pass::Solid)
+    }
 }
 
 impl Clone for Loc {
@@ -514,7 +522,7 @@ struct Ent {
     tex: Option<Texture2D>,
 
     // Solidity, e.g. wall, floor
-    solid: Solid,
+    pass: Pass,
 
     // Movement control logic for enemies
     ai: AI,
@@ -535,7 +543,7 @@ impl Ent {
             fill: None,
             tex: None,
 
-            solid: Solid::Empty,
+            pass: Pass::Empty,
 
             ai: AI::Stay, // Could use this as a better placeholder flag
 
@@ -609,7 +617,7 @@ impl Ent {
     // Specific ent types
     fn new_hero_crab(x: i16, y:i16) -> Ent {
         Ent {
-            solid: Solid::Mov,
+            pass: Pass::Mov,
             ai: AI::Hero,
             ..Ent::new_tex_col(x, y, load_texture_blocking_unwrap("imgs/ferris.png"), GOLD)
         }
@@ -617,7 +625,7 @@ impl Ent {
 
     fn new_snake(x: i16, y:i16, dir: Delta) -> Ent {
         Ent {
-            solid: Solid::Mov,
+            pass: Pass::Mov,
             ai: AI::Snake,
             dir: dir,
             ..Ent::new_col(x, y, DARKGREEN)
@@ -631,11 +639,11 @@ impl Ent {
     }
 }
 
-// Whether other movs can move through an ent or not.
-#[derive(Clone)]
-enum Solid {
+// Passable. Whether other movs can move through an ent or not.
+#[derive(Clone, PartialEq)]
+enum Pass {
     Empty, // No impediment to movement, e.g. floor.
-    _Solid, // Block movement, e.g. wall.
+    Solid, // Block movement, e.g. wall.
     Mov, // Something which can move itself, e.g. hero, enemy
     // INSERT: Obj, // Something which can be moved or maybe coexisted with, e.g. furniture
 }
@@ -645,7 +653,7 @@ enum Solid {
 enum AI {
     Stay, // No self movement.
     Hero, // Controlled by keys.
-    Snake, // Move in direction, bounce of walls, move orthogonally towards hero.
+    Snake, // Move in direction, move orthogonally towards hero. Maybe: bounce off walls.
 }
 
 struct Input {
