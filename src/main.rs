@@ -142,6 +142,7 @@ impl Play {
 
         // Initialise snake
         play.spawn_mov(1, 1, Ent::new_snake(1, 1, (1,0)));
+        play.spawn_mov(9, 9, Ent::new_snake(9, 9, (-1,0)));
 
         play
     }
