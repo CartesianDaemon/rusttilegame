@@ -129,6 +129,9 @@ impl Play {
             // Or will that fall afoul of borrow checker?
             for (x, y) in play.map.coords() {
                 play.map.set_at(x as i16, y as i16, Ent::new_floor(x, y));
+                if play.map.is_edge(x, y) {
+                    play.map.set_at(x, y, Ent::new_wall(x, y));
+                }
             }
         }
 
@@ -262,7 +265,9 @@ impl Map {
         self.locs[0].len() as u16
     }
 
-    // INSERT: create_at ...
+    fn is_edge(&self, x: i16, y: i16) -> bool {
+        x == 0 || x == self.w() as i16 -1 || y == 0 || y == self.h() as i16 -1
+    }
 
     // All map-altering fns go through a fn like this to keep Map/Ros coords in sync.
     // Nothing happens if target is off map. Higher layer should prevent that.
@@ -638,7 +643,7 @@ impl Ent {
         }
     }
 
-    fn _new_floor(x: i16, y: i16) -> Ent {
+    fn new_wall(x: i16, y: i16) -> Ent {
         Ent {
             ..Ent::new_col(x, y, DARKGRAY)
         }
