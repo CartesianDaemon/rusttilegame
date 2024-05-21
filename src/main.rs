@@ -127,18 +127,23 @@ impl Play {
         }
 
         // Initialise hero
-        play.spawn_at(3, 8, Ent::new_hero_crab(3, 8).await);
+        play.spawn_hero(3, 8, Ent::new_hero_crab(3, 8).await);
 
         // Initialise snake
-        play.spawn_at(1, 1, Ent::new_snake(1, 1, (1,0)));
+        play.spawn_mov(1, 1, Ent::new_snake(1, 1, (1,0)));
 
         play
     }
 
-    fn spawn_at(&mut self, x: i16, y: i16, ent: Ent) {
+    fn spawn_hero(&mut self, x: i16, y: i16, ent: Ent) {
+        self.ros.hero = (x, y, 0);
+        self.map.put_at(&mut self.ros.hero, ent);
+    }
+
+    fn spawn_mov(&mut self, x: i16, y: i16, ent: Ent) {
         let mut new_pos = (x, y, 0);
         self.map.put_at(&mut new_pos, ent);
-        self.ros.add(new_pos);
+        self.ros.push_mov(new_pos);
     }
 
     // Does current mode need UI to wait for tick before updating state?
@@ -464,7 +469,7 @@ impl Ros {
         }
     }
 
-    fn add(&mut self, hdl: Handle) {
+    fn push_mov(&mut self, hdl: Handle) {
         self.movs.push(hdl);
     }
 }
