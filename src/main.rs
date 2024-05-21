@@ -5,6 +5,7 @@ use std::collections::LinkedList;
 use std::mem;
 use std::ops::Index;
 use std::ops::IndexMut;
+use futures::executor::block_on;
 
 // Might like types:
 //
@@ -24,6 +25,11 @@ type Pos = (i16, i16, u16);
 type Point = (i16, i16);
 type Delta = (i16, i16);
 
+// Utils
+fn load_texture_blocking_unwrap(path: &str) -> Texture2D {
+    block_on(load_texture(path)).unwrap()
+}
+
 // Overall game state.
 struct Game {
     p: Play,
@@ -31,14 +37,14 @@ struct Game {
 }
 
 impl Game {
-    async fn new_default() -> Game {
+    fn new_default() -> Game {
         Game {
-            p: Play::new_default_level().await,
+            p: Play::new_default_level(),
             i: Input::new_default(),
         }
     }
 
-    async fn do_frame(&mut self) {
+    fn do_frame(&mut self) {
         // Can I make a single function for this and ready_for_tick()?
         self.i.read_input();
 
@@ -65,7 +71,7 @@ impl Game {
             if !self.p.game_over {
                 self.p.advance_level(self.i.consume_keypresses());
             } else {
-                self.p.advance_game_over(self.i.consume_keypresses()).await;
+                self.p.advance_game_over(self.i.consume_keypresses());
 
                 // Reset "most recent tick" when leaving menu.
                 // Need to move into input code. Maybe "when starting level"?
@@ -112,8 +118,7 @@ impl Play {
         }
     }
 
-    // TODO: Avoid sync needed for texture loading?
-    async fn new_default_level() -> Play {
+    fn new_default_level() -> Play {
         // Some of this may move to Map, or to a new intermediate struct.
 
         let mut play = Self::new_empty_level();
@@ -128,7 +133,7 @@ impl Play {
         }
 
         // Initialise hero
-        play.spawn_hero(3, 8, Ent::new_hero_crab(3, 8).await);
+        play.spawn_hero(3, 8, Ent::new_hero_crab(3, 8));
 
         // Initialise snake
         play.spawn_mov(1, 1, Ent::new_snake(1, 1, (1,0)));
@@ -207,9 +212,9 @@ impl Play {
         }
     }
 
-    async fn advance_game_over(&mut self, key: Option<KeyCode>) {
+    fn advance_game_over(&mut self, key: Option<KeyCode>) {
         if Some(KeyCode::Enter) == key {
-            *self = Play::new_default_level().await;
+            *self = Play::new_default_level();
         }
     }
 }
@@ -596,10 +601,10 @@ impl Ent {
     }
 
     // Specific ent types
-    async fn new_hero_crab(x: i16, y:i16) -> Ent {
+    fn new_hero_crab(x: i16, y:i16) -> Ent {
         Ent {
             ai: AI::Hero,
-            ..Ent::new_tex_col(x, y, load_texture("imgs/ferris.png").await.unwrap(), GOLD)
+            ..Ent::new_tex_col(x, y, load_texture_blocking_unwrap("imgs/ferris.png"), GOLD)
         }
     }
 
@@ -764,10 +769,10 @@ impl RenderGameOver
 
 #[macroquad::main("Tile Game")]
 async fn main() {
-    let mut g = Game::new_default().await;
+    let mut g = Game::new_default();
 
     loop {
-        g.do_frame().await;
+        g.do_frame();
 
         next_frame().await;
     }
