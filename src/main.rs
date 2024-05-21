@@ -152,29 +152,39 @@ impl Play {
 
         // TODO: Change `snake` to `mov`
         for snake in &mut self.ros.movs {
-            // if snake on same row xor column as hero, change dir to face hero
-            if (snake.0 == self.ros.hero.0) != (snake.1 == self.ros.hero.1) {
-                let new_dir: Delta = ((self.ros.hero.0 - snake.0).signum(),(self.ros.hero.1 - snake.1).signum());
-                self.map[*snake].dir = new_dir;
-            }
+            match self.map[*snake].ai {
+                AI::Stay => {
+                    // Do nothing
+                },
+                AI::Hero => {
+                    // TODO
+                },
+                AI::Snake => {
+                    // if snake on same row xor column as hero, change dir to face hero
+                    if (snake.0 == self.ros.hero.0) != (snake.1 == self.ros.hero.1) {
+                        let new_dir: Delta = ((self.ros.hero.0 - snake.0).signum(),(self.ros.hero.1 - snake.1).signum());
+                        self.map[*snake].dir = new_dir;
+                    }
 
-            // die if snake would go out of bounds
-            // TODO: Instead: Game over if snake eats char; Respawn snake if dies.
-            if !(0..self.map.w() as i16).contains(&(snake.0 + self.map[*snake].dir.0)) ||
-                !(0..self.map.h() as i16).contains(&(snake.1 + self.map[*snake].dir.1))
-            {
-                self.game_over = true;
-            }
-            else
-            {
-                // move snake to new location
-                let dir = self.map[*snake].dir;
-                self.map.move_delta(snake, dir);
-            }
+                    // die if snake would go out of bounds
+                    // TODO: Instead: Game over if snake eats char; Respawn snake if dies.
+                    if !(0..self.map.w() as i16).contains(&(snake.0 + self.map[*snake].dir.0)) ||
+                        !(0..self.map.h() as i16).contains(&(snake.1 + self.map[*snake].dir.1))
+                    {
+                        self.game_over = true;
+                    }
+                    else
+                    {
+                        // move snake to new location
+                        let dir = self.map[*snake].dir;
+                        self.map.move_delta(snake, dir);
+                    }
 
-            // eat hero?
-            if snake.0 == self.ros.hero.0 && snake.1 == self.ros.hero.1 {
-                self.map.move_to(&mut self.ros.hero, (3, 8));
+                    // eat hero?
+                    if snake.0 == self.ros.hero.0 && snake.1 == self.ros.hero.1 {
+                        self.map.move_to(&mut self.ros.hero, (3, 8));
+                    }
+                }
             }
         }
 
@@ -459,6 +469,8 @@ impl Ros {
     }
 }
 
+type Handle = Pos;
+
 // "Location": Everything at a single coordinate in the current room.
 // #[derive(Clone)]
 struct Loc {
@@ -495,7 +507,7 @@ struct Ent {
     fill: Option<Color>,
     tex: Option<Texture2D>,
 
-    // INSERT: movement mode ai, e.g. snake, etc.
+    ai: AI,
 
     // Internal status for specific ent types.
     dir: Delta,
@@ -512,6 +524,8 @@ impl Ent {
             border: None,
             fill: None,
             tex: None,
+
+            ai: AI::Stay, // Could use this as a better placeholder flag
 
             dir: (0, 0),
         }
@@ -583,6 +597,7 @@ impl Ent {
     // Specific ent types
     async fn new_hero_crab(x: i16, y:i16) -> Ent {
         Ent {
+            ai: AI::Hero,
             ..Ent::new_tex_col(x, y, load_texture("imgs/ferris.png").await.unwrap(), GOLD)
         }
     }
@@ -590,6 +605,7 @@ impl Ent {
     fn new_snake(x: i16, y:i16, dir: Delta) -> Ent {
         Ent {
             dir: dir,
+            ai: AI::Snake,
             ..Ent::new_col(x, y, DARKGREEN)
         }
     }
@@ -601,7 +617,12 @@ impl Ent {
     }
 }
 
-type Handle = Pos;
+#[derive(Clone)]
+enum AI {
+    Stay, // No self movement.
+    Hero, // Controlled by keys.
+    Snake, // Move in direction, bounce of walls, move orthogonally towards hero.
+}
 
 struct Input {
     speed: f64,
