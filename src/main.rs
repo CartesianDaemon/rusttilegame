@@ -489,7 +489,7 @@ impl Loc {
     }
 
     fn passable(&self) -> bool {
-        !self.passable()
+        !self.impassable()
     }
 
     fn impassable(&self) -> bool {
@@ -635,6 +635,12 @@ impl Ent {
     fn new_floor(x: i16, y: i16) -> Ent {
         Ent {
             ..Ent::new_col_outline(x, y, WHITE, LIGHTGRAY)
+        }
+    }
+
+    fn _new_floor(x: i16, y: i16) -> Ent {
+        Ent {
+            ..Ent::new_col(x, y, DARKGRAY)
         }
     }
 }
