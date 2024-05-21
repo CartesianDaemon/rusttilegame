@@ -130,19 +130,19 @@ impl Play {
             // TODO: Can use "x, y, ents" if I implement Loc::put()?
             // Or will that fall afoul of borrow checker?
             for (x, y) in play.map.coords() {
-                play.map.set_at(x as i16, y as i16, Ent::new_floor(x, y));
+                play.map.set_at(x as i16, y as i16, Ent::new_floor());
                 if play.map.is_edge(x, y) {
-                    play.map.set_at(x, y, Ent::new_wall(x, y));
+                    play.map.set_at(x, y, Ent::new_wall());
                 }
             }
         }
 
         // Initialise hero
-        play.spawn_hero(3, 8, Ent::new_hero_crab(3, 8));
+        play.spawn_hero(3, 8, Ent::new_hero_crab());
 
         // Initialise snake
-        play.spawn_mov(1, 1, Ent::new_snake(1, 1, (1,0)));
-        play.spawn_mov(9, 9, Ent::new_snake(9, 9, (-1,0)));
+        play.spawn_mov(1, 1, Ent::new_snake((1,0)));
+        play.spawn_mov(9, 9, Ent::new_snake((-1,0)));
 
         play
     }
@@ -580,10 +580,8 @@ impl Ent {
 
     // Default values for fields not used in a particular ent type.
     #[allow(dead_code)]
-    fn empty(x: i16, y:i16) -> Ent {
+    fn empty() -> Ent {
         Ent {
-            x: x,
-            y: y,
             ..Ent::invalid()
         }
     }
@@ -593,43 +591,32 @@ impl Ent {
     }
 
     #[allow(dead_code)]
-    fn new_tex(x: i16, y:i16, tex: Texture2D) -> Ent {
+    fn new_tex(tex: Texture2D) -> Ent {
         Ent {
-            x: x,
-            y: y,
             h: 1, // TODO
             tex: Some(tex),
             ..Ent::invalid()
         }
     }
 
-    fn new_tex_col(x: i16, y:i16, tex: Texture2D, fill: Color) -> Ent {
+    fn new_tex_col(tex: Texture2D, fill: Color) -> Ent {
         // TODO: Shouldn't need coords as put_at should take care of that.
         Ent {
-            x: x,
-            y: y,
-            h: 1, // TODO
             tex: Some(tex),
             fill: Some(fill),
             ..Ent::invalid()
         }
     }
 
-    fn new_col(x: i16, y:i16, fill: Color) -> Ent {
+    fn new_col(fill: Color) -> Ent {
         Ent {
-            x: x,
-            y: y,
-            h: 1, // TODO
             fill: Some(fill),
             ..Ent::invalid()
         }
     }
 
-    fn new_col_outline(x: i16, y:i16, fill: Color, outline: Color) -> Ent {
+    fn new_col_outline(fill: Color, outline: Color) -> Ent {
         Ent {
-            x: x,
-            y: y,
-            h: 1, // TODO
             fill: Some(fill),
             border: Some(outline),
             ..Ent::invalid()
@@ -637,33 +624,33 @@ impl Ent {
     }
 
     // Specific ent types
-    fn new_hero_crab(x: i16, y:i16) -> Ent {
+    fn new_hero_crab() -> Ent {
         Ent {
             pass: Pass::Mov,
             ai: AI::Hero,
-            ..Ent::new_tex_col(x, y, load_texture_blocking_unwrap("imgs/ferris.png"), GOLD)
+            ..Ent::new_tex_col(load_texture_blocking_unwrap("imgs/ferris.png"), GOLD)
         }
     }
 
-    fn new_snake(x: i16, y:i16, dir: Delta) -> Ent {
+    fn new_snake(dir: Delta) -> Ent {
         Ent {
             pass: Pass::Mov,
             ai: AI::Snake,
             dir: dir,
-            ..Ent::new_col(x, y, DARKGREEN)
+            ..Ent::new_col(DARKGREEN)
         }
     }
 
-    fn new_floor(x: i16, y: i16) -> Ent {
+    fn new_floor() -> Ent {
         Ent {
-            ..Ent::new_col_outline(x, y, WHITE, LIGHTGRAY)
+            ..Ent::new_col_outline(WHITE, LIGHTGRAY)
         }
     }
 
-    fn new_wall(x: i16, y: i16) -> Ent {
+    fn new_wall() -> Ent {
         Ent {
             pass: Pass::Solid,
-            ..Ent::new_col(x, y, DARKGRAY)
+            ..Ent::new_col(DARKGRAY)
         }
     }
 }
