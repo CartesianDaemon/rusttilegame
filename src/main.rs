@@ -15,11 +15,11 @@ use std::ops::IndexMut;
 //            Vars vx, vy.
 // Delta: Offset of map coord. Signed. Vars dx, dy.
 // PixCoord: Coords on screen. f32. Vars px, py.
+// Pos: Coords including height.
 //
 // Ideally allowing arithmetic between dimension, map, delta with least casting.
 // And multiplication of p coords by map coords.
 
-// Tile coords (but without specifying height)
 type Pos = (i16, i16, u16);
 type Point = (i16, i16);
 type Delta = (i16, i16);
@@ -122,22 +122,20 @@ impl Play {
             // TODO: Can use "x, y, ents" if I implement Loc::put()?
             // Or will that fall afoul of borrow checker?
             for (x, y) in play.map.coords() {
-                play.map.put_at(x as i16, y as i16, Ent::new_floor(x, y));
+                play.map.set_at(x as i16, y as i16, Ent::new_floor(x, y));
             }
         }
 
         // Initialise hero
         {
-            play.ros.hero = (3, 8, 1);
-            play.map.put_at(3, 8, Ent::new_tex_col(3, 8, load_texture("imgs/ferris.png").await.unwrap(), GOLD));
+            play.ros.hero = (3, 8, 0);
+            play.map.put_at(&mut play.ros.hero, Ent::new_hero_crab(3, 8).await);
         }
 
         // Initialise snake
         {
-            // TODO: create_at
-            play.ros.snake.pos = (0, 0, 1);
-            play.ros.snake.dir = (1, 0);
-            play.map.put_at(0, 0, Ent::new_col(3, 8, DARKGREEN));
+            play.ros.snake.pos = (1, 1, 0);
+            play.map.put_at(&mut play.ros.snake.pos, Ent::new_snake(3, 8, (1,0)));
         }
 
 
@@ -155,20 +153,22 @@ impl Play {
 
         // if snake on same row xor column as hero, change dir to face hero
         if (self.ros.snake.pos.0 == self.ros.hero.0) != (self.ros.snake.pos.1 == self.ros.hero.1) {
-            self.ros.snake.dir = ((self.ros.hero.0 - self.ros.snake.pos.0).signum(),(self.ros.hero.1 - self.ros.snake.pos.1).signum())
+            let new_dir: Delta = ((self.ros.hero.0 - self.ros.snake.pos.0).signum(),(self.ros.hero.1 - self.ros.snake.pos.1).signum());
+            self.map[self.ros.snake.pos].dir = new_dir;
         }
 
         // die if snake would go out of bounds
         // TODO: Instead: Game over if snake eats char; Respawn snake if dies.
-        if !(0..self.map.w() as i16).contains(&(self.ros.snake.pos.0 + self.ros.snake.dir.0)) ||
-            !(0..self.map.h() as i16).contains(&(self.ros.snake.pos.1 + self.ros.snake.dir.1))
+        if !(0..self.map.w() as i16).contains(&(self.ros.snake.pos.0 + self.map[self.ros.snake.pos].dir.0)) ||
+            !(0..self.map.h() as i16).contains(&(self.ros.snake.pos.1 + self.map[self.ros.snake.pos].dir.1))
         {
             self.game_over = true;
         }
         else
         {
             // move snake to new location
-            self.map.move_delta(&mut self.ros.snake.pos, self.ros.snake.dir);
+            let dir = self.map[self.ros.snake.pos].dir;
+            self.map.move_delta(&mut self.ros.snake.pos, dir);
         }
 
         // eat hero?
@@ -191,9 +191,10 @@ impl Play {
 
     fn advance_game_over(&mut self, key: Option<KeyCode>) {
         if Some(KeyCode::Enter) == key {
+            // TODO: Use make_example_level etc instead of specifying the coords.
             self.map.move_to(&mut self.ros.hero, (8, 3));
             self.map.move_to(&mut self.ros.snake.pos, (1,1));
-            self.ros.snake.dir = (1, 0);
+            self.map[self.ros.snake.pos].dir = (1, 0);
             self.game_over = false;
         }
     }
@@ -243,7 +244,7 @@ impl Map {
         self.locs[0].len() as u16
     }
 
-    // INSERT: create_at ... 
+    // INSERT: create_at ...
 
     // All map-altering fns go through a fn like this to keep Map/Ros coords in sync.
     // Nothing happens if target is off map. Higher layer should prevent that.
@@ -260,9 +261,9 @@ impl Map {
             self.atm(*pos).pop();
         }
 
-        *pos = (to.0, to.1, self.at((to.0, to.1, 0)).len() as u16);
+        *pos = (to.0, to.1, 0);
 
-        self.put_at( to.0, to.1, ent);
+        self.put_at(pos, ent);
     }
 
     // Nothing happens if target is off map. Higher layer should prevent that.
@@ -270,7 +271,8 @@ impl Map {
         self.move_to(pos, (pos.0 + delta.0, pos.1 + delta.1));
     }
 
-    // Access vec of ents stacked at given location (not using height field in Pos)
+    // Access loc.ents stacked at given coords (not using height field in Pos)
+    // Used to add and remove from map, mostly internally
     fn at(&self, pos: Pos) -> &Vec<Ent> {
         &self.locs[pos.0 as usize][pos.1 as usize].ents
     }
@@ -280,14 +282,25 @@ impl Map {
         &mut self.locs[pos.0 as usize][pos.1 as usize].ents
     }
 
-    fn put_at(&mut self, x: i16, y: i16, val: Ent) {
-        // Do we need these coords in ent?
+    // Add an ent at x,y, not tied to any roster.
+    fn set_at(&mut self, x: i16, y: i16, val: Ent) {
         let mut ent = val;
         ent.x = x;
         ent.y = y;
         ent.h = self.at((x, y, 0)).len() as u16;
 
         self.atm( (x, y, 0) ).push(ent);
+    }
+
+    // Add an ent at pos.x, pos.y and update pos.z to match.
+    fn put_at(&mut self, pos: &mut Pos, val: Ent) {
+        let mut ent = val;
+        ent.x = pos.0;
+        ent.y = pos.1;
+        ent.h = self.at(*pos).len() as u16;
+        pos.2 = ent.h;
+
+        self.atm(*pos).push(ent);
     }
 
     // e.g. `for ( x, y ) in map.coords()`
@@ -421,7 +434,7 @@ impl<'a> Iterator for LocIteratorMut<'a> {
 // Roster of character, enemies, etc. Indexes into map.
 struct Ros {
     // Hero
-    hero: Pos, // TODO: Better name for protagonist than "hero".
+    hero: Handle, // TODO: Better name for protagonist than "hero".
 
     // Enemies. It may be simpler to just not have this and iterate through the map.
     // Might be replaced by a set of lists of "everything that has this property" etc
@@ -436,7 +449,6 @@ impl Ros {
             hero: (0, 0, 1), // TODO: Put in invalid coords to start?
             snake: Snake {
                 pos: (0, 0, 1), // TODO: Shouldn't need to match coords elsewhere but may
-                dir: (1, 0),
             }
         }
     }
@@ -467,29 +479,52 @@ impl Clone for Loc {
 #[derive(Clone)]
 #[allow(dead_code)]
 struct Ent {
-    // Do we actually need these or not?
+    // Cache of coords ent is at on map. These might be useful for movement logic, but probably
+    // aren't required.
     x: i16,
     y: i16,
     h: u16,
+
+    // Visual display.
     border: Option<Color>,
     fill: Option<Color>,
     tex: Option<Texture2D>,
+
+    // INSERT: movement mode ai, e.g. snake, etc.
+
+    // Internal status for specific ent types.
+    dir: Delta,
 }
 
 impl Ent {
+    // An unitialised ent
     fn invalid() -> Ent {
         Ent {
             x: -1, // For now "-1" flags "this element is a placeholder in height vector"
             y: -1,
             h: 0,
+
             border: None,
             fill: None,
             tex: None,
+
+            dir: (0, 0),
         }
     }
 
+    // An ent which is ignored when it exists in the map.
     fn placeholder() -> Ent {
         Ent::invalid()
+    }
+
+    // Default values for fields not used in a particular ent type.
+    #[allow(dead_code)]
+    fn empty(x: i16, y:i16) -> Ent {
+        Ent {
+            x: x,
+            y: y,
+            ..Ent::invalid()
+        }
     }
 
     fn is_placeholder(&self) -> bool {
@@ -508,6 +543,7 @@ impl Ent {
     }
 
     fn new_tex_col(x: i16, y:i16, tex: Texture2D, fill: Color) -> Ent {
+        // TODO: Shouldn't need coords as put_at should take care of that.
         Ent {
             x: x,
             y: y,
@@ -523,29 +559,48 @@ impl Ent {
             x: x,
             y: y,
             h: 1, // TODO
-            tex: None,
             fill: Some(fill),
             ..Ent::invalid()
         }
     }
 
-    // TODO: Want to combine into a "put_at" function which initialises locations ok.
-    // TODO: Should be global or part of map, or part of Ent?
-    fn new_floor(x: i16, y: i16) -> Ent {
+    fn new_col_outline(x: i16, y:i16, fill: Color, outline: Color) -> Ent {
         Ent {
             x: x,
             y: y,
-            h: 0,
-            border: Some(LIGHTGRAY),
-            fill: Some(WHITE),
-            tex: None,
+            h: 1, // TODO
+            fill: Some(fill),
+            border: Some(outline),
+            ..Ent::invalid()
+        }
+    }
+
+    // Specific ent types
+    async fn new_hero_crab(x: i16, y:i16) -> Ent {
+        Ent {
+            ..Ent::new_tex_col(x, y, load_texture("imgs/ferris.png").await.unwrap(), GOLD)
+        }
+    }
+
+    fn new_snake(x: i16, y:i16, dir: Delta) -> Ent {
+        Ent {
+            dir: dir,
+            ..Ent::new_col(x, y, DARKGREEN)
+        }
+    }
+
+    fn new_floor(x: i16, y: i16) -> Ent {
+        Ent {
+            ..Ent::new_col_outline(x, y, WHITE, LIGHTGRAY)
         }
     }
 }
 
+type Handle = Pos;
+
+// TODO: Remove nesting, have handle directly
 struct Snake {
     pos: Pos,
-    dir: Delta,
 }
 
 struct Input {
@@ -611,9 +666,9 @@ impl RenderLevel {
             sq_w: (screen_height() - offset_y * 2.) / w as f32,
             sq_h: (screen_height() - offset_y * 2.) / w as f32,
         };
-        
+
         r._draw_backdrop();
-        
+
         r
     }
 
