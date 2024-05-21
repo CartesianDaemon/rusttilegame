@@ -513,6 +513,10 @@ struct Ent {
     fill: Option<Color>,
     tex: Option<Texture2D>,
 
+    // Solidity, e.g. wall, floor
+    solid: Solid,
+
+    // Movement control logic for enemies
     ai: AI,
 
     // Internal status for specific ent types.
@@ -530,6 +534,8 @@ impl Ent {
             border: None,
             fill: None,
             tex: None,
+
+            solid: Solid::Empty,
 
             ai: AI::Stay, // Could use this as a better placeholder flag
 
@@ -603,6 +609,7 @@ impl Ent {
     // Specific ent types
     fn new_hero_crab(x: i16, y:i16) -> Ent {
         Ent {
+            solid: Solid::Mov,
             ai: AI::Hero,
             ..Ent::new_tex_col(x, y, load_texture_blocking_unwrap("imgs/ferris.png"), GOLD)
         }
@@ -610,8 +617,9 @@ impl Ent {
 
     fn new_snake(x: i16, y:i16, dir: Delta) -> Ent {
         Ent {
-            dir: dir,
+            solid: Solid::Mov,
             ai: AI::Snake,
+            dir: dir,
             ..Ent::new_col(x, y, DARKGREEN)
         }
     }
@@ -623,6 +631,16 @@ impl Ent {
     }
 }
 
+// Whether other movs can move through an ent or not.
+#[derive(Clone)]
+enum Solid {
+    Empty, // No impediment to movement, e.g. floor.
+    _Solid, // Block movement, e.g. wall.
+    Mov, // Something which can move itself, e.g. hero, enemy
+    // INSERT: Obj, // Something which can be moved or maybe coexisted with, e.g. furniture
+}
+
+// Types of movement-control logic ents can use
 #[derive(Clone)]
 enum AI {
     Stay, // No self movement.
