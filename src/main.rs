@@ -38,7 +38,7 @@ impl Game {
         }
     }
 
-    fn do_frame(&mut self) {
+    async fn do_frame(&mut self) {
         // Can I make a single function for this and ready_for_tick()?
         self.i.read_input();
 
@@ -65,7 +65,7 @@ impl Game {
             if !self.p.game_over {
                 self.p.advance_level(self.i.consume_keypresses());
             } else {
-                self.p.advance_game_over(self.i.consume_keypresses());
+                self.p.advance_game_over(self.i.consume_keypresses()).await;
 
                 // Reset "most recent tick" when leaving menu.
                 // Need to move into input code. Maybe "when starting level"?
@@ -107,11 +107,12 @@ impl Play {
     fn new_empty_level() -> Play {
         Play {
             game_over: false,
-            map: Map::new_example_level(16),
-            ros: Ros::new_example_level(16), // These two should be generated together
+            map: Map::new(16),
+            ros: Ros::new(16), // These two should be generated together
         }
     }
 
+    // TODO: Avoid sync needed for texture loading?
     async fn new_default_level() -> Play {
         // Some of this may move to Map, or to a new intermediate struct.
 
@@ -206,13 +207,9 @@ impl Play {
         }
     }
 
-    fn advance_game_over(&mut self, key: Option<KeyCode>) {
+    async fn advance_game_over(&mut self, key: Option<KeyCode>) {
         if Some(KeyCode::Enter) == key {
-            // TODO: Use make_example_level etc instead of specifying the coords.
-            self.map.move_to(&mut self.ros.hero, (8, 3));
-            self.map.move_to(&mut self.ros.movs.last_mut().unwrap(), (1,1));
-            // self.map[self.ros.snake].dir = (1, 0);
-            self.game_over = false;
+            *self = Play::new_default_level().await;
         }
     }
 }
@@ -244,11 +241,10 @@ impl Map {
         panic!("New default Map unimplemented.");
     }*/
 
-    fn new_example_level(sz: u16) -> Map {
+    fn new(sz: u16) -> Map {
         // Some of this may move back up to Play, or from there to here.
         Map {
             locs: vec!(vec!(Loc::new(); sz.into()); sz.into()),
-            // cf coords in Ros::new_example_level()
         }
     }
 
@@ -461,10 +457,10 @@ struct Ros {
 }
 
 impl Ros {
-    fn new_example_level(sz: u16) -> Ros {
+    fn new(sz: u16) -> Ros {
         assert_eq!(sz, 16);
         Ros {
-            hero: (0, 0, 1), // TODO: Put in invalid coords to start?
+            hero: (0, 0, 1), 
             movs: vec![],
         }
     }
@@ -771,7 +767,7 @@ async fn main() {
     let mut g = Game::new_default().await;
 
     loop {
-        g.do_frame();
+        g.do_frame().await;
 
         next_frame().await;
     }
