@@ -7,6 +7,8 @@ use std::ops::Index;
 use std::ops::IndexMut;
 use futures::executor::block_on;
 
+// TODO: Split into separate modules for main types.
+
 // Might like types:
 //
 // Dimension: Width/height of map. Unsigned. Vars w,h.
@@ -205,12 +207,18 @@ impl Play {
         // Move character
 
         if let Some(key) = last_key_pressed {
+            let mut dir = (0, 0);
             match key {
-                KeyCode::Left  => self.map.move_delta(&mut self.ros.hero, (-1, 0)),
-                KeyCode::Right => self.map.move_delta(&mut self.ros.hero, (1, 0)),
-                KeyCode::Up    => self.map.move_delta(&mut self.ros.hero, (0, -1)),
-                KeyCode::Down  => self.map.move_delta(&mut self.ros.hero, (0, 1)),
+                KeyCode::Left  => dir = (-1, 0),
+                KeyCode::Right => dir = (1, 0),
+                KeyCode::Up    => dir = (0, -1),
+                KeyCode::Down  => dir = (0, 1),
                 _ => (),
+            }
+            if dir != (0, 0) {
+                if self.map.can_move(&self.ros.hero, dir) {
+                    self.map.move_delta(&mut self.ros.hero, dir);
+                }
             }
         }
     }
@@ -289,15 +297,23 @@ impl Map {
         self.put_at(pos, ent);
     }
 
+    fn can_move(&self, pos: &Pos, delta: Delta) -> bool {
+        self.loc_at( (pos.0 + delta.0, pos.1 + delta.1, 0) ).passable()
+    }
+
     // Nothing happens if target is off map. Higher layer should prevent that.
     fn move_delta(&mut self, pos: &mut Pos, delta: Delta) {
         self.move_to(pos, (pos.0 + delta.0, pos.1 + delta.1));
     }
 
+    fn loc_at(&self, pos: Pos) -> &Loc {
+        &self.locs[pos.0 as usize][pos.1 as usize]
+    }
+
     // Access loc.ents stacked at given coords (not using height field in Pos)
     // Used to add and remove from map, mostly internally
     fn at(&self, pos: Pos) -> &Vec<Ent> {
-        &self.locs[pos.0 as usize][pos.1 as usize].ents
+        &self.loc_at(pos).ents
     }
 
     // As "at" but mutably
@@ -645,6 +661,7 @@ impl Ent {
 
     fn new_wall(x: i16, y: i16) -> Ent {
         Ent {
+            pass: Pass::Solid,
             ..Ent::new_col(x, y, DARKGRAY)
         }
     }
