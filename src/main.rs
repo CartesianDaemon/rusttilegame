@@ -134,8 +134,8 @@ impl Play {
 
         // Initialise snake
         {
-            play.ros.snake.pos = (1, 1, 0);
-            play.map.put_at(&mut play.ros.snake.pos, Ent::new_snake(3, 8, (1,0)));
+            play.ros.snake = (1, 1, 0);
+            play.map.put_at(&mut play.ros.snake, Ent::new_snake(3, 8, (1,0)));
         }
 
 
@@ -152,27 +152,27 @@ impl Play {
         // Move snake
 
         // if snake on same row xor column as hero, change dir to face hero
-        if (self.ros.snake.pos.0 == self.ros.hero.0) != (self.ros.snake.pos.1 == self.ros.hero.1) {
-            let new_dir: Delta = ((self.ros.hero.0 - self.ros.snake.pos.0).signum(),(self.ros.hero.1 - self.ros.snake.pos.1).signum());
-            self.map[self.ros.snake.pos].dir = new_dir;
+        if (self.ros.snake.0 == self.ros.hero.0) != (self.ros.snake.1 == self.ros.hero.1) {
+            let new_dir: Delta = ((self.ros.hero.0 - self.ros.snake.0).signum(),(self.ros.hero.1 - self.ros.snake.1).signum());
+            self.map[self.ros.snake].dir = new_dir;
         }
 
         // die if snake would go out of bounds
         // TODO: Instead: Game over if snake eats char; Respawn snake if dies.
-        if !(0..self.map.w() as i16).contains(&(self.ros.snake.pos.0 + self.map[self.ros.snake.pos].dir.0)) ||
-            !(0..self.map.h() as i16).contains(&(self.ros.snake.pos.1 + self.map[self.ros.snake.pos].dir.1))
+        if !(0..self.map.w() as i16).contains(&(self.ros.snake.0 + self.map[self.ros.snake].dir.0)) ||
+            !(0..self.map.h() as i16).contains(&(self.ros.snake.1 + self.map[self.ros.snake].dir.1))
         {
             self.game_over = true;
         }
         else
         {
             // move snake to new location
-            let dir = self.map[self.ros.snake.pos].dir;
-            self.map.move_delta(&mut self.ros.snake.pos, dir);
+            let dir = self.map[self.ros.snake].dir;
+            self.map.move_delta(&mut self.ros.snake, dir);
         }
 
         // eat hero?
-        if self.ros.snake.pos.0 == self.ros.hero.0 && self.ros.snake.pos.1 == self.ros.hero.1 {
+        if self.ros.snake.0 == self.ros.hero.0 && self.ros.snake.1 == self.ros.hero.1 {
             self.map.move_to(&mut self.ros.hero, (3, 8));
         }
 
@@ -193,8 +193,8 @@ impl Play {
         if Some(KeyCode::Enter) == key {
             // TODO: Use make_example_level etc instead of specifying the coords.
             self.map.move_to(&mut self.ros.hero, (8, 3));
-            self.map.move_to(&mut self.ros.snake.pos, (1,1));
-            self.map[self.ros.snake.pos].dir = (1, 0);
+            self.map.move_to(&mut self.ros.snake, (1,1));
+            self.map[self.ros.snake].dir = (1, 0);
             self.game_over = false;
         }
     }
@@ -439,7 +439,7 @@ struct Ros {
     // Enemies. It may be simpler to just not have this and iterate through the map.
     // Might be replaced by a set of lists of "everything that has this property" etc
     // like a Component system.
-    snake: Snake,
+    snake: Handle,
 }
 
 impl Ros {
@@ -447,9 +447,7 @@ impl Ros {
         assert_eq!(sz, 16);
         Ros {
             hero: (0, 0, 1), // TODO: Put in invalid coords to start?
-            snake: Snake {
-                pos: (0, 0, 1), // TODO: Shouldn't need to match coords elsewhere but may
-            }
+            snake: (0, 0, 1), // TODO: Should be initialised for real elsewhere
         }
     }
 }
@@ -598,11 +596,6 @@ impl Ent {
 
 type Handle = Pos;
 
-// TODO: Remove nesting, have handle directly
-struct Snake {
-    pos: Pos,
-}
-
 struct Input {
     speed: f64,
     last_update: f64,
@@ -740,7 +733,7 @@ impl RenderGameOver
     }
 }
 
-#[macroquad::main("Snake")]
+#[macroquad::main("Tile Game")]
 async fn main() {
     let mut g = Game::new_default().await;
 
