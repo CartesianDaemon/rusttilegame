@@ -7,6 +7,10 @@ use std::ops::Index;
 use std::ops::IndexMut;
 use futures::executor::block_on;
 
+mod input;
+
+use input::*;
+
 // TODO: Split into separate modules for main types.
 
 // Might like types:
@@ -670,43 +674,6 @@ enum AI {
     Stay, // No self movement.
     Hero, // Controlled by keys.
     Snake, // Move in direction, move orthogonally towards hero. Maybe: bounce off walls.
-}
-
-struct Input {
-    speed: f64,
-    last_update: f64,
-    // Should change to list.
-    // Ideally contain Move(1,0) action not KeyRight.
-    last_key_pressed: Option<KeyCode>,
-}
-
-impl Input {
-    fn new_default() -> Input {
-        Input {
-            speed: 0.3,
-            last_update: get_time(),
-            last_key_pressed: None,
-        }
-    }
-
-    fn read_input(&mut self) {
-        if let Some(key) = get_last_key_pressed() {
-            self.last_key_pressed = Some(key);
-        }
-    }
-
-    fn ready_for_tick(&mut self) -> bool {
-        if get_time() - self.last_update > self.speed {
-            self.last_update = get_time();
-            true
-        } else {
-            false
-        }
-    }
-
-    fn consume_keypresses(&mut self) -> Option<KeyCode> {
-        self.last_key_pressed.take()
-    }
 }
 
 // Render state for one frame of level
