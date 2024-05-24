@@ -45,33 +45,33 @@ impl IndexMut<Pos> for Map {
 
 impl Map {
     /*
-    fn new(sz: u16) -> Map {
+    pub fn new(sz: u16) -> Map {
         panic!("New default Map unimplemented.");
     }*/
 
-    fn new(sz: u16) -> Map {
+    pub fn new(sz: u16) -> Map {
         // Some of this may move back up to Play, or from there to here.
         Map {
             locs: vec!(vec!(Loc::new(); sz.into()); sz.into()),
         }
     }
 
-    fn w(&self) -> u16 {
+    pub fn w(&self) -> u16 {
         // TODO: Could return usize, most callers need to cast anyway.
         self.locs.len() as u16
     }
 
-    fn h(&self) -> u16 {
+    pub fn h(&self) -> u16 {
         self.locs[0].len() as u16
     }
 
-    fn is_edge(&self, x: i16, y: i16) -> bool {
+    pub fn is_edge(&self, x: i16, y: i16) -> bool {
         x == 0 || x == self.w() as i16 -1 || y == 0 || y == self.h() as i16 -1
     }
 
     // All map-altering fns go through a fn like this to keep Map/Ros coords in sync.
     // Nothing happens if target is off map. Higher layer should prevent that.
-    fn move_to(&mut self, pos: &mut Pos, to: Point) {
+    pub fn move_to(&mut self, pos: &mut Pos, to: Point) {
         let ent = if pos.2 as usize == self.at(*pos).len() {
             self.atm(*pos).pop().unwrap()
         } else {
@@ -89,32 +89,32 @@ impl Map {
         self.put_at(pos, ent);
     }
 
-    fn can_move(&self, pos: &Pos, delta: Delta) -> bool {
+    pub fn can_move(&self, pos: &Pos, delta: Delta) -> bool {
         self.loc_at( (pos.0 + delta.0, pos.1 + delta.1, 0) ).passable()
     }
 
     // Nothing happens if target is off map. Higher layer should prevent that.
-    fn move_delta(&mut self, pos: &mut Pos, delta: Delta) {
+    pub fn move_delta(&mut self, pos: &mut Pos, delta: Delta) {
         self.move_to(pos, (pos.0 + delta.0, pos.1 + delta.1));
     }
 
-    fn loc_at(&self, pos: Pos) -> &Loc {
+    pub fn loc_at(&self, pos: Pos) -> &Loc {
         &self.locs[pos.0 as usize][pos.1 as usize]
     }
 
     // Access loc.ents stacked at given coords (not using height field in Pos)
     // Used to add and remove from map, mostly internally
-    fn at(&self, pos: Pos) -> &Vec<Ent> {
+    pub fn at(&self, pos: Pos) -> &Vec<Ent> {
         &self.loc_at(pos).ents
     }
 
     // As "at" but mutably
-    fn atm(&mut self, pos: Pos) -> &mut Vec<Ent> {
+    pub fn atm(&mut self, pos: Pos) -> &mut Vec<Ent> {
         &mut self.locs[pos.0 as usize][pos.1 as usize].ents
     }
 
     // Add an ent at x,y, not tied to any roster.
-    fn set_at(&mut self, x: i16, y: i16, val: Ent) {
+    pub fn set_at(&mut self, x: i16, y: i16, val: Ent) {
         let mut ent = val;
         ent.x = x;
         ent.y = y;
@@ -124,7 +124,7 @@ impl Map {
     }
 
     // Add an ent at pos.x, pos.y and update pos.z to match.
-    fn put_at(&mut self, pos: &mut Pos, val: Ent) {
+    pub fn put_at(&mut self, pos: &mut Pos, val: Ent) {
         let mut ent = val;
         ent.x = pos.0;
         ent.y = pos.1;
@@ -135,7 +135,7 @@ impl Map {
     }
 
     // e.g. `for ( x, y ) in map.coords()`
-    fn coords(&self) -> CoordIterator {
+    pub fn coords(&self) -> CoordIterator {
         CoordIterator {
             w: self.w(),
             h: self.h(),
@@ -144,7 +144,7 @@ impl Map {
         }
     }
 
-    fn locs(&self) -> LocIterator {
+    pub fn locs(&self) -> LocIterator {
         LocIterator {
             w: self.w(),
             h: self.h(),
@@ -167,7 +167,7 @@ impl Map {
     */
 }
 
-struct CoordIterator {
+pub struct CoordIterator {
     // Original dimensions to iterate up to
     w: u16,
     h: u16,
@@ -176,7 +176,7 @@ struct CoordIterator {
     y: i16,
 }
 
-struct LocIterator<'a> {
+pub struct LocIterator<'a> {
     // Original dimensions to iterate up to
     w: u16,
     h: u16,
@@ -265,17 +265,17 @@ impl<'a> Iterator for LocIteratorMut<'a> {
 // Roster of character, enemies, etc. Indexes into map.
 pub struct Ros {
     // Hero
-    hero: Handle, // TODO: Better name for protagonist than "hero".
+    pub hero: Handle, // TODO: Better name for protagonist than "hero".
 
     // Anything which updates each tick, especially enemies.
     //
     // Might be replaced by a set of lists of "everything that has this property" etc
     // like a Component system.
-    movs: Vec<Handle>,
+    pub movs: Vec<Handle>,
 }
 
 impl Ros {
-    fn new(sz: u16) -> Ros {
+    pub fn new(sz: u16) -> Ros {
         assert_eq!(sz, 16);
         Ros {
             hero: (0, 0, 1),
@@ -283,7 +283,7 @@ impl Ros {
         }
     }
 
-    fn push_mov(&mut self, hdl: Handle) {
+    pub fn push_mov(&mut self, hdl: Handle) {
         self.movs.push(hdl);
     }
 }
@@ -294,19 +294,19 @@ type Handle = Pos;
 // "Location": Everything at a single coordinate in the current room.
 // #[derive(Clone)]
 pub struct Loc {
-    ents: Vec<Ent>,
+    pub ents: Vec<Ent>,
 }
 
 impl Loc {
-    fn new() -> Loc {
+    pub fn new() -> Loc {
         Loc { ents: vec![] }
     }
 
-    fn passable(&self) -> bool {
+    pub fn passable(&self) -> bool {
         !self.impassable()
     }
 
-    fn impassable(&self) -> bool {
+    pub fn impassable(&self) -> bool {
         self.ents.iter().any(|x| x.pass == Pass::Solid)
     }
 }
@@ -324,30 +324,33 @@ impl Clone for Loc {
 #[derive(Clone)]
 #[allow(dead_code)]
 pub struct Ent {
-    // Cache of coords ent is at on map. These might be useful for movement logic, but probably
+    // Cache of coords ent is at on map. These are useful for movement logic, but probably
     // aren't required.
-    x: i16,
-    y: i16,
-    h: u16,
+    pub x: i16,
+    pub y: i16,
+    pub h: u16,
 
-    // Visual display.
-    border: Option<Color>,
-    fill: Option<Color>,
-    tex: Option<Texture2D>,
+    // Visual display properties.
+    // Only used by Render. Worth moving into a separate struct shared between Map and Render?
+    pub border: Option<Color>,
+    pub fill: Option<Color>,
+    pub tex: Option<Texture2D>,
+
+    // Ent properties and behaviour, used by Game logic.
 
     // Solidity, e.g. wall, floor
-    pass: Pass,
+    pub pass: Pass,
 
     // Movement control logic for enemies
-    ai: AI,
+    pub ai: AI,
 
     // Internal status for specific ent types.
-    dir: Delta,
+    pub dir: Delta,
 }
 
 impl Ent {
     // An unitialised ent
-    fn invalid() -> Ent {
+    pub fn invalid() -> Ent {
         Ent {
             x: -1, // For now "-1" flags "this element is a placeholder in height vector"
             y: -1,
@@ -366,24 +369,24 @@ impl Ent {
     }
 
     // An ent which is ignored when it exists in the map.
-    fn placeholder() -> Ent {
+    pub fn placeholder() -> Ent {
         Ent::invalid()
     }
 
     // Default values for fields not used in a particular ent type.
     #[allow(dead_code)]
-    fn empty() -> Ent {
+    pub fn empty() -> Ent {
         Ent {
             ..Ent::invalid()
         }
     }
 
-    fn is_placeholder(&self) -> bool {
+    pub fn is_placeholder(&self) -> bool {
         self.x == -1
     }
 
     #[allow(dead_code)]
-    fn new_tex(tex: Texture2D) -> Ent {
+    pub fn new_tex(tex: Texture2D) -> Ent {
         Ent {
             h: 1, // TODO
             tex: Some(tex),
@@ -391,7 +394,7 @@ impl Ent {
         }
     }
 
-    fn new_tex_col(tex: Texture2D, fill: Color) -> Ent {
+    pub fn new_tex_col(tex: Texture2D, fill: Color) -> Ent {
         // TODO: Shouldn't need coords as put_at should take care of that.
         Ent {
             tex: Some(tex),
@@ -400,14 +403,14 @@ impl Ent {
         }
     }
 
-    fn new_col(fill: Color) -> Ent {
+    pub fn new_col(fill: Color) -> Ent {
         Ent {
             fill: Some(fill),
             ..Ent::invalid()
         }
     }
 
-    fn new_col_outline(fill: Color, outline: Color) -> Ent {
+    pub fn new_col_outline(fill: Color, outline: Color) -> Ent {
         Ent {
             fill: Some(fill),
             border: Some(outline),
@@ -416,14 +419,14 @@ impl Ent {
     }
 
     // Specific ent types
-    fn new_hero_crab() -> Ent {
+    pub fn new_hero_crab() -> Ent {
         Ent {
             pass: Pass::Mov,
             ai: AI::Hero,
             ..Ent::new_tex_col(load_texture_blocking_unwrap("imgs/ferris.png"), GOLD)
         }
     }
-    fn new_snake(dir: Delta) -> Ent {
+    pub fn new_snake(dir: Delta) -> Ent {
         Ent {
             pass: Pass::Mov,
             ai: AI::Snake,
@@ -432,13 +435,13 @@ impl Ent {
         }
     }
 
-    fn new_floor() -> Ent {
+    pub fn new_floor() -> Ent {
         Ent {
             ..Ent::new_col_outline(WHITE, LIGHTGRAY)
         }
     }
 
-    fn new_wall() -> Ent {
+    pub fn new_wall() -> Ent {
         Ent {
             pass: Pass::Solid,
             ..Ent::new_col(DARKGRAY)
@@ -448,7 +451,7 @@ impl Ent {
 
 // Passable. Whether other movs can move through an ent or not.
 #[derive(Clone, PartialEq)]
-enum Pass {
+pub enum Pass {
     Empty, // No impediment to movement, e.g. floor.
     Solid, // Block movement, e.g. wall.
     Mov, // Something which can move itself, e.g. hero, enemy
@@ -457,7 +460,7 @@ enum Pass {
 
 // Types of movement-control logic ents can use
 #[derive(Clone)]
-enum AI {
+pub enum AI {
     Stay, // No self movement.
     Hero, // Controlled by keys.
     Snake, // Move in direction, move orthogonally towards hero. Maybe: bounce off walls.
