@@ -6,7 +6,6 @@
 
 use macroquad::prelude::*;
 
-use std::collections::LinkedList;
 use std::mem;
 use futures::executor::block_on;
 use std::ops::Index;

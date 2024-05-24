@@ -1,10 +1,5 @@
 use macroquad::prelude::*;
 
-#[allow(unused_imports)]
-use std::collections::LinkedList;
-use std::mem;
-use futures::executor::block_on;
-
 mod input;
 use input::*;
 mod map;
