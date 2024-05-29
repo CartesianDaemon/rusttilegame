@@ -61,17 +61,7 @@ impl Game {
         // Need to know at this level to treat input differently on a tick
         // But maybe ready_for_tick can take a "tick wanted" parameter from Play mode.
         if self.p.continuous() || self.i.ready_for_tick() {
-            // Advance game state according to current mode (level, menu, game over, etc)
-            if !self.p.game_over {
-                self.p.advance_level(self.i.consume_keypresses());
-            } else {
-                self.p.advance_game_over(self.i.consume_keypresses());
-
-                // Reset "most recent tick" when leaving menu.
-                // Need to move into input code. Maybe "when starting level"?
-                // As part of some standard mode transition code?
-                self.i.last_update = get_time();
-            }
+            self.p.advance();
         }
 
         self.draw_frame();
@@ -100,10 +90,19 @@ impl Game {
 // TODO: Move Play to play submod?
 //
 
+// Whether we are currently playing a level, in intro screen, in game over, etc
+enum Mode { 
+    NewGame,
+    GameOver,
+    LevIntro(u16),
+    LevPlay(u16),
+    LevOutro(u16),
+}
+
 // Gameplay state: current level, map, etc.
 // May split out values relevant to current mode (level, menu, etc).
 struct Play {
-    game_over: bool,
+    mode: Mode,
 
     // Layout of current level.
     map: Map,
@@ -113,7 +112,7 @@ struct Play {
 impl Play {
     fn new_empty_level() -> Play {
         Play {
-            game_over: false,
+            mode: LevPlay(1),
             map: Map::new(16),
             ros: Ros::new(16), // These two should be generated together
         }
@@ -136,7 +135,27 @@ impl Play {
         self.game_over
     }
 
-    fn advance_level(&mut self, last_key_pressed: Option<KeyCode>) {
+    // Advance game state according to current state
+    fn advance(&mut self) {
+        match self.mode {
+            Mode::LevPlay(_) => {
+                self.p.advance_level(self.i.consume_keypresses());
+            }
+            Mode::GameOver => {
+                self.p.advance_game_over(self.i.consume_keypresses());
+
+                // Reset "most recent tick" when leaving menu.
+                // Need to move into input code. Maybe "when starting level"?
+                // As part of some standard mode transition code?
+                self.i.last_update = get_time();
+            }
+            _ => {
+                panic!("Unhandled game state");
+            }
+        }
+    }
+
+    pub fn advance_level(&mut self, last_key_pressed: Option<KeyCode>) {
         // Move movs
 
         // TODO: Change `snake` to `mov`
@@ -160,7 +179,7 @@ impl Play {
                     if !(0..self.map.w() as i16).contains(&(snake.0 + self.map[*snake].dir.0)) ||
                         !(0..self.map.h() as i16).contains(&(snake.1 + self.map[*snake].dir.1))
                     {
-                        self.game_over = true;
+                        self.progress_die();
                     }
                     else
                     {
@@ -196,10 +215,18 @@ impl Play {
         }
     }
 
-    fn advance_game_over(&mut self, key: Option<KeyCode>) {
+    fn progress_die(&mut self) {
+        self.mode = Mode::GameOver;
+    }
+
+    pub fn advance_game_over(&mut self, key: Option<KeyCode>) {
         if Some(KeyCode::Enter) == key {
-            *self = load::load_level(1);
+            self.progress_restart();
         }
+    }
+
+    fn progress_restart(&mut self) {
+        *self = load::load_level(1);
     }
 }
 
