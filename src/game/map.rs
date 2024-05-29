@@ -1,8 +1,8 @@
 // Map, location, and entity types.
 //
 // But movement logic etc are in Play.
-// Most of this can be used by level data files, even though
-// they usually don't need indexing, only creation.
+// These are also used by level data files, even though
+// they don't need any of the indexing.
 
 use macroquad::prelude::*;
 

@@ -4,6 +4,7 @@ mod input;
 use input::*;
 mod map;
 use map::*;
+mod load;
 
 // Might like types:
 //
@@ -32,7 +33,7 @@ pub struct Game {
 impl Game {
     pub fn new_default() -> Game {
         Game {
-            p: Play::new_default_level(),
+            p: load::new_default_level(),
             i: Input::new_default(),
         }
     }
@@ -109,33 +110,6 @@ impl Play {
             map: Map::new(16),
             ros: Ros::new(16), // These two should be generated together
         }
-    }
-
-    fn new_default_level() -> Play {
-        // Some of this may move to Map, or to a new intermediate struct.
-
-        let mut play = Self::new_empty_level();
-
-        // Initialise Floor
-        {
-            // TODO: Can use "x, y, ents" if I implement Loc::put()?
-            // Or will that fall afoul of borrow checker?
-            for (x, y) in play.map.coords() {
-                play.map.set_at(x as i16, y as i16, Ent::new_floor());
-                if play.map.is_edge(x, y) {
-                    play.map.set_at(x, y, Ent::new_wall());
-                }
-            }
-        }
-
-        // Initialise hero
-        play.spawn_hero(3, 8, Ent::new_hero_crab());
-
-        // Initialise snake
-        play.spawn_mov(1, 1, Ent::new_snake((1,0)));
-        play.spawn_mov(9, 9, Ent::new_snake((-1,0)));
-
-        play
     }
 
     fn spawn_hero(&mut self, x: i16, y: i16, ent: Ent) {
@@ -217,7 +191,7 @@ impl Play {
 
     fn advance_game_over(&mut self, key: Option<KeyCode>) {
         if Some(KeyCode::Enter) == key {
-            *self = Play::new_default_level();
+            *self = load::new_default_level();
         }
     }
 }
