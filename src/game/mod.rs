@@ -33,7 +33,7 @@ pub struct Game {
 impl Game {
     pub fn new_default() -> Game {
         Game {
-            p: load::new_default_level(),
+            p: load::load_level(1),
             i: Input::new_default(),
         }
     }
@@ -92,6 +92,13 @@ impl Game {
         }
     }
 }
+
+
+//
+// PLAY
+//
+// TODO: Move Play to play submod?
+//
 
 // Gameplay state: current level, map, etc.
 // May split out values relevant to current mode (level, menu, etc).
@@ -191,10 +198,17 @@ impl Play {
 
     fn advance_game_over(&mut self, key: Option<KeyCode>) {
         if Some(KeyCode::Enter) == key {
-            *self = load::new_default_level();
+            *self = load::load_level(1);
         }
     }
 }
+
+
+//
+// RENDER
+//
+// TODO: Move Render structs to render submod?
+//
 
 // Render state for one frame of level
 // Currently not needing any global graphics state
