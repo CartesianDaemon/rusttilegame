@@ -2,14 +2,15 @@
 
 use crate::game::Ent;
 use crate::game::Play;
+use crate::game::Mode;
 
 pub fn load_level(levno: u16) -> Play {
     match levno {
         1 => {
             let mut play = Play {
-                mode : Mode::LevPLay(1),
-                ..new_empty_level();
-            }
+                mode : Mode::LevPlay(1),
+                ..Play::new_empty_level()
+            };
 
             // Initialise Floor
             {

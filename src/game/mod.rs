@@ -5,6 +5,7 @@ use input::*;
 mod map;
 use map::*;
 mod load;
+// use load::*;
 
 // Might like types:
 //
@@ -61,24 +62,31 @@ impl Game {
         // Need to know at this level to treat input differently on a tick
         // But maybe ready_for_tick can take a "tick wanted" parameter from Play mode.
         if self.p.continuous() || self.i.ready_for_tick() {
-            self.p.advance();
+            self.p.advance(&mut self.i);
         }
 
         self.draw_frame();
     }
 
     fn draw_frame(&self) {
-        if !self.p.game_over {
-        let r = RenderLevel::begin(self.p.map.w(), self.p.map.h());
-            // Coords of first visible tile. Currently always 0,0.
-            let (ox, oy) = (0, 0);
-            for (x, y, loc) in self.p.map.locs() {
-                for ent in &loc.ents {
-                    r.draw_ent(x - ox, y - oy, ent);
+        // TODO: Should choice be in a Render function?
+        match self.p.mode {
+            Mode::LevPlay(_) => {
+                let r = RenderLevel::begin(self.p.map.w(), self.p.map.h());
+                // Coords of first visible tile. Currently always 0,0.
+                let (ox, oy) = (0, 0);
+                for (x, y, loc) in self.p.map.locs() {
+                    for ent in &loc.ents {
+                        r.draw_ent(x - ox, y - oy, ent);
+                    }
                 }
             }
-        } else {
-            let _r = RenderGameOver::begin();
+            Mode::GameOver => {
+                let _r = RenderGameOver::begin();
+            }
+            _ => {
+                panic!("Rendering unhandled game state");
+            }
         }
     }
 }
@@ -91,6 +99,7 @@ impl Game {
 //
 
 // Whether we are currently playing a level, in intro screen, in game over, etc
+#[allow(dead_code)]
 enum Mode { 
     NewGame,
     GameOver,
@@ -112,7 +121,7 @@ struct Play {
 impl Play {
     fn new_empty_level() -> Play {
         Play {
-            mode: LevPlay(1),
+            mode: Mode::LevPlay(1),
             map: Map::new(16),
             ros: Ros::new(16), // These two should be generated together
         }
@@ -132,25 +141,32 @@ impl Play {
     // Does current mode need UI to wait for tick before updating state?
     // Currently yes in level, no in game over.
     fn continuous(&self) -> bool {
-        self.game_over
+        match self.mode {
+            Mode::NewGame |
+            Mode::GameOver |
+            Mode::LevIntro(_) |
+            Mode::LevOutro(_) => true,
+            Mode::LevPlay(_) => false,
+        }
     }
 
     // Advance game state according to current state
-    fn advance(&mut self) {
+    fn advance(&mut self, input : &mut Input) {
         match self.mode {
             Mode::LevPlay(_) => {
-                self.p.advance_level(self.i.consume_keypresses());
+                self.advance_level(input.consume_keypresses());
             }
             Mode::GameOver => {
-                self.p.advance_game_over(self.i.consume_keypresses());
+                self.advance_game_over(input.consume_keypresses());
 
                 // Reset "most recent tick" when leaving menu.
+                // TODO: Avoid needing as a parameter. ie:
                 // Need to move into input code. Maybe "when starting level"?
                 // As part of some standard mode transition code?
-                self.i.last_update = get_time();
+                input.last_update = get_time();
             }
             _ => {
-                panic!("Unhandled game state");
+                panic!("Advancing unhandled game state");
             }
         }
     }
@@ -180,6 +196,7 @@ impl Play {
                         !(0..self.map.h() as i16).contains(&(snake.1 + self.map[*snake].dir.1))
                     {
                         self.progress_die();
+                        break; // Avoids double borrow. TODO: I think it's logical to bail out?
                     }
                     else
                     {
