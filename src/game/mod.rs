@@ -72,7 +72,7 @@ impl Game {
         // TODO: Should choice be in a Render function?
         match self.p.mode {
             Mode::LevPlay(_) => {
-                let r = RenderLevel::begin(self.p.map.w(), self.p.map.h());
+                let r = RenderLev::begin(self.p.map.w(), self.p.map.h());
                 // Coords of first visible tile. Currently always 0,0.
                 let (ox, oy) = (0, 0);
                 for (x, y, loc) in self.p.map.locs() {
@@ -82,7 +82,9 @@ impl Game {
                 }
             }
             Mode::GameOver => {
-                let _r = RenderGameOver::begin();
+                // TODO: Different text for different modes
+                let text = "Game Over. Press [enter] to play again.";
+                let _r = RenderSplash::begin(text);
             }
             _ => {
                 panic!("Rendering unhandled game state");
@@ -256,7 +258,7 @@ impl Play {
 
 // Render state for one frame of level
 // Currently not needing any global graphics state
-struct RenderLevel {
+struct RenderLev {
     // COORDS FOR CURRENT FRAME. In gl units which are pixels.
     // Distance from edge of drawing surface to play area
     offset_x: f32,
@@ -267,13 +269,13 @@ struct RenderLevel {
     sq_h: f32,
 }
 
-impl RenderLevel {
-    fn begin(w: u16, h: u16) -> RenderLevel {
+impl RenderLev {
+    fn begin(w: u16, h: u16) -> RenderLev {
         assert_eq!(w, h);
         let game_size = screen_width().min(screen_height());
         let offset_y = (screen_height() - game_size) / 2. + 10.;
 
-        let r = RenderLevel {
+        let r = RenderLev {
             // TODO: Why does this work with landscape orientation?
             offset_x: (screen_width() - game_size) / 2. + 10.,
             offset_y: (screen_height() - game_size) / 2. + 10.,
@@ -294,9 +296,9 @@ impl RenderLevel {
     }
 
     // Draw ent's texture/colour to the screen at specified tile coords.
-    // Works out pixel coords given pixel size of play area in RenderLevel.
+    // Works out pixel coords given pixel size of play area in RenderLev.
     fn draw_ent(
-        self: &RenderLevel,
+        self: &RenderLev,
         // View coords in map. Relative to first visible tile (currently always the same).
         vx: i16,
         vy: i16,
@@ -329,16 +331,15 @@ impl RenderLevel {
     }
 }
 
-// Render state for one frame of game over
+// Render state for one frame of "Show text, press enter to continue"
 // Currently not needing any global graphics state
-struct RenderGameOver {
+struct RenderSplash {
 }
 
-impl RenderGameOver
+impl RenderSplash
 {
-    fn begin() -> RenderGameOver {
+    fn begin(text: &str) -> RenderSplash {
         clear_background(WHITE);
-        let text = "Game Over. Press [enter] to play again.";
         let font_size = 30.;
         let text_size = measure_text(text, None, font_size as _, 1.0);
 
@@ -350,6 +351,6 @@ impl RenderGameOver
             DARKGRAY,
         );
 
-        RenderGameOver {}
+        RenderSplash {}
     }
 }
