@@ -4,6 +4,13 @@ use crate::game::Ent;
 use crate::game::Play;
 use crate::game::Mode;
 
+pub fn load_newgame() -> Play {
+    Play {
+        mode : Mode::NewGame,
+        ..Play::new_empty_level()
+    }
+}
+
 pub fn load_level(levno: u16) -> Play {
     match levno {
         1 => {

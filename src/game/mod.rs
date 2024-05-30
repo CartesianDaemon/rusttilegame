@@ -34,7 +34,7 @@ pub struct Game {
 impl Game {
     pub fn new_default() -> Game {
         Game {
-            p: load::load_level(1),
+            p: load::load_newgame(),
             i: Input::new_default(),
         }
     }
@@ -81,8 +81,12 @@ impl Game {
                     }
                 }
             }
+            // TODO: Store text in Play
+            Mode::NewGame => {
+                let text = "Press [enter] to start.";
+                let _r = RenderSplash::begin(text);
+            }
             Mode::GameOver => {
-                // TODO: Different text for different modes
                 let text = "Game Over. Press [enter] to play again.";
                 let _r = RenderSplash::begin(text);
             }
@@ -102,7 +106,7 @@ impl Game {
 
 // Whether we are currently playing a level, in intro screen, in game over, etc
 #[allow(dead_code)]
-enum Mode { 
+enum Mode {
     NewGame,
     GameOver,
     LevIntro(u16),
@@ -158,13 +162,20 @@ impl Play {
             Mode::LevPlay(_) => {
                 self.advance_level(input.consume_keypresses());
             }
-            Mode::GameOver => {
-                self.advance_game_over(input.consume_keypresses());
+            // TODO: Render splash modes in the same way
+            Mode::NewGame => {
+                self.advance_splash(input.consume_keypresses(), Mode::LevPlay(1));
 
                 // Reset "most recent tick" when leaving menu.
                 // TODO: Avoid needing as a parameter. ie:
                 // Need to move into input code. Maybe "when starting level"?
                 // As part of some standard mode transition code?
+                input.last_update = get_time();
+            }
+            Mode::GameOver => {
+                self.advance_splash(input.consume_keypresses(), Mode::LevPlay(1));
+
+                // See above
                 input.last_update = get_time();
             }
             _ => {
@@ -238,14 +249,14 @@ impl Play {
         self.mode = Mode::GameOver;
     }
 
-    pub fn advance_game_over(&mut self, key: Option<KeyCode>) {
+    pub fn advance_splash(&mut self, key: Option<KeyCode>, progress_to_mode: Mode) {
         if Some(KeyCode::Enter) == key {
-            self.progress_restart();
+            // TODO: 
+            match progress_to_mode {
+                Mode::LevPlay(levno) => *self = load::load_level(levno),
+                _ => panic!("Advance a splash screen to unknown mode"),
+            }
         }
-    }
-
-    fn progress_restart(&mut self) {
-        *self = load::load_level(1);
     }
 }
 
