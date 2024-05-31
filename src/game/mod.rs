@@ -81,9 +81,7 @@ impl Game {
                     }
                 }
             }
-            Mode::NewGame | Mode::LevIntro(_) | Mode::GameOver => {
-                // let text = "Press [enter] to start.";
-                // let text = "Game Over. Press [enter] to play again.";
+            Mode::NewGame | Mode::LevIntro(_) | Mode::Retry(_) => {
                 let _r = RenderSplash::begin(&self.p.splash_text);
             }
             Mode::LevOutro(_) => {
@@ -104,15 +102,16 @@ impl Game {
 // TODO: "Mode", "State", neither quite right. Use better name. 
 //
 // Currently hardcode that we go newgame -> levintro(1) -> levplay(1) -> levoutro(1)
-// -> levintro(2) etc. And that game loss goes -> gameover.
+// -> levintro(2) etc. And that game loss goes -> retry.
+//
+// Not sure if using level as part of enum is useful enough or not.
 #[allow(dead_code)]
 enum Mode {
     NewGame,
-    GameOver, // TODO: Rename to "restart?"
     LevIntro(u16),
     LevPlay(u16),
-    // TODO: LevDeath?
     LevOutro(u16),
+    Retry(u16),
 }
 
 // Gameplay state: current level, map, etc.
@@ -124,6 +123,9 @@ struct Play {
     // before and outro_text after.
     splash_text: String,
     outro_text: String,
+
+    // TODO: Want to add a State struct like Mode but with meta info about level
+    // like "next level". Which could be part of Play expected to be immutable.
 
     // Layout of current map, used in LevPlay.
     map: Map,
@@ -159,7 +161,7 @@ impl Play {
     fn continuous(&self) -> bool {
         match self.mode {
             Mode::NewGame |
-            Mode::GameOver |
+            Mode::Retry(_) |
             Mode::LevIntro(_) |
             Mode::LevOutro(_) => true,
             Mode::LevPlay(_) => false,
@@ -176,8 +178,8 @@ impl Play {
             Mode::NewGame => {
                 self.advance_splash(input, Mode::LevIntro(1));
             }
-            Mode::GameOver => {
-                self.advance_splash(input, Mode::LevIntro(1));
+            Mode::Retry(levno) => {
+                self.advance_splash(input, Mode::LevIntro(levno));
             }
             Mode::LevIntro(levno) => {
                 self.advance_splash(input, Mode::LevPlay(levno));
@@ -207,12 +209,11 @@ impl Play {
                         self.map[*snake].dir = new_dir;
                     }
 
-                    // die if snake would go out of bounds
-                    // TODO: Instead: Game over if snake eats char; Respawn snake if dies.
+                    // NOTE: When snake goes out of bounds is Pplaceholder for real win condition.
                     if !(0..self.map.w() as i16).contains(&(snake.0 + self.map[*snake].dir.0)) ||
                         !(0..self.map.h() as i16).contains(&(snake.1 + self.map[*snake].dir.1))
                     {
-                        self.progress_die();
+                        self.progress_win();
                         break; // Avoids double borrow. TODO: I think it's logical to bail out?
                     }
                     else
@@ -222,9 +223,10 @@ impl Play {
                         self.map.move_delta(snake, dir);
                     }
 
-                    // eat hero?
+                    // Die if snake moves onto hero
                     if snake.0 == self.ros.hero.0 && snake.1 == self.ros.hero.1 {
-                        self.map.move_to(&mut self.ros.hero, (3, 8));
+                        self.progress_die();
+                        break; // Avoids double borrow. TODO: I think it's logical to bail out?
                     }
                 }
             }
@@ -249,10 +251,23 @@ impl Play {
         }
     }
 
+    fn currlev(&self) -> u16 {
+        match self.mode {
+            Mode::LevIntro(levno) | Mode::LevPlay(levno) | Mode::LevOutro(levno) | Mode::Retry(levno) => levno,
+            Mode::NewGame => panic!("currlev not applicable at new game screen"),
+        }
+    }
+
+    fn nextlev(&self) -> u16 {
+        self.currlev() + 1
+    }
+
+    fn progress_win(&mut self) {
+        *self = load::load_level(self.nextlev());
+    }
+
     fn progress_die(&mut self) {
-        // TODO: Get current levno from current level
-        let levno = 1;
-        *self = load::load_gameover(levno);
+        *self = load::load_retry(self.currlev());
     }
 
     // TODO: Any clearer if it returned a bool for "progress" instead of progress_to param?

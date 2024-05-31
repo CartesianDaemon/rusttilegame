@@ -12,9 +12,9 @@ pub fn load_newgame() -> Play {
     }
 }
 
-pub fn load_gameover(_levno: u16) -> Play {
+pub fn load_retry(levno: u16) -> Play {
     Play {
-        mode : Mode::NewGame,
+        mode : Mode::Retry(levno),
         splash_text: "Game Over. Press [enter] to play again.".to_string(),
         ..Play::new_empty_level()
     }
