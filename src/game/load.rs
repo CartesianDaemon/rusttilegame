@@ -24,7 +24,7 @@ pub fn load_level(levno: u16) -> Play {
     match levno {
         1 => {
             let mut play = Play {
-                mode : Mode::LevPlay(1),
+                mode : Mode::LevIntro(1),
                 splash_text: "Welcome to level 1!".to_string(),
                 outro_text: "Goodbye from level 1!".to_string(),
                 ..Play::new_empty_level()

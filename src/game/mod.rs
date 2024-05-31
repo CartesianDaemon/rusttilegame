@@ -108,9 +108,10 @@ impl Game {
 #[allow(dead_code)]
 enum Mode {
     NewGame,
-    GameOver,
+    GameOver, // TODO: Rename to "restart?"
     LevIntro(u16),
     LevPlay(u16),
+    // TODO: LevDeath?
     LevOutro(u16),
 }
 
@@ -171,12 +172,15 @@ impl Play {
             Mode::LevPlay(_) => {
                 self.advance_level(input.consume_keypresses());
             }
-            // TODO: Render splash modes in the same way
+            // TODO: Is there a clearer way to express splash screen progressions?
             Mode::NewGame => {
-                self.advance_splash(input, Mode::LevPlay(1));
+                self.advance_splash(input, Mode::LevIntro(1));
             }
             Mode::GameOver => {
-                self.advance_splash(input, Mode::LevPlay(1));
+                self.advance_splash(input, Mode::LevIntro(1));
+            }
+            Mode::LevIntro(levno) => {
+                self.advance_splash(input, Mode::LevPlay(levno));
             }
             _ => {
                 panic!("Advancing unhandled game state");
@@ -264,7 +268,8 @@ impl Play {
         if Some(KeyCode::Enter) == key {
             // TODO: 
             match progress_to_mode {
-                Mode::LevPlay(levno) => *self = load::load_level(levno),
+                Mode::LevIntro(levno) => *self = load::load_level(levno),
+                Mode::LevPlay(levno) => self.mode = Mode::LevPlay(levno), // Map already loaded
                 _ => panic!("Advance a splash screen to unknown mode"),
             }
         }
