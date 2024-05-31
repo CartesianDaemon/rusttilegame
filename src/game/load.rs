@@ -7,15 +7,26 @@ use crate::game::Mode;
 pub fn load_newgame() -> Play {
     Play {
         mode : Mode::NewGame,
+        splash_text: "Press [enter] to start.".to_string(),
         ..Play::new_empty_level()
     }
 }
 
+pub fn load_gameover(_levno: u16) -> Play {
+    Play {
+        mode : Mode::NewGame,
+        splash_text: "Game Over. Press [enter] to play again.".to_string(),
+        ..Play::new_empty_level()
+    }
+}
+ 
 pub fn load_level(levno: u16) -> Play {
     match levno {
         1 => {
             let mut play = Play {
                 mode : Mode::LevPlay(1),
+                splash_text: "Welcome to level 1!".to_string(),
+                outro_text: "Goodbye from level 1!".to_string(),
                 ..Play::new_empty_level()
             };
 

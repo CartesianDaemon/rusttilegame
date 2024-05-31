@@ -81,17 +81,13 @@ impl Game {
                     }
                 }
             }
-            // TODO: Store text in Play
-            Mode::NewGame => {
-                let text = "Press [enter] to start.";
-                let _r = RenderSplash::begin(text);
+            Mode::NewGame | Mode::LevIntro(_) | Mode::GameOver => {
+                // let text = "Press [enter] to start.";
+                // let text = "Game Over. Press [enter] to play again.";
+                let _r = RenderSplash::begin(&self.p.splash_text);
             }
-            Mode::GameOver => {
-                let text = "Game Over. Press [enter] to play again.";
-                let _r = RenderSplash::begin(text);
-            }
-            _ => {
-                panic!("Rendering unhandled game state");
+            Mode::LevOutro(_) => {
+                let _r = RenderSplash::begin(&self.p.outro_text);
             }
         }
     }
@@ -105,6 +101,10 @@ impl Game {
 //
 
 // Whether we are currently playing a level, in intro screen, in game over, etc
+// TODO: "Mode", "State", neither quite right. Use better name. 
+//
+// Currently hardcode that we go newgame -> levintro(1) -> levplay(1) -> levoutro(1)
+// -> levintro(2) etc. And that game loss goes -> gameover.
 #[allow(dead_code)]
 enum Mode {
     NewGame,
@@ -115,11 +115,16 @@ enum Mode {
 }
 
 // Gameplay state: current level, map, etc.
-// May split out values relevant to current mode (level, menu, etc).
 struct Play {
+    // Current mode, e.g. "New Game screen" or "Intro to level 1".
     mode: Mode,
 
-    // Layout of current level.
+    // Text for current interstitial screen. Levels use splash_txt
+    // before and outro_text after.
+    splash_text: String,
+    outro_text: String,
+
+    // Layout of current map, used in LevPlay.
     map: Map,
     ros: Ros,
 }
@@ -128,8 +133,12 @@ impl Play {
     fn new_empty_level() -> Play {
         Play {
             mode: Mode::LevPlay(1),
+
+            splash_text: "SPLASH TEXT".to_string(),
+            outro_text: "OUTRO TEXT".to_string(),
+
             map: Map::new(16),
-            ros: Ros::new(16), // These two should be generated together
+            ros: Ros::new(16),
         }
     }
 
@@ -145,7 +154,7 @@ impl Play {
     }
 
     // Does current mode need UI to wait for tick before updating state?
-    // Currently yes in level, no in game over.
+    // Currently yes during play of level, no in splash screens.
     fn continuous(&self) -> bool {
         match self.mode {
             Mode::NewGame |
@@ -164,19 +173,10 @@ impl Play {
             }
             // TODO: Render splash modes in the same way
             Mode::NewGame => {
-                self.advance_splash(input.consume_keypresses(), Mode::LevPlay(1));
-
-                // Reset "most recent tick" when leaving menu.
-                // TODO: Avoid needing as a parameter. ie:
-                // Need to move into input code. Maybe "when starting level"?
-                // As part of some standard mode transition code?
-                input.last_update = get_time();
+                self.advance_splash(input, Mode::LevPlay(1));
             }
             Mode::GameOver => {
-                self.advance_splash(input.consume_keypresses(), Mode::LevPlay(1));
-
-                // See above
-                input.last_update = get_time();
+                self.advance_splash(input, Mode::LevPlay(1));
             }
             _ => {
                 panic!("Advancing unhandled game state");
@@ -246,10 +246,21 @@ impl Play {
     }
 
     fn progress_die(&mut self) {
-        self.mode = Mode::GameOver;
+        // TODO: Get current levno from current level
+        let levno = 1;
+        *self = load::load_gameover(levno);
     }
 
-    pub fn advance_splash(&mut self, key: Option<KeyCode>, progress_to_mode: Mode) {
+    // TODO: Any clearer if it returned a bool for "progress" instead of progress_to param?
+    pub fn advance_splash(&mut self, input: &mut Input, progress_to_mode: Mode) {
+        let key = input.consume_keypresses();
+
+        // Reset "most recent tick" when leaving menu.
+        // TODO: Avoid needing as a parameter. ie:
+        // Need to move into input code. Maybe "when starting level"?
+        // As part of some standard mode transition code?
+        input.last_update = get_time();
+
         if Some(KeyCode::Enter) == key {
             // TODO: 
             match progress_to_mode {
