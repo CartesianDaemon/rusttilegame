@@ -99,7 +99,12 @@ impl Game {
 //
 
 // Whether we are currently playing a level, in intro screen, in game over, etc
-// TODO: "Mode", "State", neither quite right. Use better name. 
+//
+// TODO: Make "State" in load which defines possible game states. Add "Mode" here
+// which only has "Splash" vs "LevPlay". load() should take a state as argument
+// and return a meaningful play, including Mode to render as, and win/loss States.
+// Possibly adding a map Continuation -> next-state, for continuations "continue",
+// "win", "loss".
 //
 // Currently hardcode that we go newgame -> levintro(1) -> levplay(1) -> levoutro(1)
 // -> levintro(2) etc. And that game loss goes -> retry.
@@ -179,6 +184,8 @@ impl Play {
                 self.advance_splash(input, Mode::LevIntro(1));
             }
             Mode::Retry(levno) => {
+                // TODO: Skip intro when retrying. But needs to actually load level,
+                // not just advance splash without changing map.
                 self.advance_splash(input, Mode::LevIntro(levno));
             }
             Mode::LevIntro(levno) => {
@@ -191,7 +198,23 @@ impl Play {
     }
 
     pub fn advance_level(&mut self, last_key_pressed: Option<KeyCode>) {
-        // Move movs
+        // Move character
+
+        if let Some(key) = last_key_pressed {
+            let mut dir = (0, 0);
+            match key {
+                KeyCode::Left  => dir = (-1, 0),
+                KeyCode::Right => dir = (1, 0),
+                KeyCode::Up    => dir = (0, -1),
+                KeyCode::Down  => dir = (0, 1),
+                _ => (),
+            }
+            if dir != (0, 0) {
+                if self.map.can_move(&self.ros.hero, dir) {
+                    self.map.move_delta(&mut self.ros.hero, dir);
+                }
+            }
+        }
 
         // TODO: Change `snake` to `mov`
         for snake in &mut self.ros.movs {
@@ -214,7 +237,7 @@ impl Play {
                         !(0..self.map.h() as i16).contains(&(snake.1 + self.map[*snake].dir.1))
                     {
                         self.progress_win();
-                        break; // Avoids double borrow. TODO: I think it's logical to bail out?
+                        return; // Avoids double borrow. TODO: I think it's logical to bail out?
                     }
                     else
                     {
@@ -226,26 +249,8 @@ impl Play {
                     // Die if snake moves onto hero
                     if snake.0 == self.ros.hero.0 && snake.1 == self.ros.hero.1 {
                         self.progress_die();
-                        break; // Avoids double borrow. TODO: I think it's logical to bail out?
+                        return; // Avoids double borrow. TODO: I think it's logical to bail out?
                     }
-                }
-            }
-        }
-
-        // Move character
-
-        if let Some(key) = last_key_pressed {
-            let mut dir = (0, 0);
-            match key {
-                KeyCode::Left  => dir = (-1, 0),
-                KeyCode::Right => dir = (1, 0),
-                KeyCode::Up    => dir = (0, -1),
-                KeyCode::Down  => dir = (0, 1),
-                _ => (),
-            }
-            if dir != (0, 0) {
-                if self.map.can_move(&self.ros.hero, dir) {
-                    self.map.move_delta(&mut self.ros.hero, dir);
                 }
             }
         }
@@ -284,7 +289,7 @@ impl Play {
             // TODO: 
             match progress_to_mode {
                 Mode::LevIntro(levno) => *self = load::load_level(levno),
-                Mode::LevPlay(levno) => self.mode = Mode::LevPlay(levno), // Map already loaded
+                Mode::LevPlay(levno) => self.mode = Mode::LevPlay(levno), // Map already loaded // TODO: Not right?
                 _ => panic!("Advance a splash screen to unknown mode"),
             }
         }
@@ -385,6 +390,7 @@ impl RenderSplash
         let font_size = 30.;
         let text_size = measure_text(text, None, font_size as _, 1.0);
 
+        // TODO: Multi-line text. Ideally with dialog pics etc.
         draw_text(
             text,
             screen_width() / 2. - text_size.width / 2.,

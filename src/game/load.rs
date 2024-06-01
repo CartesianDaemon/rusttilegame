@@ -51,7 +51,7 @@ pub fn load_level(levno: u16) -> Play {
         }
         2 => {
             let mut play = Play {
-                mode : Mode::LevIntro(1),
+                mode : Mode::LevIntro(2),
                 splash_text: "Ooh, welcome to level 2!".to_string(),
                 outro_text: "Wow, well done!! Goodbye from level 2!".to_string(),
                 ..Play::new_empty_level()
@@ -81,7 +81,7 @@ pub fn load_level(levno: u16) -> Play {
             Play {
                 mode : Mode::NewGame,
                 // TODO: Implement less ad hoc new game.
-                splash_text: "Congratulations. You win!\n\nPress [enter] to play again.".to_string(),
+                splash_text: "Congratulations. You win! Press [enter] to play again.".to_string(),
                 ..Play::new_empty_level()
             }
         }
