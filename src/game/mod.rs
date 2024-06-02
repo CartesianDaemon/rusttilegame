@@ -75,7 +75,7 @@ impl Game {
     }
 
     fn draw_frame(&self) {
-        // TODO: Should choice be in a Render function?
+        // FIXME: Should choice of Render class be made by a Render fn?
         match self.p.mode {
             Mode::LevPlay(_) => {
                 let r = RenderLev::begin(self.p.map.w(), self.p.map.h());
@@ -205,8 +205,9 @@ impl Play {
     }
 
     pub fn advance_level(&mut self, last_key_pressed: Option<KeyCode>) {
-        // Move character
+        // FIXME: Decide order of char, enemy. Maybe even move out of sync.
 
+        // Move character
         if let Some(key) = last_key_pressed {
             let mut dir = (0, 0);
             match key {
@@ -223,9 +224,9 @@ impl Play {
             }
         }
 
-        // TODO: Change `snake` to `mov`
-        for snake in &mut self.ros.movs {
-            match self.map[*snake].ai {
+        // Move all movs
+        for mov in &mut self.ros.movs {
+            match self.map[*mov].ai {
                 AI::Stay => {
                     // Do nothing
                 },
@@ -233,28 +234,28 @@ impl Play {
                     // TODO
                 },
                 AI::Snake => {
-                    // if snake on same row xor column as hero, change dir to face hero
-                    if (snake.0 == self.ros.hero.0) != (snake.1 == self.ros.hero.1) {
-                        let new_dir: Delta = ((self.ros.hero.0 - snake.0).signum(),(self.ros.hero.1 - snake.1).signum());
-                        self.map[*snake].dir = new_dir;
+                    // if mov on same row xor column as hero, change dir to face hero
+                    if (mov.0 == self.ros.hero.0) != (mov.1 == self.ros.hero.1) {
+                        let new_dir: Delta = ((self.ros.hero.0 - mov.0).signum(),(self.ros.hero.1 - mov.1).signum());
+                        self.map[*mov].dir = new_dir;
                     }
 
-                    // NOTE: When snake goes out of bounds is Pplaceholder for real win condition.
-                    if !(0..self.map.w() as i16).contains(&(snake.0 + self.map[*snake].dir.0)) ||
-                        !(0..self.map.h() as i16).contains(&(snake.1 + self.map[*snake].dir.1))
+                    // NOTE: When mov goes out of bounds is Pplaceholder for real win condition.
+                    if !(0..self.map.w() as i16).contains(&(mov.0 + self.map[*mov].dir.0)) ||
+                        !(0..self.map.h() as i16).contains(&(mov.1 + self.map[*mov].dir.1))
                     {
                         self.progress_win();
                         return; // Avoids double borrow. TODO: I think it's logical to bail out?
                     }
                     else
                     {
-                        // move snake to new location
-                        let dir = self.map[*snake].dir;
-                        self.map.move_delta(snake, dir);
+                        // move mov to new location
+                        let dir = self.map[*mov].dir;
+                        self.map.move_delta(mov, dir);
                     }
 
-                    // Die if snake moves onto hero
-                    if snake.0 == self.ros.hero.0 && snake.1 == self.ros.hero.1 {
+                    // Die if mov moves onto hero
+                    if mov.0 == self.ros.hero.0 && mov.1 == self.ros.hero.1 {
                         self.progress_die();
                         return; // Avoids double borrow. TODO: I think it's logical to bail out?
                     }
