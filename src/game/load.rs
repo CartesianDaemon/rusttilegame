@@ -37,13 +37,13 @@ pub fn load_level(levno: u16) -> Play {
             let ascii_map = [
             "################",
             "#              #",
+            "# >            #",
             "#              #",
             "#              #",
             "#              #",
             "#              #",
             "#              #",
-            "#              #",
-            "#              #",
+            "#   h          #",
             "#              #",
             "#              #",
             "#              #",
@@ -58,13 +58,15 @@ pub fn load_level(levno: u16) -> Play {
             let map_key = HashMap::from([
                 (' ', Ent::new_floor()),
                 ('#', Ent::new_wall()),
+                ('>', Ent::new_floor()), // TODO
+                ('h', Ent::new_floor()),
             ]);
 
             // TODO: Get size from strings, not map. Assert compatible sizes.
             for (y, line) in ascii_map.iter().enumerate() {
                 for (x, ch) in line.chars().enumerate() {
                     let ent = map_key.get(&ch).unwrap().clone();
-                    play.map.set_at(x as i16, y as i16, ent);
+                    play.map.set_at(x as i16, y as i16, ent); // TODO
                     // play.map.set_at(x as i16, y as i16, Ent::new_floor());
                 }
             }

@@ -120,6 +120,7 @@ impl Map {
     }
 
     // Add an ent at x,y, not tied to any roster.
+    // FIXME: Maybe replace with place_at
     pub fn set_at(&mut self, x: i16, y: i16, val: Ent) {
         let mut ent = val;
         ent.x = x;
@@ -130,6 +131,7 @@ impl Map {
     }
 
     // Add an ent at pos.x, pos.y and update pos.z to match.
+    // FIXME: Maybe replace with place_at
     pub fn put_at(&mut self, pos: &mut Pos, val: Ent) {
         let mut ent = val;
         ent.x = pos.0;
@@ -138,6 +140,22 @@ impl Map {
         pos.2 = ent.h;
 
         self.atm(*pos).push(ent);
+    }
+
+    // Add an ent at x,y. Set out_pos to coords if present.
+    // TODO: Could take vec as parameter instead?
+    // TODO: Caller could specify _ instead of maybe?
+    pub fn place_at(&mut self, x: i16, y:i16, out_pos: Option<&mut Pos>, val: Ent) {
+        let mut ent = val;
+        ent.x = x;
+        ent.y = y;
+        ent.h = self.at((x,y,0)).len() as u16;
+
+        if let Some(pos) = out_pos {
+            *pos = (ent.x, ent.y, ent.h);
+        }
+
+        self.atm( (x, y, 0) ).push(ent);
     }
 
     // e.g. `for ( x, y ) in map.coords()`
@@ -331,7 +349,7 @@ impl Clone for Loc {
 #[allow(dead_code)]
 pub struct Ent {
     // Cache of coords ent is at on map. These are useful for movement logic, but probably
-    // aren't required.
+    // aren't required. FIXME: Could be a Pos instead of separate coords.
     pub x: i16,
     pub y: i16,
     pub h: u16,
