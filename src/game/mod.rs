@@ -1,5 +1,7 @@
 use macroquad::prelude::*;
 
+// TODO: Work out which types should be exported and remove use ::*.
+// FIXME: Move to separate modules not submodules with visibility.
 mod input;
 use input::*;
 mod map;
@@ -7,7 +9,10 @@ use map::*;
 mod load;
 // use load::*;
 
-// Might like types:
+// Coord types (in theory)
+// 
+// FIXME: Move to Map, or separate coord module.
+// FIXME: Decide whether implementing types would help.
 //
 // Dimension: Width/height of map. Unsigned. Vars w,h.
 // MapCoord: Coords on map. Signed to allow looping past edge.
@@ -21,6 +26,7 @@ mod load;
 // Ideally allowing arithmetic between dimension, map, delta with least casting.
 // And multiplication of p coords by map coords.
 
+// Coord types defined approximate theoretical types:
 type Pos = (i16, i16, u16);
 type Point = (i16, i16);
 type Delta = (i16, i16);

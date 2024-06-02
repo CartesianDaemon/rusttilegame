@@ -11,7 +11,6 @@ use futures::executor::block_on;
 use std::ops::Index;
 use std::ops::IndexMut;
 
-// TODO: Put these into a "Coords" module.
 use super::Pos;
 use super::Point;
 use super::Delta;
@@ -56,7 +55,6 @@ impl Map {
     }
 
     pub fn w(&self) -> u16 {
-        // TODO: Could return usize, most callers need to cast anyway.
         self.locs.len() as u16
     }
 
