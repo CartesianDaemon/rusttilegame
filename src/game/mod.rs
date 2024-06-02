@@ -101,16 +101,17 @@ impl Game {
 //
 // PLAY
 //
-// TODO: Move Play to play submod?
+// FIXME: Move Play to play submod.
 //
 
 // Whether we are currently playing a level, in intro screen, in game over, etc
 //
-// TODO: Make "State" in load which defines possible game states. Add "Mode" here
+// FIXME: Make "State" in load which defines possible game states. Add "Mode" here
 // which only has "Splash" vs "LevPlay". load() should take a state as argument
 // and return a meaningful play, including Mode to render as, and win/loss States.
 // Possibly adding a map Continuation -> next-state, for continuations "continue",
-// "win", "loss".
+// "win", "loss". Also need struct holding state for current mode, which is most of
+// Play, but returned from load().
 //
 // Currently hardcode that we go newgame -> levintro(1) -> levplay(1) -> levoutro(1)
 // -> levintro(2) etc. And that game loss goes -> retry.
@@ -135,9 +136,6 @@ struct Play {
     // before and outro_text after.
     splash_text: String,
     outro_text: String,
-
-    // TODO: Want to add a State struct like Mode but with meta info about level
-    // like "next level". Which could be part of Play expected to be immutable.
 
     // Layout of current map, used in LevPlay.
     map: Map,
@@ -192,9 +190,7 @@ impl Play {
                 self.advance_splash(input, Mode::LevIntro(1));
             }
             Mode::Retry(levno) => {
-                // TODO: Skip intro when retrying. But needs to actually load level,
-                // not just advance splash without changing map.
-                self.advance_splash(input, Mode::LevIntro(levno));
+                self.advance_splash(input, Mode::LevPlay(levno));
             }
             Mode::LevIntro(levno) => {
                 self.advance_splash(input, Mode::LevPlay(levno));
@@ -287,7 +283,6 @@ impl Play {
         *self = load::load_retry(self.currlev());
     }
 
-    // TODO: Any clearer if it returned a bool for "progress" instead of progress_to param?
     pub fn advance_splash(&mut self, input: &mut Input, progress_to_mode: Mode) {
         let key = input.consume_keypresses();
 
@@ -298,10 +293,9 @@ impl Play {
         input.last_update = get_time();
 
         if Some(KeyCode::Enter) == key {
-            // TODO: 
             match progress_to_mode {
                 Mode::LevIntro(levno) => *self = load::load_level(levno),
-                Mode::LevPlay(levno) => self.mode = Mode::LevPlay(levno), // Map already loaded // TODO: Not right?
+                Mode::LevPlay(levno) => *self = Play { mode: Mode::LevPlay(levno), ..load::load_level(levno)},
                 _ => panic!("Advance a splash screen to unknown mode"),
             }
         }
