@@ -231,7 +231,7 @@ impl Play {
                     // Do nothing
                 },
                 AI::Hero => {
-                    // TODO
+                    // Handled separately.
                 },
                 AI::Snake => {
                     // if mov on same row xor column as hero, change dir to face hero
@@ -240,12 +240,12 @@ impl Play {
                         self.map[*mov].dir = new_dir;
                     }
 
-                    // NOTE: When mov goes out of bounds is Pplaceholder for real win condition.
+                    // NOTE: When mov goes out of bounds is placeholder for real win condition.
                     if !(0..self.map.w() as i16).contains(&(mov.0 + self.map[*mov].dir.0)) ||
                         !(0..self.map.h() as i16).contains(&(mov.1 + self.map[*mov].dir.1))
                     {
                         self.progress_win();
-                        return; // Avoids double borrow. TODO: I think it's logical to bail out?
+                        return; // NOTE: Bail out as more updates may not make sense. Necessary to avoid double borrow.
                     }
                     else
                     {
@@ -257,7 +257,7 @@ impl Play {
                     // Die if mov moves onto hero
                     if mov.0 == self.ros.hero.0 && mov.1 == self.ros.hero.1 {
                         self.progress_die();
-                        return; // Avoids double borrow. TODO: I think it's logical to bail out?
+                        return; // NOTE: Bail out as more updates may not make sense. Necessary to avoid double borrow.
                     }
                 }
             }
@@ -288,9 +288,7 @@ impl Play {
         let key = input.consume_keypresses();
 
         // Reset "most recent tick" when leaving menu.
-        // TODO: Avoid needing as a parameter. ie:
-        // Need to move into input code. Maybe "when starting level"?
-        // As part of some standard mode transition code?
+        // TODO: Avoid needing input as a parameter, move time update to input code.
         input.last_update = get_time();
 
         if Some(KeyCode::Enter) == key {
@@ -307,7 +305,7 @@ impl Play {
 //
 // RENDER
 //
-// TODO: Move Render structs to render submod?
+// FIXME: Move Render structs to render submod?
 //
 
 // Render state for one frame of level
@@ -330,7 +328,7 @@ impl RenderLev {
         let offset_y = (screen_height() - game_size) / 2. + 10.;
 
         let r = RenderLev {
-            // TODO: Why does this work with landscape orientation?
+            // FIXME: Why does this work with landscape orientation?
             offset_x: (screen_width() - game_size) / 2. + 10.,
             offset_y: (screen_height() - game_size) / 2. + 10.,
             sq_w: (screen_height() - offset_y * 2.) / w as f32,
@@ -397,7 +395,7 @@ impl RenderSplash
         let font_size = 30.;
         let text_size = measure_text(text, None, font_size as _, 1.0);
 
-        // TODO: Multi-line text. Ideally with dialog pics etc.
+        // FIXME: Multi-line text. Ideally with dialog pics etc.
         draw_text(
             text,
             screen_width() / 2. - text_size.width / 2.,
