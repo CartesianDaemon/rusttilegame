@@ -69,22 +69,30 @@ impl Map {
     // All map-altering fns go through a fn like this to keep Map/Ros coords in sync.
     // Nothing happens if target is off map, that's a gameplay error but not an
     // engine error.
-    pub fn move_to(&mut self, pos: &mut Pos, to: Point) {
-        let ent = if pos.2 as usize == self.at(*pos).len() {
-            self.atm(*pos).pop().unwrap()
+    pub fn move_to(&mut self, hdl: &mut Handle, to: Point) {
+        let on_top = hdl.2 as usize == self.at(*hdl).len();
+
+        let ent = if on_top {
+            // Pop ent from top of stack.
+            self.atm(*hdl).pop().unwrap()
         } else {
-            mem::replace(&mut self[*pos], Ent::placeholder())
+            // Replace ent with a placeholder type ignored by render and gameplay.
+            // This keeps height coords of other ents valid.
+            mem::replace(&mut self[*hdl], Ent::placeholder())
         };
 
-        // TODO: Could be moved into "if pop" branch above
-        while !self.at(*pos).is_empty() &&
-            self.at(*pos).last().unwrap().is_placeholder() {
-            self.atm(*pos).pop();
+        // Remove any placeholders now at the top of the stack. Should only happen
+        // if we popped ent from on top of them.
+        while !self.at(*hdl).is_empty() &&
+            self.at(*hdl).last().unwrap().is_placeholder() {
+            self.atm(*hdl).pop();
         }
 
-        *pos = (to.0, to.1, 0);
+        // Update caller's handle to new coords. Height will be set by put_at().
+        *hdl = (to.0, to.1, 0);
 
-        self.put_at(pos, ent);
+        // Add Ent to top of stack at new map coords. Updates hdl to match new height.
+        self.put_at(hdl, ent);
     }
 
     pub fn can_move(&self, pos: &Pos, delta: Delta) -> bool {
