@@ -63,15 +63,11 @@ pub fn load_level(levno: u16) -> Play {
             // TODO: Get size from strings, not map. Assert compatible sizes.
             for (y, line) in ascii_map.iter().enumerate() {
                 for (x, ch) in line.chars().enumerate() {
-                    let _ent = map_key.get(&ch).unwrap();
-                    // TODO: Need Ent values to be copyable, or specify fn ptr instead.
-                    // TODO: Or specify EntSchema as "initial ent"
-                    // play.map.set_at(x as i16, y as i16, *ent);
-                    play.map.set_at(x as i16, y as i16, Ent::new_floor());
+                    let ent = map_key.get(&ch).unwrap().clone();
+                    play.map.set_at(x as i16, y as i16, ent);
+                    // play.map.set_at(x as i16, y as i16, Ent::new_floor());
                 }
             }
-
-            add_default_floor_walls(&mut play.map);
 
             play.spawn_hero(3, 8, Ent::new_hero_crab());
 
