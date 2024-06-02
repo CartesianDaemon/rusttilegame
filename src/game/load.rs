@@ -1,5 +1,7 @@
 // Code for loading or instatiating each level.
 
+use std::collections::HashMap;
+
 use crate::game::Map;
 use crate::game::Ent;
 use crate::game::Play;
@@ -30,6 +32,44 @@ pub fn load_level(levno: u16) -> Play {
                 outro_text: "Well done!! Goodbye from level 1!".to_string(),
                 ..Play::new_empty_level()
             };
+
+            // TODO: Make sure map can be assigned by a non-16x16 level
+            let ascii_map = [
+            "################",
+            "#              #",
+            "#              #",
+            "#              #",
+            "#              #",
+            "#              #",
+            "#              #",
+            "#              #",
+            "#              #",
+            "#              #",
+            "#              #",
+            "#              #",
+            "#              #",
+            "#              #",
+            "#              #",
+            "################",
+            ];
+
+            // TODO: Move definitions of specific Ents into load not map.
+            // TODO: Key as in "explain which symbol is which" not in key, val.
+            let map_key = HashMap::from([
+                (' ', Ent::new_floor()),
+                ('#', Ent::new_wall()),
+            ]);
+
+            // TODO: Get size from strings, not map. Assert compatible sizes.
+            for (y, line) in ascii_map.iter().enumerate() {
+                for (x, ch) in line.chars().enumerate() {
+                    let _ent = map_key.get(&ch).unwrap();
+                    // TODO: Need Ent values to be copyable, or specify fn ptr instead.
+                    // TODO: Or specify EntSchema as "initial ent"
+                    // play.map.set_at(x as i16, y as i16, *ent);
+                    play.map.set_at(x as i16, y as i16, Ent::new_floor());
+                }
+            }
 
             add_default_floor_walls(&mut play.map);
 

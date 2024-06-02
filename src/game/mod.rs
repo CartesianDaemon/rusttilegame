@@ -151,7 +151,7 @@ impl Play {
             outro_text: "OUTRO TEXT".to_string(),
 
             map: Map::new(16),
-            ros: Ros::new(16),
+            ros: Ros::new(),
         }
     }
 

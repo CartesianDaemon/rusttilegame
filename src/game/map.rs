@@ -282,8 +282,7 @@ pub struct Ros {
 }
 
 impl Ros {
-    pub fn new(sz: u16) -> Ros {
-        assert_eq!(sz, 16);
+    pub fn new() -> Ros {
         Ros {
             hero: (0, 0, 1),
             movs: vec![],
