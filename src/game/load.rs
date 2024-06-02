@@ -56,24 +56,20 @@ pub fn load_level(levno: u16) -> Play {
             // TODO: Move definitions of specific Ents into load not map.
             // TODO: Key as in "explain which symbol is which" not in key, val.
             let map_key = HashMap::from([
-                (' ', Ent::new_floor()),
-                ('#', Ent::new_wall()),
-                ('>', Ent::new_floor()), // TODO
-                ('h', Ent::new_floor()),
+                (' ', vec![ Ent::new_floor() ]),
+                ('#', vec![ Ent::new_floor(), Ent::new_wall() ]),
+                ('>', vec![ Ent::new_floor(), Ent::new_snake((1,0)) ]),
+                ('h', vec![ Ent::new_floor(), Ent::new_hero_crab() ]),
             ]);
 
             // TODO: Get size from strings, not map. Assert compatible sizes.
             for (y, line) in ascii_map.iter().enumerate() {
                 for (x, ch) in line.chars().enumerate() {
-                    let ent = map_key.get(&ch).unwrap().clone();
-                    play.map.set_at(x as i16, y as i16, ent); // TODO
-                    // play.map.set_at(x as i16, y as i16, Ent::new_floor());
+                    for ent in map_key.get(&ch).unwrap() {
+                        play.spawn_at(x as i16, y as i16, ent.clone());
+                    }
                 }
             }
-
-            play.spawn_at(3, 8, Ent::new_hero_crab());
-
-            play.spawn_mov(1, 1, Ent::new_snake((1,0)));
 
             play
         }
