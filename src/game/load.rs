@@ -62,21 +62,39 @@ pub fn load_level(levno: u16) -> Play {
             }
         }
         2 => {
-            let mut play = Play {
+            let ascii_map = [
+            "################",
+            "#              #",
+            "# >            #",
+            "#              #",
+            "#              #",
+            "#              #",
+            "#              #",
+            "#              #",
+            "#   h          #",
+            "#        <     #",
+            "#              #",
+            "#              #",
+            "#              #",
+            "#              #",
+            "#              #",
+            "################",
+            ];
+
+            let map_key = HashMap::from([
+                (' ', vec![ Ent::new_floor() ]),
+                ('#', vec![ Ent::new_floor(), Ent::new_wall() ]),
+                ('>', vec![ Ent::new_floor(), Ent::new_snake((1,0)) ]),
+                ('<', vec![ Ent::new_floor(), Ent::new_snake((-1,0)) ]),
+                ('h', vec![ Ent::new_floor(), Ent::new_hero_crab() ]),
+            ]);
+
+            Play {
                 mode : Mode::LevIntro(2),
                 splash_text: "Ooh, welcome to level 2!".to_string(),
                 outro_text: "Wow, well done!! Goodbye from level 2!".to_string(),
-                ..Play::new_empty_level()
-            };
-
-            add_default_floor_walls(&mut play.map);
-
-            play.spawn_hero(3, 8, Ent::new_hero_crab());
-
-            play.spawn_mov(1, 1, Ent::new_snake((1,0)));
-            play.spawn_mov(9, 9, Ent::new_snake((-1,0)));
-
-            play
+                ..Play::from_ascii(&ascii_map, map_key)
+            }
         }
         3 => {
             Play {
