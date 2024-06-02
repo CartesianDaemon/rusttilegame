@@ -1,5 +1,7 @@
 use macroquad::prelude::*;
 
+use std::collections::HashMap;
+
 // FIXME: Work out which types should be exported and remove use ::*.
 // FIXME: Move to separate modules not submodules with visibility.
 mod input;
@@ -153,6 +155,21 @@ impl Play {
             map: Map::new(16),
             ros: Ros::new(),
         }
+    }
+
+    fn from_ascii(ascii_map: &[&str; 16], map_key: HashMap<char, Vec<Ent>>) -> Play {
+        // TODO: Get size from strings. Assert equal to default 16 in meantime.
+        let mut play = Play::new_empty_level();
+
+        for (y, line) in ascii_map.iter().enumerate() {
+            for (x, ch) in line.chars().enumerate() {
+                for ent in map_key.get(&ch).unwrap() {
+                    play.spawn_at(x as i16, y as i16, ent.clone());
+                }
+            }
+        }
+
+        play
     }
 
     // TODO: Replace with spawn_at

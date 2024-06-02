@@ -26,14 +26,6 @@ pub fn load_retry(levno: u16) -> Play {
 pub fn load_level(levno: u16) -> Play {
     match levno {
         1 => {
-            let mut play = Play {
-                mode : Mode::LevIntro(1),
-                splash_text: "Welcome to level 1!".to_string(),
-                outro_text: "Well done!! Goodbye from level 1!".to_string(),
-                ..Play::new_empty_level()
-            };
-
-            // TODO: Make sure map can be assigned by a non-16x16 level
             let ascii_map = [
             "################",
             "#              #",
@@ -62,9 +54,12 @@ pub fn load_level(levno: u16) -> Play {
                 ('h', vec![ Ent::new_floor(), Ent::new_hero_crab() ]),
             ]);
 
-            populate_from_ascii(&mut play, &ascii_map, map_key);
-
-            play
+            Play {
+                mode : Mode::LevIntro(1),
+                splash_text: "Welcome to level 1!".to_string(),
+                outro_text: "Well done!! Goodbye from level 1!".to_string(),
+                ..Play::from_ascii(&ascii_map, map_key)
+            }
         }
         2 => {
             let mut play = Play {
@@ -102,18 +97,6 @@ fn add_default_floor_walls(map: &mut Map) {
         map.set_at(x as i16, y as i16, Ent::new_floor());
         if map.is_edge(x, y) {
             map.set_at(x, y, Ent::new_wall());
-        }
-    }
-}
-
-fn populate_from_ascii(play: &mut Play, ascii_map: &[&str; 16], map_key: HashMap<char, Vec<Ent>>) {
-    // TODO: Maybe return map? Or move to a Play::from_ascii() fn.
-    // TODO: Get size from strings, not map. Assert compatible sizes.
-    for (y, line) in ascii_map.iter().enumerate() {
-        for (x, ch) in line.chars().enumerate() {
-            for ent in map_key.get(&ch).unwrap() {
-                play.spawn_at(x as i16, y as i16, ent.clone());
-            }
         }
     }
 }
