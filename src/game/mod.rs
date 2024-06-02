@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-// TODO: Work out which types should be exported and remove use ::*.
+// FIXME: Work out which types should be exported and remove use ::*.
 // FIXME: Move to separate modules not submodules with visibility.
 mod input;
 use input::*;
@@ -288,7 +288,7 @@ impl Play {
         let key = input.consume_keypresses();
 
         // Reset "most recent tick" when leaving menu.
-        // TODO: Avoid needing input as a parameter, move time update to input code.
+        // FIXME: Avoid needing input as a parameter, move time update to input code.
         input.last_update = get_time();
 
         if Some(KeyCode::Enter) == key {

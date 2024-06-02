@@ -67,7 +67,8 @@ impl Map {
     }
 
     // All map-altering fns go through a fn like this to keep Map/Ros coords in sync.
-    // Nothing happens if target is off map. Higher layer should prevent that.
+    // Nothing happens if target is off map, that's a gameplay error but not an
+    // engine error.
     pub fn move_to(&mut self, pos: &mut Pos, to: Point) {
         let ent = if pos.2 as usize == self.at(*pos).len() {
             self.atm(*pos).pop().unwrap()
@@ -262,7 +263,8 @@ impl<'a> Iterator for LocIteratorMut<'a> {
 // Roster of character, enemies, etc. Indexes into map.
 pub struct Ros {
     // Hero
-    pub hero: Handle, // TODO: Better name for protagonist than "hero".
+    // FIXME: Better name for protagonist than "hero".
+    pub hero: Handle,
 
     // Anything which updates each tick, especially enemies.
     //
@@ -385,14 +387,13 @@ impl Ent {
     #[allow(dead_code)]
     pub fn new_tex(tex: Texture2D) -> Ent {
         Ent {
-            h: 1, // TODO
+            h: 0, // Will be overridden
             tex: Some(tex),
             ..Ent::invalid()
         }
     }
 
     pub fn new_tex_col(tex: Texture2D, fill: Color) -> Ent {
-        // TODO: Shouldn't need coords as put_at should take care of that.
         Ent {
             tex: Some(tex),
             fill: Some(fill),
