@@ -62,6 +62,7 @@ impl Map {
         self.locs[0].len() as u16
     }
 
+    #[allow(dead_code)]
     pub fn is_edge(&self, x: i16, y: i16) -> bool {
         x == 0 || x == self.w() as i16 -1 || y == 0 || y == self.h() as i16 -1
     }
@@ -121,9 +122,11 @@ impl Map {
 
     // Add an ent at x,y, not tied to any roster.
     // FIXME: Maybe replace with place_at
+    /*
     pub fn set_at(&mut self, x: i16, y: i16, val: Ent) {
         self.place_at(x, y, None, val);
     }
+    */
 
     // Add an ent at pos.x, pos.y and update pos.z to match.
     // FIXME: Maybe replace with place_at
@@ -148,6 +151,7 @@ impl Map {
     }
 
     // e.g. `for ( x, y ) in map.coords()`
+    #[allow(dead_code)]
     pub fn coords(&self) -> CoordIterator {
         CoordIterator {
             w: self.w(),

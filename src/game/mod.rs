@@ -172,19 +172,6 @@ impl Play {
         play
     }
 
-    // TODO: Replace with spawn_at
-    fn spawn_hero(&mut self, x: i16, y: i16, ent: Ent) {
-        self.ros.hero = (x, y, 0);
-        self.map.put_at(&mut self.ros.hero, ent);
-    }
-
-    // TODO: Replace with spawn_at
-    fn spawn_mov(&mut self, x: i16, y: i16, ent: Ent) {
-        let mut new_pos = (x, y, 0);
-        self.map.put_at(&mut new_pos, ent);
-        self.ros.push_mov(new_pos);
-    }
-
     /*
     // Pos for hero, which can be set to match newly added hero in map.
     // TODO: Where this logic should be centralised

@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use crate::game::Map;
+// use crate::game::Map;
 use crate::game::Ent;
 use crate::game::Play;
 use crate::game::Mode;
@@ -106,15 +106,6 @@ pub fn load_level(levno: u16) -> Play {
         _ => {
             // TODO Design: Is a level-design error helpful separate from engine-logic panic?
             panic!("Unknown level");
-        }
-    }
-}
-
-fn add_default_floor_walls(map: &mut Map) {
-    for (x, y) in map.coords() {
-        map.set_at(x as i16, y as i16, Ent::new_floor());
-        if map.is_edge(x, y) {
-            map.set_at(x, y, Ent::new_wall());
         }
     }
 }
