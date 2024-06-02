@@ -62,14 +62,7 @@ pub fn load_level(levno: u16) -> Play {
                 ('h', vec![ Ent::new_floor(), Ent::new_hero_crab() ]),
             ]);
 
-            // TODO: Get size from strings, not map. Assert compatible sizes.
-            for (y, line) in ascii_map.iter().enumerate() {
-                for (x, ch) in line.chars().enumerate() {
-                    for ent in map_key.get(&ch).unwrap() {
-                        play.spawn_at(x as i16, y as i16, ent.clone());
-                    }
-                }
-            }
+            populate_from_ascii(&mut play, &ascii_map, map_key);
 
             play
         }
@@ -109,6 +102,18 @@ fn add_default_floor_walls(map: &mut Map) {
         map.set_at(x as i16, y as i16, Ent::new_floor());
         if map.is_edge(x, y) {
             map.set_at(x, y, Ent::new_wall());
+        }
+    }
+}
+
+fn populate_from_ascii(play: &mut Play, ascii_map: &[&str; 16], map_key: HashMap<char, Vec<Ent>>) {
+    // TODO: Maybe return map? Or move to a Play::from_ascii() fn.
+    // TODO: Get size from strings, not map. Assert compatible sizes.
+    for (y, line) in ascii_map.iter().enumerate() {
+        for (x, ch) in line.chars().enumerate() {
+            for ent in map_key.get(&ch).unwrap() {
+                play.spawn_at(x as i16, y as i16, ent.clone());
+            }
         }
     }
 }
