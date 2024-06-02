@@ -71,7 +71,7 @@ pub fn load_level(levno: u16) -> Play {
                 }
             }
 
-            play.spawn_hero(3, 8, Ent::new_hero_crab());
+            play.spawn_at(3, 8, Ent::new_hero_crab());
 
             play.spawn_mov(1, 1, Ent::new_snake((1,0)));
 

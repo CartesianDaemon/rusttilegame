@@ -155,15 +155,47 @@ impl Play {
         }
     }
 
+    // TODO: Replace with spawn_at
     fn spawn_hero(&mut self, x: i16, y: i16, ent: Ent) {
         self.ros.hero = (x, y, 0);
         self.map.put_at(&mut self.ros.hero, ent);
     }
 
+    // TODO: Replace with spawn_at
     fn spawn_mov(&mut self, x: i16, y: i16, ent: Ent) {
         let mut new_pos = (x, y, 0);
         self.map.put_at(&mut new_pos, ent);
         self.ros.push_mov(new_pos);
+    }
+
+    /*
+    // Pos for hero, which can be set to match newly added hero in map.
+    // TODO: Where this logic should be centralised
+    fn hero_pos_mut(&mut self) -> &mut Pos{
+        &mut self.ros.hero
+    }
+
+    // Pos for new entry in mov roster, which can be set to match new mov in map.
+    // TODO: Where this logic should be centralised
+    fn new_mov_pos_mut(&mut self) -> &mut Pos{
+        self.ros
+        &mut self.ros.hero
+    }
+    */
+
+    // Add ent to map, and if necessary to roster's hero pos or list of movs 
+    fn spawn_at(&mut self, x: i16, y: i16, ent: Ent) {
+        let mut pos = (x, y, 0);
+
+        // FIXME: Cloning solely so that we can examine is_hero etc after.
+        self.map.put_at(&mut pos, ent.clone()); // Sets height correctly
+
+        if is_hero(&ent) {
+            self.ros.hero = pos;
+        } else if is_roster(&ent) {
+            self.ros.push_mov(pos);
+        }
+
     }
 
     // Does current mode need UI to wait for tick before updating state?

@@ -471,11 +471,18 @@ pub enum Pass {
 }
 
 // Types of movement-control logic ents can use
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum AI {
-    Stay, // No self movement.
-    Hero, // Controlled by keys.
+    Stay, // No self movement. Not added to Roster's list of movs.
+    Hero, // Controlled by keys. Assume only one hero, added to Roster's hero entry.
+    // Everything else may spontaneously move or need to be enumerated, ie needs to be added to roster.
     Snake, // Move in direction, move orthogonally towards hero. Maybe: bounce off walls.
 }
 
+pub fn is_hero(ent: &Ent) -> bool {
+    ent.ai == AI::Hero
+}
 
+pub fn is_roster(ent: &Ent) -> bool {
+    ent.ai != AI::Hero && ent.ai != AI::Stay
+}
