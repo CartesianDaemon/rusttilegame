@@ -122,24 +122,13 @@ impl Map {
     // Add an ent at x,y, not tied to any roster.
     // FIXME: Maybe replace with place_at
     pub fn set_at(&mut self, x: i16, y: i16, val: Ent) {
-        let mut ent = val;
-        ent.x = x;
-        ent.y = y;
-        ent.h = self.at((x, y, 0)).len() as u16;
-
-        self.atm( (x, y, 0) ).push(ent);
+        self.place_at(x, y, None, val);
     }
 
     // Add an ent at pos.x, pos.y and update pos.z to match.
     // FIXME: Maybe replace with place_at
     pub fn put_at(&mut self, pos: &mut Pos, val: Ent) {
-        let mut ent = val;
-        ent.x = pos.0;
-        ent.y = pos.1;
-        ent.h = self.at(*pos).len() as u16;
-        pos.2 = ent.h;
-
-        self.atm(*pos).push(ent);
+        self.place_at(pos.0, pos.1, Some(pos), val);
     }
 
     // Add an ent at x,y. Set out_pos to coords if present.
