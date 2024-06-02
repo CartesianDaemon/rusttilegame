@@ -1,5 +1,6 @@
 // Code for loading or instatiating each level.
 
+use crate::game::Map;
 use crate::game::Ent;
 use crate::game::Play;
 use crate::game::Mode;
@@ -30,21 +31,10 @@ pub fn load_level(levno: u16) -> Play {
                 ..Play::new_empty_level()
             };
 
-            // Initialise Floor
-            // TODO: Make common helper functions.
-            {
-                for (x, y) in play.map.coords() {
-                    play.map.set_at(x as i16, y as i16, Ent::new_floor());
-                    if play.map.is_edge(x, y) {
-                        play.map.set_at(x, y, Ent::new_wall());
-                    }
-                }
-            }
+            add_default_floor_walls(&mut play.map);
 
-            // Initialise hero
             play.spawn_hero(3, 8, Ent::new_hero_crab());
 
-            // Initialise snake
             play.spawn_mov(1, 1, Ent::new_snake((1,0)));
 
             play
@@ -57,21 +47,10 @@ pub fn load_level(levno: u16) -> Play {
                 ..Play::new_empty_level()
             };
 
-            // Initialise Floor
-            // TODO: Make common helper functions.
-            {
-                for (x, y) in play.map.coords() {
-                    play.map.set_at(x as i16, y as i16, Ent::new_floor());
-                    if play.map.is_edge(x, y) {
-                        play.map.set_at(x, y, Ent::new_wall());
-                    }
-                }
-            }
+            add_default_floor_walls(&mut play.map);
 
-            // Initialise hero
             play.spawn_hero(3, 8, Ent::new_hero_crab());
 
-            // Initialise snake
             play.spawn_mov(1, 1, Ent::new_snake((1,0)));
             play.spawn_mov(9, 9, Ent::new_snake((-1,0)));
 
@@ -79,15 +58,23 @@ pub fn load_level(levno: u16) -> Play {
         }
         3 => {
             Play {
-                mode : Mode::NewGame,
-                // TODO: Implement less ad hoc new game.
+                mode : Mode::Win,
                 splash_text: "Congratulations. You win! Press [enter] to play again.".to_string(),
                 ..Play::new_empty_level()
             }
         }
         _ => {
-            // TODO: Does it help to handle game-logic-errors differently to engine-logic errors?
+            // TODO Design: Is a level-design error helpful separate from engine-logic panic?
             panic!("Unknown level");
+        }
+    }
+}
+
+fn add_default_floor_walls(map: &mut Map) {
+    for (x, y) in map.coords() {
+        map.set_at(x as i16, y as i16, Ent::new_floor());
+        if map.is_edge(x, y) {
+            map.set_at(x, y, Ent::new_wall());
         }
     }
 }

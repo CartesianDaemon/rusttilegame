@@ -81,7 +81,7 @@ impl Game {
                     }
                 }
             }
-            Mode::NewGame | Mode::LevIntro(_) | Mode::Retry(_) => {
+            Mode::NewGame | Mode::LevIntro(_) | Mode::Retry(_) | Mode::Win => {
                 let _r = RenderSplash::begin(&self.p.splash_text);
             }
             Mode::LevOutro(_) => {
@@ -117,6 +117,7 @@ enum Mode {
     LevPlay(u16),
     LevOutro(u16),
     Retry(u16),
+    Win,
 }
 
 // Gameplay state: current level, map, etc.
@@ -163,12 +164,14 @@ impl Play {
 
     // Does current mode need UI to wait for tick before updating state?
     // Currently yes during play of level, no in splash screens.
+    // Simplified if we have game State and Play/Splash mode.
     fn continuous(&self) -> bool {
         match self.mode {
             Mode::NewGame |
             Mode::Retry(_) |
             Mode::LevIntro(_) |
-            Mode::LevOutro(_) => true,
+            Mode::LevOutro(_) |
+            Mode::Win => true,
             Mode::LevPlay(_) => false,
         }
     }
@@ -179,7 +182,6 @@ impl Play {
             Mode::LevPlay(_) => {
                 self.advance_level(input.consume_keypresses());
             }
-            // TODO: Is there a clearer way to express splash screen progressions?
             Mode::NewGame => {
                 self.advance_splash(input, Mode::LevIntro(1));
             }
@@ -190,6 +192,9 @@ impl Play {
             }
             Mode::LevIntro(levno) => {
                 self.advance_splash(input, Mode::LevPlay(levno));
+            }
+            Mode::Win => {
+                self.advance_splash(input, Mode::LevIntro(1));
             }
             _ => {
                 panic!("Advancing unhandled game state");
@@ -260,6 +265,7 @@ impl Play {
         match self.mode {
             Mode::LevIntro(levno) | Mode::LevPlay(levno) | Mode::LevOutro(levno) | Mode::Retry(levno) => levno,
             Mode::NewGame => panic!("currlev not applicable at new game screen"),
+            Mode::Win => panic!("currlev not applicable at game complete screen"),
         }
     }
 
