@@ -79,7 +79,7 @@ impl Game {
     fn draw_frame(&self) {
         // FIXME: Should choice of Render class be made by a Render fn?
         match self.p.mode {
-            Mode::LevPlay(_) => {
+            Mode::LevPlay => {
                 let r = RenderLev::begin(self.p.map.w(), self.p.map.h());
                 // Coords of first visible tile. Currently always 0,0.
                 let (ox, oy) = (0, 0);
@@ -89,11 +89,8 @@ impl Game {
                     }
                 }
             }
-            Mode::NewGame | Mode::LevIntro(_) | Mode::Retry(_) | Mode::Win => {
+            Mode::Splash => {
                 let _r = RenderSplash::begin(&self.p.splash_text);
-            }
-            Mode::LevOutro(_) => {
-                let _r = RenderSplash::begin(&self.p.outro_text);
             }
         }
     }
@@ -125,18 +122,27 @@ struct Play {
     // Layout of current map, used in LevPlay.
     map: Map,
     ros: Ros,
+
+    // Next stage to go to after continue or win.
+    to_stage: Stage,
+    // Next stage to go to after death. Currently always retry.
+    die_stage: Stage,
 }
 
 impl Play {
     fn new_empty_level() -> Play {
         Play {
-            mode: Mode::LevPlay(1),
+            // TODO: Add current Stage.
+            mode: Mode::Splash, // Should always get overridden
 
             splash_text: "SPLASH TEXT".to_string(),
             outro_text: "OUTRO TEXT".to_string(),
 
             map: Map::new(16),
             ros: Ros::new(),
+
+            to_stage: Stage::NewGame,
+            to_stage: Stage::NewGame, // Shouldn't be used?
         }
     }
 
@@ -190,35 +196,19 @@ impl Play {
     // Simplified if we have game State and Play/Splash mode.
     fn continuous(&self) -> bool {
         match self.mode {
-            Mode::NewGame |
-            Mode::Retry(_) |
-            Mode::LevIntro(_) |
-            Mode::LevOutro(_) |
-            Mode::Win => true,
-            Mode::LevPlay(_) => false,
+            Mode::Splash => true,
+            Mode::LevPlay => false,
         }
     }
 
     // Advance game state according to current state
     fn advance(&mut self, input : &mut Input) {
         match self.mode {
-            Mode::LevPlay(_) => {
+            Mode::LevPlay => {
                 self.advance_level(input.consume_keypresses());
             }
-            Mode::NewGame => {
-                self.advance_splash(input, Mode::LevIntro(1));
-            }
-            Mode::Retry(levno) => {
-                self.advance_splash(input, Mode::LevPlay(levno));
-            }
-            Mode::LevIntro(levno) => {
-                self.advance_splash(input, Mode::LevPlay(levno));
-            }
-            Mode::Win => {
-                self.advance_splash(input, Mode::LevIntro(1));
-            }
-            _ => {
-                panic!("Advancing unhandled game state");
+            Mode::Splash => {
+                self.advance_splash(input, self.to_stage);
             }
         }
     }
@@ -283,27 +273,19 @@ impl Play {
         }
     }
 
-    fn currlev(&self) -> u16 {
-        match self.mode {
-            Mode::LevIntro(levno) | Mode::LevPlay(levno) | Mode::LevOutro(levno) | Mode::Retry(levno) => levno,
-            Mode::NewGame => panic!("currlev not applicable at new game screen"),
-            Mode::Win => panic!("currlev not applicable at game complete screen"),
-        }
-    }
-
     fn nextlev(&self) -> u16 {
         self.currlev() + 1
     }
 
     fn progress_win(&mut self) {
-        *self = load::load_level(self.nextlev());
+        *self = load::load_stage(self.to_stage);
     }
 
     fn progress_die(&mut self) {
-        *self = load::load_retry(self.currlev());
+        *self = load::load_stage(self.die_stage);
     }
 
-    pub fn advance_splash(&mut self, input: &mut Input, progress_to_mode: Mode) {
+    pub fn advance_splash(&mut self, input: &mut Input, progress_to_stage: Stage) {
         let key = input.consume_keypresses();
 
         // Reset "most recent tick" when leaving menu.
@@ -311,11 +293,7 @@ impl Play {
         input.last_update = get_time();
 
         if Some(KeyCode::Enter) == key {
-            match progress_to_mode {
-                Mode::LevIntro(levno) => *self = load::load_level(levno),
-                Mode::LevPlay(levno) => *self = Play { mode: Mode::LevPlay(levno), ..load::load_level(levno)},
-                _ => panic!("Advance a splash screen to unknown mode"),
-            }
+            *self = load::load_stage(progress_to_stage);
         }
     }
 }
