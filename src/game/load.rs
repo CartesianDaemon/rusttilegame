@@ -24,6 +24,16 @@ pub fn load_retry(levno: u16) -> Play {
 }
  
 pub fn load_level(levno: u16) -> Play {
+    // TODO: Move definitions of specific Ents into load not map.
+    // TODO: Key as in "explain which symbol is which" not in key, val.
+    let aquarium1_key = HashMap::from([
+        (' ', vec![ Ent::new_floor() ]),
+        ('#', vec![ Ent::new_floor(), Ent::new_wall() ]),
+        ('>', vec![ Ent::new_floor(), Ent::new_snake((1,0)) ]),
+        ('<', vec![ Ent::new_floor(), Ent::new_snake((-1,0)) ]),
+        ('h', vec![ Ent::new_floor(), Ent::new_hero_crab() ]),
+    ]);
+
     match levno {
         1 => {
             let ascii_map = [
@@ -45,20 +55,11 @@ pub fn load_level(levno: u16) -> Play {
             "################",
             ];
 
-            // TODO: Move definitions of specific Ents into load not map.
-            // TODO: Key as in "explain which symbol is which" not in key, val.
-            let map_key = HashMap::from([
-                (' ', vec![ Ent::new_floor() ]),
-                ('#', vec![ Ent::new_floor(), Ent::new_wall() ]),
-                ('>', vec![ Ent::new_floor(), Ent::new_snake((1,0)) ]),
-                ('h', vec![ Ent::new_floor(), Ent::new_hero_crab() ]),
-            ]);
-
             Play {
                 mode : Mode::LevIntro(1),
                 splash_text: "Welcome to level 1!".to_string(),
                 outro_text: "Well done!! Goodbye from level 1!".to_string(),
-                ..Play::from_ascii(&ascii_map, map_key)
+                ..Play::from_ascii(&ascii_map, aquarium1_key)
             }
         }
         2 => {
@@ -81,19 +82,11 @@ pub fn load_level(levno: u16) -> Play {
             "################",
             ];
 
-            let map_key = HashMap::from([
-                (' ', vec![ Ent::new_floor() ]),
-                ('#', vec![ Ent::new_floor(), Ent::new_wall() ]),
-                ('>', vec![ Ent::new_floor(), Ent::new_snake((1,0)) ]),
-                ('<', vec![ Ent::new_floor(), Ent::new_snake((-1,0)) ]),
-                ('h', vec![ Ent::new_floor(), Ent::new_hero_crab() ]),
-            ]);
-
             Play {
                 mode : Mode::LevIntro(2),
                 splash_text: "Ooh, welcome to level 2!".to_string(),
                 outro_text: "Wow, well done!! Goodbye from level 2!".to_string(),
-                ..Play::from_ascii(&ascii_map, map_key)
+                ..Play::from_ascii(&ascii_map, aquarium1_key)
             }
         }
         3 => {
