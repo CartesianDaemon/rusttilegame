@@ -7,25 +7,39 @@ use crate::game::Ent;
 use crate::game::Play;
 use crate::game::Mode;
 
-pub fn load_newgame() -> Play {
+#[allow(dead_code)]
+enum Stage {
+    NewGame,
+    LevIntro(u16),
+    LevPlay(u16),
+    LevOutro(u16),
+    Retry(u16),
+    Win,
+}
+
+pub fn make_splash(txt: &str, to_stage: Stage) -> Play {
     Play {
-        mode : Mode::NewGame,
-        splash_text: "Press [enter] to start.".to_string(),
+        mode: Mode::Splash,
+        splash_text: txt,
         ..Play::new_empty_level()
     }
 }
 
-pub fn load_retry(levno: u16) -> Play {
+pub fn make_levplay(ascii_map: &[&str; 16], map_key: HashMap<char, Vec<Ent>>) -> Play {
     Play {
-        mode : Mode::Retry(levno),
-        splash_text: "Game Over. Press [enter] to retry.".to_string(),
+        mode : Mode::LevIntro(1),
+        splash_text: "Welcome to level 1!".to_string(),
+        outro_text: "Well done!! Goodbye from level 1!".to_string(),
+        ..Play::from_ascii(&ascii_map, aquarium1_key)
+    }
+    Play {
+        mode: Mode::Splash,
+        splash_text: txt,
         ..Play::new_empty_level()
     }
 }
- 
-pub fn load_level(levno: u16) -> Play {
-    // TODO: Move definitions of specific Ents into load not map.
-    // TODO: Key as in "explain which symbol is which" not in key, val.
+
+pub fn load_stage(stage: Stage) -> Play {
     let aquarium1_key = HashMap::from([
         (' ', vec![ Ent::new_floor() ]),
         ('#', vec![ Ent::new_floor(), Ent::new_wall() ]),
@@ -34,6 +48,17 @@ pub fn load_level(levno: u16) -> Play {
         ('h', vec![ Ent::new_floor(), Ent::new_hero_crab() ]),
     ]);
 
+    match stage {
+        NewGame => make_splash("Press [enter] to start.".to_string()),
+        LevIntro(1) => make_splash("".to_string());
+        Retry => make_splash("Game Over. Press [enter] to retry.".to_string()),
+        Win => make_splash("Congratulations. You win! Press [enter] to play again.".to_string()),
+    }
+}
+
+pub fn load_level(levno: u16) -> Play {
+    // TODO: Move definitions of specific Ents into load not map.
+    // TODO: Key as in "explain which symbol is which" not in key, val.
     match levno {
         1 => {
             let ascii_map = [

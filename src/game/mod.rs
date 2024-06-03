@@ -107,26 +107,9 @@ impl Game {
 //
 
 // Whether we are currently playing a level, in intro screen, in game over, etc
-//
-// FIXME: Make "State" in load which defines possible game states. Add "Mode" here
-// which only has "Splash" vs "LevPlay". load() should take a state as argument
-// and return a meaningful play, including Mode to render as, and win/loss States.
-// Possibly adding a map Continuation -> next-state, for continuations "continue",
-// "win", "loss". Also need struct holding state for current mode, which is most of
-// Play, but returned from load().
-//
-// Currently hardcode that we go newgame -> levintro(1) -> levplay(1) -> levoutro(1)
-// -> levintro(2) etc. And that game loss goes -> retry.
-//
-// Not sure if using level as part of enum is useful enough or not.
-#[allow(dead_code)]
 enum Mode {
-    NewGame,
-    LevIntro(u16),
-    LevPlay(u16),
-    LevOutro(u16),
-    Retry(u16),
-    Win,
+    Splash,
+    LevPlay,
 }
 
 // Gameplay state: current level, map, etc.
