@@ -8,7 +8,8 @@ use crate::game::Play;
 use crate::game::Mode;
 
 #[allow(dead_code)]
-enum Stage {
+#[derive(Clone, Copy)]
+pub enum Stage {
     NewGame,
     LevIntro(u16),
     LevPlay(u16),
@@ -34,8 +35,8 @@ pub fn load_stage(stage: Stage) -> Play {
         // TODO: Can we use idx++ instead of specifying each level number?
         Stage::NewGame => make_splash("Press [enter] to start.".to_string(), Stage::LevIntro(1)),
 
-        Stage::LevIntro(1) => make_splash("Welcome to level 1!".to_string(), LevPlay(1));
-        Stage::LevPlay(1) => make_levplay(1, [
+        Stage::LevIntro(1) => make_splash("Welcome to level 1!".to_string(), Stage::LevPlay(1)),
+        Stage::LevPlay(1) => make_levplay(1, &[
             "################",
             "#              #",
             "# >            #",
@@ -52,11 +53,11 @@ pub fn load_stage(stage: Stage) -> Play {
             "#              #",
             "#              #",
             "################",
-        ], aquarium1_key);
-        Stage::LevOutro(1) => make_splash("Well done!! Goodbye from level 1".to_string(), LevPlay(2));
+        ], aquarium1_key),
+        Stage::LevOutro(1) => make_splash("Well done!! Goodbye from level 1".to_string(), Stage::LevIntro(2)),
 
-        Stage::LevIntro(2) => make_splash("Ooh, welcome to level 2!".to_string(), LevPlay(1));
-        Stage::LevPlay(2) => make_levplay(2, [
+        Stage::LevIntro(2) => make_splash("Ooh, welcome to level 2!".to_string(), Stage::LevPlay(2)),
+        Stage::LevPlay(2) => make_levplay(2, &[
             "################",
             "#              #",
             "# >            #",
@@ -73,15 +74,19 @@ pub fn load_stage(stage: Stage) -> Play {
             "#              #",
             "#              #",
             "################",
-        ], aquarium1_key);
-        Stage::LevOutro(1) => make_splash("Wow, well done!! Goodbye from level 2!".to_string(), LevPlay(2));
+        ], aquarium1_key),
+        Stage::LevOutro(2) => make_splash("Wow, well done!! Goodbye from level 2!".to_string(), Stage::Win),
 
         Stage::Retry(levno) => make_splash("Game Over. Press [enter] to retry.".to_string(), Stage::LevPlay(levno)),
         Stage::Win => make_splash("Congratulations. You win! Press [enter] to play again.".to_string(), Stage::LevIntro(1)),
+
+        Stage::LevIntro(_) => panic!("Loading LevIntro for level that can't be found."),
+        Stage::LevPlay(_) => panic!("Loading LevPlay for level that can't be found."),
+        Stage::LevOutro(_) => panic!("Loading LevOutro for level that can't be found."),
     }
 }
 
-pub fn make_splash(txt: &str, to_stage: Stage) -> Play {
+pub fn make_splash(txt: String, to_stage: Stage) -> Play {
     Play {
         mode: Mode::Splash,
         splash_text: txt,
@@ -96,7 +101,7 @@ pub fn make_levplay(levno: u16, ascii_map: &[&str; 16], map_key: HashMap<char, V
         mode : Mode::LevPlay,
         to_stage: Stage::LevOutro(levno),
         die_stage: Stage::Retry(levno),
-        ..Play::from_ascii(&ascii_map, aquarium1_key)
+        ..Play::from_ascii(&ascii_map, map_key)
     }
 }
 

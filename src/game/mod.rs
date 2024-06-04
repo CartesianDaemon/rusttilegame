@@ -9,7 +9,7 @@ use input::*;
 mod map;
 use map::*;
 mod load;
-// use load::*;
+use load::Stage;
 
 // Coord types (in theory)
 // 
@@ -114,12 +114,10 @@ struct Play {
     // Current mode, e.g. "New Game screen" or "Intro to level 1".
     mode: Mode,
 
-    // Text for current interstitial screen. Levels use splash_txt
-    // before and outro_text after.
+    // Text for current interstitial screen in Mode::Splash.
     splash_text: String,
-    outro_text: String,
 
-    // Layout of current map, used in LevPlay.
+    // Layout of current map, used in Mode::LevPlay.
     map: Map,
     ros: Ros,
 
@@ -136,13 +134,12 @@ impl Play {
             mode: Mode::Splash, // Should always get overridden
 
             splash_text: "SPLASH TEXT".to_string(),
-            outro_text: "OUTRO TEXT".to_string(),
 
             map: Map::new(16),
             ros: Ros::new(),
 
             to_stage: Stage::NewGame,
-            to_stage: Stage::NewGame, // Shouldn't be used?
+            die_stage: Stage::NewGame, // Shouldn't be used?
         }
     }
 
@@ -271,10 +268,6 @@ impl Play {
                 }
             }
         }
-    }
-
-    fn nextlev(&self) -> u16 {
-        self.currlev() + 1
     }
 
     fn progress_win(&mut self) {
