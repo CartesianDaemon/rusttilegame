@@ -256,6 +256,7 @@ impl Play {
                     else
                     {
                         // move mov to new location
+                        // TODO: Have a "move_dir" fn.
                         let dir = self.map[*mov].dir;
                         self.map.move_delta(mov, dir);
                     }
@@ -264,6 +265,20 @@ impl Play {
                     if mov.0 == self.ros.hero.0 && mov.1 == self.ros.hero.1 {
                         self.progress_die();
                         return; // NOTE: Bail out as more updates may not make sense. Necessary to avoid double borrow.
+                    }
+                },
+                AI::Bounce => {
+                    // TODO: Make a Map:: fn for "at pos + dir, or appropriate default if off map"
+
+                    // If hitting wall, reverse direction.
+                    if self.map.loc_at((mov.0 + self.map[*mov].dir.0, mov.1 + self.map[*mov].dir.1, 0)).impassable() {
+                        self.map[*mov].dir = (-self.map[*mov].dir.0, -self.map[*mov].dir.1);
+                    }
+
+                    // Move. Provided next space is passable. If both sides are impassable, don't
+                    // move.
+                    if self.map.loc_at((mov.0 + self.map[*mov].dir.0, mov.1 + self.map[*mov].dir.1, 0)).passable() {
+                        self.map.move_delta(mov, self.map[*mov].dir);
                     }
                 }
             }

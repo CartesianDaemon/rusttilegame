@@ -445,7 +445,7 @@ impl Ent {
     pub fn new_snake(dir: Delta) -> Ent {
         Ent {
             pass: Pass::Mov,
-            ai: AI::Snake,
+            ai: AI::Bounce,
             dir: dir,
             ..Ent::new_col(DARKGREEN)
         }
@@ -481,6 +481,7 @@ pub enum AI {
     Hero, // Controlled by keys. Assume only one hero, added to Roster's hero entry.
     // Everything else may spontaneously move or need to be enumerated, ie needs to be added to roster.
     Snake, // Move in direction, move orthogonally towards hero. Maybe: bounce off walls.
+    Bounce, // Move in direction, reverse direction at walls.
 }
 
 pub fn is_hero(ent: &Ent) -> bool {
