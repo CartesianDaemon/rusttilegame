@@ -476,6 +476,7 @@ pub enum Pass {
 
 // Types of movement-control logic ents can use
 #[derive(Clone, PartialEq)]
+#[allow(dead_code)]
 pub enum AI {
     Stay, // No self movement. Not added to Roster's list of movs.
     Hero, // Controlled by keys. Assume only one hero, added to Roster's hero entry.

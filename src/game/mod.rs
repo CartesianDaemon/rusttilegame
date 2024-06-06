@@ -280,6 +280,13 @@ impl Play {
                     if self.map.loc_at((mov.0 + self.map[*mov].dir.0, mov.1 + self.map[*mov].dir.1, 0)).passable() {
                         self.map.move_delta(mov, self.map[*mov].dir);
                     }
+                    // Die if mov moves onto hero
+                    // TODO: Make a single "move" function which checks for collisions like this
+                    // and causes hero to die if a "deadly" field is set.
+                    if mov.0 == self.ros.hero.0 && mov.1 == self.ros.hero.1 {
+                        self.progress_die();
+                        return; // NOTE: Bail out as more updates may not make sense. Necessary to avoid double borrow.
+                    }
                 }
             }
         }
