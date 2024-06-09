@@ -125,7 +125,9 @@ impl Play {
     }
 
     fn advance_level(&mut self, last_key_pressed: Option<KeyCode>) {
-        // FIXME: Decide order of char, enemy. Maybe even move out of sync.
+        // FIXME: Decide order of char, enemy. Before or after not quite right. Or need
+        // to handle char moving onto enemy.
+        // STUB: Maybe display char moving out of sync with enemy.
 
         // Move character
         if let Some(key) = last_key_pressed {
