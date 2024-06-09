@@ -43,7 +43,7 @@ pub fn load_stage(stage: Stage) -> Play {
     ]);
 
     match stage {
-        // TODO: Can we use idx++ instead of specifying each level number?
+        // TODO: Can we use idx++ instead of specifying each level number? Not immediately?
         Stage::NewGame => make_splash("Press [enter] to start.".to_string(), Stage::LevIntro(1)),
 
         Stage::LevIntro(1) => make_splash("Welcome to level 1!".to_string(), Stage::LevPlay(1)),
