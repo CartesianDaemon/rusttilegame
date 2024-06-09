@@ -14,6 +14,8 @@ use crate::game::Mode;
 use crate::game::AI;
 use crate::game::Pass;
 
+use crate::game::util::*;
+
 #[allow(dead_code)]
 #[derive(Clone, Copy)]
 pub enum Stage {
@@ -23,12 +25,6 @@ pub enum Stage {
     LevOutro(u16),
     Retry(u16),
     Win,
-}
-
-// Utils
-use futures::executor::block_on;
-fn load_texture_blocking_unwrap(path: &str) -> Texture2D {
-    block_on(load_texture(path)).unwrap()
 }
 
 pub fn load_newgame() -> Play {

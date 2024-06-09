@@ -6,10 +6,14 @@ use std::collections::HashMap;
 // FIXME: Move to separate modules not submodules with visibility.
 mod input;
 use input::*;
+
 mod map;
 use map::*;
+
 mod load;
 use load::Stage;
+
+mod util;
 
 // Coord types (in theory)
 // 
