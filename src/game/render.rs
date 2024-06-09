@@ -1,7 +1,29 @@
 use macroquad::prelude::*;
 
+use super::Play;
+
 use super::Ent;
 
+use super::Mode;
+
+pub fn draw_frame(p: &Play) {
+    // STUB: Avoid passing in whole Play object.
+    match p.mode {
+        Mode::LevPlay => {
+            let r = RenderLev::begin(p.map.w(), p.map.h());
+            // Coords of first visible tile. Currently always 0,0.
+            let (ox, oy) = (0, 0);
+            for (x, y, loc) in p.map.locs() {
+                for ent in &loc.ents {
+                    r.draw_ent(x - ox, y - oy, ent);
+                }
+            }
+        }
+        Mode::Splash => {
+            let _r = RenderSplash::begin(&p.splash_text);
+        }
+    }
+}
 
 // Render state for one frame of level
 // Currently not needing any global graphics state

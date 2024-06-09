@@ -7,8 +7,6 @@ mod input;
 use input::*;
 
 mod render;
-use render::RenderLev;
-use render::RenderSplash;
 
 mod map;
 use map::*;
@@ -80,26 +78,7 @@ impl Game {
             self.p.advance(&mut self.i);
         }
 
-        self.draw_frame();
-    }
-
-    fn draw_frame(&self) {
-        // FIXME: Choice of Render class should be made by a Render fn.
-        match self.p.mode {
-            Mode::LevPlay => {
-                let r = RenderLev::begin(self.p.map.w(), self.p.map.h());
-                // Coords of first visible tile. Currently always 0,0.
-                let (ox, oy) = (0, 0);
-                for (x, y, loc) in self.p.map.locs() {
-                    for ent in &loc.ents {
-                        r.draw_ent(x - ox, y - oy, ent);
-                    }
-                }
-            }
-            Mode::Splash => {
-                let _r = RenderSplash::begin(&self.p.splash_text);
-            }
-        }
+        render::draw_frame(&self.p);
     }
 }
 
