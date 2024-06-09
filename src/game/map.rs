@@ -252,6 +252,7 @@ impl<'a> Iterator for LocIterator<'a> {
 }
 
 /*
+// STUB: Fix or remove
 impl<'a> Iterator for LocIteratorMut<'a> {
     type Item = (i16, i16, &'a mut Loc);
 
@@ -427,9 +428,22 @@ impl Ent {
             ..Ent::invalid()
         }
     }
+
+    // FUNCTIONS REFERRING TO SPECIFIC PROPERTIES
+    // STUB: Could be combined if properties are made more generic.
+
+    pub fn is_hero(self: &Ent) -> bool {
+        self.ai == AI::Hero
+    }
+
+    // Indicate Ents which can move in their own logic, and need to be added to roster.
+    pub fn is_roster(self: &Ent) -> bool {
+        self.ai != AI::Hero && self.ai != AI::Stay
+    }
 }
 
 // Passable. Whether other movs can move through an ent or not.
+// STUB: Can this become a generic property in load, rather than a specific property here?
 #[derive(Clone, PartialEq)]
 pub enum Pass {
     Empty, // No impediment to movement, e.g. floor.
@@ -439,6 +453,7 @@ pub enum Pass {
 }
 
 // Types of movement-control logic ents can use
+// STUB: Can this become a generic property in load, rather than a specific property here?
 #[derive(Clone, PartialEq)]
 #[allow(dead_code)]
 pub enum AI {
@@ -447,12 +462,4 @@ pub enum AI {
     // Everything else may spontaneously move or need to be enumerated, ie needs to be added to roster.
     Snake, // Move in direction, move orthogonally towards hero. Maybe: bounce off walls.
     Bounce, // Move in direction, reverse direction at walls.
-}
-
-pub fn is_hero(ent: &Ent) -> bool {
-    ent.ai == AI::Hero
-}
-
-pub fn is_roster(ent: &Ent) -> bool {
-    ent.ai != AI::Hero && ent.ai != AI::Stay
 }

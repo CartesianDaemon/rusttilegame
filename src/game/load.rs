@@ -101,7 +101,7 @@ pub fn make_splash(txt: String, to_stage: Stage) -> Play {
         splash_text: txt,
         to_stage: to_stage,
         die_stage: Stage::NewGame, // Shouldn't be used?
-        ..Play::new_empty_level()
+        ..Play::new_null_level()
     }
 }
 
@@ -114,7 +114,8 @@ pub fn make_levplay(levno: u16, ascii_map: &[&str; 16], map_key: HashMap<char, V
     }
 }
 
-// Specific ent types
+// SPECIFIC ENT TYPES
+
 pub fn new_hero_crab() -> Ent {
     Ent {
         pass: Pass::Mov,
