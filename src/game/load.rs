@@ -1,11 +1,18 @@
 // Code for loading or instatiating each level.
 
+use macroquad::prelude::*;
+
 use std::collections::HashMap;
+
+use crate::game::Delta;
 
 // use crate::game::Map;
 use crate::game::Ent;
 use crate::game::Play;
 use crate::game::Mode;
+
+use crate::game::AI;
+use crate::game::Pass;
 
 #[allow(dead_code)]
 #[derive(Clone, Copy)]
@@ -18,17 +25,23 @@ pub enum Stage {
     Win,
 }
 
+// Utils
+use futures::executor::block_on;
+fn load_texture_blocking_unwrap(path: &str) -> Texture2D {
+    block_on(load_texture(path)).unwrap()
+}
+
 pub fn load_newgame() -> Play {
     load_stage(Stage::NewGame)
 }
 
 pub fn load_stage(stage: Stage) -> Play {
     let aquarium1_key = HashMap::from([
-        (' ', vec![ Ent::new_floor() ]),
-        ('#', vec![ Ent::new_floor(), Ent::new_wall() ]),
-        ('>', vec![ Ent::new_floor(), Ent::new_snake((1,0)) ]),
-        ('<', vec![ Ent::new_floor(), Ent::new_snake((-1,0)) ]),
-        ('h', vec![ Ent::new_floor(), Ent::new_hero_crab() ]),
+        (' ', vec![ new_floor() ]),
+        ('#', vec![ new_floor(), new_wall() ]),
+        ('>', vec![ new_floor(), new_snake((1,0)) ]),
+        ('<', vec![ new_floor(), new_snake((-1,0)) ]),
+        ('h', vec![ new_floor(), new_hero_crab() ]),
     ]);
 
     match stage {
@@ -105,3 +118,32 @@ pub fn make_levplay(levno: u16, ascii_map: &[&str; 16], map_key: HashMap<char, V
     }
 }
 
+// Specific ent types
+pub fn new_hero_crab() -> Ent {
+    Ent {
+        pass: Pass::Mov,
+        ai: AI::Hero,
+        ..Ent::new_tex_col(load_texture_blocking_unwrap("imgs/ferris.png"), GOLD)
+    }
+}
+pub fn new_snake(dir: Delta) -> Ent {
+    Ent {
+        pass: Pass::Mov,
+        ai: AI::Bounce,
+        dir: dir,
+        ..Ent::new_col(DARKGREEN)
+    }
+}
+
+pub fn new_floor() -> Ent {
+    Ent {
+        ..Ent::new_col_outline(WHITE, LIGHTGRAY)
+    }
+}
+
+pub fn new_wall() -> Ent {
+    Ent {
+        pass: Pass::Solid,
+        ..Ent::new_col(DARKGRAY)
+    }
+}

@@ -7,18 +7,12 @@
 use macroquad::prelude::*;
 
 use std::mem;
-use futures::executor::block_on;
 use std::ops::Index;
 use std::ops::IndexMut;
 
 use super::Pos;
 use super::Point;
 use super::Delta;
-
-// Utils
-fn load_texture_blocking_unwrap(path: &str) -> Texture2D {
-    block_on(load_texture(path)).unwrap()
-}
 
 // "Map": Grid of locations. Most of the current state of game.
 pub struct Map {
@@ -431,36 +425,6 @@ impl Ent {
             fill: Some(fill),
             border: Some(outline),
             ..Ent::invalid()
-        }
-    }
-
-    // Specific ent types
-    pub fn new_hero_crab() -> Ent {
-        Ent {
-            pass: Pass::Mov,
-            ai: AI::Hero,
-            ..Ent::new_tex_col(load_texture_blocking_unwrap("imgs/ferris.png"), GOLD)
-        }
-    }
-    pub fn new_snake(dir: Delta) -> Ent {
-        Ent {
-            pass: Pass::Mov,
-            ai: AI::Bounce,
-            dir: dir,
-            ..Ent::new_col(DARKGREEN)
-        }
-    }
-
-    pub fn new_floor() -> Ent {
-        Ent {
-            ..Ent::new_col_outline(WHITE, LIGHTGRAY)
-        }
-    }
-
-    pub fn new_wall() -> Ent {
-        Ent {
-            pass: Pass::Solid,
-            ..Ent::new_col(DARKGRAY)
         }
     }
 }
