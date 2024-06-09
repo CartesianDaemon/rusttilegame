@@ -140,6 +140,10 @@ impl Play {
             if dir != (0, 0) {
                 if self.map.can_move(&self.ros.hero, dir) {
                     self.map.move_delta(&mut self.ros.hero, dir);
+                    // STUB: Check for win condition on ents other than the lowest one.
+                    if self.map[(self.ros.hero.0, self.ros.hero.1, 0)].effect == Effect::Win {
+                        self.progress_win();
+                    }
                 }
             }
         }
