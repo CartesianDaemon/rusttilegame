@@ -15,6 +15,7 @@ use crate::game::Mode;
 use crate::game::Stage;
 
 use crate::game::AI;
+use crate::game::Effect;
 
 // Gameplay state: current level, map, etc.
 // STUB: Public fields should only be needed by Render or produced by load, not
@@ -152,6 +153,7 @@ impl Play {
                 AI::Hero => {
                     // Handled separately.
                 },
+                // STUB: When we see what mov movement logic are like, try to combine them into one fn.
                 AI::Snake => {
                     // if mov on same row xor column as hero, change dir to face hero
                     if (mov.0 == self.ros.hero.0) != (mov.1 == self.ros.hero.1) {
@@ -194,11 +196,11 @@ impl Play {
                         self.map.move_delta(mov, self.map[*mov].dir);
                     }
                     // Die if mov moves onto hero
-                    // TODO: Make a single "move" function which checks for collisions like this
-                    // and causes hero to die if a "deadly" field is set.
-                    if mov.0 == self.ros.hero.0 && mov.1 == self.ros.hero.1 {
-                        self.progress_die();
-                        return; // NOTE: Bail out as more updates may not make sense. Necessary to avoid double borrow.
+                    if self.map[*mov].effect == Effect::Kill {
+                        if mov.0 == self.ros.hero.0 && mov.1 == self.ros.hero.1 {
+                            self.progress_die();
+                            return; // NOTE: Bail out as more updates may not make sense. Necessary to avoid double borrow.
+                        }
                     }
                 }
             }
