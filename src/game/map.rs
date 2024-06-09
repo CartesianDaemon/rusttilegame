@@ -358,8 +358,12 @@ pub struct Ent {
 
     // Internal status for specific ent types.
     pub dir: Delta,
+
+    // Effect of intersecting hero
+    pub effect: Effect,
 }
 
+// FIXME: Move to ent mod.
 impl Ent {
     // An unitialised ent
     pub fn invalid() -> Ent {
@@ -373,8 +377,8 @@ impl Ent {
             tex: None,
 
             pass: Pass::Empty,
-
-            ai: AI::Stay, // Could use this as a better placeholder flag
+            ai: AI::Stay, // STUB: Could use this as a better placeholder flag
+            effect: Effect::Nothing,
 
             dir: (0, 0),
         }
@@ -462,4 +466,15 @@ pub enum AI {
     // Everything else may spontaneously move or need to be enumerated, ie needs to be added to roster.
     Snake, // Move in direction, move orthogonally towards hero. Maybe: bounce off walls.
     Bounce, // Move in direction, reverse direction at walls.
+}
+
+// Effect when intersect with hero (as mov or stay)
+// STUB: So far play implements Kill for movs and Win for floors.
+#[derive(Clone, PartialEq)]
+pub enum Effect {
+    Nothing,
+    Kill,
+    Win,
+    // STUB: Can add effects like when ent dies
+    // STUB: Could convert Win, Kill, to Progress(Win),... with enum Progress {Win, Lose}
 }

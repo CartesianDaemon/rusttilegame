@@ -13,6 +13,7 @@ use crate::game::Mode;
 
 use crate::game::AI;
 use crate::game::Pass;
+use crate::game::Effect;
 
 use crate::game::util::*;
 
@@ -38,6 +39,7 @@ pub fn load_stage(stage: Stage) -> Play {
         ('>', vec![ new_floor(), new_snake((1,0)) ]),
         ('<', vec![ new_floor(), new_snake((-1,0)) ]),
         ('h', vec![ new_floor(), new_hero_crab() ]),
+        ('o', vec![ new_door_win() ]),
     ]);
 
     match stage {
@@ -46,7 +48,7 @@ pub fn load_stage(stage: Stage) -> Play {
 
         Stage::LevIntro(1) => make_splash("Welcome to level 1!".to_string(), Stage::LevPlay(1)),
         Stage::LevPlay(1) => make_levplay(1, &[
-            "################",
+            "########o#######",
             "#              #",
             "# >            #",
             "#              #",
@@ -116,31 +118,39 @@ pub fn make_levplay(levno: u16, ascii_map: &[&str; 16], map_key: HashMap<char, V
 
 // SPECIFIC ENT TYPES
 
-pub fn new_hero_crab() -> Ent {
+fn new_hero_crab() -> Ent {
     Ent {
         pass: Pass::Mov,
         ai: AI::Hero,
         ..Ent::new_tex_col(load_texture_blocking_unwrap("imgs/ferris.png"), GOLD)
     }
 }
-pub fn new_snake(dir: Delta) -> Ent {
+fn new_snake(dir: Delta) -> Ent {
     Ent {
         pass: Pass::Mov,
         ai: AI::Bounce,
         dir: dir,
+        effect: Effect::Kill,
         ..Ent::new_col(DARKGREEN)
     }
 }
 
-pub fn new_floor() -> Ent {
+fn new_floor() -> Ent {
     Ent {
         ..Ent::new_col_outline(WHITE, LIGHTGRAY)
     }
 }
 
-pub fn new_wall() -> Ent {
+fn new_wall() -> Ent {
     Ent {
         pass: Pass::Solid,
         ..Ent::new_col(DARKGRAY)
+    }
+}
+
+fn new_door_win() -> Ent {
+    Ent {
+        effect: Effect::Win,
+        ..Ent::new_col_outline(GOLD, LIGHTGRAY)
     }
 }
