@@ -39,9 +39,31 @@ pub fn load_stage(stage: Stage) -> Play {
         ('>', vec![ new_floor(), new_snake((1,0)) ]),
         ('<', vec![ new_floor(), new_snake((-1,0)) ]),
         ('h', vec![ new_floor(), new_hero_crab() ]),
-        ('o', vec![ new_door_win() ]),
+        ('o', vec![ new_floor(), new_door_win() ]),
+        /*
+        ('@', vec![ new_floor(), new_door_closed() ]),
+        ('_', vec![ new_floor(), new_wall_open() ]),
+        */
     ]);
 
+    /*
+            "#            # #",
+            "#####@####@###@#",
+            "@              #",
+            "#####_########_#",
+            "#            # #",
+            "#            # #",
+            "#            @ @",
+            "#            # #",
+            "#            # #",
+            "#            # #",
+            "#            # o",
+            "#            # #",
+            "#            # #",
+            "##############@#",
+            "#            # #",
+            "#            @ #",
+    */
     match stage {
         // TODO: Can we use idx++ instead of specifying each level number? Not immediately?
         Stage::NewGame => make_splash("Press [enter] to start.".to_string(), Stage::LevIntro(1)),
@@ -147,6 +169,22 @@ fn new_wall() -> Ent {
         ..Ent::new_col(DARKGRAY)
     }
 }
+
+/*
+fn new_door_open() -> Ent {
+    Ent {
+        effect: Effect::Win,
+        ..Ent::new_col(LIGHTGRAY)
+    }
+}
+
+fn new_door_closed() -> Ent {
+    Ent {
+        effect: Effect::Win,
+        ..Ent::new_col_outline(DARKGRAY, LIGHTGRAY)
+    }
+}
+*/
 
 fn new_door_win() -> Ent {
     Ent {
