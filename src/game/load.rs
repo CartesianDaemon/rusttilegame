@@ -39,30 +39,14 @@ pub fn load_stage(stage: Stage) -> Play {
         ('>', vec![ new_floor(), new_snake((1,0)) ]),
         ('<', vec![ new_floor(), new_snake((-1,0)) ]),
         ('h', vec![ new_floor(), new_hero_crab() ]),
-        ('o', vec![ new_floor(), new_door_win() ]),
-        /*
+        ('o', vec![ /* new_floor(), */ new_door_win() ]), // TODO: Check win on non-floor tiles
         ('@', vec![ new_floor(), new_door_closed() ]),
-        ('_', vec![ new_floor(), new_wall_open() ]),
+        ('_', vec![ new_floor(), new_door_open() ]),
+        /*
         */
     ]);
 
     /*
-            "#            # #",
-            "#####@####@###@#",
-            "@              #",
-            "#####_########_#",
-            "#            # #",
-            "#            # #",
-            "#            @ @",
-            "#            # #",
-            "#            # #",
-            "#            # #",
-            "#            # o",
-            "#            # #",
-            "#            # #",
-            "##############@#",
-            "#            # #",
-            "#            @ #",
     */
     match stage {
         // TODO: Can we use idx++ instead of specifying each level number? Not immediately?
@@ -70,6 +54,23 @@ pub fn load_stage(stage: Stage) -> Play {
 
         Stage::LevIntro(1) => make_splash("Welcome to level 1!".to_string(), Stage::LevPlay(1)),
         Stage::LevPlay(1) => make_levplay(1, &[
+            "#            # #",
+            "#####@####@###@#",
+            "@              #",
+            "#####_########_#",
+            "#            # #",
+            "#            # #",
+            "#  >         @ @",
+            "#            # #",
+            "#            # #",
+            "#       h    # #",
+            "#            # o",
+            "#            # #",
+            "#            # #",
+            "##############@#",
+            "#            # #",
+            "#            @ #",
+/*
             "########o#######",
             "#              #",
             "# >            #",
@@ -86,6 +87,7 @@ pub fn load_stage(stage: Stage) -> Play {
             "#              #",
             "#              #",
             "################",
+*/
         ], aquarium1_key),
         Stage::LevOutro(1) => make_splash("Well done!! Goodbye from level 1".to_string(), Stage::LevIntro(2)),
 
@@ -170,21 +172,18 @@ fn new_wall() -> Ent {
     }
 }
 
-/*
 fn new_door_open() -> Ent {
     Ent {
-        effect: Effect::Win,
         ..Ent::new_col(LIGHTGRAY)
     }
 }
 
 fn new_door_closed() -> Ent {
     Ent {
-        effect: Effect::Win,
+        pass: Pass::Solid,
         ..Ent::new_col_outline(DARKGRAY, LIGHTGRAY)
     }
 }
-*/
 
 fn new_door_win() -> Ent {
     Ent {
