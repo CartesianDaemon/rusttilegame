@@ -1,0 +1,12 @@
+In mind:
+ Security doors which close when robots get near
+ Access doors which open when robots get near
+ Gawpie fish
+ Another more aggressive fish
+ Try out fish with "sparks", bad wiring, that is deadly (?)
+
+Implement some of those
+Then put in some simple levels about them.
+
+Streamline implementation of movs. But only when it's immediately useful.
+
