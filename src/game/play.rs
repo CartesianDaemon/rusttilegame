@@ -7,15 +7,12 @@ use crate::game::load;
 
 use crate::game::Map;
 use crate::game::Ros;
-use crate::game::Ent;
+use crate::game::ent::Ent;
 
 use crate::game::Delta;
 
 use crate::game::Mode;
 use crate::game::Stage;
-
-use crate::game::AI;
-use crate::game::Effect;
 
 // Gameplay state: current level, map, etc.
 // STUB: Public fields should only be needed by Render or produced by load, not
@@ -125,6 +122,10 @@ impl Play {
     }
 
     fn advance_level(&mut self, last_key_pressed: Option<KeyCode>) {
+        // Need all the properties used in Ent.
+        // May move properties and this function into load.
+        use crate::game::ent::*;
+
         // FIXME: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // STUB: Maybe display char moving out of sync with enemy.

@@ -6,14 +6,12 @@ use std::collections::HashMap;
 
 use crate::game::Delta;
 
-// use crate::game::Map;
-use crate::game::Ent;
+// Need many of the specific params in ent.
+// Some of those may move to his file.
+use crate::game::ent::*;
+
 use crate::game::Play;
 use crate::game::Mode;
-
-use crate::game::AI;
-use crate::game::Pass;
-use crate::game::Effect;
 
 use crate::game::util::*;
 

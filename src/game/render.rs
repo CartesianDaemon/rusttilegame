@@ -2,7 +2,7 @@ use macroquad::prelude::*;
 
 use super::Play;
 
-use super::Ent;
+use crate::game::ent::Ent;
 
 use super::Mode;
 

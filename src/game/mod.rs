@@ -11,6 +11,8 @@ mod render;
 mod map;
 use map::*;
 
+mod ent;
+
 mod load;
 use load::Stage;
 
@@ -18,7 +20,7 @@ mod util;
 
 // Coord types (in theory)
 // 
-// FIXME: Move to Map, or separate coord module.
+// FIXME: Move to a coord type module.
 // FIXME: Decide whether implementing types would help.
 //
 // Dimension: Width/height of map. Unsigned. Vars w,h.
