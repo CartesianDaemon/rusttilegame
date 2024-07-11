@@ -1,3 +1,6 @@
+mod types;
+mod util;
+
 pub mod game;
 mod play;
 mod input;
@@ -5,9 +8,8 @@ mod render;
 mod map;
 mod ent;
 mod load;
-mod util;
 
-use game::*;
+use game::Game;
 
 #[macroquad::main("Tile Game")]
 async fn main() {

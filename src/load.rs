@@ -7,7 +7,7 @@ use std::collections::HashMap;
 
 use crate::*;
 
-use game::Delta;
+use types::Delta;
 
 // Need many of the specific params in ent.
 // Some of those may move to his file.

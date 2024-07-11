@@ -1,4 +1,4 @@
-use crate::game::Delta;
+use crate::types::Delta;
 
 use macroquad::prelude::*;
 

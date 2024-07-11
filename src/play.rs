@@ -12,7 +12,7 @@ use map::Map;
 use map::Ros;
 use ent::Ent;
 
-use game::Delta;
+use types::Delta;
 
 use game::Mode;
 use load::Stage;

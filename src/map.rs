@@ -12,9 +12,9 @@ use std::ops::IndexMut;
 
 use crate::*;
 
-use game::Pos;
-use game::Point;
-use game::Delta;
+use types::Pos;
+use types::Point;
+use types::Delta;
 
 use ent::Ent;
 
