@@ -1,5 +1,3 @@
-use macroquad::prelude::*;
-
 pub mod game;
 mod play;
 mod input;
@@ -13,11 +11,11 @@ use game::*;
 
 #[macroquad::main("Tile Game")]
 async fn main() {
-    let mut g = Game::new_default();
+    let mut game = Game::new_default();
 
     loop {
-        g.do_frame();
+        game.do_frame();
 
-        next_frame().await;
+        macroquad::prelude::next_frame().await;
     }
 }
