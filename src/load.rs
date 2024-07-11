@@ -8,17 +8,13 @@ use std::collections::HashMap;
 use crate::*;
 
 use types::Delta;
-
 // Need many of the specific params in ent.
 // Some of those may move to his file.
 use ent::*;
-
 use play::Play;
 use play::Mode;
-
 use util::*;
 
-#[allow(dead_code)]
 #[derive(Clone, Copy)]
 pub enum Stage {
     NewGame,
@@ -47,8 +43,6 @@ pub fn load_stage(stage: Stage) -> Play {
         */
     ]);
 
-    /*
-    */
     match stage {
         // TODO: Can we use idx++ instead of specifying each level number? Not immediately?
         Stage::NewGame => make_splash("Press [enter] to start.".to_string(), Stage::LevIntro(1)),
@@ -71,24 +65,6 @@ pub fn load_stage(stage: Stage) -> Play {
             "##############@#",
             "#            # #",
             "#            @ #",
-/*
-            "########o#######",
-            "#              #",
-            "# >            #",
-            "#              #",
-            "#              #",
-            "#              #",
-            "#              #",
-            "#              #",
-            "#   h          #",
-            "#              #",
-            "#              #",
-            "#              #",
-            "#              #",
-            "#              #",
-            "#              #",
-            "################",
-*/
         ], aquarium1_key),
         Stage::LevOutro(1) => make_splash("Well done!! Goodbye from level 1".to_string(), Stage::LevIntro(2)),
 
