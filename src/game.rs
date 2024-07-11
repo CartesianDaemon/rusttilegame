@@ -4,7 +4,7 @@ use play::Play;
 use input::Input;
 
 // Overall game state.
-// TODO: Does this need to exist or could it be folded into main.rs or play.rs?
+// FIXME: Does this need to exist or could it be folded into main.rs or play.rs?
 pub struct Game {
     p: Play,
     i: Input,
@@ -19,27 +19,14 @@ impl Game {
     }
 
     pub fn do_frame(&mut self) {
-        // Can I make a single function for this and ready_for_tick()?
+        /* Can read_input be combined with wait_for_tick? */
         self.i.read_input();
 
-        // STUB: Would it be easier to read with a layout like:
-        //
-        // while (not ready for tick) {
-        //     accumulate_input();
-        //     draw_frame();
-        // }
-        //
-        // advance();
-        //
-        // draw_frame();
-        //
-        // ?
-        //
-        // But probably needs yield which we don't actually have?
-
-        // Wait for tick if needed.
-        // Need to know at this level to treat input differently on a tick
-        // But maybe ready_for_tick can take a "tick wanted" parameter from Play mode.
+        /* For non-continuous modes, typically gameplay rather than splash, wait for
+         * next tick to advance game state.
+         *
+         * There should be a better way of expressing this logic between play and render.
+         */
         if self.p.continuous() || self.i.ready_for_tick() {
             self.p.advance(&mut self.i);
         }
