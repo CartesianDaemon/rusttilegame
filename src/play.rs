@@ -1,20 +1,16 @@
-use std::collections::HashMap;
-
 use macroquad::prelude::*;
+
+use std::collections::HashMap;
 
 use crate::*;
 
 use input::Input;
-
-// use crate::game::load;
-
 use map::Map;
 use map::Ros;
 use ent::Ent;
-
 use types::Delta;
-
-use load::Stage;
+use load::Stage; // FIXME: Is it possible to declare Stage here and specialise it in Load
+                 // so that Play doesn't need to know the enum names, just a max size?
 
 // Whether we are currently playing a level, in intro screen, in game over, etc
 // FIXME: Should be split into render::Mode hardcoding what is drawn on the screen,
@@ -27,19 +23,30 @@ pub enum Mode {
 // Gameplay state: current level, map, etc.
 // STUB: Public fields should only be needed by Render or produced by load, not
 // used elsewhere.
+// STUB: Would make more sense as "an enum of two types inheriting a common trait" like
+// expr in syn crate.
 pub struct Play {
-    // Current mode, e.g. "New Game screen" or "Intro to level 1".
+    // Mode of current state, either an interstitial splash screen or a level to play.
     pub mode: Mode,
 
-    // Text for current interstitial screen in Mode::Splash.
+    /* FIELDS FOR BOTH MODE::SPLASH AND MODE::PLAY */
+
+    // FIXME: Do we need to specify current Stage here?
+
+    // Next stage to go to after continue or win. STUB: Could be map of enum win, die.. end condns.
+    pub to_stage: Stage,
+
+    /* FIELDS FOR MODE::SPLASH */
+
+    // Text for current interstitial screen
     pub splash_text: String,
 
-    // Layout of current map, used in Mode::LevPlay.
+    /* FIELDS FOR MODE::PLAY */
+
+    // Layout of current map
     pub map: Map,
     pub ros: Ros,
 
-    // Next stage to go to after continue or win.
-    pub to_stage: Stage,
     // Next stage to go to after death. Currently always retry.
     pub die_stage: Stage,
 }
@@ -47,7 +54,6 @@ pub struct Play {
 impl Play {
     fn new_empty_level() -> Play {
         Play {
-            // TODO: Add current Stage.
             mode: Mode::Splash, // Should always get overridden
 
             splash_text: "SPLASH TEXT".to_string(),
@@ -64,7 +70,7 @@ impl Play {
         Self::new_empty_level()
     }
 
-    pub  fn from_ascii(ascii_map: &[&str; 16], map_key: HashMap<char, Vec<Ent>>) -> Play {
+    pub fn from_ascii(ascii_map: &[&str; 16], map_key: HashMap<char, Vec<Ent>>) -> Play {
         // TODO: Get size from strings. Assert equal to default 16 in meantime.
         let mut play = Play::new_empty_level();
 
@@ -110,8 +116,7 @@ impl Play {
     }
 
     // Does current mode need UI to wait for tick before updating state?
-    // Currently yes during play of level, no in splash screens.
-    // Simplified if we have game State and Play/Splash mode.
+    // Yes during play of level, no in splash screens.
     pub fn continuous(&self) -> bool {
         match self.mode {
             Mode::Splash => true,
@@ -126,14 +131,15 @@ impl Play {
                 self.advance_level(input.consume_keypresses());
             }
             Mode::Splash => {
-                self.advance_splash(input, self.to_stage);
+                self.advance_splash(input);
             }
         }
     }
 
     fn advance_level(&mut self, last_key_pressed: Option<KeyCode>) {
         // Need all the properties used in Ent.
-        // May move properties and this function into load.
+        // May move "can move" like logic into load, along with the assorted properties.
+        // While keeping movement code coordinating between ents here.
         use ent::*;
 
         // FIXME: Decide order of char, enemy. Before or after not quite right. Or need
@@ -232,7 +238,7 @@ impl Play {
         *self = load::load_stage(self.die_stage);
     }
 
-    pub fn advance_splash(&mut self, input: &mut Input, progress_to_stage: Stage) {
+    fn advance_splash(&mut self, input: &mut Input) {
         let key = input.consume_keypresses();
 
         // Reset "most recent tick" when leaving menu.
@@ -240,7 +246,12 @@ impl Play {
         input.last_update = get_time();
 
         if Some(KeyCode::Enter) == key {
-            *self = load::load_stage(progress_to_stage);
+            self.progress_continue();
         }
     }
+
+    fn progress_continue(&mut self) {
+        *self = load::load_stage(self.to_stage);
+    }
+
 }
