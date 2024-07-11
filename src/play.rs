@@ -2,17 +2,20 @@ use std::collections::HashMap;
 
 use macroquad::prelude::*;
 
-use crate::game::Input;
-use crate::game::load;
+use crate::*;
 
-use crate::game::Map;
-use crate::game::Ros;
-use crate::game::ent::Ent;
+use input::Input;
 
-use crate::game::Delta;
+// use crate::game::load;
 
-use crate::game::Mode;
-use crate::game::Stage;
+use map::Map;
+use map::Ros;
+use ent::Ent;
+
+use game::Delta;
+
+use game::Mode;
+use load::Stage;
 
 // Gameplay state: current level, map, etc.
 // STUB: Public fields should only be needed by Render or produced by load, not
@@ -124,7 +127,7 @@ impl Play {
     fn advance_level(&mut self, last_key_pressed: Option<KeyCode>) {
         // Need all the properties used in Ent.
         // May move properties and this function into load.
-        use crate::game::ent::*;
+        use ent::*;
 
         // FIXME: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.

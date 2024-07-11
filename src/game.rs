@@ -1,22 +1,9 @@
-// FIXME: Work out which types should be exported and remove use ::*.
-// STUB: Move to separate modules not submodules with visibility.
-mod play;
-use play::*;
+// TODO: Remove unused use
 
-mod input;
-use input::*;
+use crate::*;
 
-mod render;
-
-mod map;
-use map::*;
-
-mod ent;
-
-mod load;
-use load::Stage;
-
-mod util;
+use play::Play;
+use input::Input;
 
 // Coord types (in theory)
 // 
@@ -36,11 +23,12 @@ mod util;
 // And multiplication of p coords by map coords.
 
 // Coord types defined approximate theoretical types:
-type Pos = (i16, i16, u16);
-type Point = (i16, i16);
-type Delta = (i16, i16);
+pub type Pos = (i16, i16, u16);
+pub type Point = (i16, i16);
+pub type Delta = (i16, i16);
 
 // Overall game state.
+// TODO: Does this need to exist or could it be folded into main.rs or play.rs?
 pub struct Game {
     p: Play,
     i: Input,
@@ -87,7 +75,7 @@ impl Game {
 
 // FIXME: Move Play to play submod.
 // Whether we are currently playing a level, in intro screen, in game over, etc
-enum Mode {
+pub enum Mode {
     Splash,
     LevPlay,
 }

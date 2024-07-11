@@ -10,11 +10,13 @@ use std::mem;
 use std::ops::Index;
 use std::ops::IndexMut;
 
-use super::Pos;
-use super::Point;
-use super::Delta;
+use crate::*;
 
-use crate::game::ent::Ent;
+use game::Pos;
+use game::Point;
+use game::Delta;
+
+use ent::Ent;
 
 // "Map": Grid of locations. Most of the current state of game.
 pub struct Map {
@@ -322,7 +324,7 @@ impl Loc {
 
     pub fn impassable(&self) -> bool {
         // Can this fn work without knowledge of specific properties?
-        use crate::game::ent::Pass;
+        use ent::Pass;
         self.ents.iter().any(|x| x.pass == Pass::Solid)
     }
 }

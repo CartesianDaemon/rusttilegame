@@ -1,10 +1,10 @@
 use macroquad::prelude::*;
 
-use super::Play;
+use crate::*;
 
-use crate::game::ent::Ent;
-
-use super::Mode;
+use play::Play;
+use ent::Ent;
+use game::Mode;
 
 pub fn draw_frame(p: &Play) {
     // STUB: Avoid passing in whole Play object.

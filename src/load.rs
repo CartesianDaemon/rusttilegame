@@ -1,19 +1,22 @@
 // Code for loading or instatiating each level.
+// The parts specific to this game rather than the engine.
 
 use macroquad::prelude::*;
 
 use std::collections::HashMap;
 
-use crate::game::Delta;
+use crate::*;
+
+use game::Delta;
 
 // Need many of the specific params in ent.
 // Some of those may move to his file.
-use crate::game::ent::*;
+use ent::*;
 
-use crate::game::Play;
-use crate::game::Mode;
+use play::Play;
+use game::Mode;
 
-use crate::game::util::*;
+use util::*;
 
 #[allow(dead_code)]
 #[derive(Clone, Copy)]
