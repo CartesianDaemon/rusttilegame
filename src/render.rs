@@ -4,7 +4,7 @@ use crate::*;
 
 use play::Play;
 use ent::Ent;
-use game::Mode;
+use play::Mode;
 
 pub fn draw_frame(p: &Play) {
     // STUB: Avoid passing in whole Play object.

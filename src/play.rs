@@ -14,8 +14,15 @@ use ent::Ent;
 
 use types::Delta;
 
-use game::Mode;
 use load::Stage;
+
+// Whether we are currently playing a level, in intro screen, in game over, etc
+// FIXME: Should be split into render::Mode hardcoding what is drawn on the screen,
+// which is a parameter in each possible load:: state.
+pub enum Mode {
+    Splash,
+    LevPlay,
+}
 
 // Gameplay state: current level, map, etc.
 // STUB: Public fields should only be needed by Render or produced by load, not

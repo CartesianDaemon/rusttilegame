@@ -14,7 +14,7 @@ use types::Delta;
 use ent::*;
 
 use play::Play;
-use game::Mode;
+use play::Mode;
 
 use util::*;
 

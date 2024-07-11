@@ -47,11 +47,3 @@ impl Game {
         render::draw_frame(&self.p);
     }
 }
-
-
-// FIXME: Move Play to play submod.
-// Whether we are currently playing a level, in intro screen, in game over, etc
-pub enum Mode {
-    Splash,
-    LevPlay,
-}
