@@ -88,7 +88,7 @@ impl Map {
         }
 
         // Update caller's handle to new coords. Height will be set by put_at().
-        *hdl = (to.0, to.1, 0);
+        *hdl = to.to_pos();
 
         // Add Ent to top of stack at new map coords. Updates hdl to match new height.
         self.put_at(hdl, ent);
@@ -100,7 +100,7 @@ impl Map {
 
     // Nothing happens if target is off map. Higher layer should prevent that.
     pub fn move_delta(&mut self, pos: &mut Pos, delta: Delta) {
-        self.move_to(pos, (pos.0 + delta.0, pos.1 + delta.1));
+        self.move_to(pos, Point::from_pos(*pos) + delta);
     }
 
     pub fn loc_at(&self, pos: Pos) -> &Loc {
