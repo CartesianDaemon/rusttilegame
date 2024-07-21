@@ -1,3 +1,5 @@
+GAMEPLAY
+
 In mind:
  Security doors which close when robots get near
  Access doors which open when robots get near
@@ -8,5 +10,16 @@ In mind:
 Implement some of those
 Then put in some simple levels about them.
 
+IMPLEMENT
+
+Tests
+
+REFACTORING
+
+More coord types.
+Try using refcell to have back-references to map.
+Move body of advance function into load. Towards making that independent.
+
 Streamline implementation of movs. But only when it's immediately useful.
+
 
