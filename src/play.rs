@@ -15,6 +15,7 @@ use load::Stage; // FIXME: Is it possible to declare Stage here and specialise i
 // Whether we are currently playing a level, in intro screen, in game over, etc
 // FIXME: Should be split into render::Mode hardcoding what is drawn on the screen,
 // which is a parameter in each possible load:: state.
+#[derive(Clone)]
 pub enum Mode {
     Splash,
     LevPlay,
@@ -25,6 +26,7 @@ pub enum Mode {
 // used elsewhere.
 // STUB: Would make more sense as "an enum of two types inheriting a common trait" like
 // expr in syn crate.
+#[derive(Clone)]
 pub struct Play {
     // Mode of current state, either an interstitial splash screen or a level to play.
     pub mode: Mode,

@@ -108,6 +108,7 @@ pub fn make_splash(txt: String, to_stage: Stage) -> Play {
     }
 }
 
+// Used by tests
 pub fn make_levplay(levno: u16, ascii_map: &[&str; 16], map_key: HashMap<char, Vec<Ent>>) -> Play {
     Play {
         mode : Mode::LevPlay,
@@ -118,15 +119,17 @@ pub fn make_levplay(levno: u16, ascii_map: &[&str; 16], map_key: HashMap<char, V
 }
 
 // SPECIFIC ENT TYPES
+// public only for helper use in test.rs
 
-fn new_hero_crab() -> Ent {
+pub fn new_hero_crab() -> Ent {
     Ent {
         pass: Pass::Mov,
         ai: AI::Hero,
         ..Ent::new_tex_col(load_texture_blocking_unwrap("imgs/ferris.png"), GOLD)
     }
 }
-fn new_snake(dir: Delta) -> Ent {
+
+pub fn new_snake(dir: Delta) -> Ent {
     Ent {
         pass: Pass::Mov,
         ai: AI::Bounce,
@@ -136,33 +139,33 @@ fn new_snake(dir: Delta) -> Ent {
     }
 }
 
-fn new_floor() -> Ent {
+pub fn new_floor() -> Ent {
     Ent {
         ..Ent::new_col_outline(WHITE, LIGHTGRAY)
     }
 }
 
-fn new_wall() -> Ent {
+pub fn new_wall() -> Ent {
     Ent {
         pass: Pass::Solid,
         ..Ent::new_col(DARKGRAY)
     }
 }
 
-fn new_door_open() -> Ent {
+pub fn new_door_open() -> Ent {
     Ent {
         ..Ent::new_col(LIGHTGRAY)
     }
 }
 
-fn new_door_closed() -> Ent {
+pub fn new_door_closed() -> Ent {
     Ent {
         pass: Pass::Solid,
         ..Ent::new_col_outline(DARKGRAY, LIGHTGRAY)
     }
 }
 
-fn new_door_win() -> Ent {
+pub fn new_door_win() -> Ent {
     Ent {
         effect: Effect::Win,
         ..Ent::new_col_outline(GOLD, LIGHTGRAY)

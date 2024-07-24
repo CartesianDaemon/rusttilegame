@@ -9,6 +9,8 @@ mod map;
 mod ent;
 mod load;
 
+mod test;
+
 use game::Game;
 
 #[macroquad::main("Tile Game")]

@@ -22,4 +22,7 @@ Move body of advance function into load. Towards making that independent.
 
 Streamline implementation of movs. But only when it's immediately useful.
 
+Tests.
 
+Pass load_stage as argument to Play, or have a "Stages" type, so that you can identify "which game to load" not only which level.
+ Make it possible to test "next level" stuff.

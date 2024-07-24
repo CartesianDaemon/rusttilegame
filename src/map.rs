@@ -19,6 +19,7 @@ use types::Delta;
 use ent::Ent;
 
 // "Map": Grid of locations. Most of the current state of game.
+#[derive(Clone)]
 pub struct Map {
     // Stored as a collection of columns, e.g. map.locs[x][y]
     // Must always be rectangular.
@@ -279,6 +280,7 @@ impl<'a> Iterator for LocIteratorMut<'a> {
 */
 
 // Roster of character, enemies, etc. Indexes into map.
+#[derive(Clone)]
 pub struct Ros {
     // Hero
     // FIXME: Better name for protagonist than "hero".
