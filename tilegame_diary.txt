@@ -10,6 +10,12 @@ In mind:
 Implement some of those
 Then put in some simple levels about them.
 
+UI
+
+Clock based or not.
+Have immediate feedback when you move to show something is happening.
+Decide what order of player/enemy is simplest.
+
 IMPLEMENT
 
 Tests
