@@ -39,6 +39,9 @@ pub enum BiobotStage {
     Win,
 }
 
+impl LevStageBase for BiobotStage {
+}
+
 pub fn load_newgame() -> Play {
     biobot_load_stage(BiobotStage::NewGame)
 }
