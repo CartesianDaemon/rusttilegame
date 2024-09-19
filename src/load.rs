@@ -15,6 +15,20 @@ use play::Play;
 use play::Mode;
 use util::*;
 
+/** Identify a level within a level set.
+ *
+ * Typically overridden by a levelset-specific exhaustive enum.
+ * Or a string, for levelsets loaded from a file.
+ */
+pub trait LevStageBase : Copy + Clone {
+}
+
+pub trait LevSet {
+    type LevStage : LevStageBase;
+    fn initial_lev_stage(&self) -> Self::LevStage;
+    fn load_lev_stage(&self) -> Play;
+}
+
 #[derive(Clone, Copy)]
 pub enum BiobotStage {
     NewGame,
