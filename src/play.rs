@@ -9,6 +9,9 @@ use map::Map;
 use map::Ros;
 use ent::Ent;
 use types::Delta;
+use load::LevStageBase; // FIXME: Is it possible to declare Stage here and specialise it in Load
+                 // so that Play doesn't need to know the enum names, just a max size?
+// Remove
 use load::BiobotStage; // FIXME: Is it possible to declare Stage here and specialise it in Load
                  // so that Play doesn't need to know the enum names, just a max size?
 
@@ -26,7 +29,7 @@ pub enum Mode {
 // used elsewhere.
 // STUB: Would make more sense as "an enum of two types inheriting a common trait" like
 // expr in syn crate.
-#[derive(Clone)]
+//#[derive(Clone)]
 pub struct Play {
     // Mode of current state, either an interstitial splash screen or a level to play.
     pub mode: Mode,
@@ -36,7 +39,7 @@ pub struct Play {
     // FIXME: Do we need to specify current Stage here?
 
     // Next stage to go to after continue or win. STUB: Could be map of enum win, die.. end condns.
-    pub to_stage: BiobotStage,
+    pub to_stage: Box<dyn LevStageBase>,
 
     /* FIELDS FOR MODE::SPLASH */
 
@@ -50,7 +53,7 @@ pub struct Play {
     pub ros: Ros,
 
     // Next stage to go to after death. Currently always retry.
-    pub die_stage: BiobotStage,
+    pub die_stage: Box<dyn LevStageBase>,
 }
 
 impl Play {
@@ -63,8 +66,9 @@ impl Play {
             map: Map::new(16),
             ros: Ros::new(),
 
-            to_stage: BiobotStage::NewGame,
-            die_stage: BiobotStage::NewGame, // Shouldn't be used?
+            // TODO: Avoid references to Biobot levels specifically
+            to_stage: Box::new(BiobotStage::NewGame),
+            die_stage: Box::new(BiobotStage::NewGame), // Shouldn't be used?
         }
     }
 
@@ -233,7 +237,7 @@ impl Play {
     }
 
     fn progress_win(&mut self) {
-        *self = load::biobot_load_stage(self.to_stage);
+        *self = load::biobot_load_stage_ref(self.to_stage.as_ref());
     }
 
     fn progress_die(&mut self) {

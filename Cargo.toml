@@ -10,3 +10,4 @@ macroquad = "0.4.5"
 futures = "0.3.30"
 derive_more = "0.99"
 assrt = {git = "https://github.com/CartesianDaemon/assrt.git", branch = "v0.2"} # Can also use {path = "../assrt"}
+downcast-rs = "1.2.1"
