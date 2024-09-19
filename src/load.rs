@@ -15,44 +15,6 @@ use play::Play;
 use play::Mode;
 use util::*;
 
-/** An instance of LevelData defines a whole game.
- *
- * Making this compile-time polymorphism is over-engineered, it would more
- * naturally be run-time polymorphism. But if we can ensure that all Stages
- * are automatically valid ones, that's nice.
- */
-pub trait LevelData {
-    /** A type representing "level 1 intro" or "game over screen" etc.
-     *
-     * May need to break this down to level (often numbered) and step in level (intro, etc).
-     */
-    type Stage;
-
-    /** The stage to begin when a game launches. E.g. BiobotStage::NewGame */
-    fn initial_stage() -> Self::Stage;
-
-    /** Given a stage identifier, return a Play instance for that stage.
-     *
-     * Most naturally would be a hash lookup, or a "load file N from disk". But could have
-     * levels generated programmatically.
-     */
-    fn load_stage(stage: BiobotStage) -> Play;
-}
-
-struct BioBots;
-
-impl LevelData for BioBots {
-    type Stage = BiobotStage;
-
-    fn initial_stage() -> Self::Stage {
-        BiobotStage::NewGame
-    }
-
-    fn load_stage(stage: BiobotStage) -> Play {
-        biobot_load_stage(stage)
-    }
-}
-
 #[derive(Clone, Copy)]
 pub enum BiobotStage {
     NewGame,
