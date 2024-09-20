@@ -1,5 +1,7 @@
-// Code for loading or instatiating each level.
-// The parts specific to this game rather than the engine.
+/// Code for loading or instatiating each level.
+///
+/// Towards a generic, although currently game engine hardcodes BiobotLevs
+/// and testing will hardcode a test set of levels.
 
 use macroquad::prelude::*;
 
@@ -15,54 +17,50 @@ use play::Play;
 use play::Mode;
 use util::*;
 
-/** Opaque base type for LevelSetDerived types
- *
- * A separate type because trait object types can't be copy but the derived types
- * should be. Is that necessary?
- *
- * Can I reduce the boilerplate in needing to trivially derive from both LevBase
- * and LevDerived?
- */
+/// Opaque base type for LevelSetDerived types
+///
+/// A separate type because trait object types can't be copy but the derived types
+/// should be. Is that necessary?
+///
+/// Can I reduce the boilerplate in needing to trivially derive from both LevBase
+/// and LevDerived?
 pub trait LevstageBase : downcast_rs::Downcast {
 }
 downcast_rs::impl_downcast!(LevstageBase);
 
-/** Identify a level within a level set.
- *
- * Stored in the game engine as a box dyn trait object because each type of level
- * set can use a different type to identify levels. Typically an enum combining
- * level number with intro/play/outro, and a few special states like GameOver.
- * For level sets loaded dynamically from a file, will use a general type like
- * a string.
- */
+/// Identify a level within a level set.
+///
+/// Stored in the game engine as a box dyn trait object because each type of level
+/// set can use a different type to identify levels. Typically an enum combining
+/// level number with intro/play/outro, and a few special states like GameOver.
+/// For level sets loaded dynamically from a file, will use a general type like
+/// a string.
 #[allow(dead_code)]
 pub trait LevstageDerived : LevstageBase + Copy + Clone {
 }
 
-/** A set of levels constituting one game.
- *
- * Built in level sets typically have no state. May implement a dynamic level
- * set which loads from a file, where an instance would contain the file name,
- * or contents from the file.
- */
+/// A set of levels constituting one game.
+///
+/// Built in level sets typically have no state. May implement a dynamic level
+/// set which loads from a file, where an instance would contain the file name,
+/// or contents from the file.
 pub trait LevSet {
     type Levstage : LevstageDerived;
 
-    /** Level stage to begin game with */
+    /// Level stage to begin game with
     fn initial_lev_stage(&self) -> Self::Levstage;
 
-    /** Load or construct a Play instance for the specified level stage. */
+    /// Load or construct a Play instance for the specified level stage.
     fn _load_lev_stage(&self, lev_stage : Self::Levstage) -> Play;
 
-    /** Load or construct a Play instance for the specified level stage.
-     *
-     * Default implementation downcasts a LevstageBase ref to the actual Levstage
-     * type and delegates the actual work to _load_lev_stage.
-     *
-     * Must accept box to do the downcasting.
-     *
-     * Accepts ref to box. Why can't we borrow a box?
-     */
+    /// Load or construct a Play instance for the specified level stage.
+    ///
+    /// Default implementation downcasts a LevstageBase ref to the actual Levstage
+    /// type and delegates the actual work to _load_lev_stage.
+    ///
+    /// Must accept box to do the downcasting.
+    ///
+    /// Accepts ref to box. Why can't we borrow a box?
     fn load_lev_stage(&self, lev_stage_box : &Box<dyn LevstageBase>) -> Play {
         if let Some(lev_stage) = lev_stage_box.downcast_ref::<Self::Levstage>() {
             self._load_lev_stage(*lev_stage)
@@ -72,6 +70,7 @@ pub trait LevSet {
     }
 }
 
+////////////////////
 // LevSet helpers
 
 // Replace with Play constructor directly, or if useful make this a Play fn not a Stage fn?

@@ -1,3 +1,5 @@
+/// * Not GPL. Details TBD. OK to use when testing compiling.
+
 use std::collections::HashMap;
 
 use crate::*;
