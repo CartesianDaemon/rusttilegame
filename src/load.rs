@@ -106,14 +106,6 @@ impl LevSet for BiobotLevs {
     }
 }
 
-pub fn biobot_load_stage(lev_stage_box : &Box<dyn LevStageBase>) -> Play {
-    if let Some(lev_stage) = lev_stage_box.downcast_ref::<BiobotStage>() {
-        biobot_load_stage_impl(*lev_stage)
-    } else {
-        panic!("Lev stage box -> lev stage cast failure");
-    }
-}
-
 //impl LevSet for BiobotLevs
 pub fn load_newgame() -> Play {
     biobot_load_stage_impl(BiobotStage::NewGame)

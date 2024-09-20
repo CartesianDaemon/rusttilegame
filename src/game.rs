@@ -1,19 +1,24 @@
 use crate::*;
 
+use load::LevSet;
 use play::Play;
 use input::Input;
 
 // Overall game state.
 // FIXME: Does this need to exist or could it be folded into main.rs or play.rs?
 pub struct Game {
+    // lev_set: load::BiobotLevs,
     p: Play,
     i: Input,
 }
 
 impl Game {
     pub fn new_default() -> Game {
+        let lev_set = load::BiobotLevs {};
+        let p = lev_set._load_lev_stage(lev_set.initial_lev_stage());
         Game {
-            p: load::load_newgame(),
+            // lev_set: lev_set,
+            p: p,
             i: Input::new_default(),
         }
     }
