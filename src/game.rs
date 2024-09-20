@@ -14,7 +14,7 @@ pub struct Game {
 
 impl Game {
     pub fn new_default() -> Game {
-        let lev_set = load::BiobotLevs {};
+        let lev_set = load::BiobotLevSet {};
         let p = lev_set._load_lev_stage(lev_set.initial_lev_stage());
         Game {
             // lev_set: lev_set,

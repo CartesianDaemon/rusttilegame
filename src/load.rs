@@ -23,9 +23,9 @@ use util::*;
  * Can I reduce the boilerplate in needing to trivially derive from both LevBase
  * and LevDerived?
  */
-pub trait LevStageBase : downcast_rs::Downcast {
+pub trait LevstageBase : downcast_rs::Downcast {
 }
-downcast_rs::impl_downcast!(LevStageBase);
+downcast_rs::impl_downcast!(LevstageBase);
 
 /** Identify a level within a level set.
  *
@@ -36,7 +36,7 @@ downcast_rs::impl_downcast!(LevStageBase);
  * a string.
  */
 #[allow(dead_code)]
-pub trait LevStageDerived : LevStageBase + Copy + Clone {
+pub trait LevstageDerived : LevstageBase + Copy + Clone {
 }
 
 /** A set of levels constituting one game.
@@ -46,25 +46,25 @@ pub trait LevStageDerived : LevStageBase + Copy + Clone {
  * or contents from the file.
  */
 pub trait LevSet {
-    type LevStage : LevStageDerived;
+    type Levstage : LevstageDerived;
 
     /** Level stage to begin game with */
-    fn initial_lev_stage(&self) -> Self::LevStage;
+    fn initial_lev_stage(&self) -> Self::Levstage;
 
     /** Load or construct a Play instance for the specified level stage. */
-    fn _load_lev_stage(&self, lev_stage : Self::LevStage) -> Play;
+    fn _load_lev_stage(&self, lev_stage : Self::Levstage) -> Play;
 
     /** Load or construct a Play instance for the specified level stage.
      *
-     * Default implementation downcasts a LevStageBase ref to the actual LevStage
+     * Default implementation downcasts a LevstageBase ref to the actual Levstage
      * type and delegates the actual work to _load_lev_stage.
      *
      * Must accept box to do the downcasting.
      *
      * Accepts ref to box. Why can't we borrow a box?
      */
-    fn load_lev_stage(&self, lev_stage_box : &Box<dyn LevStageBase>) -> Play {
-        if let Some(lev_stage) = lev_stage_box.downcast_ref::<Self::LevStage>() {
+    fn load_lev_stage(&self, lev_stage_box : &Box<dyn LevstageBase>) -> Play {
+        if let Some(lev_stage) = lev_stage_box.downcast_ref::<Self::Levstage>() {
             self._load_lev_stage(*lev_stage)
         } else {
             panic!("Lev stage box -> lev stage cast failure");
@@ -85,18 +85,18 @@ pub enum BiobotStage {
     Win,
 }
 
-impl LevStageBase for BiobotStage {
+impl LevstageBase for BiobotStage {
 }
 
-impl LevStageDerived for BiobotStage {
+impl LevstageDerived for BiobotStage {
 }
 
-pub struct BiobotLevs {
+pub struct BiobotLevSet {
     // No state needed
 }
 
-impl LevSet for BiobotLevs {
-    type LevStage = BiobotStage;
+impl LevSet for BiobotLevSet {
+    type Levstage = BiobotStage;
 
     fn initial_lev_stage(&self) -> BiobotStage {
         BiobotStage::NewGame
