@@ -15,33 +15,64 @@ use play::Play;
 use play::Mode;
 use util::*;
 
-/** Identify a level within a level set.
+/** Opaque base type for LevelSetDerived types
  *
- * Typically overridden by a levelset-specific exhaustive enum.
- * Or a string, for levelsets loaded from a file.
+ * A separate type because trait object types can't be copy but the derived types
+ * should be. Is that necessary?
+ *
+ * Can I reduce the boilerplate in needing to trivially derive from both LevBase
+ * and LevDerived?
  */
-pub trait LevStageBase : downcast_rs::Downcast { // Why can't box a Copy type?
+pub trait LevStageBase : downcast_rs::Downcast {
 }
 downcast_rs::impl_downcast!(LevStageBase);
 
+/** Identify a level within a level set.
+ *
+ * Stored in the game engine as a box dyn trait object because each type of level
+ * set can use a different type to identify levels. Typically an enum combining
+ * level number with intro/play/outro, and a few special states like GameOver.
+ * For level sets loaded dynamically from a file, will use a general type like
+ * a string.
+ */
+pub trait LevStageDerived : LevStageBase + Copy + Clone {
+}
+
+/** A set of levels constituting one game.
+ *
+ * Built in level sets typically have no state. May implement a dynamic level
+ * set which loads from a file, where an instance would contain the file name,
+ * or contents from the file.
+ */
 pub trait LevSet {
-    type LevStage : LevStageBase;
+    type LevStage : LevStageDerived;
+
+    /** Level stage to begin game with */
     fn initial_lev_stage(&self) -> Self::LevStage;
-    fn load_lev_stage_(&self, lev_stage : Self::LevStage) -> Play;
-    fn load_lev_stage(&self, lev_stage_box : Box<dyn LevStageBase>) -> Play {
-        if let Ok(lev_stage) = lev_stage_box.downcast::<Self::LevStage>() {
-            self.load_lev_stage_(*lev_stage)
+
+    /** Load or construct a Play instance for the specified level stage. */
+    fn _load_lev_stage(&self, lev_stage : Self::LevStage) -> Play;
+
+    /** Load or construct a Play instance for the specified level stage.
+     *
+     * Default implementation downcasts a LevStageBase ref to the actual LevStage
+     * type and delegates the actual work to _load_lev_stage.
+     *
+     * Must accept box to do the downcasting.
+     *
+     * Accepts ref to box. Why can't we borrow a box?
+     */
+    fn load_lev_stage(&self, lev_stage_box : &Box<dyn LevStageBase>) -> Play {
+        if let Some(lev_stage) = lev_stage_box.downcast_ref::<Self::LevStage>() {
+            self._load_lev_stage(*lev_stage)
         } else {
             panic!("Lev stage box -> lev stage cast failure");
         }
     }
-
-    /* Hardcoded level sets may not have any state, but level sets loaded from
-     * files will have a filename, so functions need a self parameter, even though
-     * unused for the existing level sets. */
 }
 
-// Move biobot specifics into a file
+//////////////////////////////////////////////////
+// Level set for biobot game. Move to separate file
 
 #[derive(Clone, Copy)]
 pub enum BiobotStage {
@@ -56,18 +87,21 @@ pub enum BiobotStage {
 impl LevStageBase for BiobotStage {
 }
 
+impl LevStageDerived for BiobotStage {
+}
+
 pub struct BiobotLevs {
     // No state needed
 }
 
 impl LevSet for BiobotLevs {
-    type LevStage = BiobotStage; // Copy defn here?
+    type LevStage = BiobotStage;
 
     fn initial_lev_stage(&self) -> BiobotStage {
         BiobotStage::NewGame
     }
 
-    fn load_lev_stage_(&self, lev_stage : BiobotStage) -> Play {
+    fn _load_lev_stage(&self, lev_stage : BiobotStage) -> Play {
         biobot_load_stage_impl(lev_stage)
     }
 }
