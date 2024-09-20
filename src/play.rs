@@ -12,9 +12,9 @@ use types::Delta;
 use load::LevstageBase; // FIXME: Is it possible to declare Stage here and specialise it in Load
                  // so that Play doesn't need to know the enum names, just a max size?
 use load::LevSet;
-use load::BiobotLevSet;
+use biobot::BiobotLevSet;
 // Remove
-use load::BiobotStage; // FIXME: Is it possible to declare Stage here and specialise it in Load
+use biobot::BiobotStage; // FIXME: Is it possible to declare Stage here and specialise it in Load
                  // so that Play doesn't need to know the enum names, just a max size?
 
 // Whether we are currently playing a level, in intro screen, in game over, etc

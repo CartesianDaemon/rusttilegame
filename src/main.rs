@@ -8,6 +8,7 @@ mod render;
 mod map;
 mod ent;
 mod load;
+mod biobot;
 
 mod test;
 
