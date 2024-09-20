@@ -7,7 +7,7 @@ use input::Input;
 // Overall game state.
 // FIXME: Does this need to exist or could it be folded into main.rs or play.rs?
 pub struct Game {
-    pub lev_set: biobot::BiobotLevSet, // TODO
+    pub lev_set: Box<biobot::BiobotLevSet>, // TODO
 
     play: Play,
     input: Input,
@@ -15,7 +15,7 @@ pub struct Game {
 
 impl Game {
     pub fn new_default() -> Game {
-        let lev_set = biobot::BiobotLevSet {};
+        let lev_set = Box::new(biobot::BiobotLevSet {});
         let play = lev_set._load_lev_stage(lev_set.initial_lev_stage());
         Game {
             lev_set,
