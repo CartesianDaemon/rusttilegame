@@ -4,8 +4,6 @@
 // These are also used by level data files, even though
 // they don't need any of the indexing.
 
-use macroquad::prelude::*;
-
 use std::mem;
 use std::ops::Index;
 use std::ops::IndexMut;

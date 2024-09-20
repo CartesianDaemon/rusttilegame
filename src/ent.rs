@@ -14,6 +14,8 @@ pub struct Ent {
 
     // Visual display properties.
     // Only used by Render. Worth moving into a separate struct shared between Map and Render?
+    // If we replace Texture with path and initialise texture only in Render, we should break
+    // dependency on macroquad runtime code.
     pub border: Option<Color>,
     pub fill: Option<Color>,
     pub tex: Option<Texture2D>,

@@ -105,6 +105,7 @@ pub fn make_levplay(levno: u16, ascii_map: &[&str; 16], map_key: HashMap<char, V
 
 // SPECIFIC ENT TYPES
 // public only for helper use in test.rs
+// maybe move to biobot.rs?
 
 pub fn new_hero_crab() -> Ent {
     Ent {

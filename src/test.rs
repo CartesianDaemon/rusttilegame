@@ -48,6 +48,7 @@ mod basic_tests {
         )
     }
 
+    // To get tests to run without macroquad, need to omit all texture functions, even Texture2D::empty()
     #[macroquad::test]
     async fn basic_move() {
         let p = get_lev(1);

@@ -1,3 +1,4 @@
+// Nice to move macroquad dependencies out of play. Help test stand alone.
 use macroquad::prelude::*;
 
 use std::collections::HashMap;
