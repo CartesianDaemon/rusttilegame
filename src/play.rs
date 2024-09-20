@@ -246,11 +246,11 @@ impl Play {
     }
 
     fn progress_win(&mut self) {
-        *self = load::biobot_load_stage(&self.to_stage);
+        *self = self.lev_set.load_lev_stage(&self.to_stage);
     }
 
     fn progress_die(&mut self) {
-        *self = load::biobot_load_stage(&self.die_stage);
+        *self = self.lev_set.load_lev_stage(&self.die_stage);
     }
 
     fn advance_splash(&mut self, input: &mut Input) {
@@ -266,7 +266,7 @@ impl Play {
     }
 
     fn progress_continue(&mut self) {
-        *self = load::biobot_load_stage(&self.to_stage);
+        *self = self.lev_set.load_lev_stage(&self.to_stage);
     }
 
 }
