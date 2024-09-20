@@ -1,3 +1,5 @@
+#![allow(unused)] // TODO
+
 use std::collections::HashMap;
 use assrt::*;
 

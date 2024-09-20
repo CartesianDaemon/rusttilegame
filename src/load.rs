@@ -35,6 +35,7 @@ downcast_rs::impl_downcast!(LevStageBase);
  * For level sets loaded dynamically from a file, will use a general type like
  * a string.
  */
+#[allow(dead_code)]
 pub trait LevStageDerived : LevStageBase + Copy + Clone {
 }
 
@@ -104,11 +105,6 @@ impl LevSet for BiobotLevs {
     fn _load_lev_stage(&self, lev_stage : BiobotStage) -> Play {
         biobot_load_stage_impl(lev_stage)
     }
-}
-
-//impl LevSet for BiobotLevs
-pub fn load_newgame() -> Play {
-    biobot_load_stage_impl(BiobotStage::NewGame)
 }
 
 // Needed to make stage into reference to get downcast to work, as ref from Box couldn't be *'d
