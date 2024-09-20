@@ -11,6 +11,8 @@ use ent::Ent;
 use types::Delta;
 use load::LevStageBase; // FIXME: Is it possible to declare Stage here and specialise it in Load
                  // so that Play doesn't need to know the enum names, just a max size?
+use load::LevSet;
+use load::BiobotLevs;
 // Remove
 use load::BiobotStage; // FIXME: Is it possible to declare Stage here and specialise it in Load
                  // so that Play doesn't need to know the enum names, just a max size?
@@ -31,14 +33,19 @@ pub enum Mode {
 // expr in syn crate.
 //#[derive(Clone)]
 pub struct Play {
+    // Level set this Play was instantiated from. Will be owned by Game.
+    // For now concrete BiobotLevs. Needs to be "borrowed" from Game...
+    pub lev_set: BiobotLevs,
+
     // Mode of current state, either an interstitial splash screen or a level to play.
     pub mode: Mode,
 
     /* FIELDS FOR BOTH MODE::SPLASH AND MODE::PLAY */
 
-    // FIXME: Do we need to specify current Stage here?
+    // STUB: Do we need to specify current Stage here?
 
-    // Next stage to go to after continue or win. STUB: Could be map of enum win, die.. end condns.
+    // Next stage to go to after continue or win.
+    // STUB: Better if mode determined which different to/die next stages existed.
     pub to_stage: Box<dyn LevStageBase>,
 
     /* FIELDS FOR MODE::SPLASH */
@@ -59,6 +66,8 @@ pub struct Play {
 impl Play {
     fn new_empty_level() -> Play {
         Play {
+            lev_set: BiobotLevs {},
+
             mode: Mode::Splash, // Should always get overridden
 
             splash_text: "SPLASH TEXT".to_string(),
