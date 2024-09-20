@@ -26,6 +26,9 @@ use util::*;
 /// and LevDerived?
 ///
 /// Can remove LevStageDerived at all now LevStageBase uses DynClone as well as Downcast?
+///
+/// Kind of wants to be sized so it can easily be boxed and cloned etc. There's a crate for
+/// that, is it worth trying?
 pub trait LevstageBase : downcast_rs::Downcast + dyn_clone::DynClone {
 }
 downcast_rs::impl_downcast!(LevstageBase);
@@ -65,6 +68,8 @@ pub trait LevSet {
     /// Must accept box to do the downcasting.
     ///
     /// Accepts ref to box. Why can't we borrow a box?
+    ///
+    /// Would be any easier to clone box?
     fn load_lev_stage(&self, lev_stage_box : &Box<dyn LevstageBase>) -> Play {
         if let Some(lev_stage) = lev_stage_box.downcast_ref::<Self::Levstage>() {
             self._load_lev_stage(*lev_stage)

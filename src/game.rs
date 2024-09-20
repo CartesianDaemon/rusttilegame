@@ -9,37 +9,37 @@ use input::Input;
 pub struct Game {
     pub lev_set: biobot::BiobotLevSet, // TODO
 
-    p: Play,
-    i: Input,
+    play: Play,
+    input: Input,
 }
 
 impl Game {
     pub fn new_default() -> Game {
         let lev_set = biobot::BiobotLevSet {};
-        let p = lev_set._load_lev_stage(lev_set.initial_lev_stage());
+        let play = lev_set._load_lev_stage(lev_set.initial_lev_stage());
         Game {
-            lev_set: lev_set,
-            p: p,
-            i: Input::new_default(),
+            lev_set,
+            play,
+            input: Input::new_default(),
         }
     }
 
     pub fn do_frame(&mut self) {
         /* Can read_input be combined with wait_for_tick? */
-        self.i.read_input();
+        self.input.read_input();
 
         /* For non-continuous modes, typically gameplay rather than splash, wait for
          * next tick to advance game state.
          *
          * There should be a better way of expressing this logic between play and render.
          */
-        if self.p.continuous() || self.i.ready_for_tick() {
-            let next_opt = self.p.advance(&mut self.i);
+        if self.play.continuous() || self.input.ready_for_tick() {
+            let next_opt = self.play.advance(&mut self.input);
             if let Some(next) = next_opt {
-                self.p = self.lev_set.load_lev_stage(&next);
+                self.play = self.lev_set.load_lev_stage(&next);
             }
         }
 
-        render::draw_frame(&self.p);
+        render::draw_frame(&self.play);
     }
 }

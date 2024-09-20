@@ -24,8 +24,6 @@ pub enum Mode {
     LevPlay,
 }
 
-type AdvRet = Option<Box<dyn LevstageBase>>;
-
 // Gameplay state: current level, map, etc.
 // STUB: Public fields should only be needed by Render or produced by load, not
 // used elsewhere.
@@ -134,7 +132,7 @@ impl Play {
     }
 
     // Advance game state according to current state
-    pub fn advance(&mut self, input : &mut Input) -> AdvRet {
+    pub fn advance(&mut self, input : &mut Input) -> Option<Box<dyn LevstageBase>> {
         match self.mode {
             Mode::LevPlay => {
                 self.advance_level(input.consume_keypresses())
@@ -145,7 +143,7 @@ impl Play {
         }
     }
 
-    fn advance_level(&mut self, last_key_pressed: Option<KeyCode>) -> AdvRet  {
+    fn advance_level(&mut self, last_key_pressed: Option<KeyCode>) -> Option<Box<dyn LevstageBase>>  {
         // Need all the properties used in Ent.
         // May move "can move" like logic into load, along with the assorted properties.
         // While keeping movement code coordinating between ents here.
@@ -170,7 +168,7 @@ impl Play {
                     self.map.move_delta(&mut self.ros.hero, dir);
                     // STUB: Check for win condition on ents other than the lowest one.
                     if self.map[(self.ros.hero.0, self.ros.hero.1, 0)].effect == Effect::Win {
-                        return Some(self.to_stage.clone()); // WIN // Previously didn't return??
+                        return self.next_win(); // Previously didn't return??
                     }
                 }
             }
@@ -197,7 +195,7 @@ impl Play {
                     if !(0..self.map.w() as i16).contains(&(mov.0 + self.map[*mov].dir.0)) ||
                         !(0..self.map.h() as i16).contains(&(mov.1 + self.map[*mov].dir.1))
                     {
-                        return Some(self.to_stage.clone()); // WIN // And return
+                        return self.next_win();
                     }
                     else
                     {
@@ -209,7 +207,7 @@ impl Play {
 
                     // Die if mov moves onto hero
                     if mov.0 == self.ros.hero.0 && mov.1 == self.ros.hero.1 {
-                        return Some(self.die_stage.clone()); // DIE // And return
+                        return self.next_die();
                     }
                 },
                 AI::Bounce => {
@@ -228,7 +226,7 @@ impl Play {
                     // Die if mov moves onto hero
                     if self.map[*mov].effect == Effect::Kill {
                         if mov.0 == self.ros.hero.0 && mov.1 == self.ros.hero.1 {
-                            return Some(self.die_stage.clone()); // DIE // And return
+                            return self.next_die();
                         }
                     }
                 }
@@ -237,16 +235,15 @@ impl Play {
         return None
     }
 
- /*
-    fn progress_win(&mut self) {
-        *self = self.lev_set.load_lev_stage(&self.to_stage);
+    fn next_win(&self) -> Option<Box<dyn LevstageBase>> {
+        Some(self.to_stage.clone())
     }
 
-    fn progress_die(&mut self) {
-        *self = self.lev_set.load_lev_stage(&self.die_stage);
+    fn next_die(&self) -> Option<Box<dyn LevstageBase>> {
+        Some(self.die_stage.clone())
     }
-*/
-    fn advance_splash(&mut self, input: &mut Input) -> AdvRet {
+
+    fn advance_splash(&mut self, input: &mut Input) -> Option<Box<dyn LevstageBase>> {
         let key = input.consume_keypresses();
 
         // Reset "most recent tick" when leaving menu.
@@ -254,10 +251,13 @@ impl Play {
         input.last_update = get_time();
 
         if Some(KeyCode::Enter) == key {
-            return Some(self.to_stage.clone());
+            return self.next_continue();
         }
 
         return None
     }
 
+    fn next_continue(&self) -> Option<Box<dyn LevstageBase>> {
+        Some(self.to_stage.clone())
+    }
 }
