@@ -1,21 +1,22 @@
 use crate::*;
 
-use load::LevSet;
 use play::Play;
 use input::Input;
 
-// Overall game state.
-// FIXME: Does this need to exist or could it be folded into main.rs or play.rs?
-pub struct Game {
-    pub lev_set: Box<biobot::BiobotLevSet>, // TODO
-
+/// Overall game state. Handles transitions between different Plays for different levstates.
+///
+/// FIXME: Does this need to exist or could it be folded into main.rs or play.rs?
+///
+/// For now templated. Not sure if easier to accept a dyn ref to a LevSet. Difficulty with
+/// trait object for a trait where implementations have an associated type.
+pub struct Game<Levs: load::LevSet> {
+    pub lev_set: Levs, // TODO
     play: Play,
     input: Input,
 }
 
-impl Game {
-    pub fn new_default() -> Game {
-        let lev_set = Box::new(biobot::BiobotLevSet {});
+impl<Levs: load::LevSet> Game<Levs> {
+    pub fn new(lev_set: Levs) -> Game<Levs> {
         let play = lev_set._load_lev_stage(lev_set.initial_lev_stage());
         Game {
             lev_set,

@@ -16,7 +16,7 @@ use game::Game;
 
 #[macroquad::main("Tile Game")]
 async fn main() {
-    let mut game = Game::new_default();
+    let mut game = Game::new(biobot::BiobotLevSet {});
 
     loop {
         /* Collect input and advance state each frame.
