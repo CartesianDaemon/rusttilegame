@@ -11,8 +11,6 @@ use ent::Ent;
 use types::Delta;
 use load::LevstageBase; // FIXME: Is it possible to declare Stage here and specialise it in Load
                  // so that Play doesn't need to know the enum names, just a max size?
-use load::LevSet;
-use biobot::BiobotLevSet;
 // Remove
 use biobot::BiobotStage; // FIXME: Is it possible to declare Stage here and specialise it in Load
                  // so that Play doesn't need to know the enum names, just a max size?
@@ -26,6 +24,8 @@ pub enum Mode {
     LevPlay,
 }
 
+type AdvRet = Option<Box<dyn LevstageBase>>;
+
 // Gameplay state: current level, map, etc.
 // STUB: Public fields should only be needed by Render or produced by load, not
 // used elsewhere.
@@ -33,10 +33,6 @@ pub enum Mode {
 // expr in syn crate.
 //#[derive(Clone)]
 pub struct Play {
-    // Level set this Play was instantiated from. Will be owned by Game.
-    // For now concrete BiobotLevs. Needs to be "borrowed" from Game...
-    pub lev_set: BiobotLevSet,
-
     // Mode of current state, either an interstitial splash screen or a level to play.
     pub mode: Mode,
 
@@ -66,8 +62,6 @@ pub struct Play {
 impl Play {
     fn new_empty_level() -> Play {
         Play {
-            lev_set: BiobotLevSet {},
-
             mode: Mode::Splash, // Should always get overridden
 
             splash_text: "SPLASH TEXT".to_string(),
@@ -140,18 +134,18 @@ impl Play {
     }
 
     // Advance game state according to current state
-    pub fn advance(&mut self, input : &mut Input) {
+    pub fn advance(&mut self, input : &mut Input) -> AdvRet {
         match self.mode {
             Mode::LevPlay => {
-                self.advance_level(input.consume_keypresses());
+                self.advance_level(input.consume_keypresses())
             }
             Mode::Splash => {
-                self.advance_splash(input);
+                self.advance_splash(input)
             }
         }
     }
 
-    fn advance_level(&mut self, last_key_pressed: Option<KeyCode>) {
+    fn advance_level(&mut self, last_key_pressed: Option<KeyCode>) -> AdvRet  {
         // Need all the properties used in Ent.
         // May move "can move" like logic into load, along with the assorted properties.
         // While keeping movement code coordinating between ents here.
@@ -176,7 +170,7 @@ impl Play {
                     self.map.move_delta(&mut self.ros.hero, dir);
                     // STUB: Check for win condition on ents other than the lowest one.
                     if self.map[(self.ros.hero.0, self.ros.hero.1, 0)].effect == Effect::Win {
-                        self.progress_win();
+                        return Some(self.to_stage.clone()); // WIN // Previously didn't return??
                     }
                 }
             }
@@ -203,8 +197,7 @@ impl Play {
                     if !(0..self.map.w() as i16).contains(&(mov.0 + self.map[*mov].dir.0)) ||
                         !(0..self.map.h() as i16).contains(&(mov.1 + self.map[*mov].dir.1))
                     {
-                        self.progress_win();
-                        return; // NOTE: Bail out as more updates may not make sense. Necessary to avoid double borrow.
+                        return Some(self.to_stage.clone()); // WIN // And return
                     }
                     else
                     {
@@ -216,8 +209,7 @@ impl Play {
 
                     // Die if mov moves onto hero
                     if mov.0 == self.ros.hero.0 && mov.1 == self.ros.hero.1 {
-                        self.progress_die();
-                        return; // NOTE: Bail out as more updates may not make sense. Necessary to avoid double borrow.
+                        return Some(self.die_stage.clone()); // DIE // And return
                     }
                 },
                 AI::Bounce => {
@@ -236,15 +228,16 @@ impl Play {
                     // Die if mov moves onto hero
                     if self.map[*mov].effect == Effect::Kill {
                         if mov.0 == self.ros.hero.0 && mov.1 == self.ros.hero.1 {
-                            self.progress_die();
-                            return; // NOTE: Bail out as more updates may not make sense. Necessary to avoid double borrow.
+                            return Some(self.die_stage.clone()); // DIE // And return
                         }
                     }
                 }
             }
         }
+        return None
     }
 
+ /*
     fn progress_win(&mut self) {
         *self = self.lev_set.load_lev_stage(&self.to_stage);
     }
@@ -252,8 +245,8 @@ impl Play {
     fn progress_die(&mut self) {
         *self = self.lev_set.load_lev_stage(&self.die_stage);
     }
-
-    fn advance_splash(&mut self, input: &mut Input) {
+*/
+    fn advance_splash(&mut self, input: &mut Input) -> AdvRet {
         let key = input.consume_keypresses();
 
         // Reset "most recent tick" when leaving menu.
@@ -261,12 +254,10 @@ impl Play {
         input.last_update = get_time();
 
         if Some(KeyCode::Enter) == key {
-            self.progress_continue();
+            return Some(self.to_stage.clone());
         }
-    }
 
-    fn progress_continue(&mut self) {
-        *self = self.lev_set.load_lev_stage(&self.to_stage);
+        return None
     }
 
 }

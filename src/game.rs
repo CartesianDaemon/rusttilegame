@@ -7,7 +7,8 @@ use input::Input;
 // Overall game state.
 // FIXME: Does this need to exist or could it be folded into main.rs or play.rs?
 pub struct Game {
-    // lev_set: load::BiobotLevs,
+    pub lev_set: biobot::BiobotLevSet, // TODO
+
     p: Play,
     i: Input,
 }
@@ -17,7 +18,7 @@ impl Game {
         let lev_set = biobot::BiobotLevSet {};
         let p = lev_set._load_lev_stage(lev_set.initial_lev_stage());
         Game {
-            // lev_set: lev_set,
+            lev_set: lev_set,
             p: p,
             i: Input::new_default(),
         }
@@ -33,7 +34,10 @@ impl Game {
          * There should be a better way of expressing this logic between play and render.
          */
         if self.p.continuous() || self.i.ready_for_tick() {
-            self.p.advance(&mut self.i);
+            let next_opt = self.p.advance(&mut self.i);
+            if let Some(next) = next_opt {
+                self.p = self.lev_set.load_lev_stage(&next);
+            }
         }
 
         render::draw_frame(&self.p);

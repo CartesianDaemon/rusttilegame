@@ -24,9 +24,13 @@ use util::*;
 ///
 /// Can I reduce the boilerplate in needing to trivially derive from both LevBase
 /// and LevDerived?
-pub trait LevstageBase : downcast_rs::Downcast {
+///
+/// Can remove LevStageDerived at all now LevStageBase uses DynClone as well as Downcast?
+pub trait LevstageBase : downcast_rs::Downcast + dyn_clone::DynClone {
 }
 downcast_rs::impl_downcast!(LevstageBase);
+
+dyn_clone::clone_trait_object!(LevstageBase);
 
 /// Identify a level within a level set.
 ///

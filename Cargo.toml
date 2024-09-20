@@ -11,3 +11,4 @@ futures = "0.3.30"
 derive_more = "0.99"
 assrt = {git = "https://github.com/CartesianDaemon/assrt.git", branch = "v0.2"} # Can also use {path = "../assrt"}
 downcast-rs = "1.2.1"
+dyn-clone = "1.0.17"
