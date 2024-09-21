@@ -15,7 +15,6 @@ use types::Delta;
 use ent::*;
 use play::Play;
 use play::Mode;
-use util::*;
 
 /// Opaque base type for LevelSetDerived types
 ///
@@ -111,7 +110,7 @@ pub fn new_hero_crab() -> Ent {
     Ent {
         pass: Pass::Mov,
         ai: AI::Hero,
-        ..Ent::new_tex_col(load_texture_blocking_unwrap("imgs/ferris.png"), GOLD)
+        ..Ent::new_tex_col(String::from("imgs/ferris.png"), GOLD)
     }
 }
 

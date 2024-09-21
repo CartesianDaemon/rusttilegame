@@ -38,6 +38,11 @@ pub struct RenderLev {
     sq_h: f32,
 }
 
+/// Sync load macroquad texture. Panic on failure.
+pub fn load_texture_blocking_unwrap(path: &str) -> Texture2D {
+    futures::executor::block_on(load_texture(path)).unwrap()
+}
+
 impl RenderLev {
     pub fn begin(w: u16, h: u16) -> RenderLev {
         assert_eq!(w, h);
@@ -85,9 +90,11 @@ impl RenderLev {
             draw_rectangle_lines(px, py, self.sq_w, self.sq_h, 2., col);
         }
 
-        if let Some(tex) = &ent.tex {
+        if let Some(tex_path) = &ent.tex_path { // Remove '&' ?
+            // Any better to avoid "insert_with" with an if branch?
+            let tex_data = ent._tex_data.get_or_insert_with(||load_texture_blocking_unwrap(tex_path));
             draw_texture_ex(
-                &tex,
+                &tex_data,
                 px,
                 py,
                 WHITE,

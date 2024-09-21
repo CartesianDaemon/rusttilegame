@@ -18,7 +18,8 @@ pub struct Ent {
     // dependency on macroquad runtime code.
     pub border: Option<Color>,
     pub fill: Option<Color>,
-    pub tex: Option<Texture2D>,
+    pub tex_path: Option<String>,
+    pub _tex_data: Option<Texture2D>, // Only used by render. Want better way of expressing that.
 
     // Ent properties and behaviour, used by Game logic.
 
@@ -45,7 +46,8 @@ impl Ent {
 
             border: None,
             fill: None,
-            tex: None,
+            tex_path: None,
+            _tex_data: None,
 
             pass: Pass::Empty,
             ai: AI::Stay, // STUB: Could use this as a better placeholder flag
@@ -73,17 +75,17 @@ impl Ent {
     }
 
     #[allow(dead_code)]
-    pub fn new_tex(tex: Texture2D) -> Ent {
+    pub fn new_tex(tex_path: String) -> Ent {
         Ent {
             h: 0, // Will be overridden
-            tex: Some(tex),
+            tex_path: Some(tex_path),
             ..Ent::invalid()
         }
     }
 
-    pub fn new_tex_col(tex: Texture2D, fill: Color) -> Ent {
+    pub fn new_tex_col(tex_path: String, fill: Color) -> Ent {
         Ent {
-            tex: Some(tex),
+            tex_path: Some(tex_path),
             fill: Some(fill),
             ..Ent::invalid()
         }
