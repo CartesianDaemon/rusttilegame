@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use macroquad::prelude::*;
 
 use crate::*;
@@ -10,7 +12,7 @@ pub fn draw_frame(p: &Play) {
     // STUB: Avoid passing in whole Play object.
     match p.mode {
         Mode::LevPlay => {
-            let r = RenderLev::begin(p.map.w(), p.map.h());
+            let mut r = RenderLev::begin(p.map.w(), p.map.h());
             // Coords of first visible tile. Currently always 0,0.
             let (ox, oy) = (0, 0);
             for (x, y, loc) in p.map.locs() {
@@ -26,7 +28,7 @@ pub fn draw_frame(p: &Play) {
 }
 
 // Render state for one frame of level
-// Currently not needing any global graphics state
+// Created each frame, but now has tex_cache should be maintained between frames.
 pub struct RenderLev {
     // COORDS FOR CURRENT FRAME. In gl units which are pixels.
     // Distance from edge of drawing surface to play area
@@ -36,6 +38,8 @@ pub struct RenderLev {
     // Size of each tile
     sq_w: f32,
     sq_h: f32,
+    ///
+    tex_cache: HashMap<String, Texture2D>,
 }
 
 /// Sync load macroquad texture. Panic on failure.
@@ -55,6 +59,7 @@ impl RenderLev {
             offset_y: (screen_height() - game_size) / 2. + 10.,
             sq_w: (screen_height() - offset_y * 2.) / w as f32,
             sq_h: (screen_height() - offset_y * 2.) / w as f32,
+            tex_cache: HashMap::new(),
         };
 
         r.draw_backdrop();
@@ -72,7 +77,7 @@ impl RenderLev {
     // Draw ent's texture/colour to the screen at specified tile coords.
     // Works out pixel coords given pixel size of play area in RenderLev.
     pub fn draw_ent(
-        self: &RenderLev,
+        self: &mut RenderLev,
         // View coords in map. Relative to first visible tile (currently always the same).
         vx: i16,
         vy: i16,
@@ -90,9 +95,9 @@ impl RenderLev {
             draw_rectangle_lines(px, py, self.sq_w, self.sq_h, 2., col);
         }
 
-        if let Some(tex_path) = &ent.tex_path { // Remove '&' ?
-            // Any better to avoid "insert_with" with an if branch?
-            let tex_data = ent._tex_data.get_or_insert_with(||load_texture_blocking_unwrap(tex_path));
+        if let Some(tex_path) = ent.tex_path.clone() {
+            // Can reduce number of clones? Can you HashMap<&String> instead of String?
+            let tex_data = self.tex_cache.entry(tex_path.clone()).or_insert_with(||load_texture_blocking_unwrap(&tex_path));
             draw_texture_ex(
                 &tex_data,
                 px,

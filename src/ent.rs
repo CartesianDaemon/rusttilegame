@@ -19,7 +19,6 @@ pub struct Ent {
     pub border: Option<Color>,
     pub fill: Option<Color>,
     pub tex_path: Option<String>,
-    pub _tex_data: Option<Texture2D>, // Only used by render. Want better way of expressing that.
 
     // Ent properties and behaviour, used by Game logic.
 
@@ -47,7 +46,6 @@ impl Ent {
             border: None,
             fill: None,
             tex_path: None,
-            _tex_data: None,
 
             pass: Pass::Empty,
             ai: AI::Stay, // STUB: Could use this as a better placeholder flag
