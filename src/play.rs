@@ -10,26 +10,32 @@ use map::Map;
 use map::Ros;
 use ent::Ent;
 use types::Delta;
-use load::LevstageBase; // FIXME: Is it possible to declare Stage here and specialise it in Load
-                 // so that Play doesn't need to know the enum names, just a max size?
+use load::LevstageBase;
 // Remove
 use biobot::BiobotStage; // FIXME: Is it possible to declare Stage here and specialise it in Load
                  // so that Play doesn't need to know the enum names, just a max size?
 
-// Whether we are currently playing a level, in intro screen, in game over, etc
-// FIXME: Should be split into render::Mode hardcoding what is drawn on the screen,
-// which is a parameter in each possible load:: state.
+/// Different types of stage, e.g. "gameplay" vs "splash screen"
+///
+/// Better if Play was an enum of these possibiltiies.
 #[derive(Clone)]
 pub enum Mode {
+    /// Splash message, any key to continue. E.g. New level, game over.
     Splash,
+    /// Interactive map, the actual gameplay part of the game.
     LevPlay,
 }
 
-// Gameplay state: current level, map, etc.
-// STUB: Public fields should only be needed by Render or produced by load, not
-// used elsewhere.
-// STUB: Would make more sense as "an enum of two types inheriting a common trait" like
-// expr in syn crate.
+/// Gameplay state: current level, map, etc.
+///
+/// Public fields should only be needed by Render or produced by load, not
+/// used elsewhere.
+///
+/// Better as enum of mode types inheriting a common trait is poss.
+///
+/// Stores id of next stage through opaque LevstageBase trait object. It was a pain to
+/// get the trait object to work. Also consider using a fixed-size type for LevstageBase.
+/// Also considered making Play templated on LevSet at compile time.
 //#[derive(Clone)]
 pub struct Play {
     // Mode of current state, either an interstitial splash screen or a level to play.

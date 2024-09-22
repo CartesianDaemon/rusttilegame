@@ -5,10 +5,10 @@ use input::Input;
 
 /// Overall game state. Handles transitions between different Plays for different levstates.
 ///
-/// FIXME: Does this need to exist or could it be folded into main.rs or play.rs?
-///
-/// For now templated. Not sure if easier to accept a dyn ref to a LevSet. Difficulty with
-/// trait object for a trait where implementations have an associated type.
+/// Templated on LevSet (either a  builtin LevSet, or a load-from-file LevSet). Also considered
+/// taking a &dyn LevSet trait object so that it could be linked with compiled level sets but
+/// ran into difficulties with trait objects. Specifically, implemnentations of LevSet each need
+/// a specific Levstage type, but a dyn LevStage pointer can't have an unspecified associated type.
 pub struct Game<Levs: load::LevSet> {
     pub lev_set: Levs, // TODO
     play: Play,
