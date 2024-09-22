@@ -11,9 +11,6 @@ use map::Ros;
 use ent::Ent;
 use types::Delta;
 use load::LevstageBase;
-// Remove
-use biobot::BiobotStage; // FIXME: Is it possible to declare Stage here and specialise it in Load
-                 // so that Play doesn't need to know the enum names, just a max size?
 
 /// Different types of stage, e.g. "gameplay" vs "splash screen"
 ///
@@ -79,8 +76,8 @@ impl Play {
     pub fn levplay_from_ascii(
         ascii_map: &[&str; 16],
         map_key: HashMap<char, Vec<Ent>>,
-        to_stage: biobot::BiobotStage,
-        die_stage: biobot::BiobotStage,
+        to_stage: Box<dyn load::LevstageBase>,
+        die_stage: Box<dyn load::LevstageBase>,
     ) -> Play {
         // TODO: Get size from strings. Assert equal to default 16 in meantime.
         let mut play = Play {
@@ -92,8 +89,8 @@ impl Play {
             ros: Ros::new(),
 
             // Should be overridden. TODO: Avoid references to Biobot levels specifically
-            to_stage: Box::new(to_stage),
-            die_stage: Box::new(die_stage),
+            to_stage,
+            die_stage,
         };
 
         for (y, line) in ascii_map.iter().enumerate() {
