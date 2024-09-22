@@ -104,3 +104,12 @@ impl LevSet for BiobotLevSet {
         }
     }
 }
+
+///////////
+/// Helpers
+
+// Also used by tests
+pub fn make_levplay(levno: u16, ascii_map: &[&str; 16], map_key: HashMap<char, Vec<ent::Ent>>) -> Play {
+    // Box::new(BiobotStage::LevOutro(levno)),
+    Play::make_levplay(ascii_map, map_key, BiobotStage::LevOutro(levno), BiobotStage::Retry(levno))
+}

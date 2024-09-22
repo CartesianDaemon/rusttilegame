@@ -59,6 +59,7 @@ pub struct Play {
 }
 
 impl Play {
+    // TODO: Take pointer not biobotStage
     pub fn make_splash(txt: String, to_stage: biobot::BiobotStage) -> Play {
         Play {
             mode: Mode::Splash,
@@ -74,22 +75,13 @@ impl Play {
         }
     }
 
-    fn _new_empty_level() -> Play {
-        Play {
-            mode: Mode::Splash, // Should always get overridden
-
-            splash_text: "SPLASH TEXT".to_string(),
-
-            map: Map::new(16),
-            ros: Ros::new(),
-
-            // TODO: Avoid references to Biobot levels specifically
-            to_stage: Box::new(BiobotStage::NewGame),
-            die_stage: Box::new(BiobotStage::NewGame), // Shouldn't be used?
-        }
-    }
-
-    pub fn from_ascii(ascii_map: &[&str; 16], map_key: HashMap<char, Vec<Ent>>) -> Play {
+    // TOOD: LevstageBase not BiobotStage
+    pub fn make_levplay(
+        ascii_map: &[&str; 16],
+        map_key: HashMap<char, Vec<Ent>>,
+        to_stage: biobot::BiobotStage,
+        die_stage: biobot::BiobotStage,
+    ) -> Play {
         // TODO: Get size from strings. Assert equal to default 16 in meantime.
         let mut play = Play {
             mode : Mode::LevPlay,
@@ -99,9 +91,9 @@ impl Play {
             map: Map::new(16),
             ros: Ros::new(),
 
-            // TODO: Avoid references to Biobot levels specifically
-            to_stage: Box::new(BiobotStage::NewGame),
-            die_stage: Box::new(BiobotStage::NewGame),
+            // Should be overridden. TODO: Avoid references to Biobot levels specifically
+            to_stage: Box::new(to_stage),
+            die_stage: Box::new(die_stage),
         };
 
         for (y, line) in ascii_map.iter().enumerate() {

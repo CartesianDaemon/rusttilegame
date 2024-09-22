@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use assrt::*;
 
 use crate::load::*; // For new_xxxx() fns
+use crate::biobot::make_levplay;
 use crate::play::Play;
 
 #[cfg(test)]

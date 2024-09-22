@@ -5,8 +5,6 @@
 
 use macroquad::prelude::*;
 
-use std::collections::HashMap; // Remove?
-
 use crate::*;
 
 use types::Delta;
@@ -74,18 +72,6 @@ pub trait LevSet {
         } else {
             panic!("Lev stage box -> lev stage cast failure");
         }
-    }
-}
-
-////////////////////
-// LevSet helpers
-
-// Used by tests
-pub fn make_levplay(levno: u16, ascii_map: &[&str; 16], map_key: HashMap<char, Vec<Ent>>) -> Play {
-    Play {
-        to_stage: Box::new(biobot::BiobotStage::LevOutro(levno)),
-        die_stage: Box::new(biobot::BiobotStage::Retry(levno)),
-        ..Play::from_ascii(&ascii_map, map_key)
     }
 }
 
