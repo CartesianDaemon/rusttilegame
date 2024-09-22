@@ -2,6 +2,8 @@
 ///
 /// Towards a generic, although currently game engine hardcodes BiobotLevs
 /// and testing will hardcode a test set of levels.
+///
+/// Rename to "levelset" or similar?
 
 use macroquad::prelude::*;
 
@@ -25,6 +27,9 @@ use play::Play;
 ///
 /// Kind of wants to be sized so it can easily be boxed and cloned etc. There's a crate for
 /// that, is it worth trying?
+///
+/// Any benefit for adding a type or struct for Box<dyn LevelstageBase> as that's what we
+/// pass around?
 pub trait LevstageBase : downcast_rs::Downcast + dyn_clone::DynClone {
 }
 downcast_rs::impl_downcast!(LevstageBase);

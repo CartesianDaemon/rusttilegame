@@ -56,14 +56,14 @@ pub struct Play {
 }
 
 impl Play {
-    // TODO: Take pointer not biobotStage
-    pub fn make_splash(txt: String, to_stage: biobot::BiobotStage) -> Play {
+    pub fn make_splash(txt: String, to_stage:  Box<dyn load::LevstageBase>,) -> Play {
         Play {
             mode: Mode::Splash,
             splash_text: txt,
-            to_stage: Box::new(to_stage),
+            to_stage,
 
             // Won't be used
+            // TODO: Empty default without using biobot types.
              die_stage: Box::new(biobot::BiobotStage::NewGame),
 
             // Won't be used
@@ -72,7 +72,6 @@ impl Play {
         }
     }
 
-    // TOOD: LevstageBase not BiobotStage
     pub fn levplay_from_ascii(
         ascii_map: &[&str; 16],
         map_key: HashMap<char, Vec<Ent>>,
@@ -88,7 +87,6 @@ impl Play {
             map: Map::new(16),
             ros: Ros::new(),
 
-            // Should be overridden. TODO: Avoid references to Biobot levels specifically
             to_stage,
             die_stage,
         };

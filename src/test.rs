@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use assrt::*;
 
 use crate::load::*; // For new_xxxx() fns
-use crate::biobot::make_levplay;
+use crate::biobot::biobot_levplay;
 use crate::play::Play;
 
 #[cfg(test)]
@@ -28,7 +28,7 @@ mod basic_tests {
             ('_', vec![ new_floor(), new_door_open() ]),
         ]);
 
-        make_levplay(1, &[
+        biobot_levplay(1, &[
                 "#            # #",
                 "#####@####@###@#",
                 "@              #",
