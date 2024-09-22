@@ -74,7 +74,7 @@ impl Play {
         }
     }
 
-    fn new_empty_level() -> Play {
+    fn _new_empty_level() -> Play {
         Play {
             mode: Mode::Splash, // Should always get overridden
 
@@ -89,15 +89,19 @@ impl Play {
         }
     }
 
-    pub fn new_null_level() -> Play {
-        Self::new_empty_level()
-    }
-
     pub fn from_ascii(ascii_map: &[&str; 16], map_key: HashMap<char, Vec<Ent>>) -> Play {
         // TODO: Get size from strings. Assert equal to default 16 in meantime.
         let mut play = Play {
             mode : Mode::LevPlay,
-            ..Play::new_empty_level()
+
+            splash_text: "SPLASH TEXT".to_string(), // Won't be used
+
+            map: Map::new(16),
+            ros: Ros::new(),
+
+            // TODO: Avoid references to Biobot levels specifically
+            to_stage: Box::new(BiobotStage::NewGame),
+            die_stage: Box::new(BiobotStage::NewGame),
         };
 
         for (y, line) in ascii_map.iter().enumerate() {
