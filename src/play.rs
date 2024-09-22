@@ -36,35 +36,44 @@ pub enum Mode {
 /// Stores id of next stage through opaque LevstageBase trait object. It was a pain to
 /// get the trait object to work. Also consider using a fixed-size type for LevstageBase.
 /// Also considered making Play templated on LevSet at compile time.
+///
+/// Eventually we'll probably need to store the current Levstage.
 //#[derive(Clone)]
 pub struct Play {
-    // Mode of current state, either an interstitial splash screen or a level to play.
+    /// Mode of current state, either an interstitial splash screen or a level to play.
     pub mode: Mode,
 
-    /* FIELDS FOR BOTH MODE::SPLASH AND MODE::PLAY */
-
-    // STUB: Do we need to specify current Stage here?
-
-    // Next stage to go to after continue or win.
-    // STUB: Better if mode determined which different to/die next stages existed.
+    /// Next stage to go to after continue or win.
     pub to_stage: Box<dyn LevstageBase>,
+    // Next stage to go to after death. Only used in LevPlay not Splash. Currently always retry.
+    pub die_stage: Box<dyn LevstageBase>,
 
-    /* FIELDS FOR MODE::SPLASH */
-
-    // Text for current interstitial screen
+    // Text for current interstitial screen. Only in Splash.
     pub splash_text: String,
 
-    /* FIELDS FOR MODE::PLAY */
-
-    // Layout of current map
+    // Layout of current map. Only in LevPlay.
     pub map: Map,
+    // Entities on the current map. Only in LevPlay.
     pub ros: Ros,
 
-    // Next stage to go to after death. Currently always retry.
-    pub die_stage: Box<dyn LevstageBase>,
 }
 
 impl Play {
+    pub fn make_splash(txt: String, to_stage: biobot::BiobotStage) -> Play {
+        Play {
+            mode: Mode::Splash,
+            splash_text: txt,
+            to_stage: Box::new(to_stage),
+
+            // Won't be used
+             die_stage: Box::new(biobot::BiobotStage::NewGame),
+
+            // Won't be used
+            map: Map::new(16),
+            ros: Ros::new(),
+        }
+    }
+
     fn new_empty_level() -> Play {
         Play {
             mode: Mode::Splash, // Should always get overridden
@@ -86,7 +95,10 @@ impl Play {
 
     pub fn from_ascii(ascii_map: &[&str; 16], map_key: HashMap<char, Vec<Ent>>) -> Play {
         // TODO: Get size from strings. Assert equal to default 16 in meantime.
-        let mut play = Play::new_empty_level();
+        let mut play = Play {
+            mode : Mode::LevPlay,
+            ..Play::new_empty_level()
+        };
 
         for (y, line) in ascii_map.iter().enumerate() {
             for (x, ch) in line.chars().enumerate() {
@@ -114,7 +126,7 @@ impl Play {
     }
     */
 
-    // Add ent to map, and if necessary to roster's hero pos or list of movs 
+    // Add ent to map, and if necessary to roster's hero pos or list of movs
     pub fn spawn_at(&mut self, x: i16, y: i16, ent: Ent) {
         let mut pos = (x, y, 0);
 

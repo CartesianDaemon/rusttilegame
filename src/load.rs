@@ -14,7 +14,6 @@ use types::Delta;
 // Some of those may move to his file.
 use ent::*;
 use play::Play;
-use play::Mode;
 
 /// Opaque base type for LevelSetDerived types
 ///
@@ -81,21 +80,9 @@ pub trait LevSet {
 ////////////////////
 // LevSet helpers
 
-// Replace with Play constructor directly, or if useful make this a Play fn not a Stage fn?
-pub fn make_splash(txt: String, to_stage: biobot::BiobotStage) -> Play {
-    Play {
-        mode: Mode::Splash,
-        splash_text: txt,
-        to_stage: Box::new(to_stage),
-        die_stage: Box::new(biobot::BiobotStage::NewGame), // Shouldn't be used?
-        ..Play::new_null_level()
-    }
-}
-
 // Used by tests
 pub fn make_levplay(levno: u16, ascii_map: &[&str; 16], map_key: HashMap<char, Vec<Ent>>) -> Play {
     Play {
-        mode : Mode::LevPlay,
         to_stage: Box::new(biobot::BiobotStage::LevOutro(levno)),
         die_stage: Box::new(biobot::BiobotStage::Retry(levno)),
         ..Play::from_ascii(&ascii_map, map_key)
