@@ -76,7 +76,7 @@ impl Play {
     }
 
     // TOOD: LevstageBase not BiobotStage
-    pub fn make_levplay(
+    pub fn levplay_from_ascii(
         ascii_map: &[&str; 16],
         map_key: HashMap<char, Vec<Ent>>,
         to_stage: biobot::BiobotStage,
