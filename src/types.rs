@@ -2,7 +2,7 @@ use std::ops::Add;
 use derive_more::*;
 
 // Coord types (in theory)
-// 
+//
 // FIXME: Move to a coord type module.
 // FIXME: Decide whether implementing types would help.
 //
