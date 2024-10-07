@@ -88,7 +88,7 @@ pub fn new_hero_crab() -> Ent {
     Ent {
         pass: Pass::Mov,
         ai: AI::Hero,
-        ..Ent::new_tex_col(String::from("imgs/ferris.png"), GOLD)
+        ..Ent::new_text_fill("HERO".to_string(), Some(GOLD), Some(BLACK))
     }
 }
 
