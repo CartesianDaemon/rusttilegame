@@ -109,6 +109,11 @@ impl RenderLev {
                 },
             );
         }
+
+        if let Some(text) = ent.text.clone() {
+            let text_col = ent.text_col.unwrap_or(DARKGRAY);
+            draw_text(&text, px + self.sq_w*0.1, py + self.sq_h*0.6, self.sq_h*0.4, text_col);
+        }
     }
 }
 

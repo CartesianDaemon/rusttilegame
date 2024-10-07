@@ -19,6 +19,8 @@ pub struct Ent {
     pub border: Option<Color>,
     pub fill: Option<Color>,
     pub tex_path: Option<String>,
+    pub text: Option<String>,
+    pub text_col: Option<Color>,
 
     // Ent properties and behaviour, used by Game logic.
 
@@ -46,6 +48,8 @@ impl Ent {
             border: None,
             fill: None,
             tex_path: None,
+            text: None,
+            text_col: None,
 
             pass: Pass::Empty,
             ai: AI::Stay, // STUB: Could use this as a better placeholder flag
@@ -100,6 +104,15 @@ impl Ent {
         Ent {
             fill: Some(fill),
             border: Some(outline),
+            ..Ent::invalid()
+        }
+    }
+
+    pub fn new_text_fill(text: String, fill: Option<Color>, text_col: Option<Color>) -> Ent {
+        Ent {
+            text: Some(text),
+            fill,
+            text_col,
             ..Ent::invalid()
         }
     }

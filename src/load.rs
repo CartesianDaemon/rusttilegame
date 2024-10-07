@@ -98,7 +98,7 @@ pub fn new_snake(dir: Delta) -> Ent {
         ai: AI::Bounce,
         dir: dir,
         effect: Effect::Kill,
-        ..Ent::new_col(DARKGREEN)
+        ..Ent::new_text_fill("FISH".to_string(), Some(DARKBLUE), Some(WHITE))
     }
 }
 
@@ -131,6 +131,8 @@ pub fn new_door_closed() -> Ent {
 pub fn new_door_win() -> Ent {
     Ent {
         effect: Effect::Win,
-        ..Ent::new_col_outline(GOLD, LIGHTGRAY)
+
+        border: Some(LIGHTGRAY),
+        ..Ent::new_text_fill("EXIT".to_string(), Some(GOLD), Some(WHITE))
     }
 }
