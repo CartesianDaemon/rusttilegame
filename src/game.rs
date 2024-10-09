@@ -26,15 +26,11 @@ impl<Levs: levset::LevSet> Game<Levs> {
         }
     }
 
+    /// Collect input. Draw frame. Advance logical game state, if tick scheduled.
     pub fn do_frame(&mut self) {
-        /* Can read_input be combined with wait_for_tick? */
+        /* ENH: Can read_input be combined with wait_for_tick? */
         self.input.read_input();
 
-        /* For non-continuous modes, typically gameplay rather than splash, wait for
-         * next tick to advance game state.
-         *
-         * There should be a better way of expressing this logic between play and render.
-         */
         if self.play.continuous() || self.input.ready_for_tick() {
             let next_opt = self.play.advance(&mut self.input);
             if let Some(next) = next_opt {

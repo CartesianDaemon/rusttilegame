@@ -8,6 +8,7 @@ use play::Play;
 use ent::Ent;
 use play::Mode;
 
+/// Draw current gameplay to screen.
 pub fn draw_frame(p: &Play) {
     // STUB: Avoid passing in whole Play object.
     match p.mode {
@@ -27,8 +28,9 @@ pub fn draw_frame(p: &Play) {
     }
 }
 
-// Render state for one frame of level
-// Created each frame, but now has tex_cache should be maintained between frames.
+/// Render state for one frame of level
+/// Created each frame, but now has tex_cache should be instantiated by Game
+/// and draw_frame() be made a member function of this.
 pub struct RenderLev {
     // COORDS FOR CURRENT FRAME. In gl units which are pixels.
     // Distance from edge of drawing surface to play area

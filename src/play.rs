@@ -64,7 +64,7 @@ impl Play {
 
             // Won't be used
             // TODO: Empty default without using biobot types.
-             die_stage: Box::new(biobot::BiobotStage::NewGame),
+             die_stage: Box::new(levset_biobot::BiobotStage::NewGame),
 
             // Won't be used
             map: Map::new(16),

@@ -1,5 +1,6 @@
 use macroquad::prelude::*;
 
+/// Interaction from user. Including timing.
 pub struct Input {
     // Time of last frame.
     // Could be set via a ready_for_tick() fn
@@ -28,6 +29,9 @@ impl Input {
         }
     }
 
+    /// Defining when to advance game state.
+    ///
+    /// Should any of this be in Play not Input? Or should Input be called UI?
     pub fn ready_for_tick(&mut self) -> bool {
         if get_time() - self.last_update > self.speed {
             self.last_update = get_time();

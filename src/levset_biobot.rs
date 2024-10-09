@@ -110,7 +110,7 @@ impl LevSet for BiobotLevSet {
 ///
 /// Also used by tests
 
-pub fn biobot_splash(txt: String, to_stage: biobot::BiobotStage) -> Play {
+pub fn biobot_splash(txt: String, to_stage: levset_biobot::BiobotStage) -> Play {
     Play::make_splash(txt, Box::new(to_stage))
 }
 

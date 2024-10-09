@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use assrt::*;
 
 use crate::levset::*; // For new_xxxx() fns
-use crate::biobot::biobot_levplay;
+use crate::levset_biobot::biobot_levplay;
 use crate::play::Play;
 
 #[cfg(test)]
