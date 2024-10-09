@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use crate::*;
 
-use load::*; // Less than all?
+use levset::*; // Less than all?
 
 use play::Play;
 

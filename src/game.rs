@@ -5,17 +5,18 @@ use input::Input;
 
 /// Overall game state. Handles transitions between different Plays for different levstates.
 ///
-/// Templated on LevSet (either a  builtin LevSet, or a load-from-file LevSet). Also considered
-/// taking a &dyn LevSet trait object so that it could be linked with compiled level sets but
-/// ran into difficulties with trait objects. Specifically, implemnentations of LevSet each need
-/// a specific Levstage type, but a dyn LevStage pointer can't have an unspecified associated type.
-pub struct Game<Levs: load::LevSet> {
+/// Templated on LevSet (either a  builtin LevSet, or a load-from-file LevSet).
+///
+/// Could also take a &dyn LevSet trait object so that it could be linked with compiled level
+/// sets, but need to establish how to pass an appropriate LevStage pointer to the concrete
+/// class.
+pub struct Game<Levs: levset::LevSet> {
     pub lev_set: Levs, // TODO
     play: Play,
     input: Input,
 }
 
-impl<Levs: load::LevSet> Game<Levs> {
+impl<Levs: levset::LevSet> Game<Levs> {
     pub fn new(lev_set: Levs) -> Game<Levs> {
         let play = lev_set._load_lev_stage(lev_set.initial_lev_stage());
         Game {

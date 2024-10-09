@@ -10,7 +10,7 @@ use map::Map;
 use map::Ros;
 use ent::Ent;
 use types::Delta;
-use load::LevstageBase;
+use levset::LevstageBase;
 
 /// Different types of stage, e.g. "gameplay" vs "splash screen"
 ///
@@ -56,7 +56,7 @@ pub struct Play {
 }
 
 impl Play {
-    pub fn make_splash(txt: String, to_stage:  Box<dyn load::LevstageBase>,) -> Play {
+    pub fn make_splash(txt: String, to_stage:  Box<dyn levset::LevstageBase>,) -> Play {
         Play {
             mode: Mode::Splash,
             splash_text: txt,
@@ -75,8 +75,8 @@ impl Play {
     pub fn levplay_from_ascii(
         ascii_map: &[&str; 16],
         map_key: HashMap<char, Vec<Ent>>,
-        to_stage: Box<dyn load::LevstageBase>,
-        die_stage: Box<dyn load::LevstageBase>,
+        to_stage: Box<dyn levset::LevstageBase>,
+        die_stage: Box<dyn levset::LevstageBase>,
     ) -> Play {
         // TODO: Get size from strings. Assert equal to default 16 in meantime.
         let mut play = Play {
