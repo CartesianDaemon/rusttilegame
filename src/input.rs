@@ -33,12 +33,7 @@ impl Input {
     ///
     /// Should any of this be in Play not Input? Or should Input be called UI?
     pub fn ready_for_tick(&mut self) -> bool {
-        if get_time() - self.last_update > self.speed {
-            self.last_update = get_time();
-            true
-        } else {
-            false
-        }
+        self.last_key_pressed.is_some()
     }
 
     pub fn consume_keypresses(&mut self) -> Option<KeyCode> {
