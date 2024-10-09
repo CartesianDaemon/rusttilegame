@@ -32,8 +32,22 @@ impl Input {
     /// Defining when to advance game state.
     ///
     /// Should any of this be in Play not Input? Or should Input be called UI?
-    pub fn ready_for_tick(&mut self) -> bool {
-        self.last_key_pressed.is_some()
+    pub fn ready_to_advance_game_state(&mut self) -> bool {
+        if self.last_key_pressed.is_some() {
+            self.last_update = get_time();
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn ready_to_advance_ghost_state(&mut self) -> bool {
+        if get_time() - self.last_update > self.speed {
+            self.last_update = get_time();
+            true
+        } else {
+            false
+        }
     }
 
     pub fn consume_keypresses(&mut self) -> Option<KeyCode> {

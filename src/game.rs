@@ -12,7 +12,8 @@ use input::Input;
 /// class.
 pub struct Game<Levs: levset::LevSet> {
     pub lev_set: Levs, // TODO
-    play: Play,
+    play_state: Play,
+    ghost_state: Play,
     input: Input,
 }
 
@@ -21,7 +22,8 @@ impl<Levs: levset::LevSet> Game<Levs> {
         let play = lev_set._load_lev_stage(lev_set.initial_lev_stage());
         Game {
             lev_set,
-            play,
+            ghost_state: play.clone(),
+            play_state: play,
             input: Input::new_default(),
         }
     }
@@ -31,13 +33,16 @@ impl<Levs: levset::LevSet> Game<Levs> {
         /* ENH: Can read_input be combined with wait_for_tick? */
         self.input.read_input();
 
-        if self.play.continuous() || self.input.ready_for_tick() {
-            let next_opt = self.play.advance(&mut self.input);
-            if let Some(next) = next_opt {
-                self.play = self.lev_set.load_lev_stage(&next);
+        if self.play_state.continuous() || self.input.ready_to_advance_game_state() {
+            let maybe_to_lev = self.play_state.advance(&mut self.input);
+            if let Some(to_lev) = maybe_to_lev {
+                self.play_state = self.lev_set.load_lev_stage(&to_lev);
             }
+            self.ghost_state = self.play_state.clone();
+        } else if self.input.ready_to_advance_ghost_state() {
+            self.ghost_state.advance(&mut self.input);
         }
 
-        render::draw_frame(&self.play);
+        render::draw_frame(&self.play_state, &self.ghost_state);
     }
 }

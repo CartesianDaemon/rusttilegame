@@ -35,7 +35,7 @@ pub enum Mode {
 /// Also considered making Play templated on LevSet at compile time.
 ///
 /// Eventually we'll probably need to store the current Levstage.
-//#[derive(Clone)]
+#[derive(Clone)]
 pub struct Play {
     /// Mode of current state, either an interstitial splash screen or a level to play.
     pub mode: Mode,

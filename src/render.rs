@@ -9,21 +9,21 @@ use ent::Ent;
 use play::Mode;
 
 /// Draw current gameplay to screen.
-pub fn draw_frame(p: &Play) {
-    // STUB: Avoid passing in whole Play object.
-    match p.mode {
+pub fn draw_frame(play_state: &Play, ghost_state: &Play) {
+    // ENH: Avoid passing in whole Play object.
+    match play_state.mode {
         Mode::LevPlay => {
-            let mut r = RenderLev::begin(p.map.w(), p.map.h());
+            let mut r = RenderLev::begin(play_state.map.w(), play_state.map.h());
             // Coords of first visible tile. Currently always 0,0.
             let (ox, oy) = (0, 0);
-            for (x, y, loc) in p.map.locs() {
+            for (x, y, loc) in play_state.map.locs() {
                 for ent in &loc.ents {
                     r.draw_ent(x - ox, y - oy, ent);
                 }
             }
         }
         Mode::Splash => {
-            let _r = RenderSplash::begin(&p.splash_text);
+            let _r = RenderSplash::begin(&play_state.splash_text);
         }
     }
 }
@@ -31,6 +31,7 @@ pub fn draw_frame(p: &Play) {
 /// Render state for one frame of level
 /// Created each frame, but now has tex_cache should be instantiated by Game
 /// and draw_frame() be made a member function of this.
+#[derive(Clone)]
 pub struct RenderLev {
     // COORDS FOR CURRENT FRAME. In gl units which are pixels.
     // Distance from edge of drawing surface to play area
@@ -40,6 +41,8 @@ pub struct RenderLev {
     // Size of each tile
     sq_w: f32,
     sq_h: f32,
+    /// Overall transparency
+    alpha: f32,
     ///
     tex_cache: HashMap<String, Texture2D>,
 }
@@ -62,11 +65,19 @@ impl RenderLev {
             sq_w: (screen_height() - offset_y * 2.) / w as f32,
             sq_h: (screen_height() - offset_y * 2.) / w as f32,
             tex_cache: HashMap::new(),
+            alpha: 1.0,
         };
 
         r.draw_backdrop();
 
         r
+    }
+
+    pub fn begin_ghost_overlay(orig_renderlev: RenderLev) -> RenderLev {
+        RenderLev {
+            alpha: 0.5,
+            ..orig_renderlev.clone()
+        }
     }
 
     fn draw_backdrop(&self)

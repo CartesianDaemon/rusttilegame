@@ -4,7 +4,7 @@ Add test for movement.
 Add a few different types of enemy logic.
 Consider different timing, e.g. player move off-beat then enemies. Go back to "move when you do". Try to find a compromise? E.g. Show "ghost" of where things will move to
 Make hero human-ish, enemies animal-ish
-Update look of doors etc.
+Better font. Update look of doors etc.
 Draw some simple images in vector, and in background colours, for enemies etc.
 Think about simple plot.
 
