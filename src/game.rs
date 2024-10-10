@@ -35,8 +35,8 @@ impl<Levs: levset::LevSet> Game<Levs> {
             preghost_ticks: 3,
             max_ghost_ticks: 6,
             tween_ghost_ticks: 0,
-            min_ghost_pc: 0.,
-            max_ghost_pc: 0.7,
+            min_ghost_pc: 0.6,
+            max_ghost_pc: 0.9,
         }
     }
 
