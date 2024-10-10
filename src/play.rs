@@ -15,7 +15,7 @@ use levset::LevstageBase;
 /// Different types of stage, e.g. "gameplay" vs "splash screen"
 ///
 /// Better if Play was an enum of these possibiltiies.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Mode {
     /// Splash message, any key to continue. E.g. New level, game over.
     Splash,
@@ -35,7 +35,7 @@ pub enum Mode {
 /// Also considered making Play templated on LevSet at compile time.
 ///
 /// Eventually we'll probably need to store the current Levstage.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Play {
     /// Mode of current state, either an interstitial splash screen or a level to play.
     pub mode: Mode,

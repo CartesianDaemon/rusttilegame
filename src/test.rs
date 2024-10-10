@@ -63,5 +63,8 @@ mod basic_tests {
     fn clone_map_and_move() {
         let orig_play_state = get_lev(1);
         let mut play_state = orig_play_state.clone();
+        println!("Orig>> {orig_play_state:?}");
+        println!("Clone>> {play_state:?}");
+        play_state.advance(&mut Input::from_key(KeyCode::Right));
     }
 }

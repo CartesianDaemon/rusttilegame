@@ -30,7 +30,7 @@ use play::Play;
 ///
 /// Any benefit for adding a type or struct for Box<dyn LevelstageBase> as that's what we
 /// pass around?
-pub trait LevstageBase : downcast_rs::Downcast + dyn_clone::DynClone {
+pub trait LevstageBase : downcast_rs::Downcast + dyn_clone::DynClone + std::fmt::Debug {
 }
 downcast_rs::impl_downcast!(LevstageBase);
 
@@ -86,6 +86,7 @@ pub trait LevSet {
 
 pub fn new_hero_crab() -> Ent {
     Ent {
+        name: "*".to_string(),
         pass: Pass::Mov,
         ai: AI::Hero,
         ..Ent::new_text_fill("HERO".to_string(), Some(GOLD), Some(BLACK))
@@ -94,6 +95,7 @@ pub fn new_hero_crab() -> Ent {
 
 pub fn new_snake(dir: Delta) -> Ent {
     Ent {
+        name: "f".to_string(),
         pass: Pass::Mov,
         ai: AI::Bounce,
         dir: dir,
@@ -104,12 +106,14 @@ pub fn new_snake(dir: Delta) -> Ent {
 
 pub fn new_floor() -> Ent {
     Ent {
+        name: ".".to_string(),
         ..Ent::new_col_outline(WHITE, LIGHTGRAY)
     }
 }
 
 pub fn new_wall() -> Ent {
     Ent {
+        name: "W".to_string(),
         pass: Pass::Solid,
         ..Ent::new_col(DARKGRAY)
     }
@@ -117,12 +121,14 @@ pub fn new_wall() -> Ent {
 
 pub fn new_door_open() -> Ent {
     Ent {
+        name: "_".to_string(),
         ..Ent::new_col(LIGHTGRAY)
     }
 }
 
 pub fn new_door_closed() -> Ent {
     Ent {
+        name: "#".to_string(),
         pass: Pass::Solid,
         ..Ent::new_col_outline(DARKGRAY, LIGHTGRAY)
     }
@@ -130,6 +136,7 @@ pub fn new_door_closed() -> Ent {
 
 pub fn new_door_win() -> Ent {
     Ent {
+        name: "!".to_string(),
         effect: Effect::Win,
 
         border: Some(LIGHTGRAY),

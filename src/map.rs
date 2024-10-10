@@ -38,6 +38,21 @@ impl IndexMut<Pos> for Map {
     }
 }
 
+// ENH: Fehler
+impl std::fmt::Debug for Map {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        write!(f, "Map[")?;
+        for (x, y, loc) in self.locs() {
+            loc.map_fmt(f)?;
+            if x ==0 && y > 0 {
+                write!(f, "|")?;
+            }
+        }
+        write!(f, "]")?;
+        Ok(())
+    }
+}
+
 impl Map {
     /*
     pub fn new(sz: u16) -> Map {
@@ -278,7 +293,7 @@ impl<'a> Iterator for LocIteratorMut<'a> {
 */
 
 // Roster of character, enemies, etc. Indexes into map.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Ros {
     // Hero
     // FIXME: Better name for protagonist than "hero".
@@ -308,7 +323,8 @@ impl Ros {
 type Handle = Pos;
 
 // "Location": Everything at a single coordinate in the current room.
-// #[derive(Clone)]
+// #[derive(Clone)] // implemented below
+#[derive(Debug, Clone)]
 pub struct Loc {
     pub ents: Vec<Ent>,
 }
@@ -327,13 +343,21 @@ impl Loc {
         use ent::Pass;
         self.ents.iter().any(|x| x.pass == Pass::Solid)
     }
+
+    fn map_fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        for ent in &self.ents {
+            write!(f, "{},", ent.name)?;
+        }
+        write!(f, ";")
+    }
 }
 
-impl Clone for Loc {
+// Previously we only cloned empty locs, now we clone maps.
+/* impl Clone for Loc {
     fn clone(&self) -> Loc {
-        // assert!(self.ents.is_empty());
+        assert!(self.ents.is_empty()); 
         Loc::new()
     }
 
     // Consider implementing index [idx] for Loc returning loc.ents[idx]
-}
+} */

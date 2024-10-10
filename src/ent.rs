@@ -3,7 +3,7 @@ use crate::types::Delta;
 use macroquad::prelude::*;
 
 // "Entity": Anything tile-sized and drawable including floor, wall, object, being.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 #[allow(dead_code)]
 pub struct Ent {
     // Cache of coords ent is at on map. These are useful for movement logic, but probably
@@ -11,6 +11,9 @@ pub struct Ent {
     pub x: i16,
     pub y: i16,
     pub h: u16,
+
+    /// Internal name for debugging
+    pub name: String,
 
     // Visual display properties.
     // Only used by Render. Worth moving into a separate struct shared between Map and Render?
@@ -44,6 +47,8 @@ impl Ent {
             x: -1, // For now "-1" flags "this element is a placeholder in height vector"
             y: -1,
             h: 0,
+
+            name: "????".to_string(),
 
             border: None,
             fill: None,
@@ -135,7 +140,7 @@ impl Ent {
 // Can these become a generic properties defined in load, rather than being specified by engine?
 
 // Passable. Whether other movs can move through an ent or not.
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum Pass {
     Empty, // No impediment to movement, e.g. floor.
     Solid, // Block movement, e.g. wall.
@@ -144,7 +149,7 @@ pub enum Pass {
 }
 
 // Types of movement-control logic ents can use
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 #[allow(dead_code)]
 pub enum AI {
     Stay, // No self movement. Not added to Roster's list of movs.
@@ -155,7 +160,7 @@ pub enum AI {
 }
 
 // Effect when intersect with hero (as mov or stay)
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum Effect {
     Nothing,
     Kill,

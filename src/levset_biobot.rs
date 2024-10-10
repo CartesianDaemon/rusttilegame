@@ -8,7 +8,7 @@ use levset::*; // Less than all?
 
 use play::Play;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum BiobotStage {
     NewGame,
     LevIntro(u16),
