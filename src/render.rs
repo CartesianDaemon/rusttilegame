@@ -154,8 +154,13 @@ impl RenderLev {
         }
 
         if let Some(text) = ent.text.clone() {
-            let text_col = self.ghost_col(ent.text_col.unwrap_or(DARKGRAY));
-            draw_text(&text, (px + self.sq_w*0.1).floor(), (py + self.sq_h*0.6).floor(), 15., text_col);
+            let text_col = ent.text_col.unwrap_or(DARKGRAY);
+            let draw_col = if !self.as_ghost {
+                text_col
+            } else {
+                self.ghost_col(text_col)
+            };
+            draw_text(&text, (px + self.sq_w*0.1).floor(), (py + self.sq_h*0.6).floor(), 15., draw_col);
         }
     }
 }
