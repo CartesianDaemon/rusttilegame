@@ -56,6 +56,6 @@ impl<Levs: levset::LevSet> Game<Levs> {
             }
         }
 
-        render::draw_frame(&self.play_state, &self.ghost_state);
+        render::draw_frame(&self.play_state, &self.ghost_state, self.n_ghost_ticks as f32 / self.max_ghost_ticks as f32);
     }
 }

@@ -9,7 +9,7 @@ use ent::Ent;
 use play::Mode;
 
 /// Draw current gameplay to screen.
-pub fn draw_frame(play_state: &Play, ghost_state: &Play) {
+pub fn draw_frame(play_state: &Play, ghost_state: &Play, ghost_pc: f32) {
     // ENH: Avoid passing in whole Play object.
     match play_state.mode {
         Mode::LevPlay => {
@@ -21,7 +21,7 @@ pub fn draw_frame(play_state: &Play, ghost_state: &Play) {
                     r.draw_ent(x - ox, y - oy, ent);
                 }
             }
-            let mut r = RenderLev::begin_ghost_overlay(r);
+            let mut r = RenderLev::begin_ghost_overlay(r, 1.0 - ghost_pc);
             let (ox, oy) = (0, 0); // TODO: Dedup to RenderLev::function
             for (x, y, loc) in ghost_state.map.locs() {
                 for ent in &loc.ents {
@@ -74,7 +74,7 @@ impl RenderLev {
             sq_h: (screen_height() - offset_y * 2.) / w as f32,
             tex_cache: HashMap::new(),
             as_ghost: false,
-            ghost_alpha: 0.5,
+            ghost_alpha: 0.5, // Should be unused
         };
 
         r.draw_backdrop();
@@ -82,9 +82,10 @@ impl RenderLev {
         r
     }
 
-    pub fn begin_ghost_overlay(orig_renderlev: RenderLev) -> RenderLev {
+    pub fn begin_ghost_overlay(orig_renderlev: RenderLev, ghost_alpha: f32) -> RenderLev {
         RenderLev {
             as_ghost: true,
+            ghost_alpha,
             ..orig_renderlev.clone()
         }
     }
