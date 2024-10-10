@@ -97,9 +97,9 @@ impl RenderLev {
         draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
     }
 
-    fn ghost_col(&self, col: Color) -> Color
+    fn alpha_col(col: Color, alpha: f32) -> Color
     {
-        Color {a: col.a * self.ghost_alpha, ..col}
+        Color {a: col.a * alpha, ..col}
     }
 
     // Draw ent's texture/colour to the screen at specified tile coords.
@@ -118,23 +118,24 @@ impl RenderLev {
             return;
         }
 
-        let px = self.offset_x + self.sq_w * vx as f32;
-        let py = self.offset_y + self.sq_h * vy as f32;
+        let base_px = self.offset_x + self.sq_w * vx as f32;
+        let base_py = self.offset_y + self.sq_h * vy as f32;
+
+        let pc_size = if self.as_ghost {0.9} else {1.};
+
+        let px = base_px + self.sq_w * pc_size / 2.;
+        let py = base_py + self.sq_h * pc_size / 2.;
+        let w = self.sq_w * pc_size;
+        let h = self.sq_h * pc_size;
+
+        let alpha = if self.as_ghost {self.ghost_alpha} else {1.};
 
         if let Some(col) = ent.fill {
-            if !self.as_ghost {
-                draw_rectangle(px, py, self.sq_w, self.sq_h, col);
-            } else {
-                draw_rectangle(px, py, self.sq_w, self.sq_h, self.ghost_col(col));
-            }
+            draw_rectangle(px, py, w, h, Self::alpha_col(col, alpha));
         }
 
         if let Some(col) = ent.border {
-            if !self.as_ghost {
-                draw_rectangle_lines(px, py, self.sq_w, self.sq_h, 2., col);
-            } else {
-                draw_rectangle_lines(px, py, self.sq_w, self.sq_h, 2., self.ghost_col(col));
-            }
+            draw_rectangle_lines(px, py, w, h, 2., Self::alpha_col(col, alpha));
         }
 
         if let Some(tex_path) = ent.tex_path.clone() {
@@ -146,7 +147,7 @@ impl RenderLev {
                 py,
                 WHITE,
                 DrawTextureParams {
-                    dest_size: Some(vec2(self.sq_w, self.sq_h)),
+                    dest_size: Some(vec2(w, h)),
                     ..Default::default()
                     // TODO: alpha
                 },
@@ -154,13 +155,8 @@ impl RenderLev {
         }
 
         if let Some(text) = ent.text.clone() {
-            let text_col = ent.text_col.unwrap_or(DARKGRAY);
-            let draw_col = if !self.as_ghost {
-                text_col
-            } else {
-                self.ghost_col(text_col)
-            };
-            draw_text(&text, (px + self.sq_w*0.1).floor(), (py + self.sq_h*0.6).floor(), 15., draw_col);
+            let text_col = Self::alpha_col(ent.text_col.unwrap_or(DARKGRAY), alpha);
+            draw_text(&text, (px + w*0.1).floor(), (py + h*0.6).floor(), 15., text_col);
         }
     }
 }
