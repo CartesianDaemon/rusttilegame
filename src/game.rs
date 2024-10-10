@@ -15,6 +15,7 @@ pub struct Game<Levs: levset::LevSet> {
     play_state: Play,
     ghost_state: Play,
     n_ghost_ticks: u32, // Move into play state?
+    preghost_ticks: u32,
     max_ghost_ticks: u32,
     input: Input,
 }
@@ -28,13 +29,22 @@ impl<Levs: levset::LevSet> Game<Levs> {
             play_state: play,
             input: Input::new_begin(),
             n_ghost_ticks: 0,
+            preghost_ticks: 3,
             max_ghost_ticks: 5,
         }
     }
 
-    fn spawn_ghost_state(&mut self) {
+    fn reset_ghost_state(&mut self) {
         self.ghost_state = self.play_state.clone();
         self.n_ghost_ticks = 0;
+    }
+
+    fn ghost_pc(&self) -> f32 {
+        if self.n_ghost_ticks < self.preghost_ticks {
+            0.5 // Either 0 or 1 should be equally good?
+        } else {
+            (self.n_ghost_ticks - self.preghost_ticks) as f32 / self.max_ghost_ticks as f32
+        }
     }
 
     /// Collect input. Draw frame. Advance logical game state, if tick scheduled.
@@ -47,15 +57,20 @@ impl<Levs: levset::LevSet> Game<Levs> {
             if let Some(to_lev) = maybe_to_lev {
                 self.play_state = self.lev_set.load_lev_stage(&to_lev);
             }
-            self.spawn_ghost_state();
+            self.reset_ghost_state();
         } else if self.input.ready_to_advance_ghost_state() {
-            self.ghost_state.advance(&mut self.input);
             self.n_ghost_ticks += 1;
-            if self.n_ghost_ticks >= self.max_ghost_ticks {
-                self.spawn_ghost_state();
+            if self.n_ghost_ticks >= self.preghost_ticks + self.max_ghost_ticks {
+                self.reset_ghost_state();
+            } else if self.n_ghost_ticks >= self.preghost_ticks {
+                self.ghost_state.advance(&mut self.input);
             }
         }
 
-        render::draw_frame(&self.play_state, &self.ghost_state, self.n_ghost_ticks as f32 / self.max_ghost_ticks as f32);
+        render::draw_frame(
+            &self.play_state,
+            &self.ghost_state,
+            self.ghost_pc(),
+        );
     }
 }
