@@ -94,6 +94,11 @@ impl RenderLev {
         draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
     }
 
+    fn alphacol(&self, col: Color) -> Color
+    {
+        Color {a: col.a * self.alpha, ..col}
+    }
+
     // Draw ent's texture/colour to the screen at specified tile coords.
     // Works out pixel coords given pixel size of play area in RenderLev.
     pub fn draw_ent(
@@ -108,16 +113,11 @@ impl RenderLev {
        let py = self.offset_y + self.sq_h * vy as f32;
 
         if let Some(col) = ent.fill {
-            draw_rectangle(px, py, self.sq_w, self.sq_h, col);
+            draw_rectangle(px, py, self.sq_w, self.sq_h, self.alphacol(col));
         }
 
         if let Some(col) = ent.border {
-            draw_rectangle_lines(
-                px, py,
-                self.sq_w, self.sq_h,
-                2.,
-                Color {a: col.a * self.alpha, ..col}
-            );
+            draw_rectangle_lines(px, py, self.sq_w, self.sq_h, 2., self.alphacol(col));
         }
 
         if let Some(tex_path) = ent.tex_path.clone() {
@@ -131,12 +131,13 @@ impl RenderLev {
                 DrawTextureParams {
                     dest_size: Some(vec2(self.sq_w, self.sq_h)),
                     ..Default::default()
+                    // TODO: alpha
                 },
             );
         }
 
         if let Some(text) = ent.text.clone() {
-            let text_col = ent.text_col.unwrap_or(DARKGRAY);
+            let text_col = self.alphacol(ent.text_col.unwrap_or(DARKGRAY));
             draw_text(&text, (px + self.sq_w*0.1).floor(), (py + self.sq_h*0.6).floor(), 15., text_col);
         }
     }

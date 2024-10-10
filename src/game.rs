@@ -41,7 +41,7 @@ impl<Levs: levset::LevSet> Game<Levs> {
             self.ghost_state = self.play_state.clone();
             // self.ghost_state.advance(&mut self.input); // Even once get index out of bounds. Try in test.
         } else if self.input.ready_to_advance_ghost_state() {
-            //self.ghost_state.advance(&mut self.input);
+            self.ghost_state.advance(&mut self.input);
         }
 
         render::draw_frame(&self.play_state, &self.ghost_state);
