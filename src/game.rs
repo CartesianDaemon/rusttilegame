@@ -32,7 +32,7 @@ impl<Levs: levset::LevSet> Game<Levs> {
             play_state: play,
             input: Input::new_begin(),
             n_ghost_ticks: 0,
-            preghost_ticks: 3,
+            preghost_ticks: 6,
             max_ghost_ticks: 6,
             tween_ghost_ticks: 0,
             min_ghost_pc: 0.6,
