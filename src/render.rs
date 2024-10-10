@@ -122,9 +122,10 @@ impl RenderLev {
         let base_py = self.offset_y + self.sq_h * vy as f32;
 
         let pc_size = if self.as_ghost {0.9} else {1.};
+        //let pc_size = if self.as_ghost {0.5 + 0.5*self.ghost_alpha} else {1.};
 
-        let px = base_px + self.sq_w * pc_size / 2.;
-        let py = base_py + self.sq_h * pc_size / 2.;
+        let px = base_px + self.sq_w * (1.-pc_size) / 2.;
+        let py = base_py + self.sq_h * (1.-pc_size) / 2.;
         let w = self.sq_w * pc_size;
         let h = self.sq_h * pc_size;
 
