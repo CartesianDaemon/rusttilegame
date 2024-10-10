@@ -21,6 +21,13 @@ pub fn draw_frame(play_state: &Play, ghost_state: &Play) {
                     r.draw_ent(x - ox, y - oy, ent);
                 }
             }
+            let mut r = RenderLev::begin_ghost_overlay(r);
+            let (ox, oy) = (0, 0); // TODO: Dedup to RenderLev::function
+            for (x, y, loc) in ghost_state.map.locs() {
+                for ent in &loc.ents {
+                    r.draw_ent(x - ox, y - oy, ent);
+                }
+            }
         }
         Mode::Splash => {
             let _r = RenderSplash::begin(&play_state.splash_text);
@@ -105,7 +112,12 @@ impl RenderLev {
         }
 
         if let Some(col) = ent.border {
-            draw_rectangle_lines(px, py, self.sq_w, self.sq_h, 2., col);
+            draw_rectangle_lines(
+                px, py,
+                self.sq_w, self.sq_h,
+                2.,
+                Color {a: col.a * self.alpha, ..col}
+            );
         }
 
         if let Some(tex_path) = ent.tex_path.clone() {

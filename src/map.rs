@@ -331,7 +331,7 @@ impl Loc {
 
 impl Clone for Loc {
     fn clone(&self) -> Loc {
-        assert!(self.ents.is_empty());
+        // assert!(self.ents.is_empty());
         Loc::new()
     }
 
