@@ -35,7 +35,7 @@ impl<Levs: levset::LevSet> Game<Levs> {
             preghost_ticks: 3,
             max_ghost_ticks: 6,
             tween_ghost_ticks: 0,
-            min_ghost_pc: 0.2,
+            min_ghost_pc: 0.,
             max_ghost_pc: 0.7,
         }
     }
@@ -68,7 +68,7 @@ impl<Levs: levset::LevSet> Game<Levs> {
             self.reset_ghost_state(self.preghost_ticks);
         } else if self.input.ready_to_advance_ghost_state() {
             self.n_ghost_ticks += 1;
-            if self.n_ghost_ticks >= self.preghost_ticks + self.max_ghost_ticks {
+            if self.n_ghost_ticks > self.preghost_ticks + self.max_ghost_ticks {
                 self.reset_ghost_state(self.tween_ghost_ticks);
             } else if self.n_ghost_ticks >= self.preghost_ticks {
                 self.ghost_state.advance(&mut self.input);
