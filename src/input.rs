@@ -15,12 +15,23 @@ pub struct Input {
 }
 
 impl Input {
-    pub fn new_default() -> Input {
+    pub fn new_blank() -> Input {
         Input {
             speed: 0.3,
-            last_update: get_time(),
+            last_update: 0.,
             last_key_pressed: None,
         }
+    }
+
+    pub fn new_begin() -> Input {
+        Input {
+            last_update: get_time(),
+            .. Input::new_blank()
+        }
+    }
+
+    pub fn from_key(last_key_pressed: KeyCode) -> Input {
+        Input {last_key_pressed: Some(last_key_pressed), ..Input::new_blank()}
     }
 
     pub fn read_input(&mut self) {

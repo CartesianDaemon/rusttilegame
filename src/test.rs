@@ -1,7 +1,9 @@
 #![allow(unused)] // TODO
 
 use std::collections::HashMap;
+
 use assrt::*;
+use macroquad::prelude::*;
 
 use crate::levset::*; // For new_xxxx() fns
 use crate::levset_biobot::biobot_levplay;
@@ -9,6 +11,8 @@ use crate::play::Play;
 
 #[cfg(test)]
 mod basic_tests {
+    use crate::input::Input;
+
     use super::*;
 
     #[test]
@@ -51,6 +55,13 @@ mod basic_tests {
 
     #[test]
     fn basic_move() {
-        let p = get_lev(1);
+        let mut play_state = get_lev(1);
+        play_state.advance(&mut Input::from_key(KeyCode::Right));
+    }
+
+    #[test]
+    fn clone_map_and_move() {
+        let orig_play_state = get_lev(1);
+        let mut play_state = orig_play_state.clone();
     }
 }

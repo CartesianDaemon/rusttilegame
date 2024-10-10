@@ -24,7 +24,7 @@ impl<Levs: levset::LevSet> Game<Levs> {
             lev_set,
             ghost_state: play.clone(),
             play_state: play,
-            input: Input::new_default(),
+            input: Input::new_begin(),
         }
     }
 
