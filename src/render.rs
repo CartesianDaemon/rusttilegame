@@ -48,8 +48,9 @@ pub struct RenderLev {
     // Size of each tile
     sq_w: f32,
     sq_h: f32,
-    /// Overall transparency
-    alpha: f32,
+    as_ghost: bool,
+    /// Transparency for rendering ghost movement
+    ghost_alpha: f32,
     ///
     tex_cache: HashMap<String, Texture2D>,
 }
@@ -72,7 +73,8 @@ impl RenderLev {
             sq_w: (screen_height() - offset_y * 2.) / w as f32,
             sq_h: (screen_height() - offset_y * 2.) / w as f32,
             tex_cache: HashMap::new(),
-            alpha: 1.0,
+            as_ghost: false,
+            ghost_alpha: 0.5,
         };
 
         r.draw_backdrop();
@@ -82,7 +84,7 @@ impl RenderLev {
 
     pub fn begin_ghost_overlay(orig_renderlev: RenderLev) -> RenderLev {
         RenderLev {
-            alpha: 0.5,
+            as_ghost: true,
             ..orig_renderlev.clone()
         }
     }
@@ -94,9 +96,9 @@ impl RenderLev {
         draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
     }
 
-    fn alphacol(&self, col: Color) -> Color
+    fn ghost_col(&self, col: Color) -> Color
     {
-        Color {a: col.a * self.alpha, ..col}
+        Color {a: col.a * self.ghost_alpha, ..col}
     }
 
     // Draw ent's texture/colour to the screen at specified tile coords.
@@ -108,16 +110,30 @@ impl RenderLev {
         vy: i16,
         // Ent to draw
         ent: &Ent,
+        // TODO: Move as_ghost to parameter?
     ) {
-       let px = self.offset_x + self.sq_w * vx as f32;
-       let py = self.offset_y + self.sq_h * vy as f32;
+        // TODO: move to calling function?
+        if self.as_ghost && ent.pass != ent::Pass::Mov {
+            return;
+        }
+
+        let px = self.offset_x + self.sq_w * vx as f32;
+        let py = self.offset_y + self.sq_h * vy as f32;
 
         if let Some(col) = ent.fill {
-            draw_rectangle(px, py, self.sq_w, self.sq_h, self.alphacol(col));
+            if !self.as_ghost {
+                draw_rectangle(px, py, self.sq_w, self.sq_h, col);
+            } else {
+                draw_rectangle(px, py, self.sq_w, self.sq_h, self.ghost_col(col));
+            }
         }
 
         if let Some(col) = ent.border {
-            draw_rectangle_lines(px, py, self.sq_w, self.sq_h, 2., self.alphacol(col));
+            if !self.as_ghost {
+                draw_rectangle_lines(px, py, self.sq_w, self.sq_h, 2., col);
+            } else {
+                draw_rectangle_lines(px, py, self.sq_w, self.sq_h, 2., self.ghost_col(col));
+            }
         }
 
         if let Some(tex_path) = ent.tex_path.clone() {
@@ -137,7 +153,7 @@ impl RenderLev {
         }
 
         if let Some(text) = ent.text.clone() {
-            let text_col = self.alphacol(ent.text_col.unwrap_or(DARKGRAY));
+            let text_col = self.ghost_col(ent.text_col.unwrap_or(DARKGRAY));
             draw_text(&text, (px + self.sq_w*0.1).floor(), (py + self.sq_h*0.6).floor(), 15., text_col);
         }
     }
