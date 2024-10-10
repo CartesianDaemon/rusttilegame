@@ -45,7 +45,7 @@ impl<Levs: levset::LevSet> Game<Levs> {
         if self.n_ghost_ticks < self.preghost_ticks {
             0.5 // Either 0 or 1 should be equally good?
         } else {
-            (self.n_ghost_ticks - self.preghost_ticks) as f32 / self.max_ghost_ticks as f32
+            (self.n_ghost_ticks - self.preghost_ticks + 1) as f32 / self.max_ghost_ticks as f32
         }
     }
 
