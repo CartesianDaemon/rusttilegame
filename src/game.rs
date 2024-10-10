@@ -18,6 +18,8 @@ pub struct Game<Levs: levset::LevSet> {
     preghost_ticks: i32,
     max_ghost_ticks: i32,
     tween_ghost_ticks: i32,
+    min_ghost_pc: f32,
+    max_ghost_pc: f32,
     input: Input,
 }
 
@@ -31,8 +33,10 @@ impl<Levs: levset::LevSet> Game<Levs> {
             input: Input::new_begin(),
             n_ghost_ticks: 0,
             preghost_ticks: 3,
-            max_ghost_ticks: 5,
-            tween_ghost_ticks: 1,
+            max_ghost_ticks: 6,
+            tween_ghost_ticks: 0,
+            min_ghost_pc: 0.2,
+            max_ghost_pc: 0.7,
         }
     }
 
@@ -45,7 +49,9 @@ impl<Levs: levset::LevSet> Game<Levs> {
         if self.n_ghost_ticks < self.preghost_ticks {
             0.5 // Either 0 or 1 should be equally good?
         } else {
-            (self.n_ghost_ticks - self.preghost_ticks + 1) as f32 / self.max_ghost_ticks as f32
+            self.min_ghost_pc +
+            (self.max_ghost_pc - self.min_ghost_pc) *
+            (self.n_ghost_ticks - self.preghost_ticks) as f32 / self.max_ghost_ticks as f32
         }
     }
 
