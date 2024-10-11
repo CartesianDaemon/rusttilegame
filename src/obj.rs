@@ -60,7 +60,7 @@ impl Obj {
             ai: AI::Stay, // STUB: Could use this as a better placeholder flag
             effect: Effect::Nothing,
 
-            dir: (0, 0),
+            dir: CoordDelta::from_xy(0, 0),
         }
     }
 

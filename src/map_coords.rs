@@ -38,8 +38,8 @@ impl MapCoord {
 
 impl Add<CoordDelta> for MapCoord {
     type Output = MapCoord;
-    fn add(self, rhs: CoordDelta) -> MapCoord {
-        MapCoord { x: self.x + rhs.0, y: self.y + rhs.1 }
+    fn add(self, delta: CoordDelta) -> MapCoord {
+        MapCoord { x: self.x + delta.dx, y: self.y + delta.dy }
     }
 }
 
@@ -60,7 +60,17 @@ impl MapHandle
     }
 }
 
-pub type CoordDelta = (i16, i16);
+#[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
+pub struct CoordDelta {
+    pub dx: i16,
+    pub dy: i16,
+}
+
+impl CoordDelta {
+    pub fn from_xy(dx: i16, dy: i16) -> CoordDelta {
+        CoordDelta {dx, dy}
+    }
+}
 
 /* // Can't do this when type is actually a tuple. When it's reimplemented then yes.
 impl Add<Delta> for Pos {

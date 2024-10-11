@@ -165,15 +165,15 @@ impl Play {
 
         // Move character
         if let Some(key) = last_key_pressed {
-            let mut dir = (0, 0);
+            let mut dir = CoordDelta::from_xy(0, 0);
             match key {
-                KeyCode::Left  => dir = (-1, 0),
-                KeyCode::Right => dir = (1, 0),
-                KeyCode::Up    => dir = (0, -1),
-                KeyCode::Down  => dir = (0, 1),
+                KeyCode::Left  => dir = CoordDelta::from_xy(-1, 0),
+                KeyCode::Right => dir = CoordDelta::from_xy(1, 0),
+                KeyCode::Up    => dir = CoordDelta::from_xy(0, -1),
+                KeyCode::Down  => dir = CoordDelta::from_xy(0, 1),
                 _ => (),
             }
-            if dir != (0, 0) {
+            if dir != CoordDelta::from_xy(0, 0) {
                 if self.map.can_move(self.ros.hero, dir) {
                     self.map.move_delta(&mut self.ros.hero, dir);
                     // STUB: Check for win condition on ents other than the lowest one.
@@ -197,13 +197,13 @@ impl Play {
                 AI::Snake => {
                     // if mov on same row xor column as hero, change dir to face hero
                     if (mov.x == self.ros.hero.x) != (mov.y == self.ros.hero.y) {
-                        let new_dir: CoordDelta = ((self.ros.hero.x - mov.x).signum(),(self.ros.hero.y - mov.y).signum());
+                        let new_dir = CoordDelta::from_xy((self.ros.hero.x - mov.x).signum(),(self.ros.hero.y - mov.y).signum());
                         self.map[*mov].dir = new_dir;
                     }
 
                     // NOTE: When mov goes out of bounds is placeholder for real win condition.
-                    if !(0..self.map.w() as i16).contains(&(mov.x + self.map[*mov].dir.0)) ||
-                        !(0..self.map.h() as i16).contains(&(mov.y + self.map[*mov].dir.1))
+                    if !(0..self.map.w() as i16).contains(&(mov.x + self.map[*mov].dir.dx)) ||
+                        !(0..self.map.h() as i16).contains(&(mov.y + self.map[*mov].dir.dy))
                     {
                         return self.next_win();
                     }
@@ -224,13 +224,13 @@ impl Play {
                     // TODO: Make a Map:: fn for "at pos + dir, or appropriate default if off map"
 
                     // If hitting wall, reverse direction.
-                    if self.map.loc_at(MapHandle::from_xyh(mov.x + self.map[*mov].dir.0, mov.y + self.map[*mov].dir.1, 0)).impassable() {
-                        self.map[*mov].dir = (-self.map[*mov].dir.0, -self.map[*mov].dir.1);
+                    if self.map.loc_at(MapHandle::from_xyh(mov.x + self.map[*mov].dir.dx, mov.y + self.map[*mov].dir.dy, 0)).impassable() {
+                        self.map[*mov].dir = CoordDelta::from_xy(-self.map[*mov].dir.dx, -self.map[*mov].dir.dy);
                     }
 
                     // Move. Provided next space is passable. If both sides are impassable, don't
                     // move.
-                    if self.map.loc_at(MapHandle::from_xyh(mov.x + self.map[*mov].dir.0, mov.y + self.map[*mov].dir.1, 0)).passable() {
+                    if self.map.loc_at(MapHandle::from_xyh(mov.x + self.map[*mov].dir.dx, mov.y + self.map[*mov].dir.dy, 0)).passable() {
                         self.map.move_delta(mov, self.map[*mov].dir);
                     }
                     // Die if mov moves onto hero

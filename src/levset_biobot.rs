@@ -7,6 +7,7 @@ use crate::*;
 use levset::*; // Less than all?
 
 use play::Play;
+use map_coords::*;
 
 #[derive(Clone, Copy, Debug)]
 pub enum BiobotStage {
@@ -39,8 +40,8 @@ impl LevSet for BiobotLevSet {
         let aquarium1_key = HashMap::from([
             (' ', vec![ new_floor() ]),
             ('#', vec![ new_floor(), new_wall() ]),
-            ('>', vec![ new_floor(), new_snake((1,0)) ]),
-            ('<', vec![ new_floor(), new_snake((-1,0)) ]),
+            ('>', vec![ new_floor(), new_snake(CoordDelta::from_xy(1,0)) ]),
+            ('<', vec![ new_floor(), new_snake(CoordDelta::from_xy(-1,0)) ]),
             ('h', vec![ new_floor(), new_hero_crab() ]),
             ('o', vec![ /* new_floor(), */ new_door_win() ]), // TODO: Check win on non-floor tiles
             ('@', vec![ new_floor(), new_door_closed() ]),
