@@ -6,7 +6,7 @@ mod play;
 mod input;
 mod render;
 mod map;
-mod ent;
+mod obj;
 mod levset;
 mod levset_biobot;
 

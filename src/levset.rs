@@ -12,7 +12,7 @@ use crate::*;
 use map_coords::CoordDelta;
 // Need many of the specific params in ent.
 // Some of those may move to his file.
-use ent::*;
+use obj::*;
 use play::Play;
 
 /// Opaque base type for LevelSetDerived types

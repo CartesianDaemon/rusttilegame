@@ -8,7 +8,7 @@ use crate::*;
 use input::Input;
 use map::Map;
 use map::Ros;
-use ent::Obj;
+use obj::Obj;
 use map_coords::CoordDelta;
 use levset::LevstageBase;
 
@@ -157,7 +157,7 @@ impl Play {
         // Need all the properties used in Ent.
         // May move "can move" like logic into load, along with the assorted properties.
         // While keeping movement code coordinating between ents here.
-        use ent::*;
+        use obj::*;
 
         // FIXME: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.

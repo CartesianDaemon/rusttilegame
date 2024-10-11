@@ -14,7 +14,7 @@ use crate::*;
 
 use map_coords::*;
 
-use ent::Obj;
+use obj::Obj;
 
 // "Map": Grid of locations. Most of the current state of game.
 #[derive(Clone)]
@@ -340,7 +340,7 @@ impl Loc {
 
     pub fn impassable(&self) -> bool {
         // Can this fn work without knowledge of specific properties?
-        use ent::Pass;
+        use obj::Pass;
         self.ents.iter().any(|x| x.pass == Pass::Solid)
     }
 

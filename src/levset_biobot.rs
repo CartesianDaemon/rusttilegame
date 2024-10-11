@@ -114,7 +114,7 @@ pub fn biobot_splash(txt: String, to_stage: levset_biobot::BiobotStage) -> Play 
     Play::make_splash(txt, Box::new(to_stage))
 }
 
-pub fn biobot_levplay(levno: u16, ascii_map: &[&str; 16], map_key: HashMap<char, Vec<ent::Obj>>) -> Play {
+pub fn biobot_levplay(levno: u16, ascii_map: &[&str; 16], map_key: HashMap<char, Vec<obj::Obj>>) -> Play {
     // Box::new(BiobotStage::LevOutro(levno)),
     Play::levplay_from_ascii(
         ascii_map,

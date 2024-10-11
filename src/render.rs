@@ -5,7 +5,7 @@ use macroquad::prelude::*;
 use crate::*;
 
 use play::Play;
-use ent::Obj;
+use obj::Obj;
 use play::Mode;
 
 /// Draw current gameplay to screen.
@@ -114,7 +114,7 @@ impl RenderLev {
         // TODO: Move as_ghost to parameter?
     ) {
         // TODO: move to calling function?
-        if self.as_ghost && ent.pass != ent::Pass::Mov {
+        if self.as_ghost && ent.pass != obj::Pass::Mov {
             return;
         }
 
