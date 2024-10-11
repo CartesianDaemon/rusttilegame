@@ -14,7 +14,7 @@ use crate::*;
 
 use map_coords::*;
 
-use ent::Ent;
+use ent::Obj;
 
 // "Map": Grid of locations. Most of the current state of game.
 #[derive(Clone)]
@@ -25,7 +25,7 @@ pub struct Map {
 }
 
 impl Index<MapHandle> for Map {
-    type Output = Ent;
+    type Output = Obj;
 
     fn index(&self, pos: MapHandle) -> &Self::Output {
         &self.locs[pos.0 as usize][pos.1 as usize].ents[pos.2 as usize]
@@ -91,7 +91,7 @@ impl Map {
             // This keeps height coords of other ents valid.
             // ENH: Can we update the other objects here and do away with placeholder?
             // Would need to update Roster in sync.
-            mem::replace(&mut self[*hdl], Ent::placeholder())
+            mem::replace(&mut self[*hdl], Obj::placeholder())
         };
 
         // Remove any placeholders now at the top of the stack. Should only happen
@@ -123,12 +123,12 @@ impl Map {
 
     // Access loc.ents stacked at given coords (not using height field in Pos)
     // Used to add and remove from map, mostly internally
-    pub fn at(&self, pos: MapHandle) -> &Vec<Ent> {
+    pub fn at(&self, pos: MapHandle) -> &Vec<Obj> {
         &self.loc_at(pos).ents
     }
 
     // As "at" but mutably
-    pub fn atm(&mut self, pos: MapHandle) -> &mut Vec<Ent> {
+    pub fn atm(&mut self, pos: MapHandle) -> &mut Vec<Obj> {
         &mut self.locs[pos.0 as usize][pos.1 as usize].ents
     }
 
@@ -142,14 +142,14 @@ impl Map {
 
     // Add an ent at pos.x, pos.y and update pos.z to match.
     // FIXME: Maybe replace with place_at
-    pub fn put_at(&mut self, pos: &mut MapHandle, val: Ent) {
+    pub fn put_at(&mut self, pos: &mut MapHandle, val: Obj) {
         self.place_at(pos.0, pos.1, Some(pos), val);
     }
 
     // Add an ent at x,y. Set out_pos to coords if present.
     // TODO: Could take vec as parameter instead?
     // TODO: Caller could specify _ instead of maybe?
-    pub fn place_at(&mut self, x: i16, y:i16, out_pos: Option<&mut MapHandle>, val: Ent) {
+    pub fn place_at(&mut self, x: i16, y:i16, out_pos: Option<&mut MapHandle>, val: Obj) {
         let mut ent = val;
         ent.x = x;
         ent.y = y;
@@ -326,7 +326,7 @@ type Handle = MapHandle;
 // #[derive(Clone)] // implemented below
 #[derive(Debug, Clone)]
 pub struct Loc {
-    pub ents: Vec<Ent>,
+    pub ents: Vec<Obj>,
 }
 
 impl Loc {

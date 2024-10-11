@@ -2,10 +2,10 @@ use crate::map_coords::CoordDelta;
 
 use macroquad::prelude::*;
 
-// "Entity": Anything tile-sized and drawable including floor, wall, object, being.
+/// Anything tile-sized and drawable including floor, wall, object, being.
 #[derive(Clone, Debug)]
 #[allow(dead_code)]
-pub struct Ent {
+pub struct Obj {
     // Cache of coords ent is at on map. These are useful for movement logic, but probably
     // aren't required. FIXME: Could be a Pos instead of separate coords.
     pub x: i16,
@@ -40,10 +40,10 @@ pub struct Ent {
     pub effect: Effect,
 }
 
-impl Ent {
+impl Obj {
     // An unitialised ent
-    pub fn invalid() -> Ent {
-        Ent {
+    pub fn invalid() -> Obj {
+        Obj {
             x: -1, // For now "-1" flags "this element is a placeholder in height vector"
             y: -1,
             h: 0,
@@ -65,15 +65,15 @@ impl Ent {
     }
 
     // An ent which is ignored when it exists in the map.
-    pub fn placeholder() -> Ent {
-        Ent::invalid()
+    pub fn placeholder() -> Obj {
+        Obj::invalid()
     }
 
     // Default values for fields not used in a particular ent type.
     #[allow(dead_code)]
-    pub fn empty() -> Ent {
-        Ent {
-            ..Ent::invalid()
+    pub fn empty() -> Obj {
+        Obj {
+            ..Obj::invalid()
         }
     }
 
@@ -82,55 +82,55 @@ impl Ent {
     }
 
     #[allow(dead_code)]
-    pub fn new_tex(tex_path: String) -> Ent {
-        Ent {
+    pub fn new_tex(tex_path: String) -> Obj {
+        Obj {
             h: 0, // Will be overridden
             tex_path: Some(tex_path),
-            ..Ent::invalid()
+            ..Obj::invalid()
         }
     }
 
-    pub fn new_tex_col(tex_path: String, fill: Color) -> Ent {
-        Ent {
+    pub fn new_tex_col(tex_path: String, fill: Color) -> Obj {
+        Obj {
             tex_path: Some(tex_path),
             fill: Some(fill),
-            ..Ent::invalid()
+            ..Obj::invalid()
         }
     }
 
-    pub fn new_col(fill: Color) -> Ent {
-        Ent {
+    pub fn new_col(fill: Color) -> Obj {
+        Obj {
             fill: Some(fill),
-            ..Ent::invalid()
+            ..Obj::invalid()
         }
     }
 
-    pub fn new_col_outline(fill: Color, outline: Color) -> Ent {
-        Ent {
+    pub fn new_col_outline(fill: Color, outline: Color) -> Obj {
+        Obj {
             fill: Some(fill),
             border: Some(outline),
-            ..Ent::invalid()
+            ..Obj::invalid()
         }
     }
 
-    pub fn new_text_fill(text: String, fill: Option<Color>, text_col: Option<Color>) -> Ent {
-        Ent {
+    pub fn new_text_fill(text: String, fill: Option<Color>, text_col: Option<Color>) -> Obj {
+        Obj {
             text: Some(text),
             fill,
             text_col,
-            ..Ent::invalid()
+            ..Obj::invalid()
         }
     }
 
     // FUNCTIONS REFERRING TO SPECIFIC PROPERTIES
     // STUB: Could be combined if properties are made more generic.
 
-    pub fn is_hero(self: &Ent) -> bool {
+    pub fn is_hero(self: &Obj) -> bool {
         self.ai == AI::Hero
     }
 
     // Indicate Ents which can move in their own logic, and need to be added to roster.
-    pub fn is_roster(self: &Ent) -> bool {
+    pub fn is_roster(self: &Obj) -> bool {
         self.ai != AI::Hero && self.ai != AI::Stay
     }
 }

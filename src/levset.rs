@@ -84,62 +84,62 @@ pub trait LevSet {
 // public only for helper use in test.rs
 // maybe move to biobot.rs?
 
-pub fn new_hero_crab() -> Ent {
-    Ent {
+pub fn new_hero_crab() -> Obj {
+    Obj {
         name: "*".to_string(),
         pass: Pass::Mov,
         ai: AI::Hero,
-        ..Ent::new_text_fill("HERO".to_string(), Some(GOLD), Some(BLACK))
+        ..Obj::new_text_fill("HERO".to_string(), Some(GOLD), Some(BLACK))
     }
 }
 
-pub fn new_snake(dir: CoordDelta) -> Ent {
-    Ent {
+pub fn new_snake(dir: CoordDelta) -> Obj {
+    Obj {
         name: "f".to_string(),
         pass: Pass::Mov,
         ai: AI::Bounce,
         dir: dir,
         effect: Effect::Kill,
-        ..Ent::new_text_fill("FISH".to_string(), Some(DARKBLUE), Some(WHITE))
+        ..Obj::new_text_fill("FISH".to_string(), Some(DARKBLUE), Some(WHITE))
     }
 }
 
-pub fn new_floor() -> Ent {
-    Ent {
+pub fn new_floor() -> Obj {
+    Obj {
         name: ".".to_string(),
-        ..Ent::new_col_outline(WHITE, LIGHTGRAY)
+        ..Obj::new_col_outline(WHITE, LIGHTGRAY)
     }
 }
 
-pub fn new_wall() -> Ent {
-    Ent {
+pub fn new_wall() -> Obj {
+    Obj {
         name: "W".to_string(),
         pass: Pass::Solid,
-        ..Ent::new_col(DARKGRAY)
+        ..Obj::new_col(DARKGRAY)
     }
 }
 
-pub fn new_door_open() -> Ent {
-    Ent {
+pub fn new_door_open() -> Obj {
+    Obj {
         name: "_".to_string(),
-        ..Ent::new_col(LIGHTGRAY)
+        ..Obj::new_col(LIGHTGRAY)
     }
 }
 
-pub fn new_door_closed() -> Ent {
-    Ent {
+pub fn new_door_closed() -> Obj {
+    Obj {
         name: "#".to_string(),
         pass: Pass::Solid,
-        ..Ent::new_col_outline(DARKGRAY, LIGHTGRAY)
+        ..Obj::new_col_outline(DARKGRAY, LIGHTGRAY)
     }
 }
 
-pub fn new_door_win() -> Ent {
-    Ent {
+pub fn new_door_win() -> Obj {
+    Obj {
         name: "!".to_string(),
         effect: Effect::Win,
 
         border: Some(LIGHTGRAY),
-        ..Ent::new_text_fill("EXIT".to_string(), Some(GOLD), Some(WHITE))
+        ..Obj::new_text_fill("EXIT".to_string(), Some(GOLD), Some(WHITE))
     }
 }

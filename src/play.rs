@@ -8,7 +8,7 @@ use crate::*;
 use input::Input;
 use map::Map;
 use map::Ros;
-use ent::Ent;
+use ent::Obj;
 use map_coords::CoordDelta;
 use levset::LevstageBase;
 
@@ -74,7 +74,7 @@ impl Play {
 
     pub fn levplay_from_ascii(
         ascii_map: &[&str; 16],
-        map_key: HashMap<char, Vec<Ent>>,
+        map_key: HashMap<char, Vec<Obj>>,
         to_stage: Box<dyn levset::LevstageBase>,
         die_stage: Box<dyn levset::LevstageBase>,
     ) -> Play {
@@ -118,7 +118,7 @@ impl Play {
     */
 
     // Add ent to map, and if necessary to roster's hero pos or list of movs
-    pub fn spawn_at(&mut self, x: i16, y: i16, ent: Ent) {
+    pub fn spawn_at(&mut self, x: i16, y: i16, ent: Obj) {
         let mut pos = (x, y, 0);
 
         // FIXME: Cloning solely so that we can examine is_hero etc after.
