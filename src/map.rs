@@ -28,13 +28,13 @@ impl Index<MapHandle> for Map {
     type Output = Obj;
 
     fn index(&self, pos: MapHandle) -> &Self::Output {
-        &self.locs[pos.x as usize][pos.y as usize].objs[pos.h as usize]
+        &self.locs[pos.x as usize][pos.y as usize].0[pos.h as usize]
     }
 }
 
 impl IndexMut<MapHandle> for Map {
     fn index_mut(&mut self, pos: MapHandle) -> &mut Self::Output {
-        &mut self.locs[pos.x as usize][pos.y as usize].objs[pos.h as usize]
+        &mut self.locs[pos.x as usize][pos.y as usize].0[pos.h as usize]
     }
 }
 
@@ -129,22 +129,27 @@ impl Map {
 
     // Ents at given MapCoord.
     pub fn at_xy(&self, x: i16, y:i16) -> &Vec<Obj> {
-        &self.loc_at_xy(x, y).objs
+        &self.loc_at_xy(x, y).0
     }
 
     // Ents at given MapCoord.
     // Used to add and remove from map, mostly internally. And in Play?
     pub fn at(&self, pos: MapCoord) -> &Vec<Obj> {
-        &self.loc_at(pos).objs
+        &self.loc_at(pos).0
     }
 
     pub fn at_hdl(&self, pos: MapHandle) -> &Vec<Obj> {
-        &self.loc_at(MapCoord::from_hdl(pos)).objs
+        &self.loc_at(MapCoord::from_hdl(pos)).0
     }
 
     // As "at" but mutably
     pub fn at_hdlm(&mut self, pos: MapHandle) -> &mut Vec<Obj> {
-        &mut self.locs[pos.x as usize][pos.y as usize].objs
+        &mut self.locs[pos.x as usize][pos.y as usize].0
+    }
+
+    // As "at" but mutably
+    pub fn at_xym(&mut self, x: i16, y: i16) -> &mut Vec<Obj> {
+        &mut self.locs[x as usize][y as usize].0
     }
 
     // Add an ent at x,y, not tied to any roster.
@@ -174,7 +179,7 @@ impl Map {
             *pos = MapHandle::from_xyh(ent.x, ent.y, ent.h);
         }
 
-        self.at_hdlm( MapHandle::from_xyh(x, y, 0) ).push(ent);
+        self.at_xym( x, y ).push(ent);
     }
 
     // e.g. `for ( x, y ) in map.coords()`
@@ -337,16 +342,17 @@ impl Ros {
 // "Location": Everything at a single coordinate in the current room.
 // #[derive(Clone)] // implemented below
 #[derive(Debug, Clone)]
-pub struct Loc {
-    pub objs: Vec<Obj>,
-}
+pub struct Loc(Vec<Obj>);
 
 /// Square in map. Almost equivalent to Vec<Obj>
 ///
 /// Should make it Vec<Objs> newtype with push etc and these impl fns
+///
+/// TODO: Remove remaining places in this file using .0
+/// TODO: Check places using .at and see if they do need a list of objs or not.
 impl Loc {
     pub fn new() -> Loc {
-        Loc { objs: vec![] }
+        Loc { 0: vec![] }
     }
 
     pub fn passable(&self) -> bool {
@@ -356,14 +362,36 @@ impl Loc {
     pub fn impassable(&self) -> bool {
         // Can this fn work without knowledge of specific properties?
         use obj::Pass;
-        self.objs.iter().any(|x| x.pass == Pass::Solid)
+        self.iter().any(|x| x.pass == Pass::Solid)
     }
 
     fn map_fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
-        for ent in &self.objs {
+        for ent in self {
             write!(f, "{},", ent.name)?;
         }
         write!(f, ";")
+    }
+
+    pub fn iter(&self) -> std::slice::Iter<'_,Obj> {
+        self.0.iter()
+    }
+}
+
+impl IntoIterator for Loc {
+    type Item = <Vec<Obj> as IntoIterator>::Item;
+    type IntoIter = <Vec<Obj> as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
+
+impl<'a> IntoIterator for &'a Loc {
+    type Item = <&'a Vec<Obj> as IntoIterator>::Item;
+    type IntoIter = <&'a Vec<Obj> as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
     }
 }
 

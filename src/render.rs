@@ -17,14 +17,14 @@ pub fn draw_frame(play_state: &Play, ghost_state: &Play, ghost_pc: f32) {
             // Coords of first visible tile. Currently always 0,0.
             let (ox, oy) = (0, 0);
             for (x, y, loc) in play_state.map.locs() {
-                for ent in &loc.objs {
+                for ent in loc {
                     r.draw_ent(x - ox, y - oy, ent);
                 }
             }
             let mut r = RenderLev::begin_ghost_overlay(r, 1.0 - ghost_pc);
             let (ox, oy) = (0, 0); // TODO: Dedup to RenderLev::function
             for (x, y, loc) in ghost_state.map.locs() {
-                for ent in &loc.objs {
+                for ent in loc {
                     r.draw_ent(x - ox, y - oy, ent);
                 }
             }
