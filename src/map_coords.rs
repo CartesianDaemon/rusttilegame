@@ -64,6 +64,13 @@ impl MapHandle
     }
 }
 
+impl Add<CoordDelta> for MapHandle {
+    type Output = MapCoord;
+    fn add(self, delta: CoordDelta) -> MapCoord {
+        MapCoord { x: self.x + delta.dx, y: self.y + delta.dy }
+    }
+}
+
 #[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
 pub struct CoordDelta {
     pub dx: i16,

@@ -224,13 +224,13 @@ impl Play {
                     // TODO: Make a Map:: fn for "at pos + dir, or appropriate default if off map"
 
                     // If hitting wall, reverse direction.
-                    if self.map.loc_at(MapCoord::from_xy(mov.x + self.map[*mov].dir.dx, mov.y + self.map[*mov].dir.dy)).impassable() {
+                    if self.map.loc_at(*mov + self.map[*mov].dir).impassable() {
                         self.map[*mov].dir = CoordDelta::from_xy(-self.map[*mov].dir.dx, -self.map[*mov].dir.dy);
                     }
 
                     // Move. Provided next space is passable. If both sides are impassable, don't
                     // move.
-                    if self.map.loc_at(MapCoord::from_xy(mov.x + self.map[*mov].dir.dx, mov.y + self.map[*mov].dir.dy)).passable() {
+                    if self.map.loc_at(*mov + self.map[*mov].dir).passable() {
                         self.map.move_delta(mov, self.map[*mov].dir);
                     }
                     // Die if mov moves onto hero
