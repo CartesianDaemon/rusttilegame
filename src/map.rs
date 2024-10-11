@@ -81,11 +81,11 @@ impl Map {
     /// Nothing happens if target is off map, that's a gameplay error but not an
     /// engine error.
     pub fn move_to(&mut self, hdl: &mut MapHandle, to: MapCoord) {
-        let on_top = hdl.h as usize == self.at(*hdl).len();
+        let on_top = hdl.h as usize == self.at_hdl(*hdl).len();
 
         let ent = if on_top {
             // Pop ent from top of stack.
-            self.atm(*hdl).pop().unwrap()
+            self.at_hdlm(*hdl).pop().unwrap()
         } else {
             // Replace ent with a placeholder type ignored by render and gameplay.
             // This keeps height coords of other ents valid.
@@ -96,9 +96,9 @@ impl Map {
 
         // Remove any placeholders now at the top of the stack. Should only happen
         // if we popped ent from on top of them.
-        while !self.at(*hdl).is_empty() &&
-            self.at(*hdl).last().unwrap().is_placeholder() {
-            self.atm(*hdl).pop();
+        while !self.at_hdl(*hdl).is_empty() &&
+            self.at_hdl(*hdl).last().unwrap().is_placeholder() {
+            self.at_hdlm(*hdl).pop();
         }
 
         // Update caller's handle to new coords. Height will be set by put_at().
@@ -114,21 +114,36 @@ impl Map {
     }
 
     pub fn can_move(&self, pos: MapHandle, delta: CoordDelta) -> bool {
-        self.loc_at( MapCoord::to_hdl(MapCoord::from_hdl(pos) + delta) ).passable()
+        self.loc_at( MapCoord::from_hdl(pos) + delta ).passable()
     }
 
-    pub fn loc_at(&self, pos: MapHandle) -> &Loc {
-        &self.locs[pos.x as usize][pos.y as usize]
+    // Loc at given coords.
+    pub fn loc_at_xy(&self, x: i16, y: i16) -> &Loc {
+        &self.locs[x as usize][y as usize]
     }
 
-    // Access loc.ents stacked at given coords (not using height field in Pos)
-    // Used to add and remove from map, mostly internally
-    pub fn at(&self, pos: MapHandle) -> &Vec<Obj> {
+    // Loc at given MapCoord.
+    pub fn loc_at(&self, pos: MapCoord) -> &Loc {
+        self.loc_at_xy(pos.x, pos.y)
+    }
+
+    // Ents at given MapCoord.
+    pub fn at_xy(&self, x: i16, y:i16) -> &Vec<Obj> {
+        &self.loc_at_xy(x, y).ents
+    }
+
+    // Ents at given MapCoord.
+    // Used to add and remove from map, mostly internally. And in Play?
+    pub fn at(&self, pos: MapCoord) -> &Vec<Obj> {
         &self.loc_at(pos).ents
     }
 
+    pub fn at_hdl(&self, pos: MapHandle) -> &Vec<Obj> {
+        &self.loc_at(MapCoord::from_hdl(pos)).ents
+    }
+
     // As "at" but mutably
-    pub fn atm(&mut self, pos: MapHandle) -> &mut Vec<Obj> {
+    pub fn at_hdlm(&mut self, pos: MapHandle) -> &mut Vec<Obj> {
         &mut self.locs[pos.x as usize][pos.y as usize].ents
     }
 
@@ -153,13 +168,13 @@ impl Map {
         let mut ent = val;
         ent.x = x;
         ent.y = y;
-        ent.h = self.at(MapHandle::from_xyh(x,y,0)).len() as u16;
+        ent.h = self.at_xy(x,y).len() as u16;
 
         if let Some(pos) = out_pos {
             *pos = MapHandle::from_xyh(ent.x, ent.y, ent.h);
         }
 
-        self.atm( MapHandle::from_xyh(x, y, 0) ).push(ent);
+        self.at_hdlm( MapHandle::from_xyh(x, y, 0) ).push(ent);
     }
 
     // e.g. `for ( x, y ) in map.coords()`

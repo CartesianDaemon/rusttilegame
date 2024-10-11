@@ -21,8 +21,8 @@ use derive_more::*;
 /// Identify loc in map.
 #[derive(Copy, Clone, PartialEq, Debug, Add, Mul)]
 pub struct MapCoord {
-    x: i16,
-    y: i16,
+    pub x: i16,
+    pub y: i16,
 }
 
 impl MapCoord {
@@ -33,6 +33,10 @@ impl MapCoord {
 
     pub fn from_hdl(pos: MapHandle) -> MapCoord {
         MapCoord { x: pos.x, y: pos.y}
+    }
+
+    pub fn from_xy(x: i16, y: i16) -> MapCoord {
+        MapCoord {x, y}
     }
 }
 
