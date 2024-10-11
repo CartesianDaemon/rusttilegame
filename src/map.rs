@@ -53,13 +53,7 @@ impl std::fmt::Debug for Map {
 }
 
 impl Map {
-    /*
     pub fn new(sz: u16) -> Map {
-        panic!("New default Map unimplemented.");
-    }*/
-
-    pub fn new(sz: u16) -> Map {
-        // Some of this may move back up to Play, or from there to here.
         Map {
             locs: vec!(vec!(Loc::new(); sz.into()); sz.into()),
         }
@@ -78,9 +72,14 @@ impl Map {
         x == 0 || x == self.w() as i16 -1 || y == 0 || y == self.h() as i16 -1
     }
 
-    // All map-altering fns go through a fn like this to keep Map/Ros coords in sync.
-    // Nothing happens if target is off map, that's a gameplay error but not an
-    // engine error.
+    /// Low level function to move ent identified by hdl to specified coord.
+    ///
+    /// Calling function has already dealt with collisions etc. This just removes
+    /// the object from the old loc, adds it to the new loc, and updates its interal
+    /// coords.
+    ///
+    /// Nothing happens if target is off map, that's a gameplay error but not an
+    /// engine error.
     pub fn move_to(&mut self, hdl: &mut Handle, to: MapCoord) {
         let on_top = hdl.2 as usize == self.at(*hdl).len();
 
@@ -90,6 +89,8 @@ impl Map {
         } else {
             // Replace ent with a placeholder type ignored by render and gameplay.
             // This keeps height coords of other ents valid.
+            // ENH: Can we update the other objects here and do away with placeholder?
+            // Would need to update Roster in sync.
             mem::replace(&mut self[*hdl], Ent::placeholder())
         };
 
@@ -107,13 +108,13 @@ impl Map {
         self.put_at(hdl, ent);
     }
 
-    pub fn can_move(&self, pos: &MapHandle, delta: CoordDelta) -> bool {
-        self.loc_at( (pos.0 + delta.0, pos.1 + delta.1, 0) ).passable()
-    }
-
-    // Nothing happens if target is off map. Higher layer should prevent that.
+    // As move_to, but move relative not abs.
     pub fn move_delta(&mut self, pos: &mut MapHandle, delta: CoordDelta) {
         self.move_to(pos, MapCoord::from_pos(*pos) + delta);
+    }
+
+    pub fn can_move(&self, pos: &MapHandle, delta: CoordDelta) -> bool {
+        self.loc_at( (pos.0 + delta.0, pos.1 + delta.1, 0) ).passable()
     }
 
     pub fn loc_at(&self, pos: MapHandle) -> &Loc {
