@@ -8,6 +8,8 @@ use std::mem;
 use std::ops::Index;
 use std::ops::IndexMut;
 
+use culpa::try_fn;
+
 use crate::*;
 
 use map_coords::*;
@@ -36,8 +38,8 @@ impl IndexMut<MapHandle> for Map {
     }
 }
 
-// ENH: Fehler
 impl std::fmt::Debug for Map {
+    #[try_fn]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         write!(f, "Map[")?;
         for (x, y, loc) in self.locs() {
@@ -47,7 +49,6 @@ impl std::fmt::Debug for Map {
             }
         }
         write!(f, "]")?;
-        Ok(())
     }
 }
 
