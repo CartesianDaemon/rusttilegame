@@ -28,13 +28,13 @@ impl Index<MapHandle> for Map {
     type Output = Obj;
 
     fn index(&self, pos: MapHandle) -> &Self::Output {
-        &self.locs[pos.x as usize][pos.y as usize].ents[pos.h as usize]
+        &self.locs[pos.x as usize][pos.y as usize].objs[pos.h as usize]
     }
 }
 
 impl IndexMut<MapHandle> for Map {
     fn index_mut(&mut self, pos: MapHandle) -> &mut Self::Output {
-        &mut self.locs[pos.x as usize][pos.y as usize].ents[pos.h as usize]
+        &mut self.locs[pos.x as usize][pos.y as usize].objs[pos.h as usize]
     }
 }
 
@@ -129,22 +129,22 @@ impl Map {
 
     // Ents at given MapCoord.
     pub fn at_xy(&self, x: i16, y:i16) -> &Vec<Obj> {
-        &self.loc_at_xy(x, y).ents
+        &self.loc_at_xy(x, y).objs
     }
 
     // Ents at given MapCoord.
     // Used to add and remove from map, mostly internally. And in Play?
     pub fn at(&self, pos: MapCoord) -> &Vec<Obj> {
-        &self.loc_at(pos).ents
+        &self.loc_at(pos).objs
     }
 
     pub fn at_hdl(&self, pos: MapHandle) -> &Vec<Obj> {
-        &self.loc_at(MapCoord::from_hdl(pos)).ents
+        &self.loc_at(MapCoord::from_hdl(pos)).objs
     }
 
     // As "at" but mutably
     pub fn at_hdlm(&mut self, pos: MapHandle) -> &mut Vec<Obj> {
-        &mut self.locs[pos.x as usize][pos.y as usize].ents
+        &mut self.locs[pos.x as usize][pos.y as usize].objs
     }
 
     // Add an ent at x,y, not tied to any roster.
@@ -338,12 +338,15 @@ impl Ros {
 // #[derive(Clone)] // implemented below
 #[derive(Debug, Clone)]
 pub struct Loc {
-    pub ents: Vec<Obj>,
+    pub objs: Vec<Obj>,
 }
 
+/// Square in map. Almost equivalent to Vec<Obj>
+///
+/// Should make it Vec<Objs> newtype with push etc and these impl fns
 impl Loc {
     pub fn new() -> Loc {
-        Loc { ents: vec![] }
+        Loc { objs: vec![] }
     }
 
     pub fn passable(&self) -> bool {
@@ -353,11 +356,11 @@ impl Loc {
     pub fn impassable(&self) -> bool {
         // Can this fn work without knowledge of specific properties?
         use obj::Pass;
-        self.ents.iter().any(|x| x.pass == Pass::Solid)
+        self.objs.iter().any(|x| x.pass == Pass::Solid)
     }
 
     fn map_fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
-        for ent in &self.ents {
+        for ent in &self.objs {
             write!(f, "{},", ent.name)?;
         }
         write!(f, ";")
