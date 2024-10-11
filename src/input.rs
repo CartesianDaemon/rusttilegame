@@ -6,7 +6,7 @@ pub struct Input {
     // Could be set via a ready_for_tick() fn
     pub last_update: f64,
 
-    // Time between frames in sec.
+    // Time between ticks in sec.
     speed: f64,
 
     // Should change to list.

@@ -1,4 +1,4 @@
-use crate::types::Delta;
+use crate::types::CoordDelta;
 
 use macroquad::prelude::*;
 
@@ -34,7 +34,7 @@ pub struct Ent {
     pub ai: AI,
 
     // Internal status for specific ent types.
-    pub dir: Delta,
+    pub dir: CoordDelta,
 
     // Effect of intersecting hero
     pub effect: Effect,

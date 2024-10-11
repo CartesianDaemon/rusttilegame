@@ -9,7 +9,7 @@ use macroquad::prelude::*;
 
 use crate::*;
 
-use types::Delta;
+use types::CoordDelta;
 // Need many of the specific params in ent.
 // Some of those may move to his file.
 use ent::*;
@@ -93,7 +93,7 @@ pub fn new_hero_crab() -> Ent {
     }
 }
 
-pub fn new_snake(dir: Delta) -> Ent {
+pub fn new_snake(dir: CoordDelta) -> Ent {
     Ent {
         name: "f".to_string(),
         pass: Pass::Mov,

@@ -9,7 +9,7 @@ use input::Input;
 use map::Map;
 use map::Ros;
 use ent::Ent;
-use types::Delta;
+use types::CoordDelta;
 use levset::LevstageBase;
 
 /// Different types of stage, e.g. "gameplay" vs "splash screen"
@@ -197,7 +197,7 @@ impl Play {
                 AI::Snake => {
                     // if mov on same row xor column as hero, change dir to face hero
                     if (mov.0 == self.ros.hero.0) != (mov.1 == self.ros.hero.1) {
-                        let new_dir: Delta = ((self.ros.hero.0 - mov.0).signum(),(self.ros.hero.1 - mov.1).signum());
+                        let new_dir: CoordDelta = ((self.ros.hero.0 - mov.0).signum(),(self.ros.hero.1 - mov.1).signum());
                         self.map[*mov].dir = new_dir;
                     }
 

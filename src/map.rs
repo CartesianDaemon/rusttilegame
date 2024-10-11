@@ -10,9 +10,9 @@ use std::ops::IndexMut;
 
 use crate::*;
 
-use types::Pos;
-use types::Point;
-use types::Delta;
+use types::MapHandle;
+use types::MapCoord;
+use types::CoordDelta;
 
 use ent::Ent;
 
@@ -24,16 +24,16 @@ pub struct Map {
     locs: Vec<Vec<Loc>>,
 }
 
-impl Index<Pos> for Map {
+impl Index<MapHandle> for Map {
     type Output = Ent;
 
-    fn index(&self, pos: Pos) -> &Self::Output {
+    fn index(&self, pos: MapHandle) -> &Self::Output {
         &self.locs[pos.0 as usize][pos.1 as usize].ents[pos.2 as usize]
     }
 }
 
-impl IndexMut<Pos> for Map {
-    fn index_mut(&mut self, pos: Pos) -> &mut Self::Output {
+impl IndexMut<MapHandle> for Map {
+    fn index_mut(&mut self, pos: MapHandle) -> &mut Self::Output {
         &mut self.locs[pos.0 as usize][pos.1 as usize].ents[pos.2 as usize]
     }
 }
@@ -82,7 +82,7 @@ impl Map {
     // All map-altering fns go through a fn like this to keep Map/Ros coords in sync.
     // Nothing happens if target is off map, that's a gameplay error but not an
     // engine error.
-    pub fn move_to(&mut self, hdl: &mut Handle, to: Point) {
+    pub fn move_to(&mut self, hdl: &mut Handle, to: MapCoord) {
         let on_top = hdl.2 as usize == self.at(*hdl).len();
 
         let ent = if on_top {
@@ -108,27 +108,27 @@ impl Map {
         self.put_at(hdl, ent);
     }
 
-    pub fn can_move(&self, pos: &Pos, delta: Delta) -> bool {
+    pub fn can_move(&self, pos: &MapHandle, delta: CoordDelta) -> bool {
         self.loc_at( (pos.0 + delta.0, pos.1 + delta.1, 0) ).passable()
     }
 
     // Nothing happens if target is off map. Higher layer should prevent that.
-    pub fn move_delta(&mut self, pos: &mut Pos, delta: Delta) {
-        self.move_to(pos, Point::from_pos(*pos) + delta);
+    pub fn move_delta(&mut self, pos: &mut MapHandle, delta: CoordDelta) {
+        self.move_to(pos, MapCoord::from_pos(*pos) + delta);
     }
 
-    pub fn loc_at(&self, pos: Pos) -> &Loc {
+    pub fn loc_at(&self, pos: MapHandle) -> &Loc {
         &self.locs[pos.0 as usize][pos.1 as usize]
     }
 
     // Access loc.ents stacked at given coords (not using height field in Pos)
     // Used to add and remove from map, mostly internally
-    pub fn at(&self, pos: Pos) -> &Vec<Ent> {
+    pub fn at(&self, pos: MapHandle) -> &Vec<Ent> {
         &self.loc_at(pos).ents
     }
 
     // As "at" but mutably
-    pub fn atm(&mut self, pos: Pos) -> &mut Vec<Ent> {
+    pub fn atm(&mut self, pos: MapHandle) -> &mut Vec<Ent> {
         &mut self.locs[pos.0 as usize][pos.1 as usize].ents
     }
 
@@ -142,14 +142,14 @@ impl Map {
 
     // Add an ent at pos.x, pos.y and update pos.z to match.
     // FIXME: Maybe replace with place_at
-    pub fn put_at(&mut self, pos: &mut Pos, val: Ent) {
+    pub fn put_at(&mut self, pos: &mut MapHandle, val: Ent) {
         self.place_at(pos.0, pos.1, Some(pos), val);
     }
 
     // Add an ent at x,y. Set out_pos to coords if present.
     // TODO: Could take vec as parameter instead?
     // TODO: Caller could specify _ instead of maybe?
-    pub fn place_at(&mut self, x: i16, y:i16, out_pos: Option<&mut Pos>, val: Ent) {
+    pub fn place_at(&mut self, x: i16, y:i16, out_pos: Option<&mut MapHandle>, val: Ent) {
         let mut ent = val;
         ent.x = x;
         ent.y = y;
@@ -320,7 +320,7 @@ impl Ros {
 }
 
 
-type Handle = Pos;
+type Handle = MapHandle;
 
 // "Location": Everything at a single coordinate in the current room.
 // #[derive(Clone)] // implemented below

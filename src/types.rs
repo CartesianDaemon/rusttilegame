@@ -18,32 +18,34 @@ use derive_more::*;
 // Ideally allowing arithmetic between dimension, map, delta with least casting.
 // And multiplication of p coords by map coords.
 
-// Coord types defined approximate theoretical types:
-pub type Pos = (i16, i16, u16);
-// pub type Point = (i16, i16);
-pub type Delta = (i16, i16);
-
+/// Identify loc in map.
 #[derive(Copy, Clone, PartialEq, Debug, Add, Mul)]
-pub struct Point {
+pub struct MapCoord {
     x: i16,
     y: i16,
 }
 
-impl Point {
-    pub fn to_pos(&self) -> Pos {
+/// Handle identifying an Ent in the map.
+///
+/// Implemented as the MapCoord and index into Ents at that Loc.
+pub type MapHandle = (i16, i16, u16);
+
+pub type CoordDelta = (i16, i16);
+
+impl MapCoord {
+    pub fn to_pos(&self) -> MapHandle {
         (self.x, self.y, 0 )
     }
 
-    pub fn from_pos(pos: Pos) -> Point {
-        Point { x: pos.0, y: pos.1}
+    pub fn from_pos(pos: MapHandle) -> MapCoord {
+        MapCoord { x: pos.0, y: pos.1}
     }
 }
 
-// Can this be derived? Not yet?
-impl Add<Delta> for Point {
-    type Output = Point;
-    fn add(self, rhs: Delta) -> Point {
-        Point { x: self.x + rhs.0, y: self.y + rhs.1 }
+impl Add<CoordDelta> for MapCoord {
+    type Output = MapCoord;
+    fn add(self, rhs: CoordDelta) -> MapCoord {
+        MapCoord { x: self.x + rhs.0, y: self.y + rhs.1 }
     }
 }
 
