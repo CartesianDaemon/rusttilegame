@@ -80,7 +80,7 @@ impl Map {
     ///
     /// Nothing happens if target is off map, that's a gameplay error but not an
     /// engine error.
-    pub fn move_to(&mut self, hdl: &mut Handle, to: MapCoord) {
+    pub fn move_to(&mut self, hdl: &mut MapHandle, to: MapCoord) {
         let on_top = hdl.2 as usize == self.at(*hdl).len();
 
         let ent = if on_top {
@@ -297,13 +297,13 @@ impl<'a> Iterator for LocIteratorMut<'a> {
 pub struct Ros {
     // Hero
     // FIXME: Better name for protagonist than "hero".
-    pub hero: Handle,
+    pub hero: MapHandle,
 
     // Anything which updates each tick, especially enemies.
     //
     // Might be replaced by a set of lists of "everything that has this property" etc
     // like a Component system.
-    pub movs: Vec<Handle>,
+    pub movs: Vec<MapHandle>,
 }
 
 impl Ros {
@@ -314,13 +314,10 @@ impl Ros {
         }
     }
 
-    pub fn push_mov(&mut self, hdl: Handle) {
+    pub fn push_mov(&mut self, hdl: MapHandle) {
         self.movs.push(hdl);
     }
 }
-
-
-type Handle = MapHandle;
 
 // "Location": Everything at a single coordinate in the current room.
 // #[derive(Clone)] // implemented below
