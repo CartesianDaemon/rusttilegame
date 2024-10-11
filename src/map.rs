@@ -28,13 +28,13 @@ impl Index<MapHandle> for Map {
     type Output = Obj;
 
     fn index(&self, pos: MapHandle) -> &Self::Output {
-        &self.locs[pos.0 as usize][pos.1 as usize].ents[pos.2 as usize]
+        &self.locs[pos.x as usize][pos.y as usize].ents[pos.h as usize]
     }
 }
 
 impl IndexMut<MapHandle> for Map {
     fn index_mut(&mut self, pos: MapHandle) -> &mut Self::Output {
-        &mut self.locs[pos.0 as usize][pos.1 as usize].ents[pos.2 as usize]
+        &mut self.locs[pos.x as usize][pos.y as usize].ents[pos.h as usize]
     }
 }
 
@@ -81,7 +81,7 @@ impl Map {
     /// Nothing happens if target is off map, that's a gameplay error but not an
     /// engine error.
     pub fn move_to(&mut self, hdl: &mut MapHandle, to: MapCoord) {
-        let on_top = hdl.2 as usize == self.at(*hdl).len();
+        let on_top = hdl.h as usize == self.at(*hdl).len();
 
         let ent = if on_top {
             // Pop ent from top of stack.
@@ -102,7 +102,7 @@ impl Map {
         }
 
         // Update caller's handle to new coords. Height will be set by put_at().
-        *hdl = to.to_pos();
+        *hdl = to.to_hdl();
 
         // Add Ent to top of stack at new map coords. Updates hdl to match new height.
         self.put_at(hdl, ent);
@@ -110,15 +110,15 @@ impl Map {
 
     // As move_to, but move relative not abs.
     pub fn move_delta(&mut self, pos: &mut MapHandle, delta: CoordDelta) {
-        self.move_to(pos, MapCoord::from_pos(*pos) + delta);
+        self.move_to(pos, MapCoord::from_hdl(*pos) + delta);
     }
 
-    pub fn can_move(&self, pos: &MapHandle, delta: CoordDelta) -> bool {
-        self.loc_at( (pos.0 + delta.0, pos.1 + delta.1, 0) ).passable()
+    pub fn can_move(&self, pos: MapHandle, delta: CoordDelta) -> bool {
+        self.loc_at( MapCoord::to_hdl(MapCoord::from_hdl(pos) + delta) ).passable()
     }
 
     pub fn loc_at(&self, pos: MapHandle) -> &Loc {
-        &self.locs[pos.0 as usize][pos.1 as usize]
+        &self.locs[pos.x as usize][pos.y as usize]
     }
 
     // Access loc.ents stacked at given coords (not using height field in Pos)
@@ -129,7 +129,7 @@ impl Map {
 
     // As "at" but mutably
     pub fn atm(&mut self, pos: MapHandle) -> &mut Vec<Obj> {
-        &mut self.locs[pos.0 as usize][pos.1 as usize].ents
+        &mut self.locs[pos.x as usize][pos.y as usize].ents
     }
 
     // Add an ent at x,y, not tied to any roster.
@@ -143,7 +143,7 @@ impl Map {
     // Add an ent at pos.x, pos.y and update pos.z to match.
     // FIXME: Maybe replace with place_at
     pub fn put_at(&mut self, pos: &mut MapHandle, val: Obj) {
-        self.place_at(pos.0, pos.1, Some(pos), val);
+        self.place_at(pos.x, pos.y, Some(pos), val);
     }
 
     // Add an ent at x,y. Set out_pos to coords if present.
@@ -153,13 +153,13 @@ impl Map {
         let mut ent = val;
         ent.x = x;
         ent.y = y;
-        ent.h = self.at((x,y,0)).len() as u16;
+        ent.h = self.at(MapHandle::from_xyh(x,y,0)).len() as u16;
 
         if let Some(pos) = out_pos {
-            *pos = (ent.x, ent.y, ent.h);
+            *pos = MapHandle::from_xyh(ent.x, ent.y, ent.h);
         }
 
-        self.atm( (x, y, 0) ).push(ent);
+        self.atm( MapHandle::from_xyh(x, y, 0) ).push(ent);
     }
 
     // e.g. `for ( x, y ) in map.coords()`
@@ -309,7 +309,7 @@ pub struct Ros {
 impl Ros {
     pub fn new() -> Ros {
         Ros {
-            hero: (0, 0, 1),
+            hero: MapHandle::from_xyh(0, 0, 1),
             movs: vec![],
         }
     }
@@ -352,7 +352,7 @@ impl Loc {
 // Previously we only cloned empty locs, now we clone maps.
 /* impl Clone for Loc {
     fn clone(&self) -> Loc {
-        assert!(self.ents.is_empty()); 
+        assert!(self.ents.is_empty());
         Loc::new()
     }
 

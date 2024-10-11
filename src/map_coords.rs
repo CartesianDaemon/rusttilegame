@@ -25,20 +25,14 @@ pub struct MapCoord {
     y: i16,
 }
 
-/// Handle identifying an Ent in the map.
-///
-/// Implemented as the MapCoord and index into Ents at that Loc.
-pub type MapHandle = (i16, i16, u16);
-
-pub type CoordDelta = (i16, i16);
-
 impl MapCoord {
-    pub fn to_pos(&self) -> MapHandle {
-        (self.x, self.y, 0 )
+    // TODO: Indicates places which shouldn't take a handle to start with..
+    pub fn to_hdl(self) -> MapHandle {
+        MapHandle{x: self.x, y: self.y, h:0 }
     }
 
-    pub fn from_pos(pos: MapHandle) -> MapCoord {
-        MapCoord { x: pos.0, y: pos.1}
+    pub fn from_hdl(pos: MapHandle) -> MapCoord {
+        MapCoord { x: pos.x, y: pos.y}
     }
 }
 
@@ -48,6 +42,25 @@ impl Add<CoordDelta> for MapCoord {
         MapCoord { x: self.x + rhs.0, y: self.y + rhs.1 }
     }
 }
+
+/// A handle identifying an Ent in the map.
+///
+/// Implemented as the MapCoord and index into Ents at that Loc.
+#[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
+pub struct MapHandle {
+    pub x: i16,
+    pub y: i16,
+    pub h: u16,
+}
+
+impl MapHandle
+{
+    pub fn from_xyh(x: i16, y: i16, h: u16) -> MapHandle {
+        MapHandle {x, y, h}
+    }
+}
+
+pub type CoordDelta = (i16, i16);
 
 /* // Can't do this when type is actually a tuple. When it's reimplemented then yes.
 impl Add<Delta> for Pos {

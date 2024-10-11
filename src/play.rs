@@ -9,7 +9,7 @@ use input::Input;
 use map::Map;
 use map::Ros;
 use obj::Obj;
-use map_coords::CoordDelta;
+use map_coords::*;
 use levset::LevstageBase;
 
 /// Different types of stage, e.g. "gameplay" vs "splash screen"
@@ -119,7 +119,7 @@ impl Play {
 
     // Add ent to map, and if necessary to roster's hero pos or list of movs
     pub fn spawn_at(&mut self, x: i16, y: i16, ent: Obj) {
-        let mut pos = (x, y, 0);
+        let mut pos = MapHandle::from_xyh(x, y, 0);
 
         // FIXME: Cloning solely so that we can examine is_hero etc after.
         self.map.put_at(&mut pos, ent.clone()); // Sets height correctly
@@ -174,10 +174,10 @@ impl Play {
                 _ => (),
             }
             if dir != (0, 0) {
-                if self.map.can_move(&self.ros.hero, dir) {
+                if self.map.can_move(self.ros.hero, dir) {
                     self.map.move_delta(&mut self.ros.hero, dir);
                     // STUB: Check for win condition on ents other than the lowest one.
-                    if self.map[(self.ros.hero.0, self.ros.hero.1, 0)].effect == Effect::Win {
+                    if self.map[MapHandle::from_xyh(self.ros.hero.x, self.ros.hero.y, 0)].effect == Effect::Win {
                         return self.next_win(); // Previously didn't return??
                     }
                 }
@@ -196,14 +196,14 @@ impl Play {
                 // STUB: When we see what mov movement logic are like, try to combine them into one fn.
                 AI::Snake => {
                     // if mov on same row xor column as hero, change dir to face hero
-                    if (mov.0 == self.ros.hero.0) != (mov.1 == self.ros.hero.1) {
-                        let new_dir: CoordDelta = ((self.ros.hero.0 - mov.0).signum(),(self.ros.hero.1 - mov.1).signum());
+                    if (mov.x == self.ros.hero.x) != (mov.y == self.ros.hero.y) {
+                        let new_dir: CoordDelta = ((self.ros.hero.x - mov.x).signum(),(self.ros.hero.y - mov.y).signum());
                         self.map[*mov].dir = new_dir;
                     }
 
                     // NOTE: When mov goes out of bounds is placeholder for real win condition.
-                    if !(0..self.map.w() as i16).contains(&(mov.0 + self.map[*mov].dir.0)) ||
-                        !(0..self.map.h() as i16).contains(&(mov.1 + self.map[*mov].dir.1))
+                    if !(0..self.map.w() as i16).contains(&(mov.x + self.map[*mov].dir.0)) ||
+                        !(0..self.map.h() as i16).contains(&(mov.y + self.map[*mov].dir.1))
                     {
                         return self.next_win();
                     }
@@ -216,7 +216,7 @@ impl Play {
                     }
 
                     // Die if mov moves onto hero
-                    if mov.0 == self.ros.hero.0 && mov.1 == self.ros.hero.1 {
+                    if mov.x == self.ros.hero.x && mov.y == self.ros.hero.y {
                         return self.next_die();
                     }
                 },
@@ -224,18 +224,18 @@ impl Play {
                     // TODO: Make a Map:: fn for "at pos + dir, or appropriate default if off map"
 
                     // If hitting wall, reverse direction.
-                    if self.map.loc_at((mov.0 + self.map[*mov].dir.0, mov.1 + self.map[*mov].dir.1, 0)).impassable() {
+                    if self.map.loc_at(MapHandle::from_xyh(mov.x + self.map[*mov].dir.0, mov.y + self.map[*mov].dir.1, 0)).impassable() {
                         self.map[*mov].dir = (-self.map[*mov].dir.0, -self.map[*mov].dir.1);
                     }
 
                     // Move. Provided next space is passable. If both sides are impassable, don't
                     // move.
-                    if self.map.loc_at((mov.0 + self.map[*mov].dir.0, mov.1 + self.map[*mov].dir.1, 0)).passable() {
+                    if self.map.loc_at(MapHandle::from_xyh(mov.x + self.map[*mov].dir.0, mov.y + self.map[*mov].dir.1, 0)).passable() {
                         self.map.move_delta(mov, self.map[*mov].dir);
                     }
                     // Die if mov moves onto hero
                     if self.map[*mov].effect == Effect::Kill {
-                        if mov.0 == self.ros.hero.0 && mov.1 == self.ros.hero.1 {
+                        if mov.x == self.ros.hero.x && mov.y == self.ros.hero.y {
                             return self.next_die();
                         }
                     }
