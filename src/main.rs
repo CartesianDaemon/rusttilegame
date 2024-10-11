@@ -1,4 +1,4 @@
-mod types;
+mod map_coords;
 mod util;
 
 pub mod game;

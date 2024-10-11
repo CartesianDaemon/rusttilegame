@@ -10,9 +10,7 @@ use std::ops::IndexMut;
 
 use crate::*;
 
-use types::MapHandle;
-use types::MapCoord;
-use types::CoordDelta;
+use map_coords::*;
 
 use ent::Ent;
 

@@ -9,7 +9,7 @@ use macroquad::prelude::*;
 
 use crate::*;
 
-use types::CoordDelta;
+use map_coords::CoordDelta;
 // Need many of the specific params in ent.
 // Some of those may move to his file.
 use ent::*;

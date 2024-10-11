@@ -9,7 +9,7 @@ use input::Input;
 use map::Map;
 use map::Ros;
 use ent::Ent;
-use types::CoordDelta;
+use map_coords::CoordDelta;
 use levset::LevstageBase;
 
 /// Different types of stage, e.g. "gameplay" vs "splash screen"
