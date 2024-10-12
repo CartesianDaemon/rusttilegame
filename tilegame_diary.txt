@@ -8,6 +8,14 @@ Better font. Update look of doors etc.
 Draw some simple images in vector, and in background colours, for enemies etc.
 Think about simple plot.
 
+And
+ Measure frame rate?
+
+Wasm [Works in VM!. Needs proper webserver e.g. basic-http-server. Now..]
+ Try on web!
+ Try on phone!
+ Try on windows. Can serve webserver or not?
+
 GAMEPLAY
 
 In mind:
