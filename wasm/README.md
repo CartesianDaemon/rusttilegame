@@ -8,11 +8,11 @@ Release version is smaller but both release and debug seem to work.
 Have tilegame.html and tilegame.wasm in the same directory.
 
 tilegame.html copied from index.html https://github.com/not-fl3/macroquad
-But gl.js not mq_js_bundle.js from macroquad github pages.
+But currently working with miniquad-samples/gl.js as per recent article,
+not with mq_js_bundle.js suggested by README.
 
-TBD: Check if history of .js is in macroquad crate.
-TBD: Check if macroquad docs are out of date.
 TBD: Check errors in a developer console, were they more informative?
+TBD: Check different versions of js bundle.
 
 Server web pages (don't just open .html in browser). E.g:
 
