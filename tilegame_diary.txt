@@ -1,20 +1,34 @@
 IN MIND
 
-Add test for movement.
-Add a few different types of enemy logic.
-Consider different timing, e.g. player move off-beat then enemies. Go back to "move when you do". Try to find a compromise? E.g. Show "ghost" of where things will move to
-Make hero human-ish, enemies animal-ish
-Better font. Update look of doors etc.
-Draw some simple images in vector, and in background colours, for enemies etc.
-Think about simple plot.
+Immediate improvements to show off to people
+ Some mouse/touchscreen controls
+ Instructions on opening splash screen
+
+Improvements/towards game
+ Improve placeholder art
+ Some art
+ Animation/sliding during movement
+ Hero move then enemies move.
+  First logically.
+  Then delay in display.
+ Puzzles
+ Simple plot.
+
+Maybe
+ Dialogue
+ Way to display dialogue
+ Icons for people talking in dialogue
+
+Improving what's there
+ Add test for movement.
+ Add a few different types of enemy logic.
 
 And
+ Alternatives for mouse controls?
  Measure frame rate?
+ Get working properly on windows, or some other quick way to test it. (Maybe building wasm on windows?)
 
-Wasm [Works in linux VM and now on github pages!! Now..]
- Tidy up html pages. Maybe add top-level README.md.
- Add a few instructions for how to move.
- Phone controls?
+Needed at some point
  Try hosting .js too rather than relying on macroquad's version?
 
 GAMEPLAY
@@ -31,23 +45,17 @@ Then put in some simple levels about them.
 
 UI
 
-Clock based or not.
-Have immediate feedback when you move to show something is happening.
-Decide what order of player/enemy is simplest.
-
 IMPLEMENT
 
 Tests
 
-REFACTORING
+IMPROVING CODE
 
-More coord types.
-Try using refcell to have back-references to map.
-Move body of advance function into load. Towards making that independent.
+Better ways of storing objects.
+ Refcell or Rc to have pointer back to map from objects.
+ Or otherwise avoid needing handles.
 
-Streamline implementation of movs. But only when it's immediately useful.
-
-Tests.
+TESTS
 
 Pass load_stage as argument to Play, or have a "Stages" type, so that you can identify "which game to load" not only which level.
  Make it possible to test "next level" stuff.
