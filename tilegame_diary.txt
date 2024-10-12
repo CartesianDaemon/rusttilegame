@@ -11,11 +11,10 @@ Think about simple plot.
 And
  Measure frame rate?
 
-Wasm [Works in linux VM!. Now..]
- Try on web!
+Wasm [Works in linux VM and now on github pages!! Now..]
  Try on phone!
- Try on windows. Can serve webserver or not?
- Try hosting .js too.
+ Try hosting on windows for testing?
+ Try hosting .js too rather than relying on macroquad's version?
 
 GAMEPLAY
 
