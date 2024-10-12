@@ -1,8 +1,10 @@
 IN MIND
 
-And
- Always run server from root like github pages does. Have useful dir with html and symlink to target dir to locally see latest-built version.
- Update link
+Tidy up website and test_wasm.
+ Remove asteroids.
+ Move contents of wasm directory up into docs.
+ Have a useful test_wasm directory where it's easy to copy across to docs?
+ Update link to github for rusttilegame, not for macroquad
 
 Immediate improvements to show off to people
  Instructions on opening splash screen
