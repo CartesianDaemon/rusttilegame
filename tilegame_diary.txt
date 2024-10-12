@@ -1,7 +1,10 @@
 IN MIND
 
+And
+ Always run server from root like github pages does. Have useful dir with html and symlink to target dir to locally see latest-built version.
+ Update link
+
 Immediate improvements to show off to people
- Some mouse/touchscreen controls
  Instructions on opening splash screen
 
 Improvements/towards game
