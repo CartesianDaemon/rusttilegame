@@ -60,7 +60,7 @@ impl LevSet for BiobotLevSet {
 
         match stage {
             // TODO: Can we use idx++ instead of specifying each level number? Not immediately?
-            BiobotStage::NewGame => biobot_splash("Press [enter] to start.".to_string(), BiobotStage::LevIntro(1)),
+            BiobotStage::NewGame => biobot_splash("Click or press [enter] to start.".to_string(), BiobotStage::LevIntro(1)),
 
             BiobotStage::LevIntro(1) => biobot_splash("Welcome to level 1!".to_string(), BiobotStage::LevPlay(1)),
             BiobotStage::LevPlay(1) => biobot_levplay(1, &[

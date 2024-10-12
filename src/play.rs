@@ -260,7 +260,7 @@ impl Play {
         // FIXME: Avoid needing input as a parameter, move time update to input code.
         input.last_update = get_time();
 
-        if Some(KeyCode::Enter) == key {
+        if key.is_some() {
             return self.next_continue();
         }
 

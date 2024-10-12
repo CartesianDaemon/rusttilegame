@@ -37,6 +37,18 @@ impl Input {
     pub fn read_input(&mut self) {
         if let Some(key) = get_last_key_pressed() {
             self.last_key_pressed = Some(key);
+        } else if is_mouse_button_pressed(MouseButton::Left) {
+            let pp = mouse_position();
+            let UR: bool = pp.0 / pp.1 >= screen_width() / screen_height();
+            let UL: bool = (screen_width() - pp.0) / pp.1 >= screen_width() / screen_height();
+            self.last_key_pressed = Some(
+                match (UR, UL) {
+                    (true, true) => KeyCode::Up,
+                    (true, false) => KeyCode::Right,
+                    (false, true) => KeyCode::Left,
+                    (false, false) => KeyCode::Down,
+                }
+            )
         }
     }
 
