@@ -11,10 +11,11 @@ Think about simple plot.
 And
  Measure frame rate?
 
-Wasm [Works in VM!. Needs proper webserver e.g. basic-http-server. Now..]
+Wasm [Works in linux VM!. Now..]
  Try on web!
  Try on phone!
  Try on windows. Can serve webserver or not?
+ Try hosting .js too.
 
 GAMEPLAY
 
