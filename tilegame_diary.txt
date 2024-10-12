@@ -12,8 +12,9 @@ And
  Measure frame rate?
 
 Wasm [Works in linux VM and now on github pages!! Now..]
- Try on phone!
- Try hosting on windows for testing?
+ Tidy up html pages. Maybe add top-level README.md.
+ Add a few instructions for how to move.
+ Phone controls?
  Try hosting .js too rather than relying on macroquad's version?
 
 GAMEPLAY
