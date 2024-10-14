@@ -62,6 +62,14 @@ impl MapHandle
     pub fn from_xyh(x: i16, y: i16, h: u16) -> MapHandle {
         MapHandle {x, y, h}
     }
+
+    pub fn invalid() -> MapHandle {
+        MapHandle {
+            x: -1, // For now "-1" flags "this element is a placeholder in height vector"
+            y: -1,
+            h: 0,
+        }
+    }
 }
 
 impl Add<CoordDelta> for MapHandle {

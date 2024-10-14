@@ -7,10 +7,8 @@ use macroquad::prelude::*;
 #[allow(dead_code)]
 pub struct Obj {
     // Cache of coords ent is at on map. These are useful for movement logic, but probably
-    // aren't required. FIXME: Could be a Pos instead of separate coords.
-    pub x: i16,
-    pub y: i16,
-    pub h: u16,
+    // aren't required.
+    pub pos: MapHandle,
 
     /// Internal name for debugging
     pub name: String,
@@ -48,9 +46,7 @@ impl Obj {
     // An unitialised ent
     pub fn invalid() -> Obj {
         Obj {
-            x: -1, // For now "-1" flags "this element is a placeholder in height vector"
-            y: -1,
-            h: 0,
+            pos: MapHandle::invalid(),
 
             name: "????".to_string(),
 
@@ -84,13 +80,12 @@ impl Obj {
     }
 
     pub fn is_placeholder(&self) -> bool {
-        self.x == -1
+        self.pos == MapHandle::invalid()
     }
 
     #[allow(dead_code)]
     pub fn new_tex(tex_path: String) -> Obj {
         Obj {
-            h: 0, // Will be overridden
             tex_path: Some(tex_path),
             ..Obj::invalid()
         }

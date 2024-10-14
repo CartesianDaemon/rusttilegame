@@ -161,25 +161,10 @@ impl Map {
     */
 
     // Add an ent at pos.x, pos.y and update pos.z to match.
-    // FIXME: Maybe replace with place_at
-    pub fn put_at(&mut self, pos: &mut MapHandle, val: Obj) {
-        self.place_at(pos.x, pos.y, Some(pos), val);
-    }
-
-    // Add an ent at x,y. Set out_pos to coords if present.
-    // TODO: Could take vec as parameter instead?
-    // TODO: Caller could specify _ instead of maybe?
-    pub fn place_at(&mut self, x: i16, y:i16, out_pos: Option<&mut MapHandle>, val: Obj) {
-        let mut ent = val;
-        ent.x = x;
-        ent.y = y;
-        ent.h = self.at_xy(x,y).len() as u16;
-
-        if let Some(pos) = out_pos {
-            *pos = MapHandle::from_xyh(ent.x, ent.y, ent.h);
-        }
-
-        self.at_xym( x, y ).push(ent);
+    pub fn put_at(&mut self, hdl: &mut MapHandle, orig_obj: Obj) {
+        hdl.h = self.at_hdl(*hdl).len() as u16;
+        let new_obj = Obj { pos: *hdl, ..orig_obj};
+        self.at_xym( hdl.x, hdl.y ).push(new_obj);
     }
 
     // e.g. `for ( x, y ) in map.coords()`
