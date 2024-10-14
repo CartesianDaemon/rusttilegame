@@ -1,4 +1,4 @@
-use crate::map_coords::CoordDelta;
+use crate::map_coords::{CoordDelta, MapHandle};
 
 use macroquad::prelude::*;
 
@@ -24,6 +24,10 @@ pub struct Obj {
     pub tex_path: Option<String>,
     pub text: Option<String>,
     pub text_col: Option<Color>,
+
+    /// Previous pos, expressed as handle (i.e coords and height)
+    /// Height only relevant compared to prev_pos of other objs.
+    pub prev_pos: MapHandle,
 
     // Ent properties and behaviour, used by Game logic.
 
@@ -55,6 +59,8 @@ impl Obj {
             tex_path: None,
             text: None,
             text_col: None,
+
+            prev_pos: MapHandle::from_xyh(-1, -1, 0),
 
             pass: Pass::Empty,
             ai: AI::Stay, // STUB: Could use this as a better placeholder flag
