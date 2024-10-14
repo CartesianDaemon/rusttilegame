@@ -39,10 +39,10 @@ impl Input {
             self.last_key_pressed = Some(key);
         } else if is_mouse_button_pressed(MouseButton::Left) {
             let pp = mouse_position();
-            let UR: bool = pp.0 / pp.1 >= screen_width() / screen_height();
-            let UL: bool = (screen_width() - pp.0) / pp.1 >= screen_width() / screen_height();
+            let up_right: bool = pp.0 / pp.1 >= screen_width() / screen_height();
+            let up_left: bool = (screen_width() - pp.0) / pp.1 >= screen_width() / screen_height();
             self.last_key_pressed = Some(
-                match (UR, UL) {
+                match (up_right, up_left) {
                     (true, true) => KeyCode::Up,
                     (true, false) => KeyCode::Right,
                     (false, true) => KeyCode::Left,
