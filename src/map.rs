@@ -76,8 +76,6 @@ impl Map {
     ///
     /// All additions to the map should go through this function. Anything using
     /// the play class should go through spawn_at so the roster is updated.
-    ///
-    /// TODO: Merge roster from play into map
     pub fn place_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj) -> MapHandle {
         let pos = MapHandle::from_xyh(x, y, self.at_xy(x, y).len() as u16);
         self.at_xym(x, y).push(
@@ -93,8 +91,6 @@ impl Map {
     ///
     /// All moves should go through this functoin. Anything using the play class
     /// should call it with a handle from the roster so the roster is updated.
-    ///
-    /// TODO: Merge roster from play into map
     pub fn move_to(&mut self, hdl: &mut MapHandle, to: MapCoord) {
         let on_top = hdl.h as usize == self.at_hdl(*hdl).len();
 
@@ -297,7 +293,11 @@ impl<'a> Iterator for LocIteratorMut<'a> {
 }
 */
 
-// Roster of character, enemies, etc. Indexes into map.
+/// Roster of character, enemies, etc. Indexes into map.
+///
+/// TODO: Want to have move functions which always update map and roster together.
+/// But lines like "self.map.move_delta(&mut self.ros.hero, dir);" don't work if
+/// ros is part of map as they borrow both. How it should be? Accept hdl as value?
 #[derive(Clone, Debug)]
 pub struct Ros {
     // Hero

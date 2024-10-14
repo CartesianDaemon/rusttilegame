@@ -102,21 +102,6 @@ impl Play {
         play
     }
 
-    /*
-    // Pos for hero, which can be set to match newly added hero in map.
-    // TODO: Where this logic should be centralised
-    fn hero_pos_mut(&mut self) -> &mut Pos{
-        &mut self.ros.hero
-    }
-
-    // Pos for new entry in mov roster, which can be set to match new mov in map.
-    // TODO: Where this logic should be centralised
-    fn new_mov_pos_mut(&mut self) -> &mut Pos{
-        self.ros
-        &mut self.ros.hero
-    }
-    */
-
     // Add ent to map, and if necessary to roster's hero pos or list of movs
     pub fn spawn_at(&mut self, x: i16, y: i16, orig_obj: Obj) {
         // FIXME: Cloning solely so that we can examine is_hero etc after.
