@@ -118,16 +118,15 @@ impl Play {
     */
 
     // Add ent to map, and if necessary to roster's hero pos or list of movs
-    pub fn spawn_at(&mut self, x: i16, y: i16, ent: Obj) {
-        let mut pos = MapHandle::from_xyh(x, y, 0);
-
+    pub fn spawn_at(&mut self, x: i16, y: i16, orig_obj: Obj) {
         // FIXME: Cloning solely so that we can examine is_hero etc after.
-        self.map.put_at(&mut pos, ent.clone()); // Sets height correctly
+        let hdl = self.map.place_obj_at(x, y, orig_obj);
+        let placed_obj = &self.map[hdl];
 
-        if ent.is_hero() {
-            self.ros.hero = pos;
-        } else if ent.is_roster() {
-            self.ros.push_mov(pos);
+        if placed_obj.is_hero() {
+            self.ros.hero = hdl;
+        } else if placed_obj.is_roster() {
+            self.ros.push_mov(hdl);
         }
 
     }

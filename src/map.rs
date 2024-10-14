@@ -72,18 +72,33 @@ impl Map {
         x == 0 || x == self.w() as i16 -1 || y == 0 || y == self.h() as i16 -1
     }
 
-    /// Low level function to move ent identified by hdl to specified coord.
+    /// Place a (copy of an) object into the map. Return a handle to its position.
     ///
-    /// Calling function has already dealt with collisions etc. This just removes
-    /// the object from the old loc, adds it to the new loc, and updates its interal
-    /// coords.
+    /// All additions to the map should go through this function. Anything using
+    /// the play class should go through spawn_at so the roster is updated.
     ///
-    /// Nothing happens if target is off map, that's a gameplay error but not an
-    /// engine error.
+    /// TODO: Merge roster from play into map
+    pub fn place_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj) -> MapHandle {
+        let pos = MapHandle::from_xyh(x, y, self.at_xy(x, y).len() as u16);
+        self.at_xym(x, y).push(
+            Obj {
+                pos,
+                ..orig_obj
+            }
+        );
+        pos
+    }
+
+    /// Move an obj identified by hdl from one loc to another. Update hdl to match.
+    ///
+    /// All moves should go through this functoin. Anything using the play class
+    /// should call it with a handle from the roster so the roster is updated.
+    ///
+    /// TODO: Merge roster from play into map
     pub fn move_to(&mut self, hdl: &mut MapHandle, to: MapCoord) {
         let on_top = hdl.h as usize == self.at_hdl(*hdl).len();
 
-        let ent = if on_top {
+        let obj = if on_top {
             // Pop ent from top of stack.
             self.at_hdlm(*hdl).pop().unwrap()
         } else {
@@ -105,7 +120,7 @@ impl Map {
         *hdl = to.to_hdl();
 
         // Add Ent to top of stack at new map coords. Updates hdl to match new height.
-        self.put_at(hdl, ent);
+        *hdl = self.place_obj_at(to.x, to.y, obj);
     }
 
     // As move_to, but move relative not abs.
@@ -150,21 +165,6 @@ impl Map {
     // As "at" but mutably
     pub fn at_xym(&mut self, x: i16, y: i16) -> &mut Vec<Obj> {
         &mut self.locs[x as usize][y as usize].0
-    }
-
-    // Add an ent at x,y, not tied to any roster.
-    // FIXME: Maybe replace with place_at
-    /*
-    pub fn set_at(&mut self, x: i16, y: i16, val: Ent) {
-        self.place_at(x, y, None, val);
-    }
-    */
-
-    // Add an ent at pos.x, pos.y and update pos.z to match.
-    pub fn put_at(&mut self, hdl: &mut MapHandle, orig_obj: Obj) {
-        hdl.h = self.at_hdl(*hdl).len() as u16;
-        let new_obj = Obj { pos: *hdl, ..orig_obj};
-        self.at_xym( hdl.x, hdl.y ).push(new_obj);
     }
 
     // e.g. `for ( x, y ) in map.coords()`
