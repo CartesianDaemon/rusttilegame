@@ -40,6 +40,9 @@ impl Field {
         }
     }
 
+    /// Create an object in the map and in the roster.
+    ///
+    /// All new objs go through this to keep map and roster in sync.
     pub fn place_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj)
     {
         let hdl = self.map.place_obj_at(x, y, orig_obj);
@@ -103,9 +106,8 @@ impl Map {
 
     /// Place a (copy of an) object into the map. Return a handle to its position.
     ///
-    /// All additions to the map should go through this function. Anything using
-    /// the play class should go through spawn_at so the roster is updated.
-    pub fn place_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj) -> MapHandle {
+    /// Only used by Field::place_obj_at which keeps Roster in sync.
+    fn place_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj) -> MapHandle {
         let cached_pos = MapHandle::from_xyh(x, y, self.at_xy(x, y).len() as u16);
         self.at_xym(x, y).push(
             Obj {
@@ -118,8 +120,10 @@ impl Map {
 
     /// Move an obj identified by hdl from one loc to another. Update hdl to match.
     ///
-    /// All moves should go through this functoin. Anything using the play class
+    /// All moves should go through this function. Anything using the play class
     /// should call it with a handle from the roster so the roster is updated.
+    ///
+    /// TODO: Reduce need for code outside map.rs to know how to use roster handles.
     pub fn move_to(&mut self, hdl: &mut MapHandle, to: MapCoord) {
         let on_top = hdl.h as usize == self.at_hdl(*hdl).len();
 

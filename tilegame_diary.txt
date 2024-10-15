@@ -60,6 +60,11 @@ Better ways of storing objects.
  Refcell or Rc to have pointer back to map from objects.
  Or otherwise avoid needing handles.
 
+Field
+ Further simplify use of map/roster handles
+ Use more consistent name for ros/roster
+ Easier way of iterating indexes?
+
 TESTS
 
 Pass load_stage as argument to Play, or have a "Stages" type, so that you can identify "which game to load" not only which level.

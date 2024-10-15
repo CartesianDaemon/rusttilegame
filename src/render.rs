@@ -9,7 +9,7 @@ use obj::Obj;
 use play::Mode;
 
 /// Draw current gameplay to screen.
-pub fn draw_frame(play_state: &Play, ghost_state: &Play, ghost_opacity: f32) {
+pub fn draw_frame(play_state: &Play, anim_pc: f32, ghost_state: &Play, ghost_opacity: f32) {
     // ENH: Avoid passing in whole Play object.
     match play_state.mode {
         Mode::LevPlay => {
@@ -18,14 +18,14 @@ pub fn draw_frame(play_state: &Play, ghost_state: &Play, ghost_opacity: f32) {
             let (ox, oy) = (0, 0);
             for (x, y, loc) in play_state.field.map.locs() {
                 for ent in loc {
-                    r.draw_ent(x - ox, y - oy, ent);
+                    r.draw_ent(x - ox, y - oy, ent, anim_pc);
                 }
             }
             let mut r = RenderLev::begin_ghost_overlay(r, 1.0 - ghost_opacity);
             let (ox, oy) = (0, 0); // TODO: Dedup to RenderLev::function
             for (x, y, loc) in ghost_state.field.map.locs() {
                 for ent in loc {
-                    r.draw_ent(x - ox, y - oy, ent);
+                    r.draw_ent(x - ox, y - oy, ent, anim_pc);
                 }
             }
         }
@@ -111,6 +111,8 @@ impl RenderLev {
         vy: i16,
         // Ent to draw
         ent: &Obj,
+        // Proportion of animation from previous state to current (frame and position)
+        anim_pc: f32,
         // TODO: Move as_ghost to parameter?
     ) {
         // TODO: move to calling function?
@@ -123,6 +125,8 @@ impl RenderLev {
 
         let pc_size = if self.as_ghost {0.9} else {1.};
         //let pc_size = if self.as_ghost {0.5 + 0.5*self.ghost_alpha} else {1.};
+
+// FYI "let px = base_px + self.sq_w * (1.-pc_size) / 2. + self.sq_w * anim_pc;" makes me really seasick.
 
         let px = base_px + self.sq_w * (1.-pc_size) / 2.;
         let py = base_py + self.sq_h * (1.-pc_size) / 2.;

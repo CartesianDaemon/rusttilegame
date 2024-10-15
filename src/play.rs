@@ -96,9 +96,10 @@ impl Play {
         play
     }
 
-    // Add ent to map, and if necessary to roster's hero pos or list of movs
+    /// Add ent to map.
+    ///
+    /// Might not be necessary as a separate fn now roster logic in field.
     pub fn spawn_at(&mut self, x: i16, y: i16, orig_obj: Obj) {
-        // FIXME: Cloning solely so that we can examine is_hero etc after.
         self.field.place_obj_at(x, y, orig_obj);
     }
 
