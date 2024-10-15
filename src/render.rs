@@ -10,7 +10,7 @@ use obj::Obj;
 use play::Mode;
 
 /// Draw current gameplay to screen.
-pub fn draw_frame(play_state: &Play, anim_pc: f32, ghost_state: &Play, ghost_opacity: f32) {
+pub fn draw_frame(play_state: &Play, anim_real_pc: f32, ghost_state: &Play, ghost_opacity: f32, anim_ghost_pc: f32) {
     // ENH: Avoid passing in whole Play object.
     match play_state.mode {
         Mode::LevPlay => {
@@ -19,14 +19,14 @@ pub fn draw_frame(play_state: &Play, anim_pc: f32, ghost_state: &Play, ghost_opa
             let (ox, oy) = (0, 0);
             for (x, y, loc) in play_state.field.map.locs() {
                 for ent in loc {
-                    r.draw_ent(x - ox, y - oy, ent, anim_pc);
+                    r.draw_ent(x - ox, y - oy, ent, anim_real_pc);
                 }
             }
             let mut r = RenderLev::begin_ghost_overlay(r, 1.0 - ghost_opacity);
             let (ox, oy) = (0, 0); // TODO: Dedup to RenderLev::function
             for (x, y, loc) in ghost_state.field.map.locs() {
                 for ent in loc {
-                    r.draw_ent(x - ox, y - oy, ent, anim_pc);
+                    r.draw_ent(x - ox, y - oy, ent, anim_ghost_pc);
                 }
             }
         }

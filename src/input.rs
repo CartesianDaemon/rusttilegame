@@ -4,7 +4,9 @@ use macroquad::prelude::*;
 pub struct Input {
     // Time of last frame.
     // Could be set via a ready_for_tick() fn
-    pub last_update: f64,
+    // TODO: Move into play?
+    pub last_real_update: f64,
+    pub last_ghost_update: f64,
 
     // Time between ticks in sec.
     speed: f64,
@@ -17,15 +19,17 @@ pub struct Input {
 impl Input {
     pub fn new_blank() -> Input {
         Input {
-            speed: 2.,
-            last_update: 0.,
+            speed: 0.3,
+            last_real_update: 0.,
+            last_ghost_update: 0.,
             last_key_pressed: None,
         }
     }
 
     pub fn new_begin() -> Input {
         Input {
-            last_update: get_time(),
+            last_real_update: get_time(),
+            last_ghost_update: get_time(),
             .. Input::new_blank()
         }
     }
@@ -57,20 +61,22 @@ impl Input {
     /// Should any of this be in Play not Input? Or should Input be called UI?
     pub fn ready_to_advance_game_state(&mut self, anim_pc: &mut f32) -> bool {
         if self.last_key_pressed.is_some() {
-            self.last_update = get_time();
+            self.last_real_update = get_time();
             *anim_pc = 0.;
             true
         } else {
-            *anim_pc = ((get_time() - self.last_update) / self.speed) as f32 % 1.;
+            *anim_pc = (( (get_time() - self.last_real_update) / self.speed) as f32).min(1.0);
             false
         }
     }
 
-    pub fn ready_to_advance_ghost_state(&mut self) -> bool {
-        if get_time() - self.last_update > self.speed {
-            self.last_update = get_time();
+    pub fn ready_to_advance_ghost_state(&mut self, anim_pc: &mut f32) -> bool {
+        if get_time() - self.last_ghost_update > self.speed {
+            self.last_ghost_update = get_time();
+            *anim_pc = 0.;
             true
         } else {
+            *anim_pc = (( (get_time() - self.last_ghost_update) / self.speed) as f32).min(1.0);
             false
         }
     }

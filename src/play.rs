@@ -229,7 +229,7 @@ impl Play {
 
         // Reset "most recent tick" when leaving menu.
         // FIXME: Avoid needing input as a parameter, move time update to input code.
-        input.last_update = get_time();
+        input.last_real_update = get_time();
 
         if key.is_some() {
             return self.next_continue();
