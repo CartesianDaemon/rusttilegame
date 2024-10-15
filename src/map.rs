@@ -39,6 +39,18 @@ impl Field {
             ros: Ros::new(),
         }
     }
+
+    pub fn place_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj)
+    {
+        let hdl = self.map.place_obj_at(x, y, orig_obj);
+        let placed_obj = &self.map[hdl];
+
+        if placed_obj.is_hero() {
+            self.ros.hero = hdl;
+        } else if placed_obj.is_roster() {
+            self.ros.push_mov(hdl);
+        }
+    }
 }
 
 impl Index<MapHandle> for Map {

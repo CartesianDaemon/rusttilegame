@@ -99,15 +99,7 @@ impl Play {
     // Add ent to map, and if necessary to roster's hero pos or list of movs
     pub fn spawn_at(&mut self, x: i16, y: i16, orig_obj: Obj) {
         // FIXME: Cloning solely so that we can examine is_hero etc after.
-        let hdl = self.field.map.place_obj_at(x, y, orig_obj);
-        let placed_obj = &self.field.map[hdl];
-
-        if placed_obj.is_hero() {
-            self.field.ros.hero = hdl;
-        } else if placed_obj.is_roster() {
-            self.field.ros.push_mov(hdl);
-        }
-
+        self.field.place_obj_at(x, y, orig_obj);
     }
 
     // Does current mode need UI to wait for tick before updating state?
