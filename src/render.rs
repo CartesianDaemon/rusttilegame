@@ -132,8 +132,8 @@ impl RenderLev {
         let dx = obj.cached_pos.x - obj.prev_pos.x;
         let dy = obj.cached_pos.y - obj.prev_pos.y;
 
-        let px = base_px + self.sq_w * (1.-pc_size) / 2. - (dx as f32 * (1.-anim_pc));
-        let py = base_py + self.sq_h * (1.-pc_size) / 2. - (dy as f32 * (1.-anim_pc));
+        let px = base_px + self.sq_w * (1.-pc_size) / 2. - (dx as f32 * (1.-anim_pc) * self.sq_w);
+        let py = base_py + self.sq_h * (1.-pc_size) / 2. - (dy as f32 * (1.-anim_pc) * self.sq_h);
         let w = self.sq_w * pc_size;
         let h = self.sq_h * pc_size;
 
