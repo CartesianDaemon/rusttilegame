@@ -17,9 +17,12 @@ pub fn draw_frame(play_state: &Play, anim_real_pc: f32, ghost_state: &Play, ghos
             let mut r = RenderLev::begin(play_state.field.map.w(), play_state.field.map.h());
             // Coords of first visible tile. Currently always 0,0.
             let (ox, oy) = (0, 0);
-            for (x, y, loc) in play_state.field.map.locs() {
-                for ent in loc {
-                    r.draw_ent(x - ox, y - oy, ent, anim_real_pc);
+            let max_h = 5;
+            for h in 0..max_h {
+                for (x, y, loc) in play_state.field.map.locs() {
+                    if let Some(ent) = loc.get(h) {
+                        r.draw_ent(x - ox, y - oy, ent, anim_real_pc);
+                    }
                 }
             }
             let mut r = RenderLev::begin_ghost_overlay(r, 1.0 - ghost_opacity);

@@ -400,6 +400,11 @@ impl Loc {
     pub fn iter(&self) -> std::slice::Iter<'_,Obj> {
         self.0.iter()
     }
+
+    /// Or implement SliceIndex?
+    pub fn get(&self, idx: usize) -> Option<&Obj> {
+        self.0.get(idx)
+    }
 }
 
 impl IntoIterator for Loc {
