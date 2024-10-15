@@ -134,7 +134,7 @@ impl GhostCounter
 
     fn ghost_opacity(&self) -> f32 {
         if self.n_ghost_ticks < self.config.preghost_ticks {
-            0.5 // Either 0 or 1 should be equally good?
+            1. // Ghost obj should be in the same position as real obj, but not with smooth movement.
         } else {
             self.config.min_ghost_pc +
             (self.config.max_ghost_pc - self.config.min_ghost_pc) *
