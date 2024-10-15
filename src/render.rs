@@ -13,17 +13,17 @@ pub fn draw_frame(play_state: &Play, ghost_state: &Play, ghost_opacity: f32) {
     // ENH: Avoid passing in whole Play object.
     match play_state.mode {
         Mode::LevPlay => {
-            let mut r = RenderLev::begin(play_state.map.w(), play_state.map.h());
+            let mut r = RenderLev::begin(play_state.field.map.w(), play_state.field.map.h());
             // Coords of first visible tile. Currently always 0,0.
             let (ox, oy) = (0, 0);
-            for (x, y, loc) in play_state.map.locs() {
+            for (x, y, loc) in play_state.field.map.locs() {
                 for ent in loc {
                     r.draw_ent(x - ox, y - oy, ent);
                 }
             }
             let mut r = RenderLev::begin_ghost_overlay(r, 1.0 - ghost_opacity);
             let (ox, oy) = (0, 0); // TODO: Dedup to RenderLev::function
-            for (x, y, loc) in ghost_state.map.locs() {
+            for (x, y, loc) in ghost_state.field.map.locs() {
                 for ent in loc {
                     r.draw_ent(x - ox, y - oy, ent);
                 }
