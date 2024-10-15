@@ -134,6 +134,9 @@ impl Play {
         // to handle char moving onto enemy.
         // STUB: Maybe display char moving out of sync with enemy.
 
+        // Before movement, reset "prev". Will be overwritten if movement happens.
+        self.field.map[self.field.ros.hero].prev_pos = self.field.map[self.field.ros.hero].cached_pos;
+
         // Move character
         if let Some(key) = last_key_pressed {
             let mut dir = CoordDelta::from_xy(0, 0);
@@ -157,6 +160,9 @@ impl Play {
 
         // Move all movs
         for mov in &mut self.field.ros.movs {
+            // Before movement, reset "prev". Will be overwritten if movement happens.
+            self.field.map[*mov].prev_pos = self.field.map[*mov].cached_pos;
+
             match self.field.map[*mov].ai {
                 AI::Stay => {
                     // Do nothing
