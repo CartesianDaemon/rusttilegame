@@ -131,9 +131,13 @@ impl Obj {
         self.ai == AI::Hero
     }
 
-    // Indicate Ents which can move in their own logic, and need to be added to roster.
-    pub fn is_mov(self: &Obj) -> bool {
-        self.ai != AI::Hero && self.ai != AI::Stay
+    // Indicate Obj which can move in their own logic, and need to be added to roster.
+    pub fn is_other_mov(self: &Obj) -> bool {
+        self.is_any_mov() && ! self.is_hero()
+    }
+
+    pub fn is_any_mov(self: &Obj) -> bool {
+        self.ai != AI::Stay
     }
 }
 

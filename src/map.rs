@@ -50,7 +50,7 @@ impl Field {
 
         if placed_obj.is_hero() {
             self.ros.hero = hdl;
-        } else if placed_obj.is_mov() {
+        } else if placed_obj.is_other_mov() {
             self.ros.push_mov(hdl);
         }
     }
@@ -334,9 +334,10 @@ impl<'a> Iterator for LocIteratorMut<'a> {
 
 /// Roster of character, enemies, etc. Indexes into map.
 ///
-/// TODO: Want to have move functions which always update map and roster together.
-/// But lines like "self.map.move_delta(&mut self.ros.hero, dir);" don't work if
-/// ros is part of map as they borrow both. How it should be? Accept hdl as value?
+/// TODO: Rename Roster
+/// TODO: Do we benefit much from caching moveables rather than iterating whole map?
+/// Mainly only for hero for things which need to know the coords of the hero?
+/// Does it help to make Roster a non-mutable cache of hero location?
 #[derive(Clone, Debug)]
 pub struct Ros {
     // Hero

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use macroquad::prelude::*;
+use assrt::rsst;
 
 use crate::*;
 
@@ -110,13 +111,13 @@ impl RenderLev {
         vx: i16,
         vy: i16,
         // Ent to draw
-        ent: &Obj,
+        obj: &Obj,
         // Proportion of animation from previous state to current (frame and position)
         anim_pc: f32,
         // TODO: Move as_ghost to parameter?
     ) {
         // TODO: move to calling function?
-        if self.as_ghost && ent.pass != obj::Pass::Mov {
+        if self.as_ghost && obj.pass != obj::Pass::Mov {
             return;
         }
 
@@ -128,25 +129,27 @@ impl RenderLev {
 
 // FYI "let px = base_px + self.sq_w * (1.-pc_size) / 2. + self.sq_w * anim_pc;" makes me really seasick.
 
-        let dx = ent.cached_pos.x - ent.prev_pos.x;
-        let dy = ent.cached_pos.y - ent.prev_pos.y;
+        let dx = obj.cached_pos.x - obj.prev_pos.x;
+        let dy = obj.cached_pos.y - obj.prev_pos.y;
 
         let px = base_px + self.sq_w * (1.-pc_size) / 2. - (dx as f32 * (1.-anim_pc));
         let py = base_py + self.sq_h * (1.-pc_size) / 2. - (dy as f32 * (1.-anim_pc));
         let w = self.sq_w * pc_size;
         let h = self.sq_h * pc_size;
 
+        if !obj.is_any_mov() {rsst!(obj.prev_pos == obj.cached_pos)}
+
         let alpha = if self.as_ghost {self.ghost_alpha} else {1.};
 
-        if let Some(col) = ent.fill {
+        if let Some(col) = obj.fill {
             draw_rectangle(px, py, w, h, Self::alpha_col(col, alpha));
         }
 
-        if let Some(col) = ent.border {
+        if let Some(col) = obj.border {
             draw_rectangle_lines(px, py, w, h, 2., Self::alpha_col(col, alpha));
         }
 
-        if let Some(tex_path) = ent.tex_path.clone() {
+        if let Some(tex_path) = obj.tex_path.clone() {
             // Can reduce number of clones? Can you HashMap<&String> instead of String?
             let tex_data = self.tex_cache.entry(tex_path.clone()).or_insert_with(||load_texture_blocking_unwrap(&tex_path));
             draw_texture_ex(
@@ -162,8 +165,8 @@ impl RenderLev {
             );
         }
 
-        if let Some(text) = ent.text.clone() {
-            let text_col = Self::alpha_col(ent.text_col.unwrap_or(DARKGRAY), alpha);
+        if let Some(text) = obj.text.clone() {
+            let text_col = Self::alpha_col(obj.text_col.unwrap_or(DARKGRAY), alpha);
             draw_text(&text, (px + w*0.1).floor(), (py + h*0.6).floor(), 15., text_col);
         }
     }
