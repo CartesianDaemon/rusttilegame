@@ -132,7 +132,7 @@ impl Obj {
     }
 
     // Indicate Ents which can move in their own logic, and need to be added to roster.
-    pub fn is_roster(self: &Obj) -> bool {
+    pub fn is_mov(self: &Obj) -> bool {
         self.ai != AI::Hero && self.ai != AI::Stay
     }
 }

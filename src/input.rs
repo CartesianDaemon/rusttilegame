@@ -17,7 +17,7 @@ pub struct Input {
 impl Input {
     pub fn new_blank() -> Input {
         Input {
-            speed: 0.15,
+            speed: 2.,
             last_update: 0.,
             last_key_pressed: None,
         }

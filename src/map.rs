@@ -50,7 +50,7 @@ impl Field {
 
         if placed_obj.is_hero() {
             self.ros.hero = hdl;
-        } else if placed_obj.is_roster() {
+        } else if placed_obj.is_mov() {
             self.ros.push_mov(hdl);
         }
     }
@@ -129,11 +129,9 @@ impl Map {
     ///
     /// TODO: Reduce need for code outside map.rs to know how to use roster handles.
     pub fn move_to(&mut self, hdl: &mut MapHandle, to: MapCoord) {
-        let orig_pos = *hdl;
-
         let on_top = hdl.h as usize == self.at_hdl(*hdl).len();
 
-        let mut obj = if on_top {
+        let orig_obj = if on_top {
             // Pop ent from top of stack.
             self.at_hdlm(*hdl).pop().unwrap()
         } else {
@@ -144,7 +142,7 @@ impl Map {
             mem::replace(&mut self[*hdl], Obj::placeholder())
         };
 
-        obj.prev_pos = orig_pos;
+        let obj = Obj {prev_pos: *hdl, ..orig_obj};
 
         // Remove any placeholders now at the top of the stack. Should only happen
         // if we popped ent from on top of them.
