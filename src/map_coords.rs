@@ -50,6 +50,8 @@ impl Add<CoordDelta> for MapCoord {
 /// A handle identifying an Ent in the map.
 ///
 /// Implemented as the MapCoord and index into Ents at that Loc.
+///
+/// TODO: Include RosIdx in MapHandle too??
 #[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
 pub struct MapHandle {
     pub x: i16,

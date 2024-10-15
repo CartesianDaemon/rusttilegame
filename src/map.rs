@@ -22,7 +22,12 @@ pub struct Map {
     // Stored as a collection of columns, e.g. map.locs[x][y]
     // Must always be rectangular.
     locs: Vec<Vec<Loc>>,
+
+    // Moveable objects in the current map.
+    pub ros: Ros,
 }
+
+type RosterHandle = i32; // - 1 = hero, 0+ = index into ros.movs
 
 impl Index<MapHandle> for Map {
     type Output = Obj;
@@ -56,6 +61,7 @@ impl Map {
     pub fn new(sz: u16) -> Map {
         Map {
             locs: vec!(vec!(Loc::new(); sz.into()); sz.into()),
+            ros: Ros::new(),
         }
     }
 
@@ -80,7 +86,7 @@ impl Map {
         let pos = MapHandle::from_xyh(x, y, self.at_xy(x, y).len() as u16);
         self.at_xym(x, y).push(
             Obj {
-                pos,
+                cached_pos: pos,
                 ..orig_obj
             }
         );
@@ -91,7 +97,11 @@ impl Map {
     ///
     /// All moves should go through this functoin. Anything using the play class
     /// should call it with a handle from the roster so the roster is updated.
-    pub fn move_to(&mut self, hdl: &mut MapHandle, to: MapCoord) {
+    pub fn move_to(&mut self, roster_handle: RosterHandle, to: MapCoord) {
+        let hdl: &mut MapHandle = self.ros.from_idx(roster_handle);
+
+        // TODO: Want to make at_hdl work with borrowing map part only not ros??
+
         let on_top = hdl.h as usize == self.at_hdl(*hdl).len();
 
         let obj = if on_top {
@@ -120,8 +130,9 @@ impl Map {
     }
 
     // As move_to, but move relative not abs.
-    pub fn move_delta(&mut self, pos: &mut MapHandle, delta: CoordDelta) {
-        self.move_to(pos, MapCoord::from_hdl(*pos) + delta);
+    pub fn move_delta(&mut self, roster_hdl: RosterHandle, delta: CoordDelta) {
+        let to_pos = MapCoord::from_hdl(*self.ros.from_idx(roster_hdl)) + delta;
+        self.move_to(roster_hdl, to_pos);
     }
 
     pub fn can_move(&self, pos: MapHandle, delta: CoordDelta) -> bool {
@@ -321,6 +332,14 @@ impl Ros {
 
     pub fn push_mov(&mut self, hdl: MapHandle) {
         self.movs.push(hdl);
+    }
+
+    pub fn from_idx(&mut self, roster_handle: RosterHandle) -> &mut MapHandle {
+        if roster_handle == -1 {
+            &mut self.hero
+        } else {
+            &mut self.movs[roster_handle as usize]
+        }
     }
 }
 

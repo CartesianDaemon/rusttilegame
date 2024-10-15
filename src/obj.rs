@@ -8,7 +8,8 @@ use macroquad::prelude::*;
 pub struct Obj {
     // Cache of coords ent is at on map. These are useful for movement logic, but probably
     // aren't required.
-    pub pos: MapHandle,
+    pub cached_pos: MapHandle,
+    // pub ros_idx: MapHandle,
 
     /// Internal name for debugging
     pub name: String,
@@ -46,7 +47,7 @@ impl Obj {
     // An unitialised ent
     pub fn invalid() -> Obj {
         Obj {
-            pos: MapHandle::invalid(),
+            cached_pos: MapHandle::invalid(),
 
             name: "????".to_string(),
 
@@ -80,7 +81,7 @@ impl Obj {
     }
 
     pub fn is_placeholder(&self) -> bool {
-        self.pos == MapHandle::invalid()
+        self.cached_pos == MapHandle::invalid()
     }
 
     #[allow(dead_code)]

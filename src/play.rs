@@ -50,9 +50,6 @@ pub struct Play {
 
     // Layout of current map. Only in LevPlay.
     pub map: Map,
-    // Entities on the current map. Only in LevPlay.
-    pub ros: Ros,
-
 }
 
 impl Play {
@@ -68,7 +65,6 @@ impl Play {
 
             // Won't be used
             map: Map::new(16),
-            ros: Ros::new(),
         }
     }
 
@@ -85,7 +81,6 @@ impl Play {
             splash_text: "SPLASH TEXT".to_string(), // Won't be used
 
             map: Map::new(16),
-            ros: Ros::new(),
 
             to_stage,
             die_stage,
@@ -109,9 +104,9 @@ impl Play {
         let placed_obj = &self.map[hdl];
 
         if placed_obj.is_hero() {
-            self.ros.hero = hdl;
+            self.map.ros.hero = hdl;
         } else if placed_obj.is_roster() {
-            self.ros.push_mov(hdl);
+            self.map.ros.push_mov(hdl);
         }
 
     }
@@ -158,10 +153,10 @@ impl Play {
                 _ => (),
             }
             if dir != CoordDelta::from_xy(0, 0) {
-                if self.map.can_move(self.ros.hero, dir) {
-                    self.map.move_delta(&mut self.ros.hero, dir);
+                if self.map.can_move(self.map.ros.hero, dir) {
+                    self.map.move_delta(-1, dir);
                     // STUB: Check for win condition on ents other than the lowest one.
-                    if self.map[MapHandle::from_xyh(self.ros.hero.x, self.ros.hero.y, 0)].effect == Effect::Win {
+                    if self.map[MapHandle::from_xyh(self.map.ros.hero.x, self.map.ros.hero.y, 0)].effect == Effect::Win {
                         return self.next_win(); // Previously didn't return??
                     }
                 }
@@ -169,7 +164,8 @@ impl Play {
         }
 
         // Move all movs
-        for mov in &mut self.ros.movs {
+        for (idx, mov) in self.map.ros.movs.iter().enumerate() {
+            let ros_idx = idx as i32;
             match self.map[*mov].ai {
                 AI::Stay => {
                     // Do nothing
@@ -180,8 +176,8 @@ impl Play {
                 // STUB: When we see what mov movement logic are like, try to combine them into one fn.
                 AI::Snake => {
                     // if mov on same row xor column as hero, change dir to face hero
-                    if (mov.x == self.ros.hero.x) != (mov.y == self.ros.hero.y) {
-                        let new_dir = CoordDelta::from_xy((self.ros.hero.x - mov.x).signum(),(self.ros.hero.y - mov.y).signum());
+                    if (mov.x == self.map.ros.hero.x) != (mov.y == self.map.ros.hero.y) {
+                        let new_dir = CoordDelta::from_xy((self.map.ros.hero.x - mov.x).signum(),(self.map.ros.hero.y - mov.y).signum());
                         self.map[*mov].dir = new_dir;
                     }
 
@@ -196,11 +192,11 @@ impl Play {
                         // move mov to new location
                         // TODO: Have a "move_dir" fn.
                         let dir = self.map[*mov].dir;
-                        self.map.move_delta(mov, dir);
+                        self.map.move_delta(ros_idx, dir);
                     }
 
                     // Die if mov moves onto hero
-                    if mov.x == self.ros.hero.x && mov.y == self.ros.hero.y {
+                    if mov.x == self.map.ros.hero.x && mov.y == self.map.ros.hero.y {
                         return self.next_die();
                     }
                 },
@@ -215,11 +211,11 @@ impl Play {
                     // Move. Provided next space is passable. If both sides are impassable, don't
                     // move.
                     if self.map.loc_at(*mov + self.map[*mov].dir).passable() {
-                        self.map.move_delta(mov, self.map[*mov].dir);
+                        self.map.move_delta(ros_idx, self.map[*mov].dir);
                     }
                     // Die if mov moves onto hero
                     if self.map[*mov].effect == Effect::Kill {
-                        if mov.x == self.ros.hero.x && mov.y == self.ros.hero.y {
+                        if mov.x == self.map.ros.hero.x && mov.y == self.map.ros.hero.y {
                             return self.next_die();
                         }
                     }
