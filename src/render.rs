@@ -128,8 +128,11 @@ impl RenderLev {
 
 // FYI "let px = base_px + self.sq_w * (1.-pc_size) / 2. + self.sq_w * anim_pc;" makes me really seasick.
 
-        let px = base_px + self.sq_w * (1.-pc_size) / 2.;
-        let py = base_py + self.sq_h * (1.-pc_size) / 2.;
+        let dx = ent.cached_pos.x - ent.prev_pos.x;
+        let dy = ent.cached_pos.y - ent.prev_pos.y;
+
+        let px = base_px + self.sq_w * (1.-pc_size) / 2. - (dx as f32 * (1.-anim_pc));
+        let py = base_py + self.sq_h * (1.-pc_size) / 2. - (dy as f32 * (1.-anim_pc));
         let w = self.sq_w * pc_size;
         let h = self.sq_h * pc_size;
 

@@ -108,26 +108,32 @@ impl Map {
     ///
     /// Only used by Field::place_obj_at which keeps Roster in sync.
     fn place_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj) -> MapHandle {
-        let cached_pos = MapHandle::from_xyh(x, y, self.at_xy(x, y).len() as u16);
+        let new_pos = MapHandle::from_xyh(x, y, self.at_xy(x, y).len() as u16);
+        let prev_pos = if orig_obj.cached_pos.x >=0 { orig_obj.cached_pos } else {new_pos};
         self.at_xym(x, y).push(
             Obj {
-                cached_pos,
+                cached_pos: new_pos,
+                prev_pos,
                 ..orig_obj
             }
         );
-        cached_pos
+        new_pos
     }
 
     /// Move an obj identified by hdl from one loc to another. Update hdl to match.
+    ///
+    /// Also update prev_pos.
     ///
     /// All moves should go through this function. Anything using the play class
     /// should call it with a handle from the roster so the roster is updated.
     ///
     /// TODO: Reduce need for code outside map.rs to know how to use roster handles.
     pub fn move_to(&mut self, hdl: &mut MapHandle, to: MapCoord) {
+        let orig_pos = *hdl;
+
         let on_top = hdl.h as usize == self.at_hdl(*hdl).len();
 
-        let obj = if on_top {
+        let mut obj = if on_top {
             // Pop ent from top of stack.
             self.at_hdlm(*hdl).pop().unwrap()
         } else {
@@ -137,6 +143,8 @@ impl Map {
             // Would need to update Roster in sync.
             mem::replace(&mut self[*hdl], Obj::placeholder())
         };
+
+        obj.prev_pos = orig_pos;
 
         // Remove any placeholders now at the top of the stack. Should only happen
         // if we popped ent from on top of them.
