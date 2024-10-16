@@ -8,6 +8,7 @@ use crate::*;
 use play::Play;
 use obj::Obj;
 use play::Mode;
+use map_coords::CoordDelta;
 
 /// Draw current gameplay to screen.
 pub fn draw_frame(play_state: &Play, anim_real_pc: f32, ghost_state: &Play, ghost_opacity: f32, anim_ghost_pc: f32) {
@@ -166,8 +167,16 @@ impl RenderLev {
             // TODO: Simplify calc? Prevent anim_pc being 100? Or being 0?
             let tex_frame_idx = (obj.tex_paths.len()-1).min((anim_pc * obj.tex_paths.len() as f32) as usize);
             let tex_path = &obj.tex_paths[tex_frame_idx];
+
             // Can reduce number of clones? Can you HashMap<&String> instead of String?
             let tex_data = self.tex_cache.entry(tex_path.clone()).or_insert_with(||load_texture_blocking_unwrap(tex_path));
+
+            let rotation = match obj.dir {
+                CoordDelta{dx:0, dy:-1} => std::f32::consts::PI / 2.,
+                CoordDelta{dx:1, dy: 0} => std::f32::consts::PI,
+                CoordDelta{dx:0, dy: 1} => std::f32::consts::PI * 1.5,
+                _ => 0.
+            };
             draw_texture_ex(
                 &tex_data,
                 px - w * (obj.tex_scale-1.0) / 2.,
@@ -175,6 +184,7 @@ impl RenderLev {
                 WHITE,
                 DrawTextureParams {
                     dest_size: Some(vec2(w * obj.tex_scale, h * obj.tex_scale)),
+                    rotation,
                     ..Default::default()
                     // TODO: alpha
                 },
