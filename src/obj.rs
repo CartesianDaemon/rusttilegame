@@ -23,6 +23,7 @@ pub struct Obj {
     pub border: Option<Color>,
     pub fill: Option<Color>,
     pub tex_paths: Vec<String>,
+    pub tex_scale: f32,
     pub text: Option<String>,
     pub text_col: Option<Color>,
 
@@ -57,6 +58,7 @@ impl Obj {
             border: None,
             fill: None,
             tex_paths: vec![],
+            tex_scale: 1.0,
             text: None,
             text_col: None,
 

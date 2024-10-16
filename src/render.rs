@@ -170,11 +170,11 @@ impl RenderLev {
             let tex_data = self.tex_cache.entry(tex_path.clone()).or_insert_with(||load_texture_blocking_unwrap(tex_path));
             draw_texture_ex(
                 &tex_data,
-                px,
-                py,
+                px - w * (obj.tex_scale-1.0) / 2.,
+                py - h * (obj.tex_scale-1.0) / 2.,
                 WHITE,
                 DrawTextureParams {
-                    dest_size: Some(vec2(w, h)),
+                    dest_size: Some(vec2(w * obj.tex_scale, h * obj.tex_scale)),
                     ..Default::default()
                     // TODO: alpha
                 },

@@ -102,6 +102,7 @@ pub fn new_fish(dir: CoordDelta) -> Obj {
         ai: AI::Bounce,
         dir: dir,
         effect: Effect::Kill,
+        tex_scale: 1.7,
         ..Obj::new_tex_anim(vec!["FishB.0001.png", "FishB.0002.png", "FishB.0003.png"])
     }
 }
