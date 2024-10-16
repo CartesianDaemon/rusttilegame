@@ -26,11 +26,15 @@ pub fn draw_frame(play_state: &Play, anim_real_pc: f32, ghost_state: &Play, ghos
                     }
                 }
             }
-            let mut r = RenderLev::begin_ghost_overlay(r, 1.0 - ghost_opacity);
-            let (ox, oy) = (0, 0); // TODO: Dedup to RenderLev::function
-            for (x, y, loc) in ghost_state.field.map.locs() {
-                for ent in loc {
-                    r.draw_ent(x - ox, y - oy, ent, anim_ghost_pc);
+            let draw_ghosts = false;
+            if draw_ghosts
+            {
+                let mut r = RenderLev::begin_ghost_overlay(r, 1.0 - ghost_opacity);
+                let (ox, oy) = (0, 0); // TODO: Dedup to RenderLev::function
+                for (x, y, loc) in ghost_state.field.map.locs() {
+                    for ent in loc {
+                        r.draw_ent(x - ox, y - oy, ent, anim_ghost_pc);
+                    }
                 }
             }
         }
