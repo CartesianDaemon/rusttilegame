@@ -135,8 +135,16 @@ impl RenderLev {
         let dx = obj.cached_pos.x - obj.prev_pos.x;
         let dy = obj.cached_pos.y - obj.prev_pos.y;
 
-        let px = base_px + self.sq_w * (1.-pc_size) / 2. - (dx as f32 * (1.-anim_pc) * self.sq_w);
-        let py = base_py + self.sq_h * (1.-pc_size) / 2. - (dy as f32 * (1.-anim_pc) * self.sq_h);
+        // Switch to using fixed frame throughout from here?
+        let round_anim_to_fixed_frames = Some(3);
+        let anim_fr_pc = if let Some(fixed_frames) = round_anim_to_fixed_frames {
+            (anim_pc * fixed_frames as f32).floor() / fixed_frames as f32
+        } else {
+            anim_pc
+        };
+
+        let px = base_px + self.sq_w * (1.-pc_size) / 2. - (dx as f32 * (1.-anim_fr_pc) * self.sq_w);
+        let py = base_py + self.sq_h * (1.-pc_size) / 2. - (dy as f32 * (1.-anim_fr_pc) * self.sq_h);
         let w = self.sq_w * pc_size;
         let h = self.sq_h * pc_size;
 
@@ -152,9 +160,11 @@ impl RenderLev {
             draw_rectangle_lines(px, py, w, h, 2., Self::alpha_col(col, alpha));
         }
 
-        if let Some(tex_path) = obj.tex_path.clone() {
+        if obj.tex_path.len() > 0 {
+            let tex_frame_idx = (anim_pc * obj.tex_path.len() as f32) as usize;
+            let tex_path = &obj.tex_path[tex_frame_idx];
             // Can reduce number of clones? Can you HashMap<&String> instead of String?
-            let tex_data = self.tex_cache.entry(tex_path.clone()).or_insert_with(||load_texture_blocking_unwrap(&tex_path));
+            let tex_data = self.tex_cache.entry(tex_path.clone()).or_insert_with(||load_texture_blocking_unwrap(tex_path));
             draw_texture_ex(
                 &tex_data,
                 px,

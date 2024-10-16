@@ -22,7 +22,7 @@ pub struct Obj {
     // dependency on macroquad runtime code.
     pub border: Option<Color>,
     pub fill: Option<Color>,
-    pub tex_path: Option<String>,
+    pub tex_path: Vec<String>,
     pub text: Option<String>,
     pub text_col: Option<Color>,
 
@@ -56,7 +56,7 @@ impl Obj {
 
             border: None,
             fill: None,
-            tex_path: None,
+            tex_path: vec![],
             text: None,
             text_col: None,
 
@@ -90,14 +90,14 @@ impl Obj {
     #[allow(dead_code)]
     pub fn new_tex(tex_path: String) -> Obj {
         Obj {
-            tex_path: Some(tex_path),
+            tex_path: vec![tex_path],
             ..Obj::invalid()
         }
     }
 
     pub fn new_tex_col(tex_path: String, fill: Color) -> Obj {
         Obj {
-            tex_path: Some(tex_path),
+            tex_path: vec![tex_path],
             fill: Some(fill),
             ..Obj::invalid()
         }
