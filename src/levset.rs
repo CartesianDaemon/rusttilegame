@@ -94,7 +94,7 @@ pub fn new_hero_crab() -> Obj {
     }
 }
 
-pub fn new_snake(dir: CoordDelta) -> Obj {
+pub fn new_fish(dir: CoordDelta) -> Obj {
     Obj {
         char: 'f',
         name: "Fish".to_string(),
@@ -102,7 +102,7 @@ pub fn new_snake(dir: CoordDelta) -> Obj {
         ai: AI::Bounce,
         dir: dir,
         effect: Effect::Kill,
-        ..Obj::new_text_fill("FISH".to_string(), Some(DARKBLUE), Some(WHITE))
+        ..Obj::new_tex_anim(vec!["FishB0001.png", "FishB0001.png", "FishB0003.png"])
     }
 }
 

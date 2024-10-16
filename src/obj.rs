@@ -22,7 +22,7 @@ pub struct Obj {
     // dependency on macroquad runtime code.
     pub border: Option<Color>,
     pub fill: Option<Color>,
-    pub tex_path: Vec<String>,
+    pub tex_paths: Vec<String>,
     pub text: Option<String>,
     pub text_col: Option<Color>,
 
@@ -56,7 +56,7 @@ impl Obj {
 
             border: None,
             fill: None,
-            tex_path: vec![],
+            tex_paths: vec![],
             text: None,
             text_col: None,
 
@@ -90,15 +90,26 @@ impl Obj {
     #[allow(dead_code)]
     pub fn new_tex(tex_path: String) -> Obj {
         Obj {
-            tex_path: vec![tex_path],
+            tex_paths: vec![tex_path],
             ..Obj::invalid()
         }
     }
 
     pub fn new_tex_col(tex_path: String, fill: Color) -> Obj {
         Obj {
-            tex_path: vec![tex_path],
+            tex_paths: vec![tex_path],
             fill: Some(fill),
+            ..Obj::invalid()
+        }
+    }
+
+    pub fn new_tex_anim(tex_paths: Vec<&str>) -> Obj {
+        Obj {
+            // TODO: Consider using a list comprehension crate
+            // TODO: Consider implementing my abbreviated map chain crate.
+            //       Note whether that could usefully do .iter() and .collect()?
+            // TODO: Consider whether simpler for caller to offer wildcard like "FishB*.png"
+            tex_paths: tex_paths.iter().map(|x| x.to_string()).collect(),
             ..Obj::invalid()
         }
     }

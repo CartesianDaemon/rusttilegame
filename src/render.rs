@@ -160,9 +160,9 @@ impl RenderLev {
             draw_rectangle_lines(px, py, w, h, 2., Self::alpha_col(col, alpha));
         }
 
-        if obj.tex_path.len() > 0 {
-            let tex_frame_idx = (anim_pc * obj.tex_path.len() as f32) as usize;
-            let tex_path = &obj.tex_path[tex_frame_idx];
+        if obj.tex_paths.len() > 0 {
+            let tex_frame_idx = (anim_pc * obj.tex_paths.len() as f32) as usize;
+            let tex_path = &obj.tex_paths[tex_frame_idx];
             // Can reduce number of clones? Can you HashMap<&String> instead of String?
             let tex_data = self.tex_cache.entry(tex_path.clone()).or_insert_with(||load_texture_blocking_unwrap(tex_path));
             draw_texture_ex(

@@ -25,8 +25,8 @@ mod basic_tests {
         let test_key = HashMap::from([
             (' ', vec![ new_floor() ]),
             ('#', vec![ new_floor(), new_wall() ]),
-            ('>', vec![ new_floor(), new_snake(CoordDelta::from_xy(1,0)) ]),
-            ('<', vec![ new_floor(), new_snake(CoordDelta::from_xy(-1,0)) ]),
+            ('>', vec![ new_floor(), new_fish(CoordDelta::from_xy(1,0)) ]),
+            ('<', vec![ new_floor(), new_fish(CoordDelta::from_xy(-1,0)) ]),
             ('h', vec![ new_floor(), new_hero_crab() ]),
             ('o', vec![ new_door_win() ]),
             ('@', vec![ new_floor(), new_door_closed() ]),
