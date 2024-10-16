@@ -86,7 +86,8 @@ pub trait LevSet {
 
 pub fn new_hero_crab() -> Obj {
     Obj {
-        name: "*".to_string(),
+        char: '*',
+        name:"Hero".to_string(),
         pass: Pass::Mov,
         ai: AI::Hero,
         ..Obj::new_text_fill("HERO".to_string(), Some(GOLD), Some(BLACK))
@@ -95,7 +96,8 @@ pub fn new_hero_crab() -> Obj {
 
 pub fn new_snake(dir: CoordDelta) -> Obj {
     Obj {
-        name: "f".to_string(),
+        char: 'f',
+        name: "Fish".to_string(),
         pass: Pass::Mov,
         ai: AI::Bounce,
         dir: dir,
@@ -106,14 +108,16 @@ pub fn new_snake(dir: CoordDelta) -> Obj {
 
 pub fn new_floor() -> Obj {
     Obj {
-        name: ".".to_string(),
+        char: '.',
+        name: "Floor".to_string(),
         ..Obj::new_col_outline(WHITE, LIGHTGRAY)
     }
 }
 
 pub fn new_wall() -> Obj {
     Obj {
-        name: "W".to_string(),
+        char: 'W',
+        name: "Wall".to_string(),
         pass: Pass::Solid,
         ..Obj::new_col(DARKGRAY)
     }
@@ -121,14 +125,16 @@ pub fn new_wall() -> Obj {
 
 pub fn new_door_open() -> Obj {
     Obj {
-        name: "_".to_string(),
+        char: '_',
+        name: "OpenDoor".to_string(),
         ..Obj::new_col(LIGHTGRAY)
     }
 }
 
 pub fn new_door_closed() -> Obj {
     Obj {
-        name: "#".to_string(),
+        char: '#',
+        name: "ClosedDoor".to_string(),
         pass: Pass::Solid,
         ..Obj::new_col_outline(DARKGRAY, LIGHTGRAY)
     }
@@ -136,7 +142,8 @@ pub fn new_door_closed() -> Obj {
 
 pub fn new_door_win() -> Obj {
     Obj {
-        name: "!".to_string(),
+        char: '!',
+        name: "Goal".to_string(),
         effect: Effect::Win,
 
         border: Some(LIGHTGRAY),
