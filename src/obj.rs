@@ -103,13 +103,18 @@ impl Obj {
         }
     }
 
+    /// TODO: Need to add "rotate" option for directional movs.
+    /// TODO: Fix path in wasm. No prefix?
+    /// TODO: Bigger fish?
     pub fn new_tex_anim(tex_paths: Vec<&str>) -> Obj {
+        let assets_path: &str = "imgs/";
         Obj {
             // TODO: Consider using a list comprehension crate
             // TODO: Consider implementing my abbreviated map chain crate.
             //       Note whether that could usefully do .iter() and .collect()?
             // TODO: Consider whether simpler for caller to offer wildcard like "FishB*.png"
-            tex_paths: tex_paths.iter().map(|x| x.to_string()).collect(),
+            // TODO: Consider where to specify path to imgs? Here? As part of levset?
+            tex_paths: tex_paths.iter().map(|x| assets_path.to_string() + x).collect(),
             ..Obj::invalid()
         }
     }

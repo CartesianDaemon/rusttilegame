@@ -160,8 +160,11 @@ impl RenderLev {
             draw_rectangle_lines(px, py, w, h, 2., Self::alpha_col(col, alpha));
         }
 
+        // TODO: For tex, disable ghosts or make transparency work.
+        // TODO: Or better, add idle animation in place.
         if obj.tex_paths.len() > 0 {
-            let tex_frame_idx = (anim_pc * obj.tex_paths.len() as f32) as usize;
+            // TODO: Simplify calc? Prevent anim_pc being 100? Or being 0?
+            let tex_frame_idx = (obj.tex_paths.len()-1).min((anim_pc * obj.tex_paths.len() as f32) as usize);
             let tex_path = &obj.tex_paths[tex_frame_idx];
             // Can reduce number of clones? Can you HashMap<&String> instead of String?
             let tex_data = self.tex_cache.entry(tex_path.clone()).or_insert_with(||load_texture_blocking_unwrap(tex_path));
