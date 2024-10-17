@@ -19,12 +19,14 @@ pub struct Game<Levs: levset::LevSet> {
 
     /// Smoothly from 0 to 1 transition from previous state to current state
     /// TODO: Move into play?
-    /// TODO: Updated by input::ready_to_advance. Is that right?
-    /// TODO: Avoid saturating at 1, instead always have an animation state "moving from prev", "idle", etc
+    /// TODO: Updated by input::ready_to_advance. Is that right? Could return tuple.
+    /// TODO: Combine anim and slide..?
     anim_real_pc: f32,
+    slide_real_pc: f32,
     anim_ghost_pc: f32,
 
     /// Ghost state. Used to show where enemies are going to move
+    /// TODO: Encapsulate better, or remove if not using.. Or fold into AnimState.
     ghost_state: Play,
     ghost_counter: GhostCounter,
 
@@ -40,6 +42,7 @@ impl<Levs: levset::LevSet> Game<Levs> {
             ghost_state: play.clone(),
             play_state: play,
             anim_real_pc: 0.,
+            slide_real_pc: 0.,
             anim_ghost_pc: 0.,
             input: Input::new_begin(),
             ghost_counter: GhostCounter {
@@ -70,7 +73,7 @@ impl<Levs: levset::LevSet> Game<Levs> {
         /* ENH: Can read_input be combined with wait_for_tick? */
         self.input.read_input();
 
-        if self.play_state.continuous() || self.input.ready_to_advance_game_state(&mut self.anim_real_pc) {
+        if self.play_state.continuous() || self.input.ready_to_advance_game_state(&mut self.anim_real_pc, &mut self.slide_real_pc) {
             let maybe_to_lev = self.play_state.advance(&mut self.input);
             if let Some(to_lev) = maybe_to_lev {
                 self.play_state = self.lev_set.load_lev_stage(&to_lev);
@@ -87,6 +90,7 @@ impl<Levs: levset::LevSet> Game<Levs> {
 
         render::draw_frame(
             &self.play_state,
+            self.slide_real_pc,
             self.anim_real_pc,
             &self.ghost_state,
             self.ghost_counter.ghost_opacity(),

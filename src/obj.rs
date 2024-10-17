@@ -22,8 +22,12 @@ pub struct Obj {
     // dependency on macroquad runtime code.
     pub border: Option<Color>,
     pub fill: Option<Color>,
+
+    // For now, tex is animated all the time including stationary.
+    // TODO: Consider AnimState which specifies which ones should be.
     pub tex_paths: Vec<String>,
     pub tex_scale: f32,
+
     pub text: Option<String>,
     pub text_col: Option<Color>,
 

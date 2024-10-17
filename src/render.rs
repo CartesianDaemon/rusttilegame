@@ -11,7 +11,7 @@ use play::Mode;
 use map_coords::CoordDelta;
 
 /// Draw current gameplay to screen.
-pub fn draw_frame(play_state: &Play, anim_real_pc: f32, ghost_state: &Play, ghost_opacity: f32, anim_ghost_pc: f32) {
+pub fn draw_frame(play_state: &Play, slide_real_pc: f32, anim_real_pc: f32, ghost_state: &Play, ghost_opacity: f32, anim_ghost_pc: f32) {
     // ENH: Avoid passing in whole Play object.
     match play_state.mode {
         Mode::LevPlay => {
@@ -22,7 +22,7 @@ pub fn draw_frame(play_state: &Play, anim_real_pc: f32, ghost_state: &Play, ghos
             for h in 0..max_h {
                 for (x, y, loc) in play_state.field.map.locs() {
                     if let Some(ent) = loc.get(h) {
-                        r.draw_ent(x - ox, y - oy, ent, anim_real_pc);
+                        r.draw_ent(x - ox, y - oy, ent, anim_real_pc, slide_real_pc);
                     }
                 }
             }
@@ -33,7 +33,7 @@ pub fn draw_frame(play_state: &Play, anim_real_pc: f32, ghost_state: &Play, ghos
                 let (ox, oy) = (0, 0); // TODO: Dedup to RenderLev::function
                 for (x, y, loc) in ghost_state.field.map.locs() {
                     for ent in loc {
-                        r.draw_ent(x - ox, y - oy, ent, anim_ghost_pc);
+                        r.draw_ent(x - ox, y - oy, ent, anim_ghost_pc, anim_ghost_pc);
                     }
                 }
             }
@@ -120,8 +120,10 @@ impl RenderLev {
         vy: i16,
         // Ent to draw
         obj: &Obj,
-        // Proportion of animation from previous state to current (frame and position)
+        // Proportion of animation from previous state to current (frame)
         anim_pc: f32,
+        // Proportion of animation from previous state to current (position)
+        slide_pc: f32,
         // TODO: Move as_ghost to parameter?
     ) {
         // TODO: move to calling function?
@@ -141,15 +143,15 @@ impl RenderLev {
         let dy = obj.cached_pos.y - obj.prev_pos.y;
 
         // Switch to using fixed frame throughout from here?
-        let round_anim_to_fixed_frames = Some(3);
-        let anim_fr_pc = if let Some(fixed_frames) = round_anim_to_fixed_frames {
-            (anim_pc * fixed_frames as f32).floor() / fixed_frames as f32
+        let slide_in_frame_units = Some(3);
+        let slide_fr_pc = if let Some(fixed_frames) = slide_in_frame_units {
+            (slide_pc * fixed_frames as f32).floor() / fixed_frames as f32
         } else {
-            anim_pc
+            slide_pc
         };
 
-        let px = base_px + self.sq_w * (1.-pc_size) / 2. - (dx as f32 * (1.-anim_fr_pc) * self.sq_w);
-        let py = base_py + self.sq_h * (1.-pc_size) / 2. - (dy as f32 * (1.-anim_fr_pc) * self.sq_h);
+        let px = base_px + self.sq_w * (1.-pc_size) / 2. - (dx as f32 * (1.-slide_fr_pc) * self.sq_w);
+        let py = base_py + self.sq_h * (1.-pc_size) / 2. - (dy as f32 * (1.-slide_fr_pc) * self.sq_h);
         let w = self.sq_w * pc_size;
         let h = self.sq_h * pc_size;
 
