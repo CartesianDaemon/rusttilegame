@@ -113,7 +113,7 @@ impl Obj {
     /// TODO: Fix path in wasm. No prefix?
     /// TODO: Bigger fish?
     pub fn new_tex_anim(tex_paths: Vec<&str>) -> Obj {
-        let assets_path: &str = "imgs/";
+        let assets_path: &str = "imgs/"; // Neither "imgs/" or "" works on wasm.
         Obj {
             // TODO: Consider using a list comprehension crate
             // TODO: Consider implementing my abbreviated map chain crate.
