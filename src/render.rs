@@ -65,8 +65,8 @@ pub struct RenderLev {
 }
 
 /// Sync load macroquad texture. Panic on failure.
-pub fn load_texture_blocking_unwrap(path: &str) -> Texture2D {
-    futures::executor::block_on(load_texture(path)).unwrap()
+pub fn load_texture_blocking_unwrap(path: &str) -> Result<Texture2D, macroquad::Error> {
+    futures::executor::block_on(load_texture(path))
 }
 
 impl RenderLev {
@@ -175,7 +175,15 @@ impl RenderLev {
             let tex_path = &obj.tex_paths[tex_frame_idx];
 
             // Can reduce number of clones? Can you HashMap<&String> instead of String?
-            let tex_data = self.tex_cache.entry(tex_path.clone()).or_insert_with(||load_texture_blocking_unwrap(tex_path));
+            let tex_data = self.tex_cache.entry(tex_path.clone()).or_insert_with(|| {
+                match load_texture_blocking_unwrap(tex_path) {
+                    Result::Ok(tex_data) => tex_data,
+                    Result::Err(_err) => {
+                        // display error somewhere?
+                        Texture2D::empty()
+                    }
+                }
+            });
 
             let rotation = match obj.dir {
                 CoordDelta{dx:0, dy:-1} => std::f32::consts::PI / 2.,
