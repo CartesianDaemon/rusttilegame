@@ -17,6 +17,8 @@ use derive_more::*;
 //
 // Ideally allowing arithmetic between dimension, map, delta with least casting.
 // And multiplication of p coords by map coords.
+//
+// TODO: Would it be worth defining my own float type which can be multiplied by int?
 
 /// Identify loc in map.
 #[derive(Copy, Clone, PartialEq, Debug, Add, Mul)]
