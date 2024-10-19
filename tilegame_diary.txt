@@ -1,5 +1,9 @@
 IN MIND
 
+And
+ Get hero working again as text or as crab texture
+ Make separate test_wasm/debug and /release html files.
+
 Tidy up website and test_wasm.
  Remove asteroids.
  Move contents of wasm directory up into docs.
