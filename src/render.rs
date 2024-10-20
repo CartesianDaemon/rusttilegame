@@ -151,7 +151,7 @@ impl<'a> RenderLev<'a> {
         let pc_size = if self.as_ghost {0.9} else {1.};
         //let pc_size = if self.as_ghost {0.5 + 0.5*self.ghost_alpha} else {1.};
 
-// FYI "let px = base_px + self.sq_w * (1.-pc_size) / 2. + self.sq_w * anim_pc;" makes me really seasick.
+        // FYI "let px = base_px + self.sq_w * (1.-pc_size) / 2. + self.sq_w * anim_pc;" makes me really seasick.
 
         let dx = obj.cached_pos.x - obj.prev_pos.x;
         let dy = obj.cached_pos.y - obj.prev_pos.y;
