@@ -1,5 +1,7 @@
 IN MIND
 
+To release
+
 And
  Make separate test_wasm/debug and /release html files.
  Why animation is covered up by door? Need movs to be over everything else better?
@@ -30,8 +32,9 @@ Maybe
  Icons for people talking in dialogue
 
 Overdue
- Fps count, for debugging.
+ Switch back to most recent version of macroquad.
  Local copy of js.
+ Fps count, for debugging.
  Script to do a "release", i.e. copying relevant things to release directory.
 
 Improving what's there
