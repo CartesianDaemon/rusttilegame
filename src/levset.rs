@@ -80,7 +80,7 @@ pub trait LevSet {
     }
 }
 
-// SPECIFIC ENT TYPES
+// SPECIFIC OBJ TYPES
 // public only for helper use in test.rs
 // maybe move to biobot.rs?
 
@@ -90,7 +90,7 @@ pub fn new_hero_crab() -> Obj {
         name:"Hero".to_string(),
         pass: Pass::Mov,
         ai: AI::Hero,
-        ..Obj::new_tex_col("ferris.png".to_string(), GOLD)
+        ..Obj::new_tex("ferris.png")
     }
 }
 

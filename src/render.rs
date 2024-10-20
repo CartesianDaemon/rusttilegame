@@ -197,7 +197,7 @@ impl<'a> RenderLev<'a> {
             let tex_frame_idx = (obj.tex_paths.len()-1).min((anim_pc * obj.tex_paths.len() as f32) as usize);
             let tex_path = &obj.tex_paths[tex_frame_idx];
 
-            let tex_data = if let Some(tex_data) = self.texture_cache.get(tex_path) {
+            let tex_data: &Texture2D = if let Some(tex_data) = self.texture_cache.get(tex_path) {
                 tex_data
             } else {
                 self.texture_cache.insert(tex_path.clone(), load_texture_blocking_unwrap(tex_path));

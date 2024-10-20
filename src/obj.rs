@@ -93,17 +93,21 @@ impl Obj {
         self.cached_pos == MapHandle::invalid()
     }
 
+    pub fn assets_path() -> String {
+        "imgs/".to_string()
+    }
+
     #[allow(dead_code)]
-    pub fn new_tex(tex_path: String) -> Obj {
+    pub fn new_tex(tex_path: &str) -> Obj {
         Obj {
-            tex_paths: vec![tex_path],
+            tex_paths: vec![Self::assets_path() + tex_path],
             ..Obj::invalid()
         }
     }
 
-    pub fn new_tex_col(tex_path: String, fill: Color) -> Obj {
+    pub fn new_tex_col(tex_path: &str, fill: Color) -> Obj {
         Obj {
-            tex_paths: vec![tex_path],
+            tex_paths: vec![Self::assets_path() + tex_path],
             fill: Some(fill),
             ..Obj::invalid()
         }
@@ -113,14 +117,13 @@ impl Obj {
     /// TODO: Fix path in wasm. No prefix?
     /// TODO: Bigger fish?
     pub fn new_tex_anim(tex_paths: Vec<&str>) -> Obj {
-        let assets_path: &str = "imgs/"; // Neither "imgs/" or "" works on wasm.
         Obj {
             // TODO: Consider using a list comprehension crate
             // TODO: Consider implementing my abbreviated map chain crate.
             //       Note whether that could usefully do .iter() and .collect()?
             // TODO: Consider whether simpler for caller to offer wildcard like "FishB*.png"
             // TODO: Consider where to specify path to imgs? Here? As part of levset?
-            tex_paths: tex_paths.iter().map(|x| assets_path.to_string() + x).collect(),
+            tex_paths: tex_paths.iter().map(|x| Self::assets_path() + x).collect(),
             ..Obj::invalid()
         }
     }
