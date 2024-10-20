@@ -10,45 +10,59 @@ use obj::Obj;
 use play::Mode;
 use map_coords::CoordDelta;
 
-/// Draw current gameplay to screen.
-pub fn draw_frame(play_state: &Play, slide_real_pc: f32, anim_real_pc: f32, ghost_state: &Play, ghost_opacity: f32, anim_ghost_pc: f32) {
-    // ENH: Avoid passing in whole Play object.
-    match play_state.mode {
-        Mode::LevPlay => {
-            let mut r = RenderLev::begin(play_state.field.map.w(), play_state.field.map.h());
-            // Coords of first visible tile. Currently always 0,0.
-            let (ox, oy) = (0, 0);
-            let max_h = 5;
-            for h in 0..max_h {
-                for (x, y, loc) in play_state.field.map.locs() {
-                    if let Some(ent) = loc.get(h) {
-                        r.draw_ent(x - ox, y - oy, ent, anim_real_pc, slide_real_pc);
-                    }
-                }
-            }
-            let draw_ghosts = false;
-            if draw_ghosts
-            {
-                let mut r = RenderLev::begin_ghost_overlay(r, 1.0 - ghost_opacity);
-                let (ox, oy) = (0, 0); // TODO: Dedup to RenderLev::function
-                for (x, y, loc) in ghost_state.field.map.locs() {
-                    for ent in loc {
-                        r.draw_ent(x - ox, y - oy, ent, anim_ghost_pc, anim_ghost_pc);
-                    }
-                }
-            }
+type TextureCache = HashMap<String, Texture2D>;
+
+pub struct Render {
+    /// Loaded textures
+    texture_cache: TextureCache,
+}
+
+impl Render {
+    pub fn new() -> Render {
+        Render {
+            texture_cache: HashMap::new(),
         }
-        Mode::Splash => {
-            let _r = RenderSplash::begin(&play_state.splash_text);
+    }
+
+    /// Draw current gameplay to screen.
+    pub fn draw_frame(&mut self, play_state: &Play, slide_real_pc: f32, anim_real_pc: f32, ghost_state: &Play, ghost_opacity: f32, anim_ghost_pc: f32) {
+        // ENH: Avoid passing in whole Play object.
+        match play_state.mode {
+            Mode::LevPlay => {
+                let mut render_lev = RenderLev::begin(&mut self.texture_cache, play_state.field.map.w(), play_state.field.map.h());
+                // Coords of first visible tile. Currently always 0,0.
+                let (ox, oy) = (0, 0);
+                let max_h = 5;
+                for h in 0..max_h {
+                    for (x, y, loc) in play_state.field.map.locs() {
+                        if let Some(ent) = loc.get(h) {
+                            render_lev.draw_ent(x - ox, y - oy, ent, anim_real_pc, slide_real_pc);
+                        }
+                    }
+                }
+                let draw_ghosts = false;
+                if draw_ghosts
+                {
+                    let mut r = RenderLev::begin_ghost_overlay(render_lev, 1.0 - ghost_opacity);
+                    let (ox, oy) = (0, 0); // TODO: Dedup to RenderLev::function
+                    for (x, y, loc) in ghost_state.field.map.locs() {
+                        for ent in loc {
+                            r.draw_ent(x - ox, y - oy, ent, anim_ghost_pc, anim_ghost_pc);
+                        }
+                    }
+                }
+            }
+            Mode::Splash => {
+                let _r = RenderSplash::begin(&play_state.splash_text);
+            }
         }
     }
 }
 
 /// Render state for one frame of level
-/// Created each frame, but now has tex_cache should be instantiated by Game
-/// and draw_frame() be made a member function of this.
-#[derive(Clone)]
-pub struct RenderLev {
+/// TODO: Does this still want to be a separate class? Or more like a struct?
+//#[derive(Clone)]
+pub struct RenderLev<'a> {
     // COORDS FOR CURRENT FRAME. In gl units which are pixels.
     // Distance from edge of drawing surface to play area
     offset_x: f32,
@@ -60,8 +74,7 @@ pub struct RenderLev {
     as_ghost: bool,
     /// Transparency for rendering ghost movement
     ghost_alpha: f32,
-    ///
-    tex_cache: HashMap<String, Texture2D>,
+    texture_cache: &'a mut TextureCache,
 }
 
 /// Sync load macroquad texture. Panic on failure.
@@ -69,8 +82,8 @@ pub fn load_texture_blocking_unwrap(path: &str) -> Result<Texture2D, macroquad::
     futures::executor::block_on(load_texture(path))
 }
 
-impl RenderLev {
-    pub fn begin(w: u16, h: u16) -> RenderLev {
+impl<'a> RenderLev<'a> {
+    pub fn begin(texture_cache: &mut TextureCache, w: u16, h: u16) -> RenderLev {
         assert_eq!(w, h);
         let game_size = screen_width().min(screen_height());
         let offset_y = (screen_height() - game_size) / 2. + 10.;
@@ -81,9 +94,9 @@ impl RenderLev {
             offset_y: (screen_height() - game_size) / 2. + 10.,
             sq_w: (screen_height() - offset_y * 2.) / w as f32,
             sq_h: (screen_height() - offset_y * 2.) / w as f32,
-            tex_cache: HashMap::new(),
             as_ghost: false,
             ghost_alpha: 0.5, // Should be unused
+            texture_cache,
         };
 
         r.draw_backdrop();
@@ -91,11 +104,12 @@ impl RenderLev {
         r
     }
 
+    // TODO: Is this still needed?
     pub fn begin_ghost_overlay(orig_renderlev: RenderLev, ghost_alpha: f32) -> RenderLev {
         RenderLev {
             as_ghost: true,
             ghost_alpha,
-            ..orig_renderlev.clone()
+            ..orig_renderlev
         }
     }
 
@@ -114,7 +128,7 @@ impl RenderLev {
     // Draw ent's texture/colour to the screen at specified tile coords.
     // Works out pixel coords given pixel size of play area in RenderLev.
     pub fn draw_ent(
-        self: &mut RenderLev,
+        self: &mut RenderLev<'a>,
         // View coords in map. Relative to first visible tile (currently always the same).
         vx: i16,
         vy: i16,
@@ -175,7 +189,7 @@ impl RenderLev {
             let tex_path = &obj.tex_paths[tex_frame_idx];
 
             // Can reduce number of clones? Can you HashMap<&String> instead of String?
-            let tex_data = self.tex_cache.entry(tex_path.clone()).or_insert_with(|| {
+            let tex_data = self.texture_cache.entry(tex_path.clone()).or_insert_with(|| {
                 match load_texture_blocking_unwrap(tex_path) {
                     Result::Ok(tex_data) => tex_data,
                     Result::Err(_err) => {

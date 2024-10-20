@@ -2,6 +2,7 @@ use crate::*;
 
 use play::Play;
 use input::Input;
+use render::Render;
 
 /// Overall game state. Handles transitions between different Plays for different levstates.
 ///
@@ -32,6 +33,9 @@ pub struct Game<Levs: levset::LevSet> {
 
     /// Record input from user ready for use.
     input: Input,
+
+    ///
+    render: Render,
 }
 
 impl<Levs: levset::LevSet> Game<Levs> {
@@ -45,6 +49,7 @@ impl<Levs: levset::LevSet> Game<Levs> {
             slide_real_pc: 0.,
             anim_ghost_pc: 0.,
             input: Input::new_begin(),
+            render: Render::new(),
             ghost_counter: GhostCounter {
                 n_ghost_ticks: 0,
                 config: GhostConfig {
@@ -88,7 +93,7 @@ impl<Levs: levset::LevSet> Game<Levs> {
             }
         }
 
-        render::draw_frame(
+        self.render.draw_frame(
             &self.play_state,
             self.slide_real_pc,
             self.anim_real_pc,

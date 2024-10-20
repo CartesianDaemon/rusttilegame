@@ -28,6 +28,9 @@ Maybe
  Way to display dialogue
  Icons for people talking in dialogue
 
+Overdue
+ Fps count, for debugging.
+
 Improving what's there
  Add test for movement.
  Add a few different types of enemy logic.
