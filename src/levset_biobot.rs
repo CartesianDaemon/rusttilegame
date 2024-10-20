@@ -54,7 +54,7 @@ impl LevSet for BiobotLevSet {
             ('h', vec![ new_floor(), new_hero_crab() ]),
             ('o', vec![ /* new_floor(), */ new_door_win() ]), // TODO: Check win on non-floor tiles
             ('@', vec![ new_floor(), new_door_closed() ]),
-            ('_', vec![ new_floor(), new_door_open() ]),
+            ('_', vec![ new_door_open() ]), // Logically ought to be a floor, but for now draw movs over the 'door'
             /*
             */
         ]);
