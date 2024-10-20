@@ -78,8 +78,17 @@ pub struct RenderLev<'a> {
 }
 
 /// Sync load macroquad texture. Panic on failure.
-pub fn load_texture_blocking_unwrap(path: &str) -> Result<Texture2D, macroquad::Error> {
-    futures::executor::block_on(load_texture(path))
+pub fn load_texture_blocking_unwrap(path: &str) -> Texture2D {
+    // futures::executor::block_on(load_texture(path))
+
+    // TODO: Remove this fallback again. But have some way of outputting errors in wasm?
+    match futures::executor::block_on(load_texture(path)) {
+        Result::Ok(tex_data) => tex_data,
+        Result::Err(_err) => {
+            // display error somewhere?
+            Texture2D::empty()
+        }
+    }
 }
 
 impl<'a> RenderLev<'a> {
@@ -188,16 +197,12 @@ impl<'a> RenderLev<'a> {
             let tex_frame_idx = (obj.tex_paths.len()-1).min((anim_pc * obj.tex_paths.len() as f32) as usize);
             let tex_path = &obj.tex_paths[tex_frame_idx];
 
-            // Can reduce number of clones? Can you HashMap<&String> instead of String?
-            let tex_data = self.texture_cache.entry(tex_path.clone()).or_insert_with(|| {
-                match load_texture_blocking_unwrap(tex_path) {
-                    Result::Ok(tex_data) => tex_data,
-                    Result::Err(_err) => {
-                        // display error somewhere?
-                        Texture2D::empty()
-                    }
-                }
-            });
+            let tex_data = if let Some(tex_data) = self.texture_cache.get(tex_path) {
+                tex_data
+            } else {
+                self.texture_cache.insert(tex_path.clone(), load_texture_blocking_unwrap(tex_path));
+                self.texture_cache.get(tex_path).unwrap()
+            };
 
             let rotation = match obj.dir {
                 CoordDelta{dx:0, dy:-1} => std::f32::consts::PI / 2.,
