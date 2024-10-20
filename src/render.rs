@@ -25,7 +25,7 @@ impl Render {
     }
 
     /// Draw current gameplay to screen.
-    pub fn draw_frame(&mut self, play_state: &Play, slide_real_pc: f32, anim_real_pc: f32, ghost_state: &Play, ghost_opacity: f32, anim_ghost_pc: f32) {
+    pub async fn draw_frame(&mut self, play_state: &Play, slide_real_pc: f32, anim_real_pc: f32, ghost_state: &Play, ghost_opacity: f32, anim_ghost_pc: f32) {
         // ENH: Avoid passing in whole Play object.
         match play_state.mode {
             Mode::LevPlay => {
@@ -36,7 +36,7 @@ impl Render {
                 for h in 0..max_h {
                     for (x, y, loc) in play_state.field.map.locs() {
                         if let Some(ent) = loc.get(h) {
-                            render_lev.draw_ent(x - ox, y - oy, ent, anim_real_pc, slide_real_pc);
+                            render_lev.draw_ent(x - ox, y - oy, ent, anim_real_pc, slide_real_pc).await;
                         }
                     }
                 }
@@ -47,7 +47,7 @@ impl Render {
                     let (ox, oy) = (0, 0); // TODO: Dedup to RenderLev::function
                     for (x, y, loc) in ghost_state.field.map.locs() {
                         for ent in loc {
-                            r.draw_ent(x - ox, y - oy, ent, anim_ghost_pc, anim_ghost_pc);
+                            r.draw_ent(x - ox, y - oy, ent, anim_ghost_pc, anim_ghost_pc).await;
                         }
                     }
                 }
@@ -78,11 +78,11 @@ pub struct RenderLev<'a> {
 }
 
 /// Sync load macroquad texture. Panic on failure.
-pub fn load_texture_blocking_unwrap(path: &str) -> Texture2D {
+pub async fn load_texture_unwrap(path: &str) -> Texture2D {
     // futures::executor::block_on(load_texture(path))
 
     // TODO: Remove this fallback again. But have some way of outputting errors in wasm?
-    match futures::executor::block_on(load_texture(path)) {
+    match load_texture(path).await {
         Result::Ok(tex_data) => tex_data,
         Result::Err(_err) => {
             // display error somewhere?
@@ -136,7 +136,7 @@ impl<'a> RenderLev<'a> {
 
     // Draw ent's texture/colour to the screen at specified tile coords.
     // Works out pixel coords given pixel size of play area in RenderLev.
-    pub fn draw_ent(
+    pub async fn draw_ent(
         self: &mut RenderLev<'a>,
         // View coords in map. Relative to first visible tile (currently always the same).
         vx: i16,
@@ -200,7 +200,7 @@ impl<'a> RenderLev<'a> {
             let tex_data: &Texture2D = if let Some(tex_data) = self.texture_cache.get(tex_path) {
                 tex_data
             } else {
-                self.texture_cache.insert(tex_path.clone(), load_texture_blocking_unwrap(tex_path));
+                self.texture_cache.insert(tex_path.clone(), load_texture_unwrap(tex_path).await);
                 self.texture_cache.get(tex_path).unwrap()
             };
 

@@ -1,8 +1,9 @@
 IN MIND
 
 And
- Get hero working again as text or as crab texture
  Make separate test_wasm/debug and /release html files.
+ Why animation is covered up by door? Need movs to be over everything else better?
+ Push to release.
 
 Tidy up website and test_wasm.
  Remove asteroids.
@@ -30,6 +31,8 @@ Maybe
 
 Overdue
  Fps count, for debugging.
+ Local copy of js.
+ Script to do a "release", i.e. copying relevant things to release directory.
 
 Improving what's there
  Add test for movement.

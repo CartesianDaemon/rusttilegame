@@ -19,7 +19,7 @@ async fn main() {
     let mut game = Game::new(levset_biobot::BiobotLevSet {});
 
     loop {
-        game.do_frame();
+        game.do_frame().await;
         macroquad::prelude::next_frame().await;
     }
 }

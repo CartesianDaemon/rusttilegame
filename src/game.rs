@@ -74,7 +74,7 @@ impl<Levs: levset::LevSet> Game<Levs> {
     }
 
     /// Collect input. Draw frame. Advance logical game state, if tick scheduled.
-    pub fn do_frame(&mut self) {
+    pub async fn do_frame(&mut self) {
         /* ENH: Can read_input be combined with wait_for_tick? */
         self.input.read_input();
 
@@ -100,7 +100,7 @@ impl<Levs: levset::LevSet> Game<Levs> {
             &self.ghost_state,
             self.ghost_counter.ghost_opacity(),
             self.anim_ghost_pc,
-        );
+        ).await;
     }
 }
 
