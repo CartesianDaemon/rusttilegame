@@ -252,22 +252,31 @@ impl RenderSplash
             DARKGRAY,
         );
 
+        let avatar_x = screen_width() * 0.25;
+        let avatar_w = f32::min(screen_height(), screen_width()) / 10.;
+        let avatar_h = avatar_w;
+        let text_x = avatar_x + avatar_w + 20.;
         let mut next_y = 40.;
         let entry_spacing = 20.;
         for dialogue_line in &splash.dialogue.entries {
             let tex_path = &dialogue_line.tex_path;
             let text = &dialogue_line.text;
 
+            let avatar_y = next_y;
+            let text_y = next_y + 5.;
+
+            draw_rectangle_lines(avatar_x, avatar_y, avatar_w, avatar_h, 2., BLUE);
+
             let text_size = measure_text(text, None, font_size as _, 1.0);
             draw_text(
                 text,
-                screen_width() / 2. - text_size.width / 2.,
-                next_y,
+                text_x,
+                text_y,
                 font_size,
                 DARKGRAY,
             );
 
-            next_y += text_size.height + entry_spacing;
+            next_y += f32::max(avatar_h, text_size.height) + entry_spacing;
         }
 
         RenderSplash {}
