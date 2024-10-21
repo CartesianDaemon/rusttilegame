@@ -28,7 +28,7 @@ pub struct Game<Levs: levset::LevSet> {
 
     /// Ghost state. Used to show where enemies are going to move
     /// TODO: Encapsulate better, or remove if not using.. Or fold into AnimState.
-    ghost_state: Play,
+    ghost_state: play::LevPlay,
     ghost_counter: GhostCounter,
 
     /// Record input from user ready for use.
@@ -43,7 +43,7 @@ impl<Levs: levset::LevSet> Game<Levs> {
         let play = lev_set._load_lev_stage(lev_set.initial_lev_stage());
         Game {
             lev_set,
-            ghost_state: play.clone(),
+            ghost_state: if let Play::LevPlay(levplay) = play.clone() {levplay} else { panic!() },
             play_state: play,
             anim_real_pc: 0.,
             slide_real_pc: 0.,
@@ -64,12 +64,12 @@ impl<Levs: levset::LevSet> Game<Levs> {
     }
 
     fn init_ghost_state(&mut self) {
-        self.ghost_state = self.play_state.clone();
+        self.ghost_state = if let Play::LevPlay(levplay) = self.play_state.clone() {levplay} else { panic!() };
         self.ghost_counter.n_ghost_ticks = self.ghost_counter.init_n_ticks();
     }
 
     fn reinit_ghost_state(&mut self) {
-        self.ghost_state = self.play_state.clone();
+        self.ghost_state = if let Play::LevPlay(levplay) = self.play_state.clone() {levplay} else { panic!() };
         self.ghost_counter.n_ghost_ticks = self.ghost_counter.reinit_n_ticks();
     }
 
@@ -89,7 +89,8 @@ impl<Levs: levset::LevSet> Game<Levs> {
             if self.ghost_counter.ready_to_reinit() {
                 self.reinit_ghost_state();
             } else if self.ghost_counter.ready_to_advance_ghost_state() {
-                self.ghost_state.advance(&mut self.input);
+                // TODO: Better abstraction
+                self.ghost_state.advance_level(self.input.consume_keypresses());
             }
         }
 

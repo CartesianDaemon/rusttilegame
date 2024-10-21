@@ -11,15 +11,27 @@ use obj::Obj;
 use map_coords::*;
 use levset::LevstageBase;
 
-/// Different types of stage, e.g. "gameplay" vs "splash screen"
-///
-/// Better if Play was an enum of these possibiltiies.
+/// Interactive map, the actual gameplay part of the game.
 #[derive(Clone, Debug)]
-pub enum Mode {
-    /// Splash message, any key to continue. E.g. New level, game over.
-    Splash,
-    /// Interactive map, the actual gameplay part of the game.
-    LevPlay,
+pub struct LevPlay {
+    /// Next stage to go to after win.
+    pub to_stage: Box<dyn LevstageBase>,
+    // Next stage to go to after death. In levset_biobots always retry.
+    pub die_stage: Box<dyn LevstageBase>,
+
+    // Layout of current map.
+    pub field: Field,
+}
+
+/// Splash message, any key to continue. E.g. New level, game over.
+#[derive(Clone, Debug)]
+pub struct Splash {
+    /// Next stage to go to after continue.
+    pub to_stage: Box<dyn LevstageBase>,
+
+    // Text for current interstitial screen. Only in Splash.
+    pub splash_text: String,
+    pub dialogue: Dialogue, // If this works, will replace splash_text
 }
 
 /// Gameplay state: current level, map, etc.
@@ -27,46 +39,24 @@ pub enum Mode {
 /// Public fields should only be needed by Render or produced by load, not
 /// used elsewhere.
 ///
-/// Better as enum of mode types inheriting a common trait is poss.
-///
 /// Stores id of next stage through opaque LevstageBase trait object. It was a pain to
 /// get the trait object to work. Also consider using a fixed-size type for LevstageBase.
 /// Also considered making Play templated on LevSet at compile time.
 ///
 /// Eventually we'll probably need to store the current Levstage.
 #[derive(Clone, Debug)]
-pub struct Play {
-    /// Mode of current state, either an interstitial splash screen or a level to play.
-    pub mode: Mode,
-
-    /// Next stage to go to after continue or win.
-    pub to_stage: Box<dyn LevstageBase>,
-    // Next stage to go to after death. Only used in LevPlay not Splash. Currently always retry.
-    pub die_stage: Box<dyn LevstageBase>,
-
-    // Text for current interstitial screen. Only in Splash.
-    pub splash_text: String,
-    pub dialogue: Dialogue,
-
-    // Layout of current map. Only in LevPlay.
-    pub field: Field,
+pub enum Play {
+    LevPlay(LevPlay),
+    Splash(Splash),
 }
 
 impl Play {
     pub fn make_splash(txt: String, to_stage:  Box<dyn levset::LevstageBase>,) -> Play {
-        Play {
-            mode: Mode::Splash,
+        Play::Splash( Splash {
             splash_text: txt,
             dialogue: Dialogue { entries: vec![]},
             to_stage,
-
-            // Won't be used
-            // TODO: Empty default without using biobot types.
-             die_stage: Box::new(levset_biobot::BiobotStage::NewGame),
-
-            // Won't be used
-            field: Field::new(16),
-        }
+        })
     }
 
     pub fn levplay_from_ascii(
@@ -76,12 +66,7 @@ impl Play {
         die_stage: Box<dyn levset::LevstageBase>,
     ) -> Play {
         // TODO: Get size from strings. Assert equal to default 16 in meantime.
-        let mut play = Play {
-            mode : Mode::LevPlay,
-
-            splash_text: "SPLASH TEXT".to_string(), // Won't be used
-            dialogue: Dialogue { entries: vec![]},
-
+        let mut levplay = LevPlay {
             field: Field::new(16),
 
             to_stage,
@@ -91,14 +76,37 @@ impl Play {
         for (y, line) in ascii_map.iter().enumerate() {
             for (x, ch) in line.chars().enumerate() {
                 for ent in map_key.get(&ch).unwrap() {
-                    play.spawn_at(x as i16, y as i16, ent.clone());
+                    levplay.spawn_at(x as i16, y as i16, ent.clone());
                 }
             }
         }
 
-        play
+        Play::LevPlay(levplay)
     }
 
+    // Does current mode need UI to wait for tick before updating state?
+    // Yes during play of level, no in splash screens.
+    pub fn continuous(&self) -> bool {
+        match self {
+            Self::Splash(_) => true,
+            Self::LevPlay(_) => false,
+        }
+    }
+
+    // Advance game state according to current state
+    pub fn advance(&mut self, input : &mut Input) -> Option<Box<dyn LevstageBase>> {
+        match self {
+            Self::LevPlay(play) => {
+                play.advance_level(input.consume_keypresses())
+            }
+            Self::Splash(play) => {
+                play.advance_splash(input)
+            }
+        }
+    }}
+
+impl LevPlay
+{
     /// Add ent to map.
     ///
     /// Might not be necessary as a separate fn now roster logic in field.
@@ -106,28 +114,7 @@ impl Play {
         self.field.place_obj_at(x, y, orig_obj);
     }
 
-    // Does current mode need UI to wait for tick before updating state?
-    // Yes during play of level, no in splash screens.
-    pub fn continuous(&self) -> bool {
-        match self.mode {
-            Mode::Splash => true,
-            Mode::LevPlay => false,
-        }
-    }
-
-    // Advance game state according to current state
-    pub fn advance(&mut self, input : &mut Input) -> Option<Box<dyn LevstageBase>> {
-        match self.mode {
-            Mode::LevPlay => {
-                self.advance_level(input.consume_keypresses())
-            }
-            Mode::Splash => {
-                self.advance_splash(input)
-            }
-        }
-    }
-
-    fn advance_level(&mut self, last_key_pressed: Option<KeyCode>) -> Option<Box<dyn LevstageBase>>  {
+    pub fn advance_level(&mut self, last_key_pressed: Option<KeyCode>) -> Option<Box<dyn LevstageBase>>  {
         // Need all the properties used in Ent.
         // May move "can move" like logic into load, along with the assorted properties.
         // While keeping movement code coordinating between ents here.
@@ -232,7 +219,10 @@ impl Play {
     fn next_die(&self) -> Option<Box<dyn LevstageBase>> {
         Some(self.die_stage.clone())
     }
+}
 
+impl Splash
+{
     fn advance_splash(&mut self, input: &mut Input) -> Option<Box<dyn LevstageBase>> {
         let key = input.consume_keypresses();
 
