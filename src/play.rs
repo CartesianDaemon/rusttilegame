@@ -46,6 +46,7 @@ pub struct Play {
 
     // Text for current interstitial screen. Only in Splash.
     pub splash_text: String,
+    pub dialogue: Dialogue,
 
     // Layout of current map. Only in LevPlay.
     pub field: Field,
@@ -56,6 +57,7 @@ impl Play {
         Play {
             mode: Mode::Splash,
             splash_text: txt,
+            dialogue: Dialogue { entries: vec![]},
             to_stage,
 
             // Won't be used
@@ -78,6 +80,7 @@ impl Play {
             mode : Mode::LevPlay,
 
             splash_text: "SPLASH TEXT".to_string(), // Won't be used
+            dialogue: Dialogue { entries: vec![]},
 
             field: Field::new(16),
 
@@ -247,4 +250,15 @@ impl Play {
     fn next_continue(&self) -> Option<Box<dyn LevstageBase>> {
         Some(self.to_stage.clone())
     }
+}
+
+#[derive(Clone, Debug)]
+pub struct DialogueLine {
+    tex_path: String,
+    text: String,
+}
+
+#[derive(Clone, Debug)]
+pub struct Dialogue {
+    entries: Vec<DialogueLine>,
 }
