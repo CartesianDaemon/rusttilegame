@@ -59,6 +59,7 @@ impl Play {
         })
     }
 
+    // TODO: Move to LevPlay
     pub fn levplay_from_ascii(
         ascii_map: &[&str; 16],
         map_key: HashMap<char, Vec<Obj>>,
@@ -96,12 +97,8 @@ impl Play {
     // Advance game state according to current state
     pub fn advance(&mut self, input : &mut Input) -> Option<Box<dyn LevstageBase>> {
         match self {
-            Self::LevPlay(play) => {
-                play.advance_level(input.consume_keypresses())
-            }
-            Self::Splash(play) => {
-                play.advance_splash(input)
-            }
+            Self::LevPlay(play) => play.advance(input.consume_keypresses()),
+            Self::Splash(play) => play.advance(input),
         }
     }}
 
@@ -114,7 +111,7 @@ impl LevPlay
         self.field.place_obj_at(x, y, orig_obj);
     }
 
-    pub fn advance_level(&mut self, last_key_pressed: Option<KeyCode>) -> Option<Box<dyn LevstageBase>>  {
+    pub fn advance(&mut self, last_key_pressed: Option<KeyCode>) -> Option<Box<dyn LevstageBase>>  {
         // Need all the properties used in Ent.
         // May move "can move" like logic into load, along with the assorted properties.
         // While keeping movement code coordinating between ents here.
@@ -223,7 +220,7 @@ impl LevPlay
 
 impl Splash
 {
-    fn advance_splash(&mut self, input: &mut Input) -> Option<Box<dyn LevstageBase>> {
+    fn advance(&mut self, input: &mut Input) -> Option<Box<dyn LevstageBase>> {
         let key = input.consume_keypresses();
 
         // Reset "most recent tick" when leaving menu.

@@ -90,7 +90,7 @@ impl<Levs: levset::LevSet> Game<Levs> {
                 self.reinit_ghost_state();
             } else if self.ghost_counter.ready_to_advance_ghost_state() {
                 // TODO: Better abstraction
-                self.ghost_state.advance_level(self.input.consume_keypresses());
+                self.ghost_state.advance(self.input.consume_keypresses());
             }
         }
 
