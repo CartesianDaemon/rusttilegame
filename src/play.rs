@@ -59,6 +59,14 @@ impl Play {
         })
     }
 
+    pub fn make_dialogue(entries: Vec<&str>, to_stage:  Box<dyn levset::LevstageBase>,) -> Play {
+        Play::Splash( Splash {
+            splash_text: "".to_string(),
+            dialogue: Dialogue { entries: entries.iter().map(|x| DialogueLine {tex_path: "".to_string(), text: x.to_string()} ).collect() },
+            to_stage,
+        })
+    }
+
     // TODO: Move to LevPlay
     pub fn levplay_from_ascii(
         ascii_map: &[&str; 16],
@@ -100,7 +108,19 @@ impl Play {
             Self::LevPlay(play) => play.advance(input.consume_keypresses()),
             Self::Splash(play) => play.advance(input),
         }
-    }}
+    }
+
+    pub fn to_some_levplay(&self) -> LevPlay {
+        match self {
+            Self::LevPlay(levplay) => levplay.clone(),
+            Self::Splash(splash) => LevPlay {
+                field: Field::new(16),
+                to_stage: splash.to_stage.clone(),
+                die_stage: splash.to_stage.clone(),
+            },
+        }
+    }
+}
 
 impl LevPlay
 {
@@ -241,11 +261,11 @@ impl Splash
 
 #[derive(Clone, Debug)]
 pub struct DialogueLine {
-    tex_path: String,
-    text: String,
+    pub tex_path: String,
+    pub text: String,
 }
 
 #[derive(Clone, Debug)]
 pub struct Dialogue {
-    entries: Vec<DialogueLine>,
+    pub entries: Vec<DialogueLine>,
 }

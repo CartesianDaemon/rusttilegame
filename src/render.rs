@@ -52,7 +52,7 @@ impl Render {
                 }
             }
             Play::Splash(play_state) => {
-                let _r = RenderSplash::begin(&play_state.splash_text);
+                let _r = RenderSplash::begin(&play_state);
             }
         }
     }
@@ -237,12 +237,13 @@ pub struct RenderSplash {
 
 impl RenderSplash
 {
-    pub fn begin(text: &str) -> RenderSplash {
+    pub fn begin(splash: &play::Splash) -> RenderSplash {
         clear_background(WHITE);
+
+        let text = &splash.splash_text;
         let font_size = 30.;
         let text_size = measure_text(text, None, font_size as _, 1.0);
 
-        // FIXME: Multi-line text. Ideally with dialog pics etc.
         draw_text(
             text,
             screen_width() / 2. - text_size.width / 2.,
@@ -250,6 +251,24 @@ impl RenderSplash
             font_size,
             DARKGRAY,
         );
+
+        let mut next_y = 40.;
+        let entry_spacing = 20.;
+        for dialogue_line in &splash.dialogue.entries {
+            let tex_path = &dialogue_line.tex_path;
+            let text = &dialogue_line.text;
+
+            let text_size = measure_text(text, None, font_size as _, 1.0);
+            draw_text(
+                text,
+                screen_width() / 2. - text_size.width / 2.,
+                next_y,
+                font_size,
+                DARKGRAY,
+            );
+
+            next_y += text_size.height + entry_spacing;
+        }
 
         RenderSplash {}
     }

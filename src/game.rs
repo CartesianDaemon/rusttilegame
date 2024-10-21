@@ -43,7 +43,7 @@ impl<Levs: levset::LevSet> Game<Levs> {
         let play = lev_set._load_lev_stage(lev_set.initial_lev_stage());
         Game {
             lev_set,
-            ghost_state: if let Play::LevPlay(levplay) = play.clone() {levplay} else { panic!() },
+            ghost_state: play.to_some_levplay(),
             play_state: play,
             anim_real_pc: 0.,
             slide_real_pc: 0.,
@@ -64,7 +64,7 @@ impl<Levs: levset::LevSet> Game<Levs> {
     }
 
     fn init_ghost_state(&mut self) {
-        self.ghost_state = if let Play::LevPlay(levplay) = self.play_state.clone() {levplay} else { panic!() };
+        self.ghost_state = self.play_state.to_some_levplay();
         self.ghost_counter.n_ghost_ticks = self.ghost_counter.init_n_ticks();
     }
 

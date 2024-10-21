@@ -61,7 +61,16 @@ impl LevSet for BiobotLevSet {
 
         match stage {
             // TODO: Can we use idx++ instead of specifying each level number? Not immediately?
-            BiobotStage::NewGame => biobot_splash("Click or press [enter] to start.".to_string(), BiobotStage::LevIntro(1)),
+            BiobotStage::NewGame => biobot_dialogue_splash(
+                //"Click or press [enter] to start.".to_string(),
+                vec![
+                    "Hello!",
+                    "Hi!",
+                    "I'm snake",
+                    "I'm crab",
+                ],
+                BiobotStage::LevIntro(1)
+            ),
 
             BiobotStage::LevIntro(1) => biobot_splash("Welcome to level 1!".to_string(), BiobotStage::LevPlay(1)),
             BiobotStage::LevPlay(1) => biobot_levplay(1, &[
@@ -122,6 +131,10 @@ impl LevSet for BiobotLevSet {
 
 pub fn biobot_splash(txt: String, to_stage: levset_biobot::BiobotStage) -> Play {
     Play::make_splash(txt, Box::new(to_stage))
+}
+
+pub fn biobot_dialogue_splash(entries: Vec<&str>, to_stage: levset_biobot::BiobotStage) -> Play {
+    Play::make_dialogue(entries, Box::new(to_stage))
 }
 
 pub fn biobot_levplay(levno: u16, ascii_map: &[&str; 16], map_key: HashMap<char, Vec<obj::Obj>>) -> Play {
