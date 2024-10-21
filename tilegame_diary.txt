@@ -3,9 +3,8 @@ IN MIND
 To release
 
 And
- Make separate test_wasm/debug and /release html files.
- Why animation is covered up by door? Need movs to be over everything else better?
- Push to release.
+ Look at map access.
+ Use chain! macro.
 
 Tidy up website and test_wasm.
  Remove asteroids.

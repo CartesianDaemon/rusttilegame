@@ -254,20 +254,24 @@ impl RenderSplash
 
         let avatar_x = screen_width() * 0.25;
         let avatar_w = f32::min(screen_height(), screen_width()) / 10.;
-        let avatar_h = avatar_w;
+        let avatar_h = avatar_w * 0.75;
         let text_x = avatar_x + avatar_w + 20.;
         let mut next_y = 40.;
         let entry_spacing = 20.;
-        for dialogue_line in &splash.dialogue.entries {
+        for (idx, dialogue_line) in (&splash.dialogue.entries).iter().enumerate() {
+            let font_size = 25.;
             let tex_path = &dialogue_line.tex_path;
             let text = &dialogue_line.text;
 
             let avatar_y = next_y;
-            let text_y = next_y + 5.;
 
-            draw_rectangle_lines(avatar_x, avatar_y, avatar_w, avatar_h, 2., BLUE);
+            draw_rectangle_lines(avatar_x, avatar_y, avatar_w, avatar_h, 2., if idx%2>0 {GREEN} else {BLUE} );
 
             let text_size = measure_text(text, None, font_size as _, 1.0);
+
+            // Bottom of text level with given y coordinate
+            let text_y = avatar_y + 5. + text_size.height;
+
             draw_text(
                 text,
                 text_x,

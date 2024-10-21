@@ -66,8 +66,8 @@ impl LevSet for BiobotLevSet {
                 vec![
                     "Hello!",
                     "Hi!",
-                    "I'm snake",
-                    "I'm crab",
+                    "I'm a snake!",
+                    "I'm crab!",
                 ],
                 BiobotStage::LevIntro(1)
             ),
