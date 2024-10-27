@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use crate::*;
 
 use input::Input;
-use map::Field;
+use field::Field;
 use obj::Obj;
 use map_coords::*;
 use levset::LevstageBase;

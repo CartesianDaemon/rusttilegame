@@ -5,7 +5,7 @@ pub mod game;
 mod play;
 mod input;
 mod render;
-mod map;
+mod field;
 mod obj;
 mod levset;
 mod levset_biobot;
