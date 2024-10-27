@@ -44,7 +44,7 @@ impl LevSet for BiobotLevSet {
         BiobotStage::NewGame
     }
 
-    fn _load_lev_stage(&self, stage: BiobotStage) -> Play {
+    fn load_lev_stage_impl(&self, stage: BiobotStage) -> Play {
         let aquarium1_key = HashMap::from([
             // TODO: Combine with obj.char types?
             (' ', vec![ new_floor() ]),

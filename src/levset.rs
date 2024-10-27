@@ -59,7 +59,7 @@ pub trait LevSet {
     fn initial_lev_stage(&self) -> Self::Levstage;
 
     /// Load or construct a Play instance for the specified level stage.
-    fn _load_lev_stage(&self, lev_stage : Self::Levstage) -> Play;
+    fn load_lev_stage_impl(&self, lev_stage : Self::Levstage) -> Play;
 
     /// Load or construct a Play instance for the specified level stage.
     ///
@@ -73,7 +73,7 @@ pub trait LevSet {
     /// Would be any easier to clone box?
     fn load_lev_stage(&self, lev_stage_box : &Box<dyn LevstageBase>) -> Play {
         if let Some(lev_stage) = lev_stage_box.downcast_ref::<Self::Levstage>() {
-            self._load_lev_stage(*lev_stage)
+            self.load_lev_stage_impl(*lev_stage)
         } else {
             panic!("Lev stage box -> lev stage cast failure");
         }

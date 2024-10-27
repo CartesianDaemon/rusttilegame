@@ -40,10 +40,10 @@ pub struct Game<Levs: levset::LevSet> {
 
 impl<Levs: levset::LevSet> Game<Levs> {
     pub fn new(lev_set: Levs) -> Game<Levs> {
-        let play = lev_set._load_lev_stage(lev_set.initial_lev_stage());
+        let play = lev_set.load_lev_stage_impl(lev_set.initial_lev_stage());
         Game {
             lev_set,
-            ghost_state: play.to_some_levplay(),
+            ghost_state: play.to_levplay_or_placeholder(),
             play_state: play,
             anim_real_pc: 0.,
             slide_real_pc: 0.,
@@ -64,7 +64,7 @@ impl<Levs: levset::LevSet> Game<Levs> {
     }
 
     fn init_ghost_state(&mut self) {
-        self.ghost_state = self.play_state.to_some_levplay();
+        self.ghost_state = self.play_state.to_levplay_or_placeholder();
         self.ghost_counter.n_ghost_ticks = self.ghost_counter.init_n_ticks();
     }
 
