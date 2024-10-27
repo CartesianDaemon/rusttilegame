@@ -16,8 +16,15 @@ mod basic_tests {
 
     use super::*;
 
+    /// TODO: Could compare whole map?
+    fn expect_eq(got: &String, expected: &str) {
+        if got != expected {
+            panic!("Got, expected:\n{got}\n{expected}");
+        }
+    }
+
     #[test]
-    fn basic_test() {
+    fn basic_compare() {
         rsst!(true);
     }
 
@@ -48,21 +55,42 @@ mod basic_tests {
     #[test]
     fn basic_init() {
         let mut play_state = get_lev(1);
-        rsst!(play_state.as_ascii_rows()[2] == "#  >         @ @");
+        expect_eq(&play_state.as_ascii_rows()[2], "#  >         @ @");
     }
 
     #[test]
     fn basic_bounce() {
         let mut play_state = get_lev(1);
         let key = &mut Input::from_key(KeyCode::Space);
-        play_state.advance(key); rsst!(play_state.as_ascii_rows()[2] == "#   >        @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#   >        @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#    >       @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#     >      @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#      >     @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#       >    @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#        >   @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#         >  @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#          > @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#           >@ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#          < @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#         <  @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#        <   @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#       <    @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#      <     @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#     <      @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#    <       @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#   <        @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#  <         @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "# <          @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#<           @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "# >          @ @");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#  >         @ @");
     }
 
     #[test]
     fn basic_move() {
         let mut play_state = get_lev(1);
         let key = &mut Input::from_key(KeyCode::Right);
-        play_state.advance(key); csst!(play_state.as_ascii_rows()[4] == "#        h   # #");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[4], "#        h   # #");
     }
 
     #[test]
