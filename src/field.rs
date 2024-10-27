@@ -58,11 +58,21 @@ impl Field {
         }
     }
 
-    pub fn as_ascii(&self) -> Vec<String> {
+    pub fn as_ascii_cols(&self) -> Vec<String> {
         (&self.map.locs).into_iter().map(|row|
             (&row).into_iter().map(|loc| {
                 self.map_key.iter().find_map(|(ch,objs)|
                     if loc.0 == *objs {Some(ch.to_string())} else {None}
+                ).unwrap_or("?".to_string())
+            }).collect::<Vec<_>>().join("")
+        ).collect()
+    }
+
+    pub fn as_ascii_rows(&self) -> Vec<String> {
+        (0..self.map.h() as i16).map(|y|
+            (0..self.map.w() as i16).map(|x| {
+                self.map_key.iter().find_map(|(ch,objs)|
+                    if self.map.at_xy(x,y) == objs {Some(ch.to_string())} else {None}
                 ).unwrap_or("?".to_string())
             }).collect::<Vec<_>>().join("")
         ).collect()
@@ -186,6 +196,7 @@ impl Map {
     }
 
     // Loc at given MapCoord.
+    // TODO: Instead make loc indexable, and have at() or [] return loc?
     pub fn loc_at(&self, pos: MapCoord) -> &Loc {
         self.loc_at_xy(pos.x, pos.y)
     }

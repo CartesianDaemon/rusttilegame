@@ -41,14 +41,6 @@ mod basic_tests {
                 "#       h    # #",
                 "#            # #",
                 "##############@#",
-                "                ",
-                "                ",
-                "                ",
-                "                ",
-                "                ",
-                "                ",
-                "                ",
-                "                ",
             ], test_key
         )
     }
@@ -56,7 +48,9 @@ mod basic_tests {
     #[test]
     fn basic_bounce() {
         let mut play_state = get_lev(1);
+        rsst!(play_state.as_levplay().field.as_ascii_rows()[2] == "#  >         @ @");
         play_state.advance(&mut Input::from_key(KeyCode::Right));
+        // rsst!(play_state.as_levplay().field.as_ascii_rows()[2] == "#   >        @ @");
     }
 
     #[test]

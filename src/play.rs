@@ -115,6 +115,13 @@ impl Play {
         }
     }
 
+    pub fn as_levplay(&self) -> &LevPlay {
+        match self {
+            Self::LevPlay(levplay) => &levplay,
+            Self::Splash(_splash) => panic!(),
+        }
+    }
+
     pub fn to_levplay_or_placeholder(&self) -> LevPlay {
         match self {
             Self::LevPlay(levplay) => levplay.clone(),
