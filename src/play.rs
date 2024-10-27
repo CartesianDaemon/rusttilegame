@@ -80,7 +80,7 @@ impl Play {
         let mut levplay = LevPlay {
             field: Field {
                 map_key: map_key.clone(),
-                ..Field::empty(HEIGHT as u16)
+                ..Field::empty(ascii_map[0].len() as u16, HEIGHT as u16)
             },
 
             to_stage,
@@ -119,7 +119,7 @@ impl Play {
         match self {
             Self::LevPlay(levplay) => levplay.clone(),
             Self::Splash(splash) => LevPlay {
-                field: Field::empty(16),
+                field: Field::empty(16, 16),
                 to_stage: splash.to_stage.clone(),
                 die_stage: splash.to_stage.clone(),
             },

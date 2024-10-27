@@ -35,9 +35,9 @@ pub struct Field {
 }
 
 impl Field {
-    pub fn empty(sz: u16) -> Field {
+    pub fn empty(w: u16, h: u16) -> Field {
         Field {
-            map: Map::new(sz),
+            map: Map::new(w, h),
             ros: Ros::new(),
             map_key: std::collections::HashMap::new(),
         }
@@ -98,9 +98,9 @@ impl std::fmt::Debug for Map {
 }
 
 impl Map {
-    pub fn new(sz: u16) -> Map {
+    pub fn new(w: u16, h: u16) -> Map {
         Map {
-            locs: vec!(vec!(Loc::new(); sz.into()); sz.into()),
+            locs: vec!(vec!(Loc::new(); h.into()); w.into()),
         }
     }
 
