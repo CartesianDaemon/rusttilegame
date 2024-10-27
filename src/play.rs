@@ -79,7 +79,7 @@ impl Play {
         // TODO: Get size from strings. Assert equal to default 16 in meantime.
         let mut levplay = LevPlay {
             field: Field {
-                key: map_key.clone(),
+                map_key: map_key.clone(),
                 ..Field::empty(16)
             },
 

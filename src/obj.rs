@@ -167,6 +167,18 @@ impl Obj {
     pub fn is_any_mov(self: &Obj) -> bool {
         self.ai != AI::Stay
     }
+
+    fn comparable_fields(&self) -> (&String, &CoordDelta, &AI, &Pass) {
+        (&self.name, &self.dir, &self.ai, &self.pass)
+    }
+}
+
+/// Somewhat fuzzy match used for determining ascii representation.
+/// Ideally would have a different name not PartialEq.
+impl PartialEq for Obj {
+    fn eq(&self, other:&Self) -> bool {
+        self.comparable_fields() == other.comparable_fields()
+    }
 }
 
 // STUB: Properties that can be applied to Ent.

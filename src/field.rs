@@ -31,7 +31,7 @@ pub struct Field {
     // Moveable objects in the current map.
     pub ros: Ros,
     // Key used to represent map as ascii for init and debugging. Not completely comprehensive.
-    pub key: std::collections::HashMap<char, Vec<Obj>>,
+    pub map_key: std::collections::HashMap<char, Vec<Obj>>,
 }
 
 impl Field {
@@ -39,7 +39,7 @@ impl Field {
         Field {
             map: Map::new(sz),
             ros: Ros::new(),
-            key: std::collections::HashMap::new(),
+            map_key: std::collections::HashMap::new(),
         }
     }
 
@@ -56,6 +56,16 @@ impl Field {
         } else if placed_obj.is_other_mov() {
             self.ros.push_mov(hdl);
         }
+    }
+
+    pub fn as_ascii(&self) -> Vec<String> {
+        (&self.map.locs).into_iter().map(|row|
+            (&row).into_iter().map(|loc| {
+                self.map_key.iter().find_map(|(ch,objs)|
+                    if loc.0 == *objs {Some(ch.to_string())} else {None}
+                ).unwrap_or("?".to_string())
+            }).collect::<Vec<_>>().join("")
+        ).collect()
     }
 }
 
