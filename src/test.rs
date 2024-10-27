@@ -55,7 +55,7 @@ mod basic_tests {
     }
 
     #[test]
-    fn basic_move() {
+    fn basic_bounce() {
         let mut play_state = get_lev(1);
         play_state.advance(&mut Input::from_key(KeyCode::Right));
     }

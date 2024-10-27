@@ -70,8 +70,8 @@ impl Play {
     // TODO: Move to LevPlay
     // TODO: Do we need a function or would having levset_biobots use LevPlay {...} be better?
     // TODO: Use lifetime or Rc on map_key instead of clone()?
-    pub fn levplay_from_ascii(
-        ascii_map: &[&str; 16],
+    pub fn levplay_from_ascii<const HEIGHT: usize>(
+        ascii_map: &[&str; HEIGHT],
         map_key: HashMap<char, Vec<Obj>>,
         to_stage: Box<dyn levset::LevstageBase>,
         die_stage: Box<dyn levset::LevstageBase>,
@@ -80,7 +80,7 @@ impl Play {
         let mut levplay = LevPlay {
             field: Field {
                 map_key: map_key.clone(),
-                ..Field::empty(16)
+                ..Field::empty(HEIGHT as u16)
             },
 
             to_stage,

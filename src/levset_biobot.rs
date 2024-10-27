@@ -137,7 +137,7 @@ pub fn biobot_dialogue_splash(entries: Vec<&str>, to_stage: levset_biobot::Biobo
     Play::make_dialogue(entries, Box::new(to_stage))
 }
 
-pub fn biobot_levplay(levno: u16, ascii_map: &[&str; 16], map_key: HashMap<char, Vec<obj::Obj>>) -> Play {
+pub fn biobot_levplay<const HEIGHT: usize>(levno: u16, ascii_map: &[&str; HEIGHT], map_key: HashMap<char, Vec<obj::Obj>>) -> Play {
     // Box::new(BiobotStage::LevOutro(levno)),
     Play::levplay_from_ascii(
         ascii_map,
