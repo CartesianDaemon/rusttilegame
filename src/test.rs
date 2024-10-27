@@ -46,11 +46,23 @@ mod basic_tests {
     }
 
     #[test]
+    fn basic_init() {
+        let mut play_state = get_lev(1);
+        rsst!(play_state.as_ascii_rows()[2] == "#  >         @ @");
+    }
+
+    #[test]
     fn basic_bounce() {
         let mut play_state = get_lev(1);
-        rsst!(play_state.as_levplay().field.as_ascii_rows()[2] == "#  >         @ @");
-        play_state.advance(&mut Input::from_key(KeyCode::Right));
-        // rsst!(play_state.as_levplay().field.as_ascii_rows()[2] == "#   >        @ @");
+        let key = &mut Input::from_key(KeyCode::Space);
+        play_state.advance(key); rsst!(play_state.as_ascii_rows()[2] == "#   >        @ @");
+    }
+
+    #[test]
+    fn basic_move() {
+        let mut play_state = get_lev(1);
+        let key = &mut Input::from_key(KeyCode::Right);
+        play_state.advance(key); csst!(play_state.as_ascii_rows()[4] == "#        h   # #");
     }
 
     #[test]

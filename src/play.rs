@@ -132,6 +132,14 @@ impl Play {
             },
         }
     }
+
+    pub fn as_ascii_cols(&self)-> Vec<String>  {
+        self.as_levplay().field.as_ascii_cols()
+    }
+
+    pub fn as_ascii_rows(&self)-> Vec<String>  {
+        self.as_levplay().field.as_ascii_rows()
+    }
 }
 
 impl LevPlay
