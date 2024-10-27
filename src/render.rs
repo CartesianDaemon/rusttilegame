@@ -260,7 +260,7 @@ impl RenderSplash
         let entry_spacing = 20.;
         for (idx, dialogue_line) in (&splash.dialogue.entries).iter().enumerate() {
             let font_size = 25.;
-            let tex_path = &dialogue_line.tex_path;
+            let _tex_path = &dialogue_line.tex_path;
             let text = &dialogue_line.text;
 
             let avatar_y = next_y;
