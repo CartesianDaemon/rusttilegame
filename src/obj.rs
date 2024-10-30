@@ -13,8 +13,6 @@ pub struct Obj {
 
     /// String representation of object, used internally for debug fmt etc.
     pub name: String,
-    /// Single-character representation of object, used internally for ascii maps etc.
-    pub char: char,
 
     // Visual display properties.
     // Only used by Render. Worth moving into a separate struct shared between Map and Render?
@@ -57,7 +55,6 @@ impl Obj {
             cached_pos: MapHandle::invalid(),
 
             name: "????".to_string(),
-            char: '?',
 
             border: None,
             fill: None,
