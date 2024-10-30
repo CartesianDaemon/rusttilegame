@@ -237,7 +237,45 @@ impl LevPlay
                     if self.field.map.loc_at(*mov + self.field.map[*mov].dir).passable() {
                         self.field.map.move_delta(mov, self.field.map[*mov].dir);
                     }
-                    // Die if mov moves onto hero
+
+                    // Hero dies if mov moves onto hero
+                    if self.field.map[*mov].effect == Effect::Kill {
+                        if mov.x == self.field.ros.hero.x && mov.y == self.field.ros.hero.y {
+                            return self.next_die();
+                        }
+                    }
+                },
+                AI::Drift => {
+                    // TODO: Deal with collisions between movs
+
+                    let mut drift_dir = CoordDelta::from_xy(0, 0);
+                    // If hitting wall, reverse direction.
+                    if self.field.map.loc_at(*mov + self.field.map[*mov].dir).impassable() {
+                        self.field.map[*mov].dir = CoordDelta::from_xy(-self.field.map[*mov].dir.dx, -self.field.map[*mov].dir.dy);
+                        // If hero "visible" forward or sideways, move one sideways towards them, if passable.
+                        // TODO: Check for obstacles to vision.
+                        let hero_dir = CoordDelta::from_xy((self.field.ros.hero.x - mov.x).signum(),(self.field.ros.hero.y - mov.y).signum());
+                        if self.field.map[*mov].dir.dx == 0 {
+                            if hero_dir.dy != -self.field.map[*mov].dir.dy {
+                                drift_dir = CoordDelta::from_xy(hero_dir.dx, 0);
+                            }
+                        } else if self.field.map[*mov].dir.dy == 0 {
+                            if hero_dir.dx != -self.field.map[*mov].dir.dx {
+                                drift_dir = CoordDelta::from_xy(0, hero_dir.dy);
+                            }
+                        } else {
+                            panic!("AI::Drift only implemented for orthogal movement");
+                        }
+                    }
+
+                    // Move. Provided next space is passable. If both sides are impassable, don't move.
+                    // TODO: Animation for turning? At least avoiding wall?
+                    let delta = self.field.map[*mov].dir + drift_dir;
+                    if self.field.map.loc_at(*mov + delta).passable() {
+                        self.field.map.move_delta(mov, delta);
+                    }
+
+                    // Hero dies if mov moves onto hero
                     if self.field.map[*mov].effect == Effect::Kill {
                         if mov.x == self.field.ros.hero.x && mov.y == self.field.ros.hero.y {
                             return self.next_die();

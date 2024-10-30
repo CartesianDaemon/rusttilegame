@@ -107,6 +107,19 @@ pub fn new_fish(dir: CoordDelta) -> Obj {
     }
 }
 
+pub fn new_gawpie(dir: CoordDelta) -> Obj {
+    Obj {
+        char: 'g',
+        name: "Gawpie".to_string(),
+        pass: Pass::Mov,
+        ai: AI::Drift,
+        dir: dir,
+        effect: Effect::Kill,
+        tex_scale: 1.7,
+        ..Obj::new_tex_anim(vec!["FishB.0001.png", "FishB.0002.png", "FishB.0003.png"])
+    }
+}
+
 pub fn new_floor() -> Obj {
     Obj {
         char: '.',

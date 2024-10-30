@@ -203,6 +203,7 @@ pub enum AI {
     // Everything else may spontaneously move or need to be enumerated, ie needs to be added to roster.
     Snake, // Move in direction, move orthogonally towards hero. Maybe: bounce off walls.
     Bounce, // Move in direction, reverse direction at walls.
+    Drift, // Move in direction, reverse direction at walls, move diagonally towards hero at reversal.
 }
 
 // Effect when intersect with hero (as mov or stay)

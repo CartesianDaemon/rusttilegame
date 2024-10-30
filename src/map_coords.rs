@@ -83,7 +83,7 @@ impl Add<CoordDelta> for MapHandle {
     }
 }
 
-#[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
+#[derive(Add, Copy, Clone, PartialEq, Debug)] // , Add, Mul
 pub struct CoordDelta {
     pub dx: i16,
     pub dy: i16,

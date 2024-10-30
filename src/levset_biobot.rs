@@ -51,6 +51,7 @@ impl LevSet for BiobotLevSet {
             ('#', vec![ new_floor(), new_wall() ]),
             ('>', vec![ new_floor(), new_fish(CoordDelta::from_xy(1,0)) ]),
             ('<', vec![ new_floor(), new_fish(CoordDelta::from_xy(-1,0)) ]),
+            ('g', vec![ new_floor(), new_gawpie(CoordDelta::from_xy(1,0)) ]),
             ('h', vec![ new_floor(), new_hero_crab() ]),
             ('o', vec![ /* new_floor(), */ new_door_win() ]), // TODO: Check win on non-floor tiles
             ('@', vec![ new_floor(), new_door_closed() ]),
@@ -102,7 +103,7 @@ impl LevSet for BiobotLevSet {
                 "#       h      #",
                 "#              #",
                 "#              #",
-                "#  >           #",
+                "#  g           #",
                 "#              #",
                 "#        <     #",
                 "#              #",

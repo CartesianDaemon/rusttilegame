@@ -34,13 +34,16 @@ mod basic_tests {
             ('#', vec![ new_floor(), new_wall() ]),
             ('>', vec![ new_floor(), new_fish(CoordDelta::from_xy(1,0)) ]),
             ('<', vec![ new_floor(), new_fish(CoordDelta::from_xy(-1,0)) ]),
+            ('g', vec![ new_floor(), new_gawpie(CoordDelta::from_xy(1,0)) ]),
+            ('G', vec![ new_floor(), new_gawpie(CoordDelta::from_xy(-1,0)) ]),
             ('h', vec![ new_floor(), new_hero_crab() ]),
             ('o', vec![ new_door_win() ]),
             ('@', vec![ new_floor(), new_door_closed() ]),
             ('_', vec![ new_floor(), new_door_open() ]),
         ]);
 
-        biobot_levplay(1, &[
+        match n {
+            1=> biobot_levplay(1, &[
                 "#####_########_#",
                 "#            # #",
                 "#  >         @ @",
@@ -49,7 +52,15 @@ mod basic_tests {
                 "#            # #",
                 "##############@#",
             ], test_key
-        )
+            ),
+            2=> biobot_levplay(2, &[
+                "#g  #",
+                "#   #",
+                "h   #",
+            ], test_key
+            ),
+            _ => panic!(),
+        }
     }
 
     #[test]
@@ -84,6 +95,18 @@ mod basic_tests {
         play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#<           @ @");
         play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "# >          @ @");
         play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#  >         @ @");
+    }
+
+    #[test]
+    fn basic_drift() {
+        // TODO: Test rotated version of map somehow
+        let mut play_state = get_lev(2);
+        let key = &mut Input::from_key(KeyCode::Space);
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[0], "# g #"); expect_eq(&play_state.as_ascii_rows()[1], "#   #");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[0], "#  g#"); expect_eq(&play_state.as_ascii_rows()[1], "#   #");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[0], "#   #"); expect_eq(&play_state.as_ascii_rows()[1], "# G #");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[0], "#   #"); expect_eq(&play_state.as_ascii_rows()[1], "#G  #");
+        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[0], "#   #"); expect_eq(&play_state.as_ascii_rows()[1], "# g #");
     }
 
     #[test]
