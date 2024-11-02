@@ -89,7 +89,7 @@ pub fn new_hero_crab() -> Obj {
         name:"Hero".to_string(),
         pass: Pass::Mov,
         ai: AI::Hero,
-        ..Obj::new_tex("ferris.png")
+        ..Obj::new_text_fill("HERO".to_string(), Some(GOLD), Some(BLACK))
     }
 }
 
