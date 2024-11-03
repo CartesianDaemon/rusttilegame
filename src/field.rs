@@ -1,4 +1,7 @@
-// Map, location, and entity types.
+// Map types.
+//
+// Map is a 2d array of Loc. A Loc is a stack of Objs.
+// Field is a Map along with a Roster of moveable objects.
 //
 // But movement logic etc are in Play.
 // These are also used by level data files, even though
@@ -16,7 +19,7 @@ use map_coords::*;
 
 use obj::Obj;
 
-// "Map": Grid of locations. Most of the current state of game.
+// "Map": Grid of locations. Represents state of current level.
 #[derive(Clone)]
 pub struct Map {
     // Stored as a collection of columns, e.g. map.locs[x][y]
@@ -24,13 +27,13 @@ pub struct Map {
     locs: Vec<Vec<Loc>>,
 }
 
-/// Map together with Ros. Separate so they can more easily be borrowed separately.
+/// Map together with Ros. Those are two separate classes so they can more easily be borrowed separately.
 #[derive(Clone, Debug)]
 pub struct Field {
     pub map: Map,
     // Moveable objects in the current map.
     pub ros: Ros,
-    // Key used to represent map as ascii for init and debugging. Not completely comprehensive.
+    // Key used to represent things in map as ascii for init and debugging. Not comprehensive.
     pub map_key: std::collections::HashMap<char, Vec<Obj>>,
 }
 
@@ -58,6 +61,7 @@ impl Field {
         }
     }
 
+    /// Ascii representation of map. Test functions check it's as expected.
     pub fn as_ascii_cols(&self) -> Vec<String> {
         (&self.map.locs).into_iter().map(|row|
             (&row).into_iter().map(|loc| {
@@ -68,6 +72,7 @@ impl Field {
         ).collect()
     }
 
+    /// Ascii representation of map. Test functions check it's as expected.
     pub fn as_ascii_rows(&self) -> Vec<String> {
         (0..self.map.h() as i16).map(|y|
             (0..self.map.w() as i16).map(|x| {
@@ -129,7 +134,7 @@ impl Map {
 
     /// Place a (copy of an) object into the map. Return a handle to its position.
     ///
-    /// Only used by Field::place_obj_at which keeps Roster in sync.
+    /// Only used externally by Field::place_obj_at which keeps Roster in sync.
     fn place_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj) -> MapHandle {
         let new_pos = MapHandle::from_xyh(x, y, self.at_xy(x, y).len() as u16);
         let prev_pos = if orig_obj.cached_pos.x >=0 { orig_obj.cached_pos } else {new_pos};
@@ -356,12 +361,14 @@ impl<'a> Iterator for LocIteratorMut<'a> {
 }
 */
 
-/// Roster of character, enemies, etc. Indexes into map.
+/// Roster of objects which move autonomously.
 ///
-/// TODO: Rename Roster
-/// TODO: Do we benefit much from caching moveables rather than iterating whole map?
-/// Mainly only for hero for things which need to know the coords of the hero?
-/// Does it help to make Roster a non-mutable cache of hero location?
+/// Objects are stored as MapHandles.
+///
+/// It would be simpler to iterate through the Map looking for any moveable objects, but
+/// it's theoretically correct to have a roster. Especially for hero location.
+///
+/// Would still like to simplify how ownership of map objects works.
 #[derive(Clone, Debug)]
 pub struct Ros {
     // Hero

@@ -4,11 +4,12 @@ use play::Play;
 use input::Input;
 use render::Render;
 
-/// Overall game state. Handles transitions between different Plays for different levstates.
+/// Overall game state.
+///
+/// Including set of levels in current game, and state of current level being played.
 ///
 /// Templated on LevSet (either a  builtin LevSet, or a load-from-file LevSet).
-///
-/// Could also take a &dyn LevSet trait object so that it could be linked with compiled level
+/// Could instead take a &dyn LevSet trait object so that it could be linked with compiled level
 /// sets, but need to establish how to pass an appropriate LevStage pointer to the concrete
 /// class.
 pub struct Game<Levs: levset::LevSet> {
