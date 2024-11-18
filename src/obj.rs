@@ -201,6 +201,7 @@ pub enum AI {
     Snake, // Move in direction, move orthogonally towards hero. Maybe: bounce off walls.
     Bounce, // Move in direction, reverse direction at walls.
     Drift, // Move in direction, reverse direction at walls, move diagonally towards hero at reversal.
+    Scuttle, // Move in direction, when hit wall change to move orthogonally towards hero.
 }
 
 // Effect when intersect with hero (as mov or stay)

@@ -186,11 +186,11 @@ impl LevPlay
         }
 
         // Move all movs
-        for mov in &mut self.field.ros.movs {
+        for bot in &mut self.field.ros.movs {
             // Before movement, reset "prev". Will be overwritten if movement happens.
-            self.field.map[*mov].prev_pos = self.field.map[*mov].cached_pos;
+            self.field.map[*bot].prev_pos = self.field.map[*bot].cached_pos;
 
-            match self.field.map[*mov].ai {
+            match self.field.map[*bot].ai {
                 AI::Stay => {
                     // Do nothing
                 },
@@ -200,14 +200,14 @@ impl LevPlay
                 // STUB: When we see what mov movement logic are like, try to combine them into one fn.
                 AI::Snake => {
                     // if mov on same row xor column as hero, change dir to face hero
-                    if (mov.x == self.field.ros.hero.x) != (mov.y == self.field.ros.hero.y) {
-                        let new_dir = CoordDelta::from_xy((self.field.ros.hero.x - mov.x).signum(),(self.field.ros.hero.y - mov.y).signum());
-                        self.field.map[*mov].dir = new_dir;
+                    if (bot.x == self.field.ros.hero.x) != (bot.y == self.field.ros.hero.y) {
+                        let new_dir = CoordDelta::from_xy((self.field.ros.hero.x - bot.x).signum(),(self.field.ros.hero.y - bot.y).signum());
+                        self.field.map[*bot].dir = new_dir;
                     }
 
                     // NOTE: When mov goes out of bounds is placeholder for real win condition.
-                    if !(0..self.field.map.w() as i16).contains(&(mov.x + self.field.map[*mov].dir.dx)) ||
-                        !(0..self.field.map.h() as i16).contains(&(mov.y + self.field.map[*mov].dir.dy))
+                    if !(0..self.field.map.w() as i16).contains(&(bot.x + self.field.map[*bot].dir.dx)) ||
+                        !(0..self.field.map.h() as i16).contains(&(bot.y + self.field.map[*bot].dir.dy))
                     {
                         return self.next_win();
                     }
@@ -215,12 +215,12 @@ impl LevPlay
                     {
                         // move mov to new location
                         // TODO: Have a "move_dir" fn.
-                        let dir = self.field.map[*mov].dir;
-                        self.field.map.move_delta(mov, dir);
+                        let dir = self.field.map[*bot].dir;
+                        self.field.map.move_delta(bot, dir);
                     }
 
                     // Die if mov moves onto hero
-                    if mov.x == self.field.ros.hero.x && mov.y == self.field.ros.hero.y {
+                    if bot.x == self.field.ros.hero.x && bot.y == self.field.ros.hero.y {
                         return self.next_die();
                     }
                 },
@@ -228,19 +228,19 @@ impl LevPlay
                     // TODO: Make a Map:: fn for "at pos + dir, or appropriate default if off map"
 
                     // If hitting wall, reverse direction.
-                    if self.field.map.loc_at(*mov + self.field.map[*mov].dir).impassable() {
-                        self.field.map[*mov].dir = CoordDelta::from_xy(-self.field.map[*mov].dir.dx, -self.field.map[*mov].dir.dy);
+                    if self.field.map.loc_at(*bot + self.field.map[*bot].dir).impassable() {
+                        self.field.map[*bot].dir = CoordDelta::from_xy(-self.field.map[*bot].dir.dx, -self.field.map[*bot].dir.dy);
                     }
 
                     // Move. Provided next space is passable. If both sides are impassable, don't
                     // move.
-                    if self.field.map.loc_at(*mov + self.field.map[*mov].dir).passable() {
-                        self.field.map.move_delta(mov, self.field.map[*mov].dir);
+                    if self.field.map.loc_at(*bot + self.field.map[*bot].dir).passable() {
+                        self.field.map.move_delta(bot, self.field.map[*bot].dir);
                     }
 
                     // Hero dies if mov moves onto hero
-                    if self.field.map[*mov].effect == Effect::Kill {
-                        if mov.x == self.field.ros.hero.x && mov.y == self.field.ros.hero.y {
+                    if self.field.map[*bot].effect == Effect::Kill {
+                        if bot.x == self.field.ros.hero.x && bot.y == self.field.ros.hero.y {
                             return self.next_die();
                         }
                     }
@@ -250,17 +250,17 @@ impl LevPlay
 
                     let mut drift_dir = CoordDelta::from_xy(0, 0);
                     // If hitting wall, reverse direction.
-                    if self.field.map.loc_at(*mov + self.field.map[*mov].dir).impassable() {
-                        self.field.map[*mov].dir = CoordDelta::from_xy(-self.field.map[*mov].dir.dx, -self.field.map[*mov].dir.dy);
+                    if self.field.map.loc_at(*bot + self.field.map[*bot].dir).impassable() {
+                        self.field.map[*bot].dir = CoordDelta::from_xy(-self.field.map[*bot].dir.dx, -self.field.map[*bot].dir.dy);
                         // If hero "visible" forward or sideways, move one sideways towards them, if passable.
                         // TODO: Check for obstacles to vision.
-                        let hero_dir = CoordDelta::from_xy((self.field.ros.hero.x - mov.x).signum(),(self.field.ros.hero.y - mov.y).signum());
-                        if self.field.map[*mov].dir.dx == 0 {
-                            if hero_dir.dy != -self.field.map[*mov].dir.dy {
+                        let hero_dir = CoordDelta::from_xy((self.field.ros.hero.x - bot.x).signum(),(self.field.ros.hero.y - bot.y).signum());
+                        if self.field.map[*bot].dir.dx == 0 {
+                            if hero_dir.dy != -self.field.map[*bot].dir.dy {
                                 drift_dir = CoordDelta::from_xy(hero_dir.dx, 0);
                             }
-                        } else if self.field.map[*mov].dir.dy == 0 {
-                            if hero_dir.dx != -self.field.map[*mov].dir.dx {
+                        } else if self.field.map[*bot].dir.dy == 0 {
+                            if hero_dir.dx != -self.field.map[*bot].dir.dx {
                                 drift_dir = CoordDelta::from_xy(0, hero_dir.dy);
                             }
                         } else {
@@ -270,18 +270,59 @@ impl LevPlay
 
                     // Move. Provided next space is passable. If both sides are impassable, don't move.
                     // TODO: Animation for turning? At least avoiding wall?
-                    let delta = self.field.map[*mov].dir + drift_dir;
-                    if self.field.map.loc_at(*mov + delta).passable() {
-                        self.field.map.move_delta(mov, delta);
+                    let delta = self.field.map[*bot].dir + drift_dir;
+                    if self.field.map.loc_at(*bot + delta).passable() {
+                        self.field.map.move_delta(bot, delta);
                     }
 
                     // Hero dies if mov moves onto hero
-                    if self.field.map[*mov].effect == Effect::Kill {
-                        if mov.x == self.field.ros.hero.x && mov.y == self.field.ros.hero.y {
+                    if self.field.map[*bot].effect == Effect::Kill {
+                        if bot.x == self.field.ros.hero.x && bot.y == self.field.ros.hero.y {
                             return self.next_die();
                         }
                     }
-                }
+                },
+                AI::Scuttle => {
+                    // If hitting wall, choose new direction.
+                    if self.field.map.loc_at(*bot + self.field.map[*bot].dir).impassable() {
+                        let dx_to_hero = self.field.ros.hero.x - bot.x;
+                        let dy_to_hero = self.field.ros.hero.y - bot.y;
+                        // Find whether x or y is more towards the hero
+                        let x_longer_than_y = match dx_to_hero.abs() - dy_to_hero.abs() {
+                            num if num > 0 => true,
+                            num if num < 0 => false,
+                            _ => self.field.map[*bot].dir.dy.abs() < self.field.map[*bot].dir.dy.abs(),
+                        };
+                        // dlongcoord is the orthogonal direction most towards the hero. dshortcoord is the other best.
+                        let (dlongcoord, dshortcoord) = if x_longer_than_y {
+                            (CoordDelta::from_xy(dx_to_hero.signum(), 0), CoordDelta::from_xy(0, dy_to_hero.signum()))
+                        } else {
+                            (CoordDelta::from_xy(0, dy_to_hero.signum()), CoordDelta::from_xy(dx_to_hero.signum(), 0))
+                        };
+                        // Prefer the directions "most" towards the hero first
+                        let try_dirs = vec![dlongcoord, dshortcoord, -dshortcoord, -dlongcoord];
+                        // Try each direction in turn, use the first passable one.
+                        // Can't be the same as original direction because that was impassable.
+                        // If none are passable, stay in the same direction we started.
+                        if let Some(dir) = try_dirs.iter().find(|dir|
+                            self.field.map.loc_at(*bot + **dir).passable()
+                        ) {
+                            self.field.map[*bot].dir = *dir;
+                        }
+                    }
+
+                    // Move. Provided next space is passable. If all sides were impassable, don't move.
+                    if self.field.map.loc_at(*bot + self.field.map[*bot].dir).passable() {
+                        self.field.map.move_delta(bot, self.field.map[*bot].dir);
+                    }
+
+                    // Hero dies if bot moves onto hero
+                    if self.field.map[*bot].effect == Effect::Kill {
+                        if bot.x == self.field.ros.hero.x && bot.y == self.field.ros.hero.y {
+                            return self.next_die();
+                        }
+                    }
+                },
             }
         }
         return None
