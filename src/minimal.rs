@@ -1,12 +1,32 @@
 // Minimalist example of map types to try out different ways of handling ownership.
 //
+// Things to think about:
+//
+// Convenience of setting loc blah to thing foo.
+// How to have a "handle" to a location? To an object? From within the map?
+//  2dPos
+//  3dpos? Probably not??
+//  handle to object? When we need that?
+//  how to have map "available" in all functions?? How that works with iteration etc?
+// More specifically, what specific accesses did I end up using in the game?
+//  Iterate through map
+//  And move something??
+//  Maybe: object with a "pointer" to another object?
+//  Maybe: "roster" of movables?
+// How would I do this in python or C? What's the rust equivalent?
+//  Just always have a pointer to the map and deal with it directly?
+//   What cases do I need to think about?
+//   How to actually do that? An almost-global runtime-lock access? The lock would be fine, are pointers to it inconvenient?
+//  ..
+// And Q
+//  Avoiding boilerplate. Easy to have a "fat" pointer to map and position? To have more than one?? Or to always have map ptr param?
+//  Just global?
+//
 // Cases to deal with:
 //
 // Iterating through map (e.g. render)
 // Iterating through bots in roster
 //  And updating map in the way...
-
-// ENH: Macro for s!{Hello} rather than "Hello".as_string()
 
 #![allow(dead_code)]
 
