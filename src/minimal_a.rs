@@ -23,6 +23,15 @@ impl Map
         0..self.loc_objs.len()
     }
 
+    pub fn movable_objs(&self) -> impl Iterator<Item=usize> + use<'_> {
+        let loc_coords = self.loc_coords();
+        std::iter::from_coroutine(#[coroutine] || {
+            for idx in loc_coords {
+                yield idx
+            }
+        })
+    }
+
     pub fn iterate(&mut self) {
         for idx in self.loc_coords() {
             let loc = &self.loc_objs[idx];

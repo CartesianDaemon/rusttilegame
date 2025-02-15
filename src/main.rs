@@ -1,3 +1,5 @@
+#![feature(coroutines, coroutine_trait, iter_from_coroutine)]
+
 mod map_coords;
 mod util;
 
