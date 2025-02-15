@@ -19,8 +19,12 @@ impl Map
         self.loc_objs[new_pos+1].push(obj);
     }
 
+    pub fn loc_coords(&self) -> impl Iterator<Item=usize> {
+        0..self.loc_objs.len()
+    }
+
     pub fn iterate(&mut self) {
-        for idx in 0..self.loc_objs.len() {
+        for idx in self.loc_coords() {
             let loc = &self.loc_objs[idx];
             let obj = match loc.get(1) {
                 None => continue,
