@@ -12,7 +12,6 @@ mod obj;
 mod levset;
 mod levset_biobot;
 
-mod minimal_a;
 mod test;
 
 use game::Game;
