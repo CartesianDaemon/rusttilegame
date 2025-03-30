@@ -8,11 +8,11 @@ use super::render::Render;
 ///
 /// Including set of levels in current game, and state of current level being played.
 ///
-/// Templated on LevSet (either a  builtin LevSet, or a load-from-file LevSet).
-/// Could instead take a &dyn LevSet trait object so that it could be linked with compiled level
+/// Templated on Levels (either a  builtin Levels, or a load-from-file Levels).
+/// Could instead take a &dyn Levels trait object so that it could be linked with compiled level
 /// sets, but need to establish how to pass an appropriate LevStage pointer to the concrete
 /// class.
-pub struct Game<Levs: levset::LevSet> {
+pub struct Game<Levs: levset::Levels> {
     /// Level set currently playing through, e.g. the biobot game.
     pub lev_set: Levs,
 
@@ -39,7 +39,7 @@ pub struct Game<Levs: levset::LevSet> {
     render: Render,
 }
 
-impl<Levs: levset::LevSet> Game<Levs> {
+impl<Levs: levset::Levels> Game<Levs> {
     pub fn new(lev_set: Levs) -> Game<Levs> {
         let play = lev_set.load_lev_stage_impl(lev_set.initial_lev_stage());
         Game {

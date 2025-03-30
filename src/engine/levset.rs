@@ -50,7 +50,7 @@ pub trait LevstageDerived : LevstageBase + Copy + Clone {
 /// Built in level sets typically have no state. May implement a dynamic level
 /// set which loads from a file, where an instance would contain the file name,
 /// or contents from the file.
-pub trait LevSet {
+pub trait Levels {
     type Levstage : LevstageDerived;
 
     /// Level stage to begin game with

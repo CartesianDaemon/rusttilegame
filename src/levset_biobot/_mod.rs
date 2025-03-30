@@ -13,4 +13,4 @@
 
 mod levels;
 
-pub use levels::{BiobotLevSet, BiobotStage, biobot_levplay};
+pub use levels::{BiobotLevels, BiobotStage, biobot_levplay};

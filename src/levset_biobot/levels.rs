@@ -25,11 +25,11 @@ impl LevstageBase for BiobotStage {
 impl LevstageDerived for BiobotStage {
 }
 
-pub struct BiobotLevSet {
+pub struct BiobotLevels {
     // Any biobot-specific game state would go here.
 }
 
-impl LevSet for BiobotLevSet {
+impl Levels for BiobotLevels {
     type Levstage = BiobotStage;
 
     fn initial_lev_stage(&self) -> BiobotStage {
