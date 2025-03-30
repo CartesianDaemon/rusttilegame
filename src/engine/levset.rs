@@ -34,13 +34,19 @@ downcast_rs::impl_downcast!(LevelNumBase);
 
 dyn_clone::clone_trait_object!(LevelNumBase);
 
-/// Identify a level within a level set.
+/// A trait describing classes which identify a level in a game (e.g. Level 1, etc)
 ///
-/// Stored in the game engine as a box dyn trait object because each type of level
-/// set can use a different type to identify levels. Typically an enum combining
-/// level number with intro/play/outro, and a few special states like GameOver.
-/// For level sets loaded dynamically from a file, will use a general type like
-/// a string.
+/// Despite the name most games use it to identify part of a level, e.g. a level
+/// splash screen, the level gameplay, etc. It is typically a rust enum.
+///
+/// It is derived from LevelNumBase so that the game engine can store level identifiers
+/// through a dyn-trait pointer with the base trait type. And downcast them back to the
+/// game-specific type to pass them back to game-specific code.
+/// 
+/// This seemed like a good idea to allow games to be dynamically loaded, but it might
+/// be unnecessary and maybe it should be removed in favour of templating the Game
+/// class on a game-specific Levset at compile time. (Or separating the game-specific
+/// parts which need to be compiled, from those that could be dynamically loaded as data)
 #[allow(dead_code)]
 pub trait LevelNum : LevelNumBase + Copy + Clone {
 }
