@@ -45,11 +45,22 @@ dyn_clone::clone_trait_object!(LevstageBase);
 pub trait LevstageDerived : LevstageBase + Copy + Clone {
 }
 
-/// A set of levels constituting one game.
+/// A trait describing classes which define the levels for a game.
 ///
-/// Built in level sets typically have no state. May implement a dynamic level
-/// set which loads from a file, where an instance would contain the file name,
-/// or contents from the file.
+/// This could be a simple array of levels, but it doesn't assume that so that
+/// games could generate levels dynamically or load them from files.
+///
+/// The simplest implementations of Levels hardcode the set of levels, e.g. the
+/// the example Biobot game implements the trait on the BiobotLevels class which
+/// doesn't have any member variables at all.
+///
+/// However it is possible to have implementations that do have state, e.g. a
+/// random seed used to generate a set of levels, or a filename that the levels
+/// are loaded from.
+///
+/// It might simplify the implementation of the game engine slightly to specify the
+/// size of objects implementing the Levels trait so the game engine can store them
+/// without dynamic allocation, but that probably doesn't gain much efficiency.
 pub trait Levels {
     type Levstage : LevstageDerived;
 
