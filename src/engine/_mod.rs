@@ -11,4 +11,5 @@ pub mod input;
 pub mod play;
 pub mod obj;
 
+#[path = "tests/_mod.rs"]
 mod engine_tests;

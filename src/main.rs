@@ -1,6 +1,9 @@
 #![feature(coroutines, coroutine_trait, iter_from_coroutine)]
 
+#[path = "engine/_mod.rs"]
 mod engine;
+
+#[path = "levset_biobot/_mod.rs"]
 mod levset_biobot;
 
 use engine::game::Game;
