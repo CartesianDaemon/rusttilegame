@@ -3,13 +3,12 @@ use macroquad::prelude::*;
 
 use std::collections::HashMap;
 
-use crate::*;
-
-use input::Input;
-use field::Field;
-use obj::Obj;
-use map_coords::*;
-use levset::LevstageBase;
+use super::input::Input;
+use super::field::Field;
+use super::obj::Obj;
+use super::map_coords::*;
+use super::levset;
+use super::levset::LevstageBase;
 
 /// Interactive map, the actual gameplay part of the game.
 #[derive(Clone, Debug)]
@@ -155,7 +154,7 @@ impl LevPlay
         // Need all the properties used in Ent.
         // May move "can move" like logic into load, along with the assorted properties.
         // While keeping movement code coordinating between ents here.
-        use obj::*;
+        use super::obj::*;
 
         // FIXME: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.

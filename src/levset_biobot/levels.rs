@@ -10,12 +10,12 @@
 
 use std::collections::HashMap;
 
-use crate::*;
+use crate::engine::*;
 
-use levset::*; // Less than all?
+use crate::engine::levset::*; // Less than all?
 
-use play::Play;
-use map_coords::*;
+use crate::engine::play::Play;
+use crate::engine::map_coords::*;
 
 #[derive(Clone, Copy, Debug)]
 pub enum BiobotStage {
@@ -130,11 +130,11 @@ impl LevSet for BiobotLevSet {
 ///
 /// Also used by tests
 
-pub fn biobot_splash(txt: String, to_stage: levset_biobot::BiobotStage) -> Play {
+pub fn biobot_splash(txt: String, to_stage: BiobotStage) -> Play {
     Play::make_splash(txt, Box::new(to_stage))
 }
 
-pub fn biobot_dialogue_splash(entries: Vec<&str>, to_stage: levset_biobot::BiobotStage) -> Play {
+pub fn biobot_dialogue_splash(entries: Vec<&str>, to_stage: BiobotStage) -> Play {
     Play::make_dialogue(entries, Box::new(to_stage))
 }
 

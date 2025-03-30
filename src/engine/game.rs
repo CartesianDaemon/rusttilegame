@@ -1,8 +1,8 @@
-use crate::*;
+use crate::engine::*;
 
-use play::Play;
-use input::Input;
-use render::Render;
+use super::play::Play;
+use super::input::Input;
+use super::render::Render;
 
 /// Overall game state.
 ///

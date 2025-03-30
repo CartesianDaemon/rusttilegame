@@ -13,11 +13,9 @@ use std::ops::IndexMut;
 
 use culpa::try_fn;
 
-use crate::*;
+use super::map_coords::*;
 
-use map_coords::*;
-
-use obj::Obj;
+use super::obj::Obj;
 
 // "Map": Grid of locations. Represents state of current level.
 #[derive(Clone)]
@@ -417,7 +415,7 @@ impl Loc {
 
     pub fn impassable(&self) -> bool {
         // Can this fn work without knowledge of specific properties?
-        use obj::Pass;
+        use super::obj::Pass;
         self.iter().any(|x| x.pass == Pass::Solid)
     }
 

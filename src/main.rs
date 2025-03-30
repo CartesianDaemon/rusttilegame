@@ -1,20 +1,10 @@
 #![feature(coroutines, coroutine_trait, iter_from_coroutine)]
 
-mod map_coords;
-mod util;
-
-pub mod game;
-mod play;
-mod input;
-mod render;
-mod field;
-mod obj;
-mod levset;
+mod engine;
 mod levset_biobot;
-
 mod test;
 
-use game::Game;
+use engine::game::Game;
 
 #[macroquad::main("Tile Game")]
 async fn main() {

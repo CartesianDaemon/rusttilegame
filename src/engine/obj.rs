@@ -1,4 +1,4 @@
-use crate::map_coords::{CoordDelta, MapHandle};
+use super::map_coords::{CoordDelta, MapHandle};
 
 use macroquad::prelude::*;
 

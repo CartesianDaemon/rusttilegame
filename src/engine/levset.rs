@@ -7,13 +7,11 @@
 
 use macroquad::prelude::*;
 
-use crate::*;
-
-use map_coords::CoordDelta;
+use super::map_coords::CoordDelta;
 // Need many of the specific params in ent.
 // Some of those may move to his file.
-use obj::*;
-use play::Play;
+use super::obj::*;
+use super::play::Play;
 
 /// Opaque base type for LevelSetDerived types
 ///

@@ -1,18 +1,19 @@
 #![allow(unused)] // TODO
+// TODO: Move into engine directory?
 
 use std::collections::HashMap;
 
 use assrt::*;
 use macroquad::prelude::*;
 
-use crate::levset::*; // For new_xxxx() fns
+use crate::engine::levset::*; // For new_xxxx() fns
+use crate::engine::play::Play;
+use crate::engine::map_coords::*;
 use crate::levset_biobot::biobot_levplay;
-use crate::play::Play;
-use crate::map_coords::*;
 
 #[cfg(test)]
 mod basic_tests {
-    use crate::input::Input;
+    use crate::engine::input::Input;
 
     use super::*;
 

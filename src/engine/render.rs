@@ -3,11 +3,11 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 use assrt::rsst;
 
-use crate::*;
-
-use play::Play;
-use obj::Obj;
-use map_coords::CoordDelta;
+use super::play;
+use super::play::Play;
+use super::obj;
+use super::obj::Obj;
+use super::map_coords::CoordDelta;
 
 type TextureCache = HashMap<String, Texture2D>;
 
