@@ -28,11 +28,11 @@ use super::play::Play;
 ///
 /// Any benefit for adding a type or struct for Box<dyn LevelstageBase> as that's what we
 /// pass around?
-pub trait LevstageBase : downcast_rs::Downcast + dyn_clone::DynClone + std::fmt::Debug {
+pub trait LevelNumBase : downcast_rs::Downcast + dyn_clone::DynClone + std::fmt::Debug {
 }
-downcast_rs::impl_downcast!(LevstageBase);
+downcast_rs::impl_downcast!(LevelNumBase);
 
-dyn_clone::clone_trait_object!(LevstageBase);
+dyn_clone::clone_trait_object!(LevelNumBase);
 
 /// Identify a level within a level set.
 ///
@@ -42,7 +42,7 @@ dyn_clone::clone_trait_object!(LevstageBase);
 /// For level sets loaded dynamically from a file, will use a general type like
 /// a string.
 #[allow(dead_code)]
-pub trait LevstageDerived : LevstageBase + Copy + Clone {
+pub trait LevelNum : LevelNumBase + Copy + Clone {
 }
 
 /// A trait describing classes which define the levels for a game.
@@ -62,7 +62,7 @@ pub trait LevstageDerived : LevstageBase + Copy + Clone {
 /// size of objects implementing the Levels trait so the game engine can store them
 /// without dynamic allocation, but that probably doesn't gain much efficiency.
 pub trait Levels {
-    type Levstage : LevstageDerived;
+    type Levstage : LevelNum;
 
     /// Level stage to begin game with
     fn initial_lev_stage(&self) -> Self::Levstage;
@@ -72,7 +72,7 @@ pub trait Levels {
 
     /// Load or construct a Play instance for the specified level stage.
     ///
-    /// Default implementation downcasts a LevstageBase ref to the actual Levstage
+    /// Default implementation downcasts a LevelNumBase ref to the actual Levstage
     /// type and delegates the actual work to _load_lev_stage.
     ///
     /// Must accept box to do the downcasting.
@@ -80,7 +80,7 @@ pub trait Levels {
     /// Accepts ref to box. Why can't we borrow a box?
     ///
     /// Would be any easier to clone box?
-    fn load_lev_stage(&self, lev_stage_box : &Box<dyn LevstageBase>) -> Play {
+    fn load_lev_stage(&self, lev_stage_box : &Box<dyn LevelNumBase>) -> Play {
         if let Some(lev_stage) = lev_stage_box.downcast_ref::<Self::Levstage>() {
             self.load_lev_stage_impl(*lev_stage)
         } else {

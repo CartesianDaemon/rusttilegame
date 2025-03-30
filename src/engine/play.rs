@@ -8,15 +8,15 @@ use super::field::Field;
 use super::obj::Obj;
 use super::map_coords::*;
 use super::levset;
-use super::levset::LevstageBase;
+use super::levset::LevelNumBase;
 
 /// Interactive map, the actual gameplay part of the game.
 #[derive(Clone, Debug)]
 pub struct LevPlay {
     /// Next stage to go to after win.
-    pub to_stage: Box<dyn LevstageBase>,
+    pub to_stage: Box<dyn LevelNumBase>,
     // Next stage to go to after death. In levset_biobots always retry.
-    pub die_stage: Box<dyn LevstageBase>,
+    pub die_stage: Box<dyn LevelNumBase>,
 
     // Layout of current map.
     pub field: Field,
@@ -26,7 +26,7 @@ pub struct LevPlay {
 #[derive(Clone, Debug)]
 pub struct Splash {
     /// Next stage to go to after continue.
-    pub to_stage: Box<dyn LevstageBase>,
+    pub to_stage: Box<dyn LevelNumBase>,
 
     // Text for current interstitial screen. Only in Splash.
     pub splash_text: String,
@@ -38,8 +38,8 @@ pub struct Splash {
 /// Public fields should only be needed by Render or produced by load, not
 /// used elsewhere.
 ///
-/// Stores id of next stage through opaque LevstageBase trait object. It was a pain to
-/// get the trait object to work. Also consider using a fixed-size type for LevstageBase.
+/// Stores id of next stage through opaque LevelNumBase trait object. It was a pain to
+/// get the trait object to work. Also consider using a fixed-size type for LevelNumBase.
 /// Also considered making Play templated on Levels at compile time.
 ///
 /// Eventually we'll probably need to store the current Levstage.
@@ -50,7 +50,7 @@ pub enum Play {
 }
 
 impl Play {
-    pub fn make_splash(txt: String, to_stage:  Box<dyn levset::LevstageBase>,) -> Play {
+    pub fn make_splash(txt: String, to_stage:  Box<dyn levset::LevelNumBase>,) -> Play {
         Play::Splash( Splash {
             splash_text: txt,
             dialogue: Dialogue { entries: vec![]},
@@ -58,7 +58,7 @@ impl Play {
         })
     }
 
-    pub fn make_dialogue(entries: Vec<&str>, to_stage:  Box<dyn levset::LevstageBase>,) -> Play {
+    pub fn make_dialogue(entries: Vec<&str>, to_stage:  Box<dyn levset::LevelNumBase>,) -> Play {
         Play::Splash( Splash {
             splash_text: "".to_string(),
             dialogue: Dialogue { entries: entries.iter().map(|x| DialogueLine {tex_path: "".to_string(), text: x.to_string()} ).collect() },
@@ -72,8 +72,8 @@ impl Play {
     pub fn levplay_from_ascii<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
         map_key: HashMap<char, Vec<Obj>>,
-        to_stage: Box<dyn levset::LevstageBase>,
-        die_stage: Box<dyn levset::LevstageBase>,
+        to_stage: Box<dyn levset::LevelNumBase>,
+        die_stage: Box<dyn levset::LevelNumBase>,
     ) -> Play {
         // TODO: Get size from strings. Assert equal to default 16 in meantime.
         let mut levplay = LevPlay {
@@ -107,7 +107,7 @@ impl Play {
     }
 
     // Advance game state according to current state
-    pub fn advance(&mut self, input : &mut Input) -> Option<Box<dyn LevstageBase>> {
+    pub fn advance(&mut self, input : &mut Input) -> Option<Box<dyn LevelNumBase>> {
         match self {
             Self::LevPlay(play) => play.advance(input.consume_keypresses()),
             Self::Splash(play) => play.advance(input),
@@ -150,7 +150,7 @@ impl LevPlay
         self.field.place_obj_at(x, y, orig_obj);
     }
 
-    pub fn advance(&mut self, last_key_pressed: Option<KeyCode>) -> Option<Box<dyn LevstageBase>>  {
+    pub fn advance(&mut self, last_key_pressed: Option<KeyCode>) -> Option<Box<dyn LevelNumBase>>  {
         // Need all the properties used in Ent.
         // May move "can move" like logic into load, along with the assorted properties.
         // While keeping movement code coordinating between ents here.
@@ -327,18 +327,18 @@ impl LevPlay
         return None
     }
 
-    fn next_win(&self) -> Option<Box<dyn LevstageBase>> {
+    fn next_win(&self) -> Option<Box<dyn LevelNumBase>> {
         Some(self.to_stage.clone())
     }
 
-    fn next_die(&self) -> Option<Box<dyn LevstageBase>> {
+    fn next_die(&self) -> Option<Box<dyn LevelNumBase>> {
         Some(self.die_stage.clone())
     }
 }
 
 impl Splash
 {
-    fn advance(&mut self, input: &mut Input) -> Option<Box<dyn LevstageBase>> {
+    fn advance(&mut self, input: &mut Input) -> Option<Box<dyn LevelNumBase>> {
         let key = input.consume_keypresses();
 
         // Reset "most recent tick" when leaving menu.
@@ -352,7 +352,7 @@ impl Splash
         return None
     }
 
-    fn next_continue(&self) -> Option<Box<dyn LevstageBase>> {
+    fn next_continue(&self) -> Option<Box<dyn LevelNumBase>> {
         Some(self.to_stage.clone())
     }
 }

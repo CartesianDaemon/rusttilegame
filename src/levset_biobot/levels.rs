@@ -10,7 +10,7 @@ use crate::engine::map_coords::*;
 // TOOD: Would it be useful to have a levset trait defining the necessary traits,
 // even if it doesn't add any other functionality?
 #[derive(Clone, Copy, Debug)]
-pub enum BiobotStage {
+pub enum BiobotLevelNum {
     NewGame,
     LevIntro(u16),
     LevPlay(u16),
@@ -19,10 +19,10 @@ pub enum BiobotStage {
     Win,
 }
 
-impl LevstageBase for BiobotStage {
+impl LevelNumBase for BiobotLevelNum {
 }
 
-impl LevstageDerived for BiobotStage {
+impl LevelNum for BiobotLevelNum {
 }
 
 pub struct BiobotLevels {
@@ -30,13 +30,13 @@ pub struct BiobotLevels {
 }
 
 impl Levels for BiobotLevels {
-    type Levstage = BiobotStage;
+    type Levstage = BiobotLevelNum;
 
-    fn initial_lev_stage(&self) -> BiobotStage {
-        BiobotStage::NewGame
+    fn initial_lev_stage(&self) -> BiobotLevelNum {
+        BiobotLevelNum::NewGame
     }
 
-    fn load_lev_stage_impl(&self, stage: BiobotStage) -> Play {
+    fn load_lev_stage_impl(&self, stage: BiobotLevelNum) -> Play {
         let aquarium1_key = HashMap::from([
             // TODO: Combine with obj.char types?
             (' ', vec![ new_floor() ]),
@@ -54,7 +54,7 @@ impl Levels for BiobotLevels {
 
         match stage {
             // TODO: Can we use idx++ instead of specifying each level number? Not immediately?
-            BiobotStage::NewGame => biobot_dialogue_splash(
+            BiobotLevelNum::NewGame => biobot_dialogue_splash(
                 //"Click or press [enter] to start.".to_string(),
                 vec![
                     "Hello!",
@@ -62,11 +62,11 @@ impl Levels for BiobotLevels {
                     "I'm a snake!",
                     "I'm crab!",
                 ],
-                BiobotStage::LevIntro(1)
+                BiobotLevelNum::LevIntro(1)
             ),
 
-            BiobotStage::LevIntro(1) => biobot_splash("Welcome to level 1!".to_string(), BiobotStage::LevPlay(1)),
-            BiobotStage::LevPlay(1) => biobot_levplay(1, &[
+            BiobotLevelNum::LevIntro(1) => biobot_splash("Welcome to level 1!".to_string(), BiobotLevelNum::LevPlay(1)),
+            BiobotLevelNum::LevPlay(1) => biobot_levplay(1, &[
                 "#            # #",
                 "#####@####@###@#",
                 "@              #",
@@ -84,10 +84,10 @@ impl Levels for BiobotLevels {
                 "#            # #",
                 "#            @ #",
             ], aquarium1_key),
-            BiobotStage::LevOutro(1) => biobot_splash("Well done!! Goodbye from level 1".to_string(), BiobotStage::LevIntro(2)),
+            BiobotLevelNum::LevOutro(1) => biobot_splash("Well done!! Goodbye from level 1".to_string(), BiobotLevelNum::LevIntro(2)),
 
-            BiobotStage::LevIntro(2) => biobot_splash("Ooh, welcome to level 2!".to_string(), BiobotStage::LevPlay(2)),
-            BiobotStage::LevPlay(2) => biobot_levplay(2, &[
+            BiobotLevelNum::LevIntro(2) => biobot_splash("Ooh, welcome to level 2!".to_string(), BiobotLevelNum::LevPlay(2)),
+            BiobotLevelNum::LevPlay(2) => biobot_levplay(2, &[
                 "################",
                 "#              #",
                 "#              #",
@@ -105,14 +105,14 @@ impl Levels for BiobotLevels {
                 "#              #",
                 "####o###########",
             ], aquarium1_key),
-            BiobotStage::LevOutro(2) => biobot_splash("Wow, well done!! Goodbye from level 2!".to_string(), BiobotStage::Win),
+            BiobotLevelNum::LevOutro(2) => biobot_splash("Wow, well done!! Goodbye from level 2!".to_string(), BiobotLevelNum::Win),
 
-            BiobotStage::Retry(levno) => biobot_splash("Game Over. Press [enter] to retry.".to_string(), BiobotStage::LevPlay(levno)),
-            BiobotStage::Win => biobot_splash("Congratulations. You win! Press [enter] to play again.".to_string(), BiobotStage::LevIntro(1)),
+            BiobotLevelNum::Retry(levno) => biobot_splash("Game Over. Press [enter] to retry.".to_string(), BiobotLevelNum::LevPlay(levno)),
+            BiobotLevelNum::Win => biobot_splash("Congratulations. You win! Press [enter] to play again.".to_string(), BiobotLevelNum::LevIntro(1)),
 
-            BiobotStage::LevIntro(_) => panic!("Loading LevIntro for level that can't be found."),
-            BiobotStage::LevPlay(_) => panic!("Loading LevPlay for level that can't be found."),
-            BiobotStage::LevOutro(_) => panic!("Loading LevOutro for level that can't be found."),
+            BiobotLevelNum::LevIntro(_) => panic!("Loading LevIntro for level that can't be found."),
+            BiobotLevelNum::LevPlay(_) => panic!("Loading LevPlay for level that can't be found."),
+            BiobotLevelNum::LevOutro(_) => panic!("Loading LevOutro for level that can't be found."),
         }
     }
 }
@@ -122,19 +122,19 @@ impl Levels for BiobotLevels {
 ///
 /// Also used by tests
 
-pub fn biobot_splash(txt: String, to_stage: BiobotStage) -> Play {
+pub fn biobot_splash(txt: String, to_stage: BiobotLevelNum) -> Play {
     Play::make_splash(txt, Box::new(to_stage))
 }
 
-pub fn biobot_dialogue_splash(entries: Vec<&str>, to_stage: BiobotStage) -> Play {
+pub fn biobot_dialogue_splash(entries: Vec<&str>, to_stage: BiobotLevelNum) -> Play {
     Play::make_dialogue(entries, Box::new(to_stage))
 }
 
 pub fn biobot_levplay<const HEIGHT: usize>(levno: u16, ascii_map: &[&str; HEIGHT], map_key: HashMap<char, Vec<obj::Obj>>) -> Play {
-    // Box::new(BiobotStage::LevOutro(levno)),
+    // Box::new(BiobotLevelNum::LevOutro(levno)),
     Play::levplay_from_ascii(
         ascii_map,
         map_key,
-        Box::new(BiobotStage::LevOutro(levno)),
-        Box::new(BiobotStage::Retry(levno)))
+        Box::new(BiobotLevelNum::LevOutro(levno)),
+        Box::new(BiobotLevelNum::Retry(levno)))
 }
