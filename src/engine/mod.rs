@@ -10,3 +10,5 @@ mod field;
 pub mod input;
 pub mod play;
 pub mod obj;
+
+mod engine_tests;

@@ -2,7 +2,6 @@
 
 mod engine;
 mod levset_biobot;
-mod test;
 
 use engine::game::Game;
 

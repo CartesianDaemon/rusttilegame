@@ -1,5 +1,4 @@
 #![allow(unused)] // TODO
-// TODO: Move into engine directory?
 
 use std::collections::HashMap;
 
