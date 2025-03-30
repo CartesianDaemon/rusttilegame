@@ -1,13 +1,3 @@
-/// My game, not the game engine. Not licensed as GPL.
-///
-/// Licensed as an artistic work, not as software, e.g. the art,
-/// characters, plot, level layout. License details TBD.
-///
-/// Also OK to use during development, e.g. to test that the crate
-/// compiles, or to borrow the general layout of the file. Though if
-/// I get that far I should make a separate example game pepole can
-/// build on and maybe even move this into a separate crate.
-
 use std::collections::HashMap;
 
 use crate::engine::*;
