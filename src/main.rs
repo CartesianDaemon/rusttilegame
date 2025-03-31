@@ -6,14 +6,14 @@ mod engine;
 #[path = "levset_biobot/_mod.rs"]
 mod levset_biobot;
 
-use engine::game::Game;
+use engine::game::Engine;
 
 #[macroquad::main("Tile Game")]
 async fn main() {
-    let mut game = Game::new(levset_biobot::BiobotLevels {});
+    let mut engine = Engine::new(levset_biobot::BiobotLevels {});
 
     loop {
-        game.do_frame().await;
+        engine.do_frame().await;
         macroquad::prelude::next_frame().await;
     }
 }

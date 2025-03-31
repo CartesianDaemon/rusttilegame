@@ -4,19 +4,19 @@ use super::play::Play;
 use super::input::Input;
 use super::render::Render;
 
-/// Overall game state.
+/// Overall Engine state.
 ///
-/// Including set of levels in current game, and state of current level being played.
+/// Including set of levels in current Engine, and state of current level being played.
 ///
 /// Templated on Levels (either a  builtin Levels, or a load-from-file Levels).
 /// Could instead take a &dyn Levels trait object so that it could be linked with compiled level
 /// sets, but need to establish how to pass an appropriate LevStage pointer to the concrete
 /// class.
-pub struct Game<Levs: levset::Levels> {
-    /// Level set currently playing through, e.g. the biobot game.
+pub struct Engine<Levs: levset::Levels> {
+    /// Level set currently playing through, e.g. the biobot Engine.
     pub lev_set: Levs,
 
-    /// Current state of gameplay, current level, mostly map etc.
+    /// Current state of Engineplay, current level, mostly map etc.
     play_state: Play,
 
     /// Smoothly from 0 to 1 transition from previous state to current state
@@ -39,10 +39,10 @@ pub struct Game<Levs: levset::Levels> {
     render: Render,
 }
 
-impl<Levs: levset::Levels> Game<Levs> {
-    pub fn new(lev_set: Levs) -> Game<Levs> {
+impl<Levs: levset::Levels> Engine<Levs> {
+    pub fn new(lev_set: Levs) -> Engine<Levs> {
         let play = lev_set.load_lev_stage_impl(lev_set.initial_lev_stage());
-        Game {
+        Engine {
             lev_set,
             ghost_state: play.to_levplay_or_placeholder(),
             play_state: play,
@@ -74,7 +74,7 @@ impl<Levs: levset::Levels> Game<Levs> {
         self.ghost_counter.n_ghost_ticks = self.ghost_counter.reinit_n_ticks();
     }
 
-    /// Collect input. Draw frame. Advance logical game state, if tick scheduled.
+    /// Collect input. Draw frame. Advance logical Engine state, if tick scheduled.
     pub async fn do_frame(&mut self) {
         /* ENH: Can read_input be combined with wait_for_tick? */
         self.input.read_input();
