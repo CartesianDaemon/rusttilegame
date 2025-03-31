@@ -8,15 +8,15 @@ use super::field::Field;
 use super::obj::Obj;
 use super::map_coords::*;
 use super::gametrait;
-use super::gametrait::LevelNumBase;
+use super::gametrait::SceneIdBase;
 
 /// Interactive map, the actual gameplay part of the game.
 #[derive(Clone, Debug)]
 pub struct Play {
     /// Next stage to go to after win.
-    pub to_stage: Box<dyn LevelNumBase>,
+    pub to_stage: Box<dyn SceneIdBase>,
     // Next stage to go to after death. In levset_biobots always retry.
-    pub die_stage: Box<dyn LevelNumBase>,
+    pub die_stage: Box<dyn SceneIdBase>,
 
     // Layout of current map.
     pub field: Field,
@@ -26,7 +26,7 @@ pub struct Play {
 #[derive(Clone, Debug)]
 pub struct Splash {
     /// Next stage to go to after continue.
-    pub to_stage: Box<dyn LevelNumBase>,
+    pub to_stage: Box<dyn SceneIdBase>,
 
     // Text for current interstitial screen. Only in Splash.
     pub splash_text: String,
@@ -50,7 +50,7 @@ pub enum Scene {
 }
 
 impl Scene {
-    pub fn make_splash(txt: String, to_stage:  Box<dyn gametrait::LevelNumBase>,) -> Scene {
+    pub fn make_splash(txt: String, to_stage:  Box<dyn gametrait::SceneIdBase>,) -> Scene {
         Scene::Splash( Splash {
             splash_text: txt,
             dialogue: Dialogue { entries: vec![]},
@@ -58,7 +58,7 @@ impl Scene {
         })
     }
 
-    pub fn make_dialogue(entries: Vec<&str>, to_stage:  Box<dyn gametrait::LevelNumBase>,) -> Scene {
+    pub fn make_dialogue(entries: Vec<&str>, to_stage:  Box<dyn gametrait::SceneIdBase>,) -> Scene {
         Scene::Splash( Splash {
             splash_text: "".to_string(),
             dialogue: Dialogue { entries: entries.iter().map(|x| DialogueLine {tex_path: "".to_string(), text: x.to_string()} ).collect() },
@@ -72,8 +72,8 @@ impl Scene {
     pub fn play_from_ascii<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
         map_key: HashMap<char, Vec<Obj>>,
-        to_stage: Box<dyn gametrait::LevelNumBase>,
-        die_stage: Box<dyn gametrait::LevelNumBase>,
+        to_stage: Box<dyn gametrait::SceneIdBase>,
+        die_stage: Box<dyn gametrait::SceneIdBase>,
     ) -> Scene {
         // TODO: Get size from strings. Assert equal to default 16 in meantime.
         let mut play = Play {
@@ -107,7 +107,7 @@ impl Scene {
     }
 
     // Advance game state according to current state
-    pub fn advance(&mut self, input : &mut Input) -> Option<Box<dyn LevelNumBase>> {
+    pub fn advance(&mut self, input : &mut Input) -> Option<Box<dyn SceneIdBase>> {
         match self {
             Self::Play(play) => play.advance(input.consume_keypresses()),
             Self::Splash(play) => play.advance(input),
@@ -153,7 +153,7 @@ impl Play
         self.field.place_obj_at(x, y, orig_obj);
     }
 
-    pub fn advance(&mut self, last_key_pressed: Option<KeyCode>) -> Option<Box<dyn LevelNumBase>>  {
+    pub fn advance(&mut self, last_key_pressed: Option<KeyCode>) -> Option<Box<dyn SceneIdBase>>  {
         // Need all the properties used in Ent.
         // May move "can move" like logic into load, along with the assorted properties.
         // While keeping movement code coordinating between ents here.
@@ -330,18 +330,18 @@ impl Play
         return None
     }
 
-    fn next_win(&self) -> Option<Box<dyn LevelNumBase>> {
+    fn next_win(&self) -> Option<Box<dyn SceneIdBase>> {
         Some(self.to_stage.clone())
     }
 
-    fn next_die(&self) -> Option<Box<dyn LevelNumBase>> {
+    fn next_die(&self) -> Option<Box<dyn SceneIdBase>> {
         Some(self.die_stage.clone())
     }
 }
 
 impl Splash
 {
-    fn advance(&mut self, input: &mut Input) -> Option<Box<dyn LevelNumBase>> {
+    fn advance(&mut self, input: &mut Input) -> Option<Box<dyn SceneIdBase>> {
         let key = input.consume_keypresses();
 
         // Reset "most recent tick" when leaving menu.
@@ -355,7 +355,7 @@ impl Splash
         return None
     }
 
-    fn next_continue(&self) -> Option<Box<dyn LevelNumBase>> {
+    fn next_continue(&self) -> Option<Box<dyn SceneIdBase>> {
         Some(self.to_stage.clone())
     }
 }
