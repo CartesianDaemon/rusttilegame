@@ -17,9 +17,11 @@
 /// I think of the engine and the game design as two separate crates even
 /// though I haven't implemented that yet.
 
-pub mod game;
+mod engine;
 pub mod levset;
 pub mod map_coords;
+
+pub use engine::Engine;
 pub use map_coords::*;
 pub use levset::*;
 

@@ -16,7 +16,7 @@ pub struct Engine<Levs: levset::Game> {
     /// Level set currently playing through, e.g. the biobot Engine.
     pub lev_set: Levs,
 
-    /// Current state of Engineplay, current level, mostly map etc.
+    /// Current state of gameplay, current level, mostly map etc.
     play_state: Play,
 
     /// Smoothly from 0 to 1 transition from previous state to current state

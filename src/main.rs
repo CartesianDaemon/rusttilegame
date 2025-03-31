@@ -6,7 +6,7 @@ mod engine;
 #[path = "levset_biobot/_mod.rs"]
 mod levset_biobot;
 
-use engine::game::Engine;
+use engine::Engine;
 
 #[macroquad::main("Tile Game")]
 async fn main() {
