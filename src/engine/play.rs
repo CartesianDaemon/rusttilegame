@@ -7,8 +7,6 @@ use super::input::Input;
 use super::field::Field;
 use super::obj::Obj;
 use super::map_coords::*;
-use super::gametrait;
-use super::gametrait::SceneIdBase;
 
 pub enum Continuation {
     SplashContinue,
@@ -19,11 +17,6 @@ pub enum Continuation {
 /// Interactive map, the actual gameplay part of the game.
 #[derive(Clone, Debug)]
 pub struct Play {
-    /// Next stage to go to after win.
-    pub to_stage: Box<dyn SceneIdBase>,
-    // Next stage to go to after death. In levset_biobots always retry.
-    pub die_stage: Box<dyn SceneIdBase>,
-
     // Layout of current map.
     pub field: Field,
 }
@@ -32,7 +25,6 @@ pub struct Play {
 #[derive(Clone, Debug)]
 pub struct Splash {
     /// Next stage to go to after continue.
-    pub to_stage: Box<dyn SceneIdBase>,
 
     // Text for current interstitial screen. Only in Splash.
     pub splash_text: String,
@@ -56,19 +48,17 @@ pub enum Scene {
 }
 
 impl Scene {
-    pub fn make_splash(txt: String, to_stage:  Box<dyn gametrait::SceneIdBase>,) -> Scene {
+    pub fn make_splash(txt: String) -> Scene {
         Scene::Splash( Splash {
             splash_text: txt,
             dialogue: Dialogue { entries: vec![]},
-            to_stage,
         })
     }
 
-    pub fn make_dialogue(entries: Vec<&str>, to_stage:  Box<dyn gametrait::SceneIdBase>,) -> Scene {
+    pub fn make_dialogue(entries: Vec<&str>) -> Scene {
         Scene::Splash( Splash {
             splash_text: "".to_string(),
             dialogue: Dialogue { entries: entries.iter().map(|x| DialogueLine {tex_path: "".to_string(), text: x.to_string()} ).collect() },
-            to_stage,
         })
     }
 
@@ -78,8 +68,6 @@ impl Scene {
     pub fn play_from_ascii<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
         map_key: HashMap<char, Vec<Obj>>,
-        to_stage: Box<dyn gametrait::SceneIdBase>,
-        die_stage: Box<dyn gametrait::SceneIdBase>,
     ) -> Scene {
         // TODO: Get size from strings. Assert equal to default 16 in meantime.
         let mut play = Play {
@@ -87,9 +75,6 @@ impl Scene {
                 map_key: map_key.clone(),
                 ..Field::empty(ascii_map[0].len() as u16, HEIGHT as u16)
             },
-
-            to_stage,
-            die_stage,
         };
 
         for (y, line) in ascii_map.iter().enumerate() {
@@ -131,10 +116,8 @@ impl Scene {
     pub fn to_play_or_placeholder(&self) -> Play {
         match self {
             Self::Play(play) => play.clone(),
-            Self::Splash(splash) => Play {
+            Self::Splash(_splash) => Play {
                 field: Field::empty(16, 16),
-                to_stage: splash.to_stage.clone(),
-                die_stage: splash.to_stage.clone(),
             },
         }
     }

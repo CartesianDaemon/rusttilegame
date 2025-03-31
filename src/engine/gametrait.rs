@@ -74,9 +74,6 @@ pub trait GameTrait {
 
     fn new_game() -> Self;
 
-    /// Level stage to begin game with
-    fn initial_lev_stage(&self) -> Self::SceneId;
-
     /// Load or construct a Play instance for the specified level stage.
     fn load_lev_stage_impl(&mut self, continuation: Continuation) -> Scene;
 

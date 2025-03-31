@@ -43,7 +43,7 @@ mod basic_tests {
         ]);
 
         match n {
-            1=> biobot_play(1, &[
+            1=> biobot_play(&[
                 "#####_########_#",
                 "#            # #",
                 "#  >         @ @",
@@ -53,7 +53,7 @@ mod basic_tests {
                 "##############@#",
             ], test_key
             ),
-            2=> biobot_play(2, &[
+            2=> biobot_play(&[
                 "#g  #",
                 "#   #",
                 "h   #",

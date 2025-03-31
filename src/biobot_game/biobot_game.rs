@@ -34,10 +34,6 @@ impl GameTrait for BiobotGame {
         BiobotGame { current_sceneid: BiobotSceneId::NewGame }
     }
 
-    fn initial_lev_stage(&self) -> BiobotSceneId {
-        BiobotSceneId::NewGame
-    }
-
     fn load_lev_stage_impl(&mut self, continuation: Continuation) -> Scene {
         self.current_sceneid = match (self.current_sceneid, continuation) {
             (BiobotSceneId::NewGame, Continuation::SplashContinue) => BiobotSceneId::LevIntro(1),
@@ -76,12 +72,11 @@ impl GameTrait for BiobotGame {
                     "Hi!",
                     "I'm a snake!",
                     "I'm crab!",
-                ],
-                BiobotSceneId::LevIntro(1)
+                ]
             ),
 
-            BiobotSceneId::LevIntro(1) => biobot_splash("Welcome to level 1!".to_string(), BiobotSceneId::LevPlay(1)),
-            BiobotSceneId::LevPlay(1) => biobot_play(1, &[
+            BiobotSceneId::LevIntro(1) => biobot_splash("Welcome to level 1!".to_string()),
+            BiobotSceneId::LevPlay(1) => biobot_play(&[
                 "#            # #",
                 "#####@####@###@#",
                 "@              #",
@@ -99,10 +94,10 @@ impl GameTrait for BiobotGame {
                 "#            # #",
                 "#            @ #",
             ], aquarium1_key),
-            BiobotSceneId::LevOutro(1) => biobot_splash("Well done!! Goodbye from level 1".to_string(), BiobotSceneId::LevIntro(2)),
+            BiobotSceneId::LevOutro(1) => biobot_splash("Well done!! Goodbye from level 1".to_string()),
 
-            BiobotSceneId::LevIntro(2) => biobot_splash("Ooh, welcome to level 2!".to_string(), BiobotSceneId::LevPlay(2)),
-            BiobotSceneId::LevPlay(2) => biobot_play(2, &[
+            BiobotSceneId::LevIntro(2) => biobot_splash("Ooh, welcome to level 2!".to_string()),
+            BiobotSceneId::LevPlay(2) => biobot_play(&[
                 "################",
                 "#              #",
                 "#              #",
@@ -120,10 +115,10 @@ impl GameTrait for BiobotGame {
                 "#              #",
                 "####o###########",
             ], aquarium1_key),
-            BiobotSceneId::LevOutro(2) => biobot_splash("Wow, well done!! Goodbye from level 2!".to_string(), BiobotSceneId::Win),
+            BiobotSceneId::LevOutro(2) => biobot_splash("Wow, well done!! Goodbye from level 2!".to_string()),
 
-            BiobotSceneId::LevRetry(levno) => biobot_splash("Game Over. Press [enter] to retry.".to_string(), BiobotSceneId::LevPlay(levno)),
-            BiobotSceneId::Win => biobot_splash("Congratulations. You win! Press [enter] to play again.".to_string(), BiobotSceneId::LevIntro(1)),
+            BiobotSceneId::LevRetry(_levno) => biobot_splash("Game Over. Press [enter] to retry.".to_string()),
+            BiobotSceneId::Win => biobot_splash("Congratulations. You win! Press [enter] to play again.".to_string()),
 
             BiobotSceneId::LevIntro(_) => panic!("Loading LevIntro for level that can't be found."),
             BiobotSceneId::LevPlay(_) => panic!("Loading LevPlay for level that can't be found."),
@@ -137,19 +132,18 @@ impl GameTrait for BiobotGame {
 ///
 /// Also used by tests
 
-pub fn biobot_splash(txt: String, to_stage: BiobotSceneId) -> Scene {
-    Scene::make_splash(txt, Box::new(to_stage))
+pub fn biobot_splash(txt: String) -> Scene {
+    Scene::make_splash(txt)
 }
 
-pub fn biobot_dialogue_splash(entries: Vec<&str>, to_stage: BiobotSceneId) -> Scene {
-    Scene::make_dialogue(entries, Box::new(to_stage))
+pub fn biobot_dialogue_splash(entries: Vec<&str>) -> Scene {
+    Scene::make_dialogue(entries)
 }
 
-pub fn biobot_play<const HEIGHT: usize>(levno: u16, ascii_map: &[&str; HEIGHT], map_key: HashMap<char, Vec<engine::Obj>>) -> Scene {
+pub fn biobot_play<const HEIGHT: usize>(ascii_map: &[&str; HEIGHT], map_key: HashMap<char, Vec<engine::Obj>>) -> Scene {
     // Box::new(BiobotLevelNum::LevOutro(levno)),
     Scene::play_from_ascii(
         ascii_map,
         map_key,
-        Box::new(BiobotSceneId::LevOutro(levno)),
-        Box::new(BiobotSceneId::LevRetry(levno)))
+    )
 }
