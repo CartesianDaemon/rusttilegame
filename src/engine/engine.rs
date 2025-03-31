@@ -12,7 +12,7 @@ use super::render::Render;
 /// Could instead take a &dyn Game trait object so that it could be linked with compiled level
 /// sets, but need to establish how to pass an appropriate LevStage pointer to the concrete
 /// class.
-pub struct Engine<Game: gametrait::Game> {
+pub struct Engine<Game: gametrait::GameTrait> {
     /// Level set currently playing through, e.g. the biobot Engine.
     pub game: Game,
 
@@ -39,11 +39,12 @@ pub struct Engine<Game: gametrait::Game> {
     render: Render,
 }
 
-impl<Levs: gametrait::Game> Engine<Levs> {
-    pub fn new(lev_set: Levs) -> Engine<Levs> {
-        let play = lev_set.load_lev_stage_impl(lev_set.initial_lev_stage());
+impl<Game: gametrait::GameTrait> Engine<Game> {
+    pub fn new(init_game: Game) -> Engine<Game> {
+        let mut game = init_game;
+        let play = game.load_lev_stage_impl(Continuation::SplashContinue);
         Engine {
-            game: lev_set,
+            game,
             ghost_state: play.to_play_or_placeholder(),
             play_state: play,
             anim_real_pc: 0.,
@@ -81,8 +82,8 @@ impl<Levs: gametrait::Game> Engine<Levs> {
 
         if self.play_state.continuous() || self.input.ready_to_advance_game_state(&mut self.anim_real_pc, &mut self.slide_real_pc) {
             let maybe_to_lev = self.play_state.advance(&mut self.input);
-            if let Some(to_lev) = maybe_to_lev {
-                self.play_state = self.game.load_lev_stage(&to_lev);
+            if let Some(continuation) = maybe_to_lev {
+                self.play_state = self.game.load_lev_stage(continuation);
             }
             self.init_ghost_state();
         } else if self.input.ready_to_advance_ghost_state(&mut self.anim_ghost_pc) {

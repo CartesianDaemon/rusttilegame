@@ -1,20 +1,18 @@
 use std::collections::HashMap;
 
 use crate::engine;
-
 use crate::engine::*;
-
-use crate::engine::Scene;
+use crate::engine::{Scene, Continuation};
 
 // TOOD: Would it be useful to have a levset trait defining the necessary traits,
 // even if it doesn't add any other functionality?
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum BiobotSceneId {
     NewGame,
     LevIntro(u16),
     LevPlay(u16),
     LevOutro(u16),
-    Retry(u16),
+    LevRetry(u16),
     Win,
 }
 
@@ -24,22 +22,36 @@ impl SceneIdBase for BiobotSceneId {
 impl SceneId for BiobotSceneId {
 }
 
+#[derive(Debug)]
 pub struct BiobotGame {
-    pub curr_scene: BiobotSceneId,
+    pub current_sceneid: BiobotSceneId,
 }
 
-impl Game for BiobotGame {
+impl GameTrait for BiobotGame {
     type SceneId = BiobotSceneId;
 
     fn new_game() -> BiobotGame {
-        BiobotGame { curr_scene: BiobotSceneId::NewGame }
+        BiobotGame { current_sceneid: BiobotSceneId::NewGame }
     }
 
     fn initial_lev_stage(&self) -> BiobotSceneId {
         BiobotSceneId::NewGame
     }
 
-    fn load_lev_stage_impl(&self, stage: BiobotSceneId) -> Scene {
+    fn load_lev_stage_impl(&mut self, continuation: Continuation) -> Scene {
+        self.current_sceneid = match (self.current_sceneid, continuation) {
+            (BiobotSceneId::NewGame, Continuation::SplashContinue) => BiobotSceneId::LevIntro(1),
+            (BiobotSceneId::LevIntro(levnum), Continuation::SplashContinue) => BiobotSceneId::LevPlay(levnum),
+            (BiobotSceneId::LevPlay(levnum), Continuation::PlayWin) => BiobotSceneId::LevOutro(levnum),
+            (BiobotSceneId::LevPlay(levnum), Continuation::PlayDie) => BiobotSceneId::LevRetry(levnum),
+            (BiobotSceneId::LevRetry(levnum), Continuation::SplashContinue) => BiobotSceneId::LevPlay(levnum),
+            // TODO: Get max levnum from list of levels?
+            (BiobotSceneId::LevOutro(2), Continuation::SplashContinue) => BiobotSceneId::Win,
+            (BiobotSceneId::LevOutro(levnum), Continuation::SplashContinue) => BiobotSceneId::LevOutro(levnum+1),
+            (BiobotSceneId::Win, Continuation::SplashContinue) => BiobotSceneId::NewGame,
+            _ => panic!()
+        };
+
         let aquarium1_key = HashMap::from([
             // TODO: Combine with obj.char types?
             (' ', vec![ new_floor() ]),
@@ -55,7 +67,7 @@ impl Game for BiobotGame {
             */
         ]);
 
-        match stage {
+        match self.current_sceneid {
             // TODO: Can we use idx++ instead of specifying each level number? Not immediately?
             BiobotSceneId::NewGame => biobot_dialogue_splash(
                 //"Click or press [enter] to start.".to_string(),
@@ -110,7 +122,7 @@ impl Game for BiobotGame {
             ], aquarium1_key),
             BiobotSceneId::LevOutro(2) => biobot_splash("Wow, well done!! Goodbye from level 2!".to_string(), BiobotSceneId::Win),
 
-            BiobotSceneId::Retry(levno) => biobot_splash("Game Over. Press [enter] to retry.".to_string(), BiobotSceneId::LevPlay(levno)),
+            BiobotSceneId::LevRetry(levno) => biobot_splash("Game Over. Press [enter] to retry.".to_string(), BiobotSceneId::LevPlay(levno)),
             BiobotSceneId::Win => biobot_splash("Congratulations. You win! Press [enter] to play again.".to_string(), BiobotSceneId::LevIntro(1)),
 
             BiobotSceneId::LevIntro(_) => panic!("Loading LevIntro for level that can't be found."),
@@ -139,5 +151,5 @@ pub fn biobot_play<const HEIGHT: usize>(levno: u16, ascii_map: &[&str; HEIGHT], 
         ascii_map,
         map_key,
         Box::new(BiobotSceneId::LevOutro(levno)),
-        Box::new(BiobotSceneId::Retry(levno)))
+        Box::new(BiobotSceneId::LevRetry(levno)))
 }

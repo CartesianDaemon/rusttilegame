@@ -10,6 +10,12 @@ use super::map_coords::*;
 use super::gametrait;
 use super::gametrait::SceneIdBase;
 
+pub enum Continuation {
+    SplashContinue,
+    PlayWin,
+    PlayDie,
+}
+
 /// Interactive map, the actual gameplay part of the game.
 #[derive(Clone, Debug)]
 pub struct Play {
@@ -33,7 +39,7 @@ pub struct Splash {
     pub dialogue: Dialogue, // If this works, will replace splash_text
 }
 
-/// Gameplay state: current level, map, etc.
+/// State of current scene: current level, map, etc.
 ///
 /// Public fields should only be needed by Render or produced by load, not
 /// used elsewhere.
@@ -107,7 +113,7 @@ impl Scene {
     }
 
     // Advance game state according to current state
-    pub fn advance(&mut self, input : &mut Input) -> Option<Box<dyn SceneIdBase>> {
+    pub fn advance(&mut self, input : &mut Input) -> Option<Continuation> {
         match self {
             Self::Play(play) => play.advance(input.consume_keypresses()),
             Self::Splash(play) => play.advance(input),
@@ -153,7 +159,7 @@ impl Play
         self.field.place_obj_at(x, y, orig_obj);
     }
 
-    pub fn advance(&mut self, last_key_pressed: Option<KeyCode>) -> Option<Box<dyn SceneIdBase>>  {
+    pub fn advance(&mut self, last_key_pressed: Option<KeyCode>) -> Option<Continuation>  {
         // Need all the properties used in Ent.
         // May move "can move" like logic into load, along with the assorted properties.
         // While keeping movement code coordinating between ents here.
@@ -181,7 +187,7 @@ impl Play
                     self.field.map.move_delta(&mut self.field.ros.hero, dir);
                     // STUB: Check for win condition on ents other than the lowest one.
                     if self.field.map[MapHandle::from_xyh(self.field.ros.hero.x, self.field.ros.hero.y, 0)].effect == Effect::Win {
-                        return self.next_win(); // Previously didn't return??
+                        return Some(Continuation::PlayWin);
                     }
                 }
             }
@@ -211,7 +217,7 @@ impl Play
                     if !(0..self.field.map.w() as i16).contains(&(bot.x + self.field.map[*bot].dir.dx)) ||
                         !(0..self.field.map.h() as i16).contains(&(bot.y + self.field.map[*bot].dir.dy))
                     {
-                        return self.next_win();
+                        return Some(Continuation::PlayWin);
                     }
                     else
                     {
@@ -223,7 +229,7 @@ impl Play
 
                     // Die if mov moves onto hero
                     if bot.x == self.field.ros.hero.x && bot.y == self.field.ros.hero.y {
-                        return self.next_die();
+                        return Some(Continuation::PlayDie);
                     }
                 },
                 AI::Bounce => {
@@ -243,7 +249,7 @@ impl Play
                     // Hero dies if mov moves onto hero
                     if self.field.map[*bot].effect == Effect::Kill {
                         if bot.x == self.field.ros.hero.x && bot.y == self.field.ros.hero.y {
-                            return self.next_die();
+                            return Some(Continuation::PlayDie);
                         }
                     }
                 },
@@ -280,7 +286,7 @@ impl Play
                     // Hero dies if mov moves onto hero
                     if self.field.map[*bot].effect == Effect::Kill {
                         if bot.x == self.field.ros.hero.x && bot.y == self.field.ros.hero.y {
-                            return self.next_die();
+                            return Some(Continuation::PlayDie);
                         }
                     }
                 },
@@ -321,7 +327,7 @@ impl Play
                     // Hero dies if bot moves onto hero
                     if self.field.map[*bot].effect == Effect::Kill {
                         if bot.x == self.field.ros.hero.x && bot.y == self.field.ros.hero.y {
-                            return self.next_die();
+                            return Some(Continuation::PlayDie);
                         }
                     }
                 },
@@ -330,18 +336,11 @@ impl Play
         return None
     }
 
-    fn next_win(&self) -> Option<Box<dyn SceneIdBase>> {
-        Some(self.to_stage.clone())
-    }
-
-    fn next_die(&self) -> Option<Box<dyn SceneIdBase>> {
-        Some(self.die_stage.clone())
-    }
 }
 
 impl Splash
 {
-    fn advance(&mut self, input: &mut Input) -> Option<Box<dyn SceneIdBase>> {
+    fn advance(&mut self, input: &mut Input) -> Option<Continuation> {
         let key = input.consume_keypresses();
 
         // Reset "most recent tick" when leaving menu.
@@ -349,14 +348,10 @@ impl Splash
         input.last_real_update = get_time();
 
         if key.is_some() {
-            return self.next_continue();
+            return Some(Continuation::SplashContinue);
         }
 
         return None
-    }
-
-    fn next_continue(&self) -> Option<Box<dyn SceneIdBase>> {
-        Some(self.to_stage.clone())
     }
 }
 

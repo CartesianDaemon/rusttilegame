@@ -11,7 +11,7 @@ use super::map_coords::CoordDelta;
 // Need many of the specific params in ent.
 // Some of those may move to his file.
 use super::obj::*;
-use super::play::Scene;
+use super::play::{Scene, Continuation};
 
 /// Opaque base type for LevelNum types.
 ///
@@ -69,7 +69,7 @@ pub trait SceneId : SceneIdBase + Copy + Clone {
 /// It might simplify the implementation of the game engine slightly to specify the
 /// size of objects implementing the Game trait so the game engine can store them
 /// without dynamic allocation, but that probably doesn't gain much efficiency.
-pub trait Game {
+pub trait GameTrait {
     type SceneId : SceneId;
 
     fn new_game() -> Self;
@@ -78,7 +78,7 @@ pub trait Game {
     fn initial_lev_stage(&self) -> Self::SceneId;
 
     /// Load or construct a Play instance for the specified level stage.
-    fn load_lev_stage_impl(&self, lev_stage : Self::SceneId) -> Scene;
+    fn load_lev_stage_impl(&mut self, continuation: Continuation) -> Scene;
 
     /// Load or construct a Play instance for the specified level stage.
     ///
@@ -90,12 +90,8 @@ pub trait Game {
     /// Accepts ref to box. Why can't we borrow a box?
     ///
     /// Would be any easier to clone box?
-    fn load_lev_stage(&self, lev_stage_box : &Box<dyn SceneIdBase>) -> Scene {
-        if let Some(lev_stage) = lev_stage_box.downcast_ref::<Self::SceneId>() {
-            self.load_lev_stage_impl(*lev_stage)
-        } else {
-            panic!("Lev stage box -> lev stage cast failure");
-        }
+    fn load_lev_stage(&mut self, continuation: Continuation) -> Scene {
+        self.load_lev_stage_impl(continuation)
     }
 }
 

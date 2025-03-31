@@ -7,7 +7,7 @@ mod engine;
 mod biobot_game;
 
 use engine::Engine;
-use engine::Game;
+use engine::GameTrait;
 use biobot_game::BiobotGame;
 
 #[macroquad::main("Tile Game")]
