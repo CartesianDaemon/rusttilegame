@@ -14,7 +14,7 @@ use super::render::Render;
 /// class.
 pub struct Engine<Game: gametrait::Game> {
     /// Level set currently playing through, e.g. the biobot Engine.
-    pub lev_set: Game,
+    pub game: Game,
 
     /// Current state of gameplay, current level, mostly map etc.
     play_state: Scene,
@@ -43,7 +43,7 @@ impl<Levs: gametrait::Game> Engine<Levs> {
     pub fn new(lev_set: Levs) -> Engine<Levs> {
         let play = lev_set.load_lev_stage_impl(lev_set.initial_lev_stage());
         Engine {
-            lev_set,
+            game: lev_set,
             ghost_state: play.to_play_or_placeholder(),
             play_state: play,
             anim_real_pc: 0.,
@@ -82,7 +82,7 @@ impl<Levs: gametrait::Game> Engine<Levs> {
         if self.play_state.continuous() || self.input.ready_to_advance_game_state(&mut self.anim_real_pc, &mut self.slide_real_pc) {
             let maybe_to_lev = self.play_state.advance(&mut self.input);
             if let Some(to_lev) = maybe_to_lev {
-                self.play_state = self.lev_set.load_lev_stage(&to_lev);
+                self.play_state = self.game.load_lev_stage(&to_lev);
             }
             self.init_ghost_state();
         } else if self.input.ready_to_advance_ghost_state(&mut self.anim_ghost_pc) {
