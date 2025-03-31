@@ -29,7 +29,7 @@ pub struct BiobotGame {
 }
 
 impl Game for BiobotGame {
-    type Levstage = BiobotSceneId;
+    type SceneId = BiobotSceneId;
 
     fn new_game() -> BiobotGame {
         BiobotGame { curr_scene: BiobotSceneId::NewGame }

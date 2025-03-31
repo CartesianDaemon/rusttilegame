@@ -70,15 +70,15 @@ pub trait SceneId : SceneIdBase + Copy + Clone {
 /// size of objects implementing the Game trait so the game engine can store them
 /// without dynamic allocation, but that probably doesn't gain much efficiency.
 pub trait Game {
-    type Levstage : SceneId;
+    type SceneId : SceneId;
 
     fn new_game() -> Self;
 
     /// Level stage to begin game with
-    fn initial_lev_stage(&self) -> Self::Levstage;
+    fn initial_lev_stage(&self) -> Self::SceneId;
 
     /// Load or construct a Play instance for the specified level stage.
-    fn load_lev_stage_impl(&self, lev_stage : Self::Levstage) -> Scene;
+    fn load_lev_stage_impl(&self, lev_stage : Self::SceneId) -> Scene;
 
     /// Load or construct a Play instance for the specified level stage.
     ///
@@ -91,7 +91,7 @@ pub trait Game {
     ///
     /// Would be any easier to clone box?
     fn load_lev_stage(&self, lev_stage_box : &Box<dyn SceneIdBase>) -> Scene {
-        if let Some(lev_stage) = lev_stage_box.downcast_ref::<Self::Levstage>() {
+        if let Some(lev_stage) = lev_stage_box.downcast_ref::<Self::SceneId>() {
             self.load_lev_stage_impl(*lev_stage)
         } else {
             panic!("Lev stage box -> lev stage cast failure");
