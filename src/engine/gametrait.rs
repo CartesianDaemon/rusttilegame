@@ -12,22 +12,8 @@ use super::play::{Scene, Continuation};
 pub trait GameTrait {
     fn new_game() -> Self;
 
-    /// Load or construct a Play instance for the specified level stage.
-    fn load_lev_stage_impl(&mut self, continuation: Continuation) -> Scene;
-
-    /// Load or construct a Play instance for the specified level stage.
-    ///
-    /// Default implementation downcasts a LevelNumBase ref to the actual Levstage
-    /// type and delegates the actual work to _load_lev_stage.
-    ///
-    /// Must accept box to do the downcasting.
-    ///
-    /// Accepts ref to box. Why can't we borrow a box?
-    ///
-    /// Would be any easier to clone box?
-    fn load_lev_stage(&mut self, continuation: Continuation) -> Scene {
-        self.load_lev_stage_impl(continuation)
-    }
+    /// Load or construct a Play instance for the next scene.
+    fn get_next_scene(&mut self, continuation: Continuation) -> Scene;
 }
 
 // SPECIFIC OBJ TYPES

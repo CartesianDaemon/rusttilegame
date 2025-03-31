@@ -41,7 +41,7 @@ pub struct Engine<Game: gametrait::GameTrait> {
 impl<Game: gametrait::GameTrait> Engine<Game> {
     pub fn new(init_game: Game) -> Engine<Game> {
         let mut game = init_game;
-        let play = game.load_lev_stage_impl(Continuation::SplashContinue);
+        let play = game.get_next_scene(Continuation::SplashContinue);
         Engine {
             game,
             ghost_state: play.to_play_or_placeholder(),
@@ -82,7 +82,9 @@ impl<Game: gametrait::GameTrait> Engine<Game> {
         if self.play_state.continuous() || self.input.ready_to_advance_game_state(&mut self.anim_real_pc, &mut self.slide_real_pc) {
             let maybe_to_lev = self.play_state.advance(&mut self.input);
             if let Some(continuation) = maybe_to_lev {
-                self.play_state = self.game.load_lev_stage(continuation);
+                self.play_state = {
+                    self.game.get_next_scene(continuation)
+                };
             }
             self.init_ghost_state();
         } else if self.input.ready_to_advance_ghost_state(&mut self.anim_ghost_pc) {

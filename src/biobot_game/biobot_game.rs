@@ -25,7 +25,7 @@ impl GameTrait for BiobotGame {
         BiobotGame { current_sceneid: BiobotSceneId::NewGame }
     }
 
-    fn load_lev_stage_impl(&mut self, continuation: Continuation) -> Scene {
+    fn get_next_scene(&mut self, continuation: Continuation) -> Scene {
         self.current_sceneid = match (self.current_sceneid, continuation) {
             (BiobotSceneId::NewGame, Continuation::SplashContinue) => BiobotSceneId::LevIntro(1),
             (BiobotSceneId::LevIntro(levnum), Continuation::SplashContinue) => BiobotSceneId::LevPlay(levnum),
