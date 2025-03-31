@@ -8,7 +8,6 @@ use macroquad::prelude::*;
 use crate::engine::gametrait::*; // For new_xxxx() fns
 use crate::engine::play::Scene;
 use crate::engine::map_coords::*;
-use crate::biobot_game::biobot_play;
 
 #[cfg(test)]
 mod basic_tests {
@@ -43,7 +42,7 @@ mod basic_tests {
         ]);
 
         match n {
-            1=> biobot_play(&[
+            1=> Scene::play_from_ascii(&[
                 "#####_########_#",
                 "#            # #",
                 "#  >         @ @",
@@ -53,7 +52,7 @@ mod basic_tests {
                 "##############@#",
             ], test_key
             ),
-            2=> biobot_play(&[
+            2=> Scene::play_from_ascii(&[
                 "#g  #",
                 "#   #",
                 "h   #",

@@ -13,4 +13,4 @@
 
 mod biobot_game;
 
-pub use biobot_game::{BiobotGame, biobot_play};
+pub use biobot_game::BiobotGame;

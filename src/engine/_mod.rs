@@ -32,7 +32,6 @@ pub use engine::Engine;
 // Public interface for writing a custom game
 pub use gametrait::*;
 pub use play::{Scene, Continuation};
-pub use obj::Obj;
 pub use map_coords::*;
 
 #[path = "tests/_mod.rs"]

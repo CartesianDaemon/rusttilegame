@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use crate::engine;
 use crate::engine::*;
 use crate::engine::{Scene, Continuation};
 
@@ -65,7 +64,7 @@ impl GameTrait for BiobotGame {
 
         match self.current_sceneid {
             // TODO: Can we use idx++ instead of specifying each level number? Not immediately?
-            BiobotSceneId::NewGame => biobot_dialogue_splash(
+            BiobotSceneId::NewGame => Scene::make_dialogue(
                 //"Click or press [enter] to start.".to_string(),
                 vec![
                     "Hello!",
@@ -75,8 +74,10 @@ impl GameTrait for BiobotGame {
                 ]
             ),
 
-            BiobotSceneId::LevIntro(1) => biobot_splash("Welcome to level 1!".to_string()),
-            BiobotSceneId::LevPlay(1) => biobot_play(&[
+            BiobotSceneId::LevIntro(1) => {
+                Scene::make_splash("Welcome to level 1!".to_string())
+            },
+            BiobotSceneId::LevPlay(1) => Scene::play_from_ascii(&[
                 "#            # #",
                 "#####@####@###@#",
                 "@              #",
@@ -94,10 +95,14 @@ impl GameTrait for BiobotGame {
                 "#            # #",
                 "#            @ #",
             ], aquarium1_key),
-            BiobotSceneId::LevOutro(1) => biobot_splash("Well done!! Goodbye from level 1".to_string()),
+            BiobotSceneId::LevOutro(1) => {
+                Scene::make_splash("Well done!! Goodbye from level 1".to_string())
+            },
 
-            BiobotSceneId::LevIntro(2) => biobot_splash("Ooh, welcome to level 2!".to_string()),
-            BiobotSceneId::LevPlay(2) => biobot_play(&[
+            BiobotSceneId::LevIntro(2) => {
+                Scene::make_splash("Ooh, welcome to level 2!".to_string())
+            },
+            BiobotSceneId::LevPlay(2) => Scene::play_from_ascii(&[
                 "################",
                 "#              #",
                 "#              #",
@@ -115,35 +120,20 @@ impl GameTrait for BiobotGame {
                 "#              #",
                 "####o###########",
             ], aquarium1_key),
-            BiobotSceneId::LevOutro(2) => biobot_splash("Wow, well done!! Goodbye from level 2!".to_string()),
+            BiobotSceneId::LevOutro(2) => {
+                Scene::make_splash("Wow, well done!! Goodbye from level 2!".to_string())
+            },
 
-            BiobotSceneId::LevRetry(_levno) => biobot_splash("Game Over. Press [enter] to retry.".to_string()),
-            BiobotSceneId::Win => biobot_splash("Congratulations. You win! Press [enter] to play again.".to_string()),
+            BiobotSceneId::LevRetry(_levno) => {
+                Scene::make_splash("Game Over. Press [enter] to retry.".to_string())
+            },
+            BiobotSceneId::Win => {
+                Scene::make_splash("Congratulations. You win! Press [enter] to play again.".to_string())
+            },
 
             BiobotSceneId::LevIntro(_) => panic!("Loading LevIntro for level that can't be found."),
             BiobotSceneId::LevPlay(_) => panic!("Loading LevPlay for level that can't be found."),
             BiobotSceneId::LevOutro(_) => panic!("Loading LevOutro for level that can't be found."),
         }
     }
-}
-
-///////////
-/// Helpers
-///
-/// Also used by tests
-
-pub fn biobot_splash(txt: String) -> Scene {
-    Scene::make_splash(txt)
-}
-
-pub fn biobot_dialogue_splash(entries: Vec<&str>) -> Scene {
-    Scene::make_dialogue(entries)
-}
-
-pub fn biobot_play<const HEIGHT: usize>(ascii_map: &[&str; HEIGHT], map_key: HashMap<char, Vec<engine::Obj>>) -> Scene {
-    // Box::new(BiobotLevelNum::LevOutro(levno)),
-    Scene::play_from_ascii(
-        ascii_map,
-        map_key,
-    )
 }
