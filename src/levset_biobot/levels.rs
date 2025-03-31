@@ -25,11 +25,11 @@ impl LevelNumBase for BiobotLevelNum {
 impl LevelNum for BiobotLevelNum {
 }
 
-pub struct BiobotLevels {
+pub struct BiobotGame {
     // Any biobot-specific game state would go here.
 }
 
-impl Levels for BiobotLevels {
+impl Game for BiobotGame {
     type Levstage = BiobotLevelNum;
 
     fn initial_lev_stage(&self) -> BiobotLevelNum {

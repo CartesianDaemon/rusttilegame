@@ -10,7 +10,7 @@ use engine::game::Engine;
 
 #[macroquad::main("Tile Game")]
 async fn main() {
-    let mut engine = Engine::new(levset_biobot::BiobotLevels {});
+    let mut engine = Engine::new(levset_biobot::BiobotGame {});
 
     loop {
         engine.do_frame().await;

@@ -28,7 +28,7 @@ use super::play::Play;
 /// - Can remove LevStageDerived at all now LevStageBase uses DynClone as well as Downcast?
 /// - Kind of wants to be sized so it can easily be boxed and cloned etc. There's a crate for
 ///   that, is it worth trying?
-/// - Any benefit for adding a type or struct for Box<dyn LevelstageBase> as that's what we
+/// - Any benefit for adding a type or struct for Box<dyn GametageBase> as that's what we
 ///   pass around?
 pub trait LevelNumBase : downcast_rs::Downcast + dyn_clone::DynClone + std::fmt::Debug {
 }
@@ -58,8 +58,8 @@ pub trait LevelNum : LevelNumBase + Copy + Clone {
 /// This could be a simple array of levels, but it doesn't assume that so that
 /// games could generate levels dynamically or load them from files.
 ///
-/// The simplest implementations of Levels hardcode the set of levels, e.g. the
-/// the example Biobot game implements the trait on the BiobotLevels class which
+/// The simplest implementations of Game hardcode the set of levels, e.g. the
+/// the example Biobot game implements the trait on the BiobotGame class which
 /// doesn't have any member variables at all.
 ///
 /// However it is possible to have implementations that do have state, e.g. a
@@ -67,9 +67,9 @@ pub trait LevelNum : LevelNumBase + Copy + Clone {
 /// are loaded from.
 ///
 /// It might simplify the implementation of the game engine slightly to specify the
-/// size of objects implementing the Levels trait so the game engine can store them
+/// size of objects implementing the Game trait so the game engine can store them
 /// without dynamic allocation, but that probably doesn't gain much efficiency.
-pub trait Levels {
+pub trait Game {
     type Levstage : LevelNum;
 
     /// Level stage to begin game with

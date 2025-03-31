@@ -40,7 +40,7 @@ pub struct Splash {
 ///
 /// Stores id of next stage through opaque LevelNumBase trait object. It was a pain to
 /// get the trait object to work. Also consider using a fixed-size type for LevelNumBase.
-/// Also considered making Play templated on Levels at compile time.
+/// Also considered making Play templated on Game at compile time.
 ///
 /// Eventually we'll probably need to store the current Levstage.
 #[derive(Clone, Debug)]
