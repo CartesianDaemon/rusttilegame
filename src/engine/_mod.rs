@@ -17,20 +17,23 @@
 /// I think of the engine and the game design as two separate crates even
 /// though I haven't implemented that yet.
 
+// Non-public
 mod engine;
-mod gametrait;
-pub mod map_coords;
-
-pub use engine::Engine;
-pub use map_coords::*;
-pub use gametrait::*;
-
+mod map_coords;
 mod render;
 mod field;
- // Public for tests, not needed if tests move back into this dir..??
+// Public for tests. Not needed if tests move back into this dir?
+pub mod gametrait;
 pub mod input;
 pub mod play;
 pub mod obj;
+
+pub use engine::Engine;
+pub use gametrait::{Game, LevelNumBase, LevelNum};
+pub use map_coords::*;
+
+// For tests?
+pub use gametrait::*;
 
 #[path = "tests/_mod.rs"]
 mod engine_tests;
