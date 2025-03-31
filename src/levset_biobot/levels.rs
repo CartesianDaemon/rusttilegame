@@ -1,8 +1,10 @@
 use std::collections::HashMap;
 
+use crate::engine;
+
 use crate::engine::*;
 
-use crate::engine::play::Play;
+use crate::engine::Play;
 
 // TOOD: Would it be useful to have a levset trait defining the necessary traits,
 // even if it doesn't add any other functionality?
@@ -127,7 +129,7 @@ pub fn biobot_dialogue_splash(entries: Vec<&str>, to_stage: BiobotLevelNum) -> P
     Play::make_dialogue(entries, Box::new(to_stage))
 }
 
-pub fn biobot_levplay<const HEIGHT: usize>(levno: u16, ascii_map: &[&str; HEIGHT], map_key: HashMap<char, Vec<obj::Obj>>) -> Play {
+pub fn biobot_levplay<const HEIGHT: usize>(levno: u16, ascii_map: &[&str; HEIGHT], map_key: HashMap<char, Vec<engine::Obj>>) -> Play {
     // Box::new(BiobotLevelNum::LevOutro(levno)),
     Play::levplay_from_ascii(
         ascii_map,

@@ -98,8 +98,8 @@ pub trait Game {
 }
 
 // SPECIFIC OBJ TYPES
-// public only for helper use in test.rs
-// Should move to biobot.rs?
+// Should be converted into helper functions in tests or in an example game. And game-specific
+// functions moved to biobot/levels.rs.
 
 pub fn new_hero_crab() -> Obj {
     Obj {
