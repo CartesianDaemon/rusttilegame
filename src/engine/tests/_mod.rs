@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use assrt::*;
 use macroquad::prelude::*;
 
-use crate::engine::levset::*; // For new_xxxx() fns
+use crate::engine::gametrait::*; // For new_xxxx() fns
 use crate::engine::play::Play;
 use crate::engine::map_coords::*;
 use crate::levset_biobot::biobot_levplay;

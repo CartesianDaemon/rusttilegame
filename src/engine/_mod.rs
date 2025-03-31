@@ -18,12 +18,12 @@
 /// though I haven't implemented that yet.
 
 mod engine;
-pub mod levset;
+mod gametrait;
 pub mod map_coords;
 
 pub use engine::Engine;
 pub use map_coords::*;
-pub use levset::*;
+pub use gametrait::*;
 
 mod render;
 mod field;

@@ -44,7 +44,7 @@ dyn_clone::clone_trait_object!(LevelNumBase);
 /// It is derived from LevelNumBase so that the game engine can store level identifiers
 /// through a dyn-trait pointer with the base trait type. And downcast them back to the
 /// game-specific type to pass them back to game-specific code.
-/// 
+///
 /// This seemed like a good idea to allow games to be dynamically loaded, but it might
 /// be unnecessary and maybe it should be removed in favour of templating the Game
 /// class on a game-specific Levset at compile time. (Or separating the game-specific
@@ -99,7 +99,7 @@ pub trait Game {
 
 // SPECIFIC OBJ TYPES
 // public only for helper use in test.rs
-// maybe move to biobot.rs?
+// Should move to biobot.rs?
 
 pub fn new_hero_crab() -> Obj {
     Obj {

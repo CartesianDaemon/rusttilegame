@@ -7,8 +7,8 @@ use super::input::Input;
 use super::field::Field;
 use super::obj::Obj;
 use super::map_coords::*;
-use super::levset;
-use super::levset::LevelNumBase;
+use super::gametrait;
+use super::gametrait::LevelNumBase;
 
 /// Interactive map, the actual gameplay part of the game.
 #[derive(Clone, Debug)]
@@ -50,7 +50,7 @@ pub enum Play {
 }
 
 impl Play {
-    pub fn make_splash(txt: String, to_stage:  Box<dyn levset::LevelNumBase>,) -> Play {
+    pub fn make_splash(txt: String, to_stage:  Box<dyn gametrait::LevelNumBase>,) -> Play {
         Play::Splash( Splash {
             splash_text: txt,
             dialogue: Dialogue { entries: vec![]},
@@ -58,7 +58,7 @@ impl Play {
         })
     }
 
-    pub fn make_dialogue(entries: Vec<&str>, to_stage:  Box<dyn levset::LevelNumBase>,) -> Play {
+    pub fn make_dialogue(entries: Vec<&str>, to_stage:  Box<dyn gametrait::LevelNumBase>,) -> Play {
         Play::Splash( Splash {
             splash_text: "".to_string(),
             dialogue: Dialogue { entries: entries.iter().map(|x| DialogueLine {tex_path: "".to_string(), text: x.to_string()} ).collect() },
@@ -72,8 +72,8 @@ impl Play {
     pub fn levplay_from_ascii<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
         map_key: HashMap<char, Vec<Obj>>,
-        to_stage: Box<dyn levset::LevelNumBase>,
-        die_stage: Box<dyn levset::LevelNumBase>,
+        to_stage: Box<dyn gametrait::LevelNumBase>,
+        die_stage: Box<dyn gametrait::LevelNumBase>,
     ) -> Play {
         // TODO: Get size from strings. Assert equal to default 16 in meantime.
         let mut levplay = LevPlay {
