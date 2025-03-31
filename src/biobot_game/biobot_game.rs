@@ -25,11 +25,15 @@ impl SceneId for BiobotSceneId {
 }
 
 pub struct BiobotGame {
-    // Any biobot-specific game state would go here.
+    pub curr_scene: BiobotSceneId,
 }
 
 impl Game for BiobotGame {
     type Levstage = BiobotSceneId;
+
+    fn new_game() -> BiobotGame {
+        BiobotGame { curr_scene: BiobotSceneId::NewGame }
+    }
 
     fn initial_lev_stage(&self) -> BiobotSceneId {
         BiobotSceneId::NewGame

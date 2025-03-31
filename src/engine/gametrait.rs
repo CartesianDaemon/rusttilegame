@@ -72,6 +72,8 @@ pub trait SceneId : SceneIdBase + Copy + Clone {
 pub trait Game {
     type Levstage : SceneId;
 
+    fn new_game() -> Self;
+
     /// Level stage to begin game with
     fn initial_lev_stage(&self) -> Self::Levstage;
 

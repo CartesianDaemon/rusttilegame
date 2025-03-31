@@ -7,10 +7,12 @@ mod engine;
 mod biobot_game;
 
 use engine::Engine;
+use engine::Game;
+use biobot_game::BiobotGame;
 
 #[macroquad::main("Tile Game")]
 async fn main() {
-    let mut engine = Engine::new(biobot_game::BiobotGame {});
+    let mut engine = Engine::new(BiobotGame::new_game());
 
     loop {
         engine.do_frame().await;
