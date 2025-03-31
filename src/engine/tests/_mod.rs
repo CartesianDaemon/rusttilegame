@@ -6,9 +6,9 @@ use assrt::*;
 use macroquad::prelude::*;
 
 use crate::engine::gametrait::*; // For new_xxxx() fns
-use crate::engine::play::Play;
+use crate::engine::play::Scene;
 use crate::engine::map_coords::*;
-use crate::biobot_game::biobot_levplay;
+use crate::biobot_game::biobot_play;
 
 #[cfg(test)]
 mod basic_tests {
@@ -28,7 +28,7 @@ mod basic_tests {
         rsst!(true);
     }
 
-    fn get_lev(n: i32) -> Play {
+    fn get_lev(n: i32) -> Scene {
         let test_key = HashMap::from([
             (' ', vec![ new_floor() ]),
             ('#', vec![ new_floor(), new_wall() ]),
@@ -43,7 +43,7 @@ mod basic_tests {
         ]);
 
         match n {
-            1=> biobot_levplay(1, &[
+            1=> biobot_play(1, &[
                 "#####_########_#",
                 "#            # #",
                 "#  >         @ @",
@@ -53,7 +53,7 @@ mod basic_tests {
                 "##############@#",
             ], test_key
             ),
-            2=> biobot_levplay(2, &[
+            2=> biobot_play(2, &[
                 "#g  #",
                 "#   #",
                 "h   #",

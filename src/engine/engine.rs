@@ -1,6 +1,6 @@
 use crate::engine::*;
 
-use super::play::Play;
+use super::play::Scene;
 use super::input::Input;
 use super::render::Render;
 
@@ -17,7 +17,7 @@ pub struct Engine<Game: gametrait::Game> {
     pub lev_set: Game,
 
     /// Current state of gameplay, current level, mostly map etc.
-    play_state: Play,
+    play_state: Scene,
 
     /// Smoothly from 0 to 1 transition from previous state to current state
     /// TODO: Move into play?
@@ -29,7 +29,7 @@ pub struct Engine<Game: gametrait::Game> {
 
     /// Ghost state. Used to show where enemies are going to move
     /// TODO: Encapsulate better, or remove if not using.. Or fold into AnimState.
-    ghost_state: play::LevPlay,
+    ghost_state: play::Play,
     ghost_counter: GhostCounter,
 
     /// Record input from user ready for use.
@@ -44,7 +44,7 @@ impl<Levs: gametrait::Game> Engine<Levs> {
         let play = lev_set.load_lev_stage_impl(lev_set.initial_lev_stage());
         Engine {
             lev_set,
-            ghost_state: play.to_levplay_or_placeholder(),
+            ghost_state: play.to_play_or_placeholder(),
             play_state: play,
             anim_real_pc: 0.,
             slide_real_pc: 0.,
@@ -65,12 +65,12 @@ impl<Levs: gametrait::Game> Engine<Levs> {
     }
 
     fn init_ghost_state(&mut self) {
-        self.ghost_state = self.play_state.to_levplay_or_placeholder();
+        self.ghost_state = self.play_state.to_play_or_placeholder();
         self.ghost_counter.n_ghost_ticks = self.ghost_counter.init_n_ticks();
     }
 
     fn reinit_ghost_state(&mut self) {
-        self.ghost_state = if let Play::LevPlay(levplay) = self.play_state.clone() {levplay} else { panic!() };
+        self.ghost_state = if let Scene::Play(play) = self.play_state.clone() {play} else { panic!() };
         self.ghost_counter.n_ghost_ticks = self.ghost_counter.reinit_n_ticks();
     }
 

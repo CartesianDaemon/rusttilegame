@@ -4,7 +4,7 @@ use crate::engine;
 
 use crate::engine::*;
 
-use crate::engine::Play;
+use crate::engine::Scene;
 
 // TOOD: Would it be useful to have a levset trait defining the necessary traits,
 // even if it doesn't add any other functionality?
@@ -35,7 +35,7 @@ impl Game for BiobotGame {
         BiobotLevelNum::NewGame
     }
 
-    fn load_lev_stage_impl(&self, stage: BiobotLevelNum) -> Play {
+    fn load_lev_stage_impl(&self, stage: BiobotLevelNum) -> Scene {
         let aquarium1_key = HashMap::from([
             // TODO: Combine with obj.char types?
             (' ', vec![ new_floor() ]),
@@ -65,7 +65,7 @@ impl Game for BiobotGame {
             ),
 
             BiobotLevelNum::LevIntro(1) => biobot_splash("Welcome to level 1!".to_string(), BiobotLevelNum::LevPlay(1)),
-            BiobotLevelNum::LevPlay(1) => biobot_levplay(1, &[
+            BiobotLevelNum::LevPlay(1) => biobot_play(1, &[
                 "#            # #",
                 "#####@####@###@#",
                 "@              #",
@@ -86,7 +86,7 @@ impl Game for BiobotGame {
             BiobotLevelNum::LevOutro(1) => biobot_splash("Well done!! Goodbye from level 1".to_string(), BiobotLevelNum::LevIntro(2)),
 
             BiobotLevelNum::LevIntro(2) => biobot_splash("Ooh, welcome to level 2!".to_string(), BiobotLevelNum::LevPlay(2)),
-            BiobotLevelNum::LevPlay(2) => biobot_levplay(2, &[
+            BiobotLevelNum::LevPlay(2) => biobot_play(2, &[
                 "################",
                 "#              #",
                 "#              #",
@@ -121,17 +121,17 @@ impl Game for BiobotGame {
 ///
 /// Also used by tests
 
-pub fn biobot_splash(txt: String, to_stage: BiobotLevelNum) -> Play {
-    Play::make_splash(txt, Box::new(to_stage))
+pub fn biobot_splash(txt: String, to_stage: BiobotLevelNum) -> Scene {
+    Scene::make_splash(txt, Box::new(to_stage))
 }
 
-pub fn biobot_dialogue_splash(entries: Vec<&str>, to_stage: BiobotLevelNum) -> Play {
-    Play::make_dialogue(entries, Box::new(to_stage))
+pub fn biobot_dialogue_splash(entries: Vec<&str>, to_stage: BiobotLevelNum) -> Scene {
+    Scene::make_dialogue(entries, Box::new(to_stage))
 }
 
-pub fn biobot_levplay<const HEIGHT: usize>(levno: u16, ascii_map: &[&str; HEIGHT], map_key: HashMap<char, Vec<engine::Obj>>) -> Play {
+pub fn biobot_play<const HEIGHT: usize>(levno: u16, ascii_map: &[&str; HEIGHT], map_key: HashMap<char, Vec<engine::Obj>>) -> Scene {
     // Box::new(BiobotLevelNum::LevOutro(levno)),
-    Play::levplay_from_ascii(
+    Scene::play_from_ascii(
         ascii_map,
         map_key,
         Box::new(BiobotLevelNum::LevOutro(levno)),

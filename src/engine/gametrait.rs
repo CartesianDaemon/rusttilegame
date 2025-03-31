@@ -11,7 +11,7 @@ use super::map_coords::CoordDelta;
 // Need many of the specific params in ent.
 // Some of those may move to his file.
 use super::obj::*;
-use super::play::Play;
+use super::play::Scene;
 
 /// Opaque base type for LevelNum types.
 ///
@@ -76,7 +76,7 @@ pub trait Game {
     fn initial_lev_stage(&self) -> Self::Levstage;
 
     /// Load or construct a Play instance for the specified level stage.
-    fn load_lev_stage_impl(&self, lev_stage : Self::Levstage) -> Play;
+    fn load_lev_stage_impl(&self, lev_stage : Self::Levstage) -> Scene;
 
     /// Load or construct a Play instance for the specified level stage.
     ///
@@ -88,7 +88,7 @@ pub trait Game {
     /// Accepts ref to box. Why can't we borrow a box?
     ///
     /// Would be any easier to clone box?
-    fn load_lev_stage(&self, lev_stage_box : &Box<dyn LevelNumBase>) -> Play {
+    fn load_lev_stage(&self, lev_stage_box : &Box<dyn LevelNumBase>) -> Scene {
         if let Some(lev_stage) = lev_stage_box.downcast_ref::<Self::Levstage>() {
             self.load_lev_stage_impl(*lev_stage)
         } else {
