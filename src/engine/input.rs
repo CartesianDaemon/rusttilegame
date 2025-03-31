@@ -34,6 +34,7 @@ impl Input {
         }
     }
 
+    #[allow(dead_code)]
     pub fn from_key(last_key_pressed: KeyCode) -> Input {
         Input {last_key_pressed: Some(last_key_pressed), ..Input::new_blank()}
     }

@@ -211,6 +211,7 @@ impl Map {
 
     // Ents at given MapCoord.
     // Used to add and remove from map, mostly internally. And in Play?
+    #[allow(dead_code)]
     pub fn at(&self, pos: MapCoord) -> &Vec<Obj> {
         &self.loc_at(pos).0
     }

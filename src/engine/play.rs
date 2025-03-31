@@ -114,6 +114,7 @@ impl Play {
         }
     }
 
+    #[allow(dead_code)]
     pub fn as_levplay(&self) -> &LevPlay {
         match self {
             Self::LevPlay(levplay) => &levplay,
@@ -132,10 +133,12 @@ impl Play {
         }
     }
 
+    #[allow(dead_code)]
     pub fn as_ascii_cols(&self)-> Vec<String>  {
         self.as_levplay().field.as_ascii_cols()
     }
 
+    #[allow(dead_code)]
     pub fn as_ascii_rows(&self)-> Vec<String>  {
         self.as_levplay().field.as_ascii_rows()
     }

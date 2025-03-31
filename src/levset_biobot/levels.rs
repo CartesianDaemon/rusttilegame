@@ -2,10 +2,7 @@ use std::collections::HashMap;
 
 use crate::engine::*;
 
-use crate::engine::levset::*; // Less than all?
-
 use crate::engine::play::Play;
-use crate::engine::map_coords::*;
 
 // TOOD: Would it be useful to have a levset trait defining the necessary traits,
 // even if it doesn't add any other functionality?
