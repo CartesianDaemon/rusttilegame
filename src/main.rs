@@ -3,14 +3,14 @@
 #[path = "engine/_mod.rs"]
 mod engine;
 
-#[path = "levset_biobot/_mod.rs"]
-mod levset_biobot;
+#[path = "biobot_game/_mod.rs"]
+mod biobot_game;
 
 use engine::Engine;
 
 #[macroquad::main("Tile Game")]
 async fn main() {
-    let mut engine = Engine::new(levset_biobot::BiobotGame {});
+    let mut engine = Engine::new(biobot_game::BiobotGame {});
 
     loop {
         engine.do_frame().await;

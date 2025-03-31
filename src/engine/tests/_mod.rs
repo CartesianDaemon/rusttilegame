@@ -8,7 +8,7 @@ use macroquad::prelude::*;
 use crate::engine::gametrait::*; // For new_xxxx() fns
 use crate::engine::play::Play;
 use crate::engine::map_coords::*;
-use crate::levset_biobot::biobot_levplay;
+use crate::biobot_game::biobot_levplay;
 
 #[cfg(test)]
 mod basic_tests {

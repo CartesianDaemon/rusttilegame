@@ -11,6 +11,6 @@
 /// * Testing that the game engine builds correctly.
 /// * Small-scale educational use.
 
-mod levels;
+mod biobot_game;
 
-pub use levels::{BiobotGame, biobot_levplay};
+pub use biobot_game::{BiobotGame, biobot_levplay};
