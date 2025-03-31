@@ -13,46 +13,6 @@ use super::map_coords::CoordDelta;
 use super::obj::*;
 use super::play::{Scene, Continuation};
 
-/// Opaque base type for LevelNum types.
-///
-/// See the description on that trait. This might not be helping any more.
-///
-/// TODO: Also is there a more idiomatic name for a Stage/"Level" representing one screen?
-///       Would it make more sense to define a level, and have that generate different screens
-///       within?
-///
-/// A separate type because trait object types can't be copy but the derived types
-/// should be. Is that necessary?
-///
-/// Older comments:
-/// - Can remove LevStageDerived at all now LevStageBase uses DynClone as well as Downcast?
-/// - Kind of wants to be sized so it can easily be boxed and cloned etc. There's a crate for
-///   that, is it worth trying?
-/// - Any benefit for adding a type or struct for Box<dyn GametageBase> as that's what we
-///   pass around?
-pub trait SceneIdBase : downcast_rs::Downcast + dyn_clone::DynClone + std::fmt::Debug {
-}
-downcast_rs::impl_downcast!(SceneIdBase);
-
-dyn_clone::clone_trait_object!(SceneIdBase);
-
-/// A trait describing classes which identify a level in a game (e.g. Level 1, etc)
-///
-/// Despite the name most games use it to identify part of a level, e.g. a level
-/// splash screen, the level gameplay, etc. It is typically a rust enum.
-///
-/// It is derived from LevelNumBase so that the game engine can store level identifiers
-/// through a dyn-trait pointer with the base trait type. And downcast them back to the
-/// game-specific type to pass them back to game-specific code.
-///
-/// This seemed like a good idea to allow games to be dynamically loaded, but it might
-/// be unnecessary and maybe it should be removed in favour of templating the Game
-/// class on a game-specific Levset at compile time. (Or separating the game-specific
-/// parts which need to be compiled, from those that could be dynamically loaded as data)
-#[allow(dead_code)]
-pub trait SceneId : SceneIdBase + Copy + Clone {
-}
-
 /// A trait describing classes which define the levels for a game.
 ///
 /// This could be a simple array of levels, but it doesn't assume that so that
@@ -70,8 +30,6 @@ pub trait SceneId : SceneIdBase + Copy + Clone {
 /// size of objects implementing the Game trait so the game engine can store them
 /// without dynamic allocation, but that probably doesn't gain much efficiency.
 pub trait GameTrait {
-    type SceneId : SceneId;
-
     fn new_game() -> Self;
 
     /// Load or construct a Play instance for the specified level stage.
