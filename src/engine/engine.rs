@@ -9,9 +9,8 @@ use super::render::Render;
 /// Including set of levels in current Engine, and state of current level being played.
 ///
 /// Templated on Game (either a  builtin Game, or a load-from-file Game).
-/// Could instead take a &dyn Game trait object so that it could be linked with compiled level
-/// sets, but need to establish how to pass an appropriate LevStage pointer to the concrete
-/// class.
+/// Could instead take a &dyn Game trait object so that it could load a Game object
+/// from a library, but that probably doesn't help that much.
 pub struct Engine<Game: gametrait::GameTrait> {
     /// Level set currently playing through, e.g. the biobot Engine.
     pub game: Game,

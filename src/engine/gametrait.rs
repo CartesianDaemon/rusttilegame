@@ -1,9 +1,4 @@
-/// Code for loading or instatiating each level.
-///
-/// Towards a generic, although currently game engine hardcodes BiobotLevs
-/// and testing will hardcode a test set of levels.
-///
-/// Rename to "levelset" or similar?
+/// Trait for interface needed for Games implemented in the Engine
 
 use macroquad::prelude::*;
 
@@ -13,22 +8,7 @@ use super::map_coords::CoordDelta;
 use super::obj::*;
 use super::play::{Scene, Continuation};
 
-/// A trait describing classes which define the levels for a game.
-///
-/// This could be a simple array of levels, but it doesn't assume that so that
-/// games could generate levels dynamically or load them from files.
-///
-/// The simplest implementations of Game hardcode the set of levels, e.g. the
-/// the example Biobot game implements the trait on the BiobotGame class which
-/// doesn't have any member variables at all.
-///
-/// However it is possible to have implementations that do have state, e.g. a
-/// random seed used to generate a set of levels, or a filename that the levels
-/// are loaded from.
-///
-/// It might simplify the implementation of the game engine slightly to specify the
-/// size of objects implementing the Game trait so the game engine can store them
-/// without dynamic allocation, but that probably doesn't gain much efficiency.
+/// Manages game-specific state, e.g. which level to go to next.
 pub trait GameTrait {
     fn new_game() -> Self;
 
