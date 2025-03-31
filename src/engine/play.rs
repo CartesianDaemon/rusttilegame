@@ -330,11 +330,10 @@ impl Splash
         // FIXME: Avoid needing input as a parameter, move time update to input code.
         input.last_real_update = get_time();
 
-        if key.is_some() {
-            return Some(Continuation::SplashContinue);
+        match key {
+            Some(_) => Some(Continuation::SplashContinue),
+            None => None,
         }
-
-        return None
     }
 }
 
