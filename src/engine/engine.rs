@@ -12,9 +12,9 @@ use super::render::Render;
 /// Could instead take a &dyn Game trait object so that it could be linked with compiled level
 /// sets, but need to establish how to pass an appropriate LevStage pointer to the concrete
 /// class.
-pub struct Engine<Levs: levset::Game> {
+pub struct Engine<Game: levset::Game> {
     /// Level set currently playing through, e.g. the biobot Engine.
-    pub lev_set: Levs,
+    pub lev_set: Game,
 
     /// Current state of gameplay, current level, mostly map etc.
     play_state: Play,
