@@ -25,7 +25,7 @@ impl GameTrait for BiobotGame {
         BiobotGame { current_sceneid: BiobotSceneId::NewGame }
     }
 
-    fn get_next_scene(&mut self, continuation: Continuation) -> Scene {
+    fn advance_scene(&mut self, continuation: Continuation) {
         self.current_sceneid = match (self.current_sceneid, continuation) {
             (BiobotSceneId::NewGame, Continuation::SplashContinue) => BiobotSceneId::LevIntro(1),
             (BiobotSceneId::LevIntro(levnum), Continuation::SplashContinue) => BiobotSceneId::LevPlay(levnum),
@@ -38,7 +38,9 @@ impl GameTrait for BiobotGame {
             (BiobotSceneId::Win, Continuation::SplashContinue) => BiobotSceneId::NewGame,
             _ => panic!()
         };
+    }
 
+    fn load_scene(&self) -> Scene {
         let aquarium1_key = HashMap::from([
             // TODO: Combine with obj.char types?
             (' ', vec![ new_floor() ]),

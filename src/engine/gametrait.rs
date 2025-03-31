@@ -12,8 +12,14 @@ use super::play::{Scene, Continuation};
 pub trait GameTrait {
     fn new_game() -> Self;
 
-    /// Load or construct a Play instance for the next scene.
-    fn get_next_scene(&mut self, continuation: Continuation) -> Scene;
+    fn advance_scene(&mut self, continuation: Continuation);
+
+    fn load_scene(&self) -> Scene;
+
+    fn load_next_scene(&mut self, continuation: Continuation) -> Scene {
+        self.advance_scene(continuation);
+        self.load_scene()
+    }
 }
 
 // SPECIFIC OBJ TYPES

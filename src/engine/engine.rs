@@ -1,5 +1,6 @@
-use crate::engine::*;
+use super::*;
 
+// TODO: Remove submodule names?
 use super::play::Scene;
 use super::input::Input;
 use super::render::Render;
@@ -39,9 +40,9 @@ pub struct Engine<Game: gametrait::GameTrait> {
 }
 
 impl<Game: gametrait::GameTrait> Engine<Game> {
-    pub fn new(init_game: Game) -> Engine<Game> {
-        let mut game = init_game;
-        let play = game.get_next_scene(Continuation::SplashContinue);
+    pub fn new() -> Engine<Game> {
+        let game = Game::new_game();
+        let play = game.load_scene();
         Engine {
             game,
             ghost_state: play.to_play_or_placeholder(),
@@ -80,11 +81,9 @@ impl<Game: gametrait::GameTrait> Engine<Game> {
         self.input.read_input();
 
         if self.play_state.continuous() || self.input.ready_to_advance_game_state(&mut self.anim_real_pc, &mut self.slide_real_pc) {
-            let maybe_to_lev = self.play_state.advance(&mut self.input);
-            if let Some(continuation) = maybe_to_lev {
-                self.play_state = {
-                    self.game.get_next_scene(continuation)
-                };
+            let maybe_continuation = self.play_state.advance(&mut self.input);
+            if let Some(continuation) = maybe_continuation {
+                self.play_state = self.game.load_next_scene(continuation);
             }
             self.init_ghost_state();
         } else if self.input.ready_to_advance_ghost_state(&mut self.anim_ghost_pc) {
