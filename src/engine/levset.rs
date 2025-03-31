@@ -13,21 +13,23 @@ use super::map_coords::CoordDelta;
 use super::obj::*;
 use super::play::Play;
 
-/// Opaque base type for LevelSetDerived types
+/// Opaque base type for LevelNum types.
+///
+/// See the description on that trait. This might not be helping any more.
+///
+/// TODO: Also is there a more idiomatic name for a Stage/"Level" representing one screen?
+///       Would it make more sense to define a level, and have that generate different screens
+///       within?
 ///
 /// A separate type because trait object types can't be copy but the derived types
 /// should be. Is that necessary?
 ///
-/// Can I reduce the boilerplate in needing to trivially derive from both LevBase
-/// and LevDerived?
-///
-/// Can remove LevStageDerived at all now LevStageBase uses DynClone as well as Downcast?
-///
-/// Kind of wants to be sized so it can easily be boxed and cloned etc. There's a crate for
-/// that, is it worth trying?
-///
-/// Any benefit for adding a type or struct for Box<dyn LevelstageBase> as that's what we
-/// pass around?
+/// Older comments:
+/// - Can remove LevStageDerived at all now LevStageBase uses DynClone as well as Downcast?
+/// - Kind of wants to be sized so it can easily be boxed and cloned etc. There's a crate for
+///   that, is it worth trying?
+/// - Any benefit for adding a type or struct for Box<dyn LevelstageBase> as that's what we
+///   pass around?
 pub trait LevelNumBase : downcast_rs::Downcast + dyn_clone::DynClone + std::fmt::Debug {
 }
 downcast_rs::impl_downcast!(LevelNumBase);
