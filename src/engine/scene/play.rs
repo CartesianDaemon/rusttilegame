@@ -50,7 +50,7 @@ impl Play
         self.field.place_obj_at(x, y, orig_obj);
     }
 
-    pub fn move_character(&mut self, last_key_pressed: Option<KeyCode>) -> Option<Continuation> {
+    pub fn move_character(field: &mut Field, last_key_pressed: Option<KeyCode>) -> Option<Continuation> {
         use crate::engine::obj::*;
         // Move character
         if let Some(key) = last_key_pressed {
@@ -63,10 +63,10 @@ impl Play
                 _ => (),
             }
             if dir != CoordDelta::from_xy(0, 0) {
-                if self.field.map.can_move(self.field.roster.hero, dir) {
-                    self.field.map.move_delta(&mut self.field.roster.hero, dir);
+                if field.map.can_move(field.roster.hero, dir) {
+                    field.map.move_delta(&mut field.roster.hero, dir);
                     // STUB: Check for win condition on ents other than the lowest one.
-                    if self.field.map[MapHandle::from_xyh(self.field.roster.hero.x, self.field.roster.hero.y, 0)].effect == Effect::Win {
+                    if field.map[MapHandle::from_xyh(field.roster.hero.x, field.roster.hero.y, 0)].effect == Effect::Win {
                         return Some(Continuation::PlayWin);
                     }
                 }
@@ -227,7 +227,7 @@ impl Play
         // Before movement, reset "prev". Will be overwritten if movement happens.
         self.field.map[self.field.roster.hero].prev_pos = self.field.map[self.field.roster.hero].cached_pos;
 
-        if let Some(cont) = self.move_character(last_key_pressed) {
+        if let Some(cont) = Self::move_character(&mut self.field, last_key_pressed) {
             return Some(cont);
         }
 
