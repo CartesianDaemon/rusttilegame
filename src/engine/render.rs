@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 use assrt::rsst;
 
-use super::play;
-use super::play::Scene;
+use super::scene;
+use super::scene::Scene;
 use super::obj;
 use super::obj::Obj;
 use super::map_coords::CoordDelta;
@@ -24,7 +24,7 @@ impl Render {
     }
 
     /// Draw current gameplay to screen.
-    pub async fn draw_frame(&mut self, play_state: &Scene, slide_real_pc: f32, anim_real_pc: f32, ghost_state: &play::Play, ghost_opacity: f32, anim_ghost_pc: f32) {
+    pub async fn draw_frame(&mut self, play_state: &Scene, slide_real_pc: f32, anim_real_pc: f32, ghost_state: &scene::Play, ghost_opacity: f32, anim_ghost_pc: f32) {
         // ENH: Avoid passing in whole Play object.
         match play_state {
             Scene::Play(play_state) => {
@@ -237,7 +237,7 @@ pub struct RenderSplash {
 
 impl RenderSplash
 {
-    pub fn begin(splash: &play::Splash) -> RenderSplash {
+    pub fn begin(splash: &scene::Splash) -> RenderSplash {
         clear_background(WHITE);
 
         let text = &splash.splash_text;

@@ -6,7 +6,7 @@ use assrt::*;
 use macroquad::prelude::*;
 
 use crate::engine::gametrait::*; // For new_xxxx() fns
-use crate::engine::play::Scene;
+use crate::engine::scene::Scene;
 use crate::engine::map_coords::*;
 
 #[cfg(test)]

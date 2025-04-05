@@ -1,7 +1,7 @@
 use super::*;
 
 // TODO: Remove submodule names?
-use super::play::Scene;
+use super::scene::Scene;
 use super::input::Input;
 use super::render::Render;
 
@@ -29,7 +29,7 @@ pub struct Engine<Game: gametrait::GameTrait> {
 
     /// Ghost state. Used to show where enemies are going to move
     /// TODO: Encapsulate better, or remove if not using.. Or fold into AnimState.
-    ghost_state: play::Play,
+    ghost_state: scene::Play,
     ghost_counter: GhostCounter,
 
     /// Record input from user ready for use.

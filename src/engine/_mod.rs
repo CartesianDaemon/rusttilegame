@@ -23,7 +23,7 @@ mod render;
 mod field;
 mod gametrait;
 mod input;
-mod play;
+mod scene;
 mod obj;
 
 // Public interface for starting the engine
@@ -31,7 +31,7 @@ pub use engine::Engine;
 
 // Public interface for writing a custom game
 pub use gametrait::*;
-pub use play::{Scene, Continuation};
+pub use scene::{Scene, Continuation};
 pub use map_coords::*;
 
 #[path = "tests/_mod.rs"]

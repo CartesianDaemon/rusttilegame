@@ -6,7 +6,7 @@ use super::map_coords::CoordDelta;
 // Need many of the specific params in ent.
 // Some of those may move to his file.
 use super::obj::*;
-use super::play::{Scene, Continuation};
+use super::scene::{Scene, Continuation};
 
 /// Manages game-specific state, e.g. which level to go to next.
 pub trait GameTrait {
