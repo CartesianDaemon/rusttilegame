@@ -3,6 +3,9 @@
 #[path = "engine/_mod.rs"]
 mod engine;
 
+#[path = "game_helpers/_mod.rs"]
+mod game_helpers;
+
 #[path = "biobot_game/_mod.rs"]
 mod biobot_game;
 
