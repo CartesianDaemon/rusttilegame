@@ -4,11 +4,10 @@ use macroquad::prelude::*;
 mod play;
 mod splash;
 
-mod dialogue;
 pub use play::Play;
 pub use splash::Splash;
 
-use dialogue::{DialogueLine, Dialogue};
+mod dialogue;
 
 use std::collections::HashMap;
 
@@ -23,17 +22,15 @@ pub enum Continuation {
 }
 
 // TODO: Might be nice to make common base type trait for Play and Splash.
+// TODO: Or even move Scene types into a helper directory somewhere between
+//       game engine and individual game.
 
 /// State of current scene: current level, map, etc.
 ///
 /// Public fields should only be needed by Render or produced by load, not
 /// used elsewhere.
 ///
-/// Stores id of next stage through opaque LevelNumBase trait object. It was a pain to
-/// get the trait object to work. Also consider using a fixed-size type for LevelNumBase.
-/// Also considered making Play templated on Game at compile time.
-///
-/// Eventually we'll probably need to store the current Levstage.
+/// TODO: Using Enum of alternate structs pattern, consider looking for helper crate?
 #[derive(Clone, Debug)]
 pub enum Scene {
     Play(Play),
@@ -41,48 +38,24 @@ pub enum Scene {
 }
 
 impl Scene {
-    pub fn make_splash(txt: String) -> Scene {
-        Scene::Splash( Splash {
-            splash_text: txt,
-            dialogue: Dialogue { entries: vec![]},
-        })
+    pub fn from_splash_string(txt: String) -> Scene {
+        Scene::Splash(Splash::from_string(txt))
     }
 
-    pub fn make_dialogue(entries: Vec<&str>) -> Scene {
-        Scene::Splash( Splash {
-            splash_text: "".to_string(),
-            dialogue: Dialogue { entries: entries.iter().map(|x| DialogueLine {tex_path: "".to_string(), text: x.to_string()} ).collect() },
-        })
+    pub fn from_splash_dialogue(entries: Vec<&str>) -> Scene {
+        Scene::Splash(Splash::from_dialogue(entries))
     }
 
-    // TODO: Move to Play
-    // TODO: Do we need a function or would having levset_biobots use Play {...} be better?
-    // TODO: Use lifetime or Rc on map_key instead of clone()?
-    pub fn play_from_ascii<const HEIGHT: usize>(
+    pub fn from_play_ascii_map<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
         map_key: HashMap<char, Vec<Obj>>,
     ) -> Scene {
-        // TODO: Get size from strings. Assert equal to default 16 in meantime.
-        let mut play = Play {
-            field: Field {
-                map_key: map_key.clone(),
-                ..Field::empty(ascii_map[0].len() as u16, HEIGHT as u16)
-            },
-        };
-
-        for (y, line) in ascii_map.iter().enumerate() {
-            for (x, ch) in line.chars().enumerate() {
-                for ent in map_key.get(&ch).unwrap() {
-                    play.spawn_at(x as i16, y as i16, ent.clone());
-                }
-            }
-        }
-
-        Scene::Play(play)
+        Scene::Play(Play::from_ascii(ascii_map, map_key))
     }
 
     // Does current mode need UI to wait for tick before updating state?
     // Yes during play of level, no in splash screens.
+    // TODO: Move into play and splash structs.
     pub fn continuous(&self) -> bool {
         match self {
             Self::Splash(_) => true,
@@ -91,6 +64,7 @@ impl Scene {
     }
 
     // Advance game state according to current state
+    // TODO: Consider implementing common interface from input to structs?
     pub fn advance(&mut self, input : &mut Input) -> Option<Continuation> {
         match self {
             Self::Play(play) => play.advance(input.consume_keypresses()),
@@ -98,6 +72,7 @@ impl Scene {
         }
     }
 
+    // TODO: Consider trying to remove necessity?
     #[allow(dead_code)]
     pub fn as_play(&self) -> &Play {
         match self {
@@ -106,6 +81,7 @@ impl Scene {
         }
     }
 
+    // TODO: Consider trying to remove necessity?
     pub fn to_play_or_placeholder(&self) -> Play {
         match self {
             Self::Play(play) => play.clone(),
@@ -115,11 +91,13 @@ impl Scene {
         }
     }
 
+    // TODO: Move into play. Still needed?
     #[allow(dead_code)]
     pub fn as_ascii_cols(&self)-> Vec<String>  {
         self.as_play().field.as_ascii_cols()
     }
 
+    // TODO: Move into play. Still needed?
     #[allow(dead_code)]
     pub fn as_ascii_rows(&self)-> Vec<String>  {
         self.as_play().field.as_ascii_rows()

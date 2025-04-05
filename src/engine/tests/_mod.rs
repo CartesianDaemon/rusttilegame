@@ -42,7 +42,7 @@ mod basic_tests {
         ]);
 
         match n {
-            1=> Scene::play_from_ascii(&[
+            1=> Scene::from_play_ascii_map(&[
                 "#####_########_#",
                 "#            # #",
                 "#  >         @ @",
@@ -52,7 +52,7 @@ mod basic_tests {
                 "##############@#",
             ], test_key
             ),
-            2=> Scene::play_from_ascii(&[
+            2=> Scene::from_play_ascii_map(&[
                 "#g  #",
                 "#   #",
                 "h   #",

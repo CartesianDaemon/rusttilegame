@@ -58,7 +58,7 @@ impl GameTrait for BiobotGame {
 
         match self.current_sceneid {
             // TODO: Can we use idx++ instead of specifying each level number? Not immediately?
-            BiobotSceneId::NewGame => Scene::make_dialogue(
+            BiobotSceneId::NewGame => Scene::from_splash_dialogue(
                 //"Click or press [enter] to start.".to_string(),
                 vec![
                     "Hello!",
@@ -69,9 +69,9 @@ impl GameTrait for BiobotGame {
             ),
 
             BiobotSceneId::LevIntro(1) => {
-                Scene::make_splash("Welcome to level 1!".to_string())
+                Scene::from_splash_string("Welcome to level 1!".to_string())
             },
-            BiobotSceneId::LevPlay(1) => Scene::play_from_ascii(&[
+            BiobotSceneId::LevPlay(1) => Scene::from_play_ascii_map(&[
                 "#            # #",
                 "#####@####@###@#",
                 "@              #",
@@ -90,13 +90,13 @@ impl GameTrait for BiobotGame {
                 "#            @ #",
             ], aquarium1_key),
             BiobotSceneId::LevOutro(1) => {
-                Scene::make_splash("Well done!! Goodbye from level 1".to_string())
+                Scene::from_splash_string("Well done!! Goodbye from level 1".to_string())
             },
 
             BiobotSceneId::LevIntro(2) => {
-                Scene::make_splash("Ooh, welcome to level 2!".to_string())
+                Scene::from_splash_string("Ooh, welcome to level 2!".to_string())
             },
-            BiobotSceneId::LevPlay(2) => Scene::play_from_ascii(&[
+            BiobotSceneId::LevPlay(2) => Scene::from_play_ascii_map(&[
                 "################",
                 "#              #",
                 "#              #",
@@ -115,14 +115,14 @@ impl GameTrait for BiobotGame {
                 "####o###########",
             ], aquarium1_key),
             BiobotSceneId::LevOutro(2) => {
-                Scene::make_splash("Wow, well done!! Goodbye from level 2!".to_string())
+                Scene::from_splash_string("Wow, well done!! Goodbye from level 2!".to_string())
             },
 
             BiobotSceneId::LevRetry(_levno) => {
-                Scene::make_splash("Game Over. Press [enter] to retry.".to_string())
+                Scene::from_splash_string("Game Over. Press [enter] to retry.".to_string())
             },
             BiobotSceneId::Win => {
-                Scene::make_splash("Congratulations. You win! Press [enter] to play again.".to_string())
+                Scene::from_splash_string("Congratulations. You win! Press [enter] to play again.".to_string())
             },
 
             BiobotSceneId::LevIntro(_) => panic!("Loading LevIntro for level that can't be found."),
