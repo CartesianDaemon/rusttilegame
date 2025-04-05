@@ -50,20 +50,8 @@ impl Play
         self.field.place_obj_at(x, y, orig_obj);
     }
 
-    /// TODO: Try to extract to object-type specific parts to function in game-helper directory
-    pub fn advance(&mut self, last_key_pressed: Option<KeyCode>) -> Option<Continuation>  {
-        // Need all the properties used in Ent.
-        // May move "can move" like logic into load, along with the assorted properties.
-        // While keeping movement code coordinating between ents here.
+    pub fn move_character(&mut self, last_key_pressed: Option<KeyCode>) -> Option<Continuation> {
         use crate::engine::obj::*;
-
-        // FIXME: Decide order of char, enemy. Before or after not quite right. Or need
-        // to handle char moving onto enemy.
-        // STUB: Maybe display char moving out of sync with enemy.
-
-        // Before movement, reset "prev". Will be overwritten if movement happens.
-        self.field.map[self.field.ros.hero].prev_pos = self.field.map[self.field.ros.hero].cached_pos;
-
         // Move character
         if let Some(key) = last_key_pressed {
             let mut dir = CoordDelta::from_xy(0, 0);
@@ -83,6 +71,26 @@ impl Play
                     }
                 }
             }
+        }
+        None
+    }
+
+    /// TODO: Try to extract to object-type specific parts to function in game-helper directory
+    pub fn advance(&mut self, last_key_pressed: Option<KeyCode>) -> Option<Continuation>  {
+        // Need all the properties used in Ent.
+        // May move "can move" like logic into load, along with the assorted properties.
+        // While keeping movement code coordinating between ents here.
+        use crate::engine::obj::*;
+
+        // FIXME: Decide order of char, enemy. Before or after not quite right. Or need
+        // to handle char moving onto enemy.
+        // STUB: Maybe display char moving out of sync with enemy.
+
+        // Before movement, reset "prev". Will be overwritten if movement happens.
+        self.field.map[self.field.ros.hero].prev_pos = self.field.map[self.field.ros.hero].cached_pos;
+
+        if let Some(cont) = self.move_character(last_key_pressed) {
+            return Some(cont);
         }
 
         // Move all movs
