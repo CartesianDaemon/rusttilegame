@@ -3,9 +3,11 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 use assrt::rsst;
 
+// For ::Pass?
+use crate::game_helpers;
+
 use super::scene;
 use super::scene::Scene;
-use super::obj;
 use super::obj::Obj;
 use super::map_coords::CoordDelta;
 
@@ -149,7 +151,7 @@ impl<'a> RenderLev<'a> {
         // TODO: Move as_ghost to parameter?
     ) {
         // TODO: move to calling function?
-        if self.as_ghost && obj.pass != obj::Pass::Mov {
+        if self.as_ghost && obj.pass != game_helpers::Pass::Mov {
             return;
         }
 

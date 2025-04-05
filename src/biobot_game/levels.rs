@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use super::objs::*;
+
 use crate::engine::*;
 use crate::engine::{Scene, Continuation};
 

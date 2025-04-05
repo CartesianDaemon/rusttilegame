@@ -1,6 +1,5 @@
-use crate::engine::Continuation;
-
 use crate::engine::*;
+use super::obj_types::*;
 
 // Would be nice to remove if easy
 use macroquad::prelude::*;

@@ -13,6 +13,9 @@ use std::ops::IndexMut;
 
 use culpa::try_fn;
 
+// For ::Pass?
+use crate::game_helpers;
+
 use super::map_coords::*;
 
 use super::obj::Obj;
@@ -416,7 +419,7 @@ impl Loc {
 
     pub fn impassable(&self) -> bool {
         // Can this fn work without knowledge of specific properties?
-        use super::obj::Pass;
+        use game_helpers::Pass;
         self.iter().any(|x| x.pass == Pass::Solid)
     }
 

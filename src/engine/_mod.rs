@@ -30,8 +30,8 @@ mod obj;
 pub use engine::Engine;
 
 // Public interface for writing game helpers
+pub use obj::Obj;
 pub use field::{Field, Map};
-pub use obj::*; // Only used by movement logic. Todo move into a namespace?
 
 // Public interface for writing a custom game
 pub use gametrait::*;

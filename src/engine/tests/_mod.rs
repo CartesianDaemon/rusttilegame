@@ -1,5 +1,9 @@
 #![allow(unused)] // TODO
 
+mod test_objs;
+
+use test_objs::*;
+
 use std::collections::HashMap;
 
 use assrt::*;

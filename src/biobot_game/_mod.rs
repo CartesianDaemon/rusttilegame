@@ -11,6 +11,7 @@
 /// * Testing that the game engine builds correctly.
 /// * Small-scale educational use.
 
-mod biobot_game;
+mod levels;
+mod objs;
 
-pub use biobot_game::BiobotGame;
+pub use levels::BiobotGame;
