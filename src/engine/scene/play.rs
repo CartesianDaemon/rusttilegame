@@ -5,7 +5,7 @@ use macroquad::prelude::*;
 
 use std::collections::HashMap;
 
-use crate::engine::field::Field;
+use crate::engine::field::{Field, Map};
 use crate::engine::obj::Obj;
 use crate::engine::map_coords::*;
 
@@ -63,10 +63,10 @@ impl Play
                 _ => (),
             }
             if dir != CoordDelta::from_xy(0, 0) {
-                if self.field.map.can_move(self.field.ros.hero, dir) {
-                    self.field.map.move_delta(&mut self.field.ros.hero, dir);
+                if self.field.map.can_move(self.field.roster.hero, dir) {
+                    self.field.map.move_delta(&mut self.field.roster.hero, dir);
                     // STUB: Check for win condition on ents other than the lowest one.
-                    if self.field.map[MapHandle::from_xyh(self.field.ros.hero.x, self.field.ros.hero.y, 0)].effect == Effect::Win {
+                    if self.field.map[MapHandle::from_xyh(self.field.roster.hero.x, self.field.roster.hero.y, 0)].effect == Effect::Win {
                         return Some(Continuation::PlayWin);
                     }
                 }
@@ -75,162 +75,169 @@ impl Play
         None
     }
 
-    /// TODO: Try to extract to object-type specific parts to function in game-helper directory
-    pub fn advance(&mut self, last_key_pressed: Option<KeyCode>) -> Option<Continuation>  {
+    pub fn move_mov(map: &mut Map, hero: &MapHandle, mov: &mut MapHandle) -> Option<Continuation> {
         // Need all the properties used in Ent.
         // May move "can move" like logic into load, along with the assorted properties.
         // While keeping movement code coordinating between ents here.
         use crate::engine::obj::*;
 
+        match map[*mov].ai {
+            AI::Stay => {
+                // Do nothing
+            },
+            AI::Hero => {
+                // Handled separately.
+            },
+            // STUB: When we see what mov movement logic are like, try to combine them into one fn.
+            AI::Snake => {
+                // if mov on same row xor column as hero, change dir to face hero
+                if (mov.x == hero.x) != (mov.y == hero.y) {
+                    let new_dir = CoordDelta::from_xy((hero.x - mov.x).signum(),(hero.y - mov.y).signum());
+                    map[*mov].dir = new_dir;
+                }
+
+                // NOTE: When mov goes out of bounds is placeholder for real win condition.
+                if !(0..map.w() as i16).contains(&(mov.x + map[*mov].dir.dx)) ||
+                    !(0..map.h() as i16).contains(&(mov.y + map[*mov].dir.dy))
+                {
+                    return Some(Continuation::PlayWin);
+                }
+                else
+                {
+                    // move mov to new location
+                    // TODO: Have a "move_dir" fn.
+                    let dir = map[*mov].dir;
+                    map.move_delta(mov, dir);
+                }
+
+                // Die if mov moves onto hero
+                if mov.x == hero.x && mov.y == hero.y {
+                    return Some(Continuation::PlayDie);
+                }
+            },
+            AI::Bounce => {
+                // TODO: Make a Map:: fn for "at pos + dir, or appropriate default if off map"
+
+                // If hitting wall, reverse direction.
+                if map.loc_at(*mov + map[*mov].dir).impassable() {
+                    map[*mov].dir = CoordDelta::from_xy(-map[*mov].dir.dx, -map[*mov].dir.dy);
+                }
+
+                // Move. Provided next space is passable. If both sides are impassable, don't
+                // move.
+                if map.loc_at(*mov + map[*mov].dir).passable() {
+                    map.move_delta(mov, map[*mov].dir);
+                }
+
+                // Hero dies if mov moves onto hero
+                if map[*mov].effect == Effect::Kill {
+                    if mov.x == hero.x && mov.y == hero.y {
+                        return Some(Continuation::PlayDie);
+                    }
+                }
+            },
+            AI::Drift => {
+                // TODO: Deal with collisions between movs
+
+                let mut drift_dir = CoordDelta::from_xy(0, 0);
+                // If hitting wall, reverse direction.
+                if map.loc_at(*mov + map[*mov].dir).impassable() {
+                    map[*mov].dir = CoordDelta::from_xy(-map[*mov].dir.dx, -map[*mov].dir.dy);
+                    // If hero "visible" forward or sideways, move one sideways towards them, if passable.
+                    // TODO: Check for obstacles to vision.
+                    let hero_dir = CoordDelta::from_xy((hero.x - mov.x).signum(),(hero.y - mov.y).signum());
+                    if map[*mov].dir.dx == 0 {
+                        if hero_dir.dy != -map[*mov].dir.dy {
+                            drift_dir = CoordDelta::from_xy(hero_dir.dx, 0);
+                        }
+                    } else if map[*mov].dir.dy == 0 {
+                        if hero_dir.dx != -map[*mov].dir.dx {
+                            drift_dir = CoordDelta::from_xy(0, hero_dir.dy);
+                        }
+                    } else {
+                        panic!("AI::Drift only implemented for orthogal movement");
+                    }
+                }
+
+                // Move. Provided next space is passable. If both sides are impassable, don't move.
+                // TODO: Animation for turning? At least avoiding wall?
+                let delta = map[*mov].dir + drift_dir;
+                if map.loc_at(*mov + delta).passable() {
+                    map.move_delta(mov, delta);
+                }
+
+                // Hero dies if mov moves onto hero
+                if map[*mov].effect == Effect::Kill {
+                    if mov.x == hero.x && mov.y == hero.y {
+                        return Some(Continuation::PlayDie);
+                    }
+                }
+            },
+            AI::Scuttle => {
+                // If hitting wall, choose new direction.
+                if map.loc_at(*mov + map[*mov].dir).impassable() {
+                    let dx_to_hero = hero.x - mov.x;
+                    let dy_to_hero = hero.y - mov.y;
+                    // Find whether x or y is more towards the hero
+                    let x_longer_than_y = match dx_to_hero.abs() - dy_to_hero.abs() {
+                        num if num > 0 => true,
+                        num if num < 0 => false,
+                        _ => map[*mov].dir.dy.abs() < map[*mov].dir.dy.abs(),
+                    };
+                    // dlongcoord is the orthogonal direction most towards the hero. dshortcoord is the other best.
+                    let (dlongcoord, dshortcoord) = if x_longer_than_y {
+                        (CoordDelta::from_xy(dx_to_hero.signum(), 0), CoordDelta::from_xy(0, dy_to_hero.signum()))
+                    } else {
+                        (CoordDelta::from_xy(0, dy_to_hero.signum()), CoordDelta::from_xy(dx_to_hero.signum(), 0))
+                    };
+                    // Prefer the directions "most" towards the hero first
+                    let try_dirs = vec![dlongcoord, dshortcoord, -dshortcoord, -dlongcoord];
+                    // Try each direction in turn, use the first passable one.
+                    // Can't be the same as original direction because that was impassable.
+                    // If none are passable, stay in the same direction we started.
+                    if let Some(dir) = try_dirs.iter().find(|dir|
+                        map.loc_at(*mov + **dir).passable()
+                    ) {
+                        map[*mov].dir = *dir;
+                    }
+                }
+
+                // Move. Provided next space is passable. If all sides were impassable, don't move.
+                if map.loc_at(*mov + map[*mov].dir).passable() {
+                    map.move_delta(mov, map[*mov].dir);
+                }
+
+                // Hero dies if bot moves onto hero
+                if map[*mov].effect == Effect::Kill {
+                    if mov.x == hero.x && mov.y == hero.y {
+                        return Some(Continuation::PlayDie);
+                    }
+                }
+            },
+        }
+        None
+    }
+
+    /// TODO: Try to extract to object-type specific parts to function in game-helper directory
+    pub fn advance(&mut self, last_key_pressed: Option<KeyCode>) -> Option<Continuation>  {
         // FIXME: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // STUB: Maybe display char moving out of sync with enemy.
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
-        self.field.map[self.field.ros.hero].prev_pos = self.field.map[self.field.ros.hero].cached_pos;
+        self.field.map[self.field.roster.hero].prev_pos = self.field.map[self.field.roster.hero].cached_pos;
 
         if let Some(cont) = self.move_character(last_key_pressed) {
             return Some(cont);
         }
 
         // Move all movs
-        for mov in &mut self.field.ros.movs {
+        for mov in &mut self.field.roster.movs {
             // Before movement, reset "prev". Will be overwritten if movement happens.
             self.field.map[*mov].prev_pos = self.field.map[*mov].cached_pos;
 
-            match self.field.map[*mov].ai {
-                AI::Stay => {
-                    // Do nothing
-                },
-                AI::Hero => {
-                    // Handled separately.
-                },
-                // STUB: When we see what mov movement logic are like, try to combine them into one fn.
-                AI::Snake => {
-                    // if mov on same row xor column as hero, change dir to face hero
-                    if (mov.x == self.field.ros.hero.x) != (mov.y == self.field.ros.hero.y) {
-                        let new_dir = CoordDelta::from_xy((self.field.ros.hero.x - mov.x).signum(),(self.field.ros.hero.y - mov.y).signum());
-                        self.field.map[*mov].dir = new_dir;
-                    }
-
-                    // NOTE: When mov goes out of bounds is placeholder for real win condition.
-                    if !(0..self.field.map.w() as i16).contains(&(mov.x + self.field.map[*mov].dir.dx)) ||
-                        !(0..self.field.map.h() as i16).contains(&(mov.y + self.field.map[*mov].dir.dy))
-                    {
-                        return Some(Continuation::PlayWin);
-                    }
-                    else
-                    {
-                        // move mov to new location
-                        // TODO: Have a "move_dir" fn.
-                        let dir = self.field.map[*mov].dir;
-                        self.field.map.move_delta(mov, dir);
-                    }
-
-                    // Die if mov moves onto hero
-                    if mov.x == self.field.ros.hero.x && mov.y == self.field.ros.hero.y {
-                        return Some(Continuation::PlayDie);
-                    }
-                },
-                AI::Bounce => {
-                    // TODO: Make a Map:: fn for "at pos + dir, or appropriate default if off map"
-
-                    // If hitting wall, reverse direction.
-                    if self.field.map.loc_at(*mov + self.field.map[*mov].dir).impassable() {
-                        self.field.map[*mov].dir = CoordDelta::from_xy(-self.field.map[*mov].dir.dx, -self.field.map[*mov].dir.dy);
-                    }
-
-                    // Move. Provided next space is passable. If both sides are impassable, don't
-                    // move.
-                    if self.field.map.loc_at(*mov + self.field.map[*mov].dir).passable() {
-                        self.field.map.move_delta(mov, self.field.map[*mov].dir);
-                    }
-
-                    // Hero dies if mov moves onto hero
-                    if self.field.map[*mov].effect == Effect::Kill {
-                        if mov.x == self.field.ros.hero.x && mov.y == self.field.ros.hero.y {
-                            return Some(Continuation::PlayDie);
-                        }
-                    }
-                },
-                AI::Drift => {
-                    // TODO: Deal with collisions between movs
-
-                    let mut drift_dir = CoordDelta::from_xy(0, 0);
-                    // If hitting wall, reverse direction.
-                    if self.field.map.loc_at(*mov + self.field.map[*mov].dir).impassable() {
-                        self.field.map[*mov].dir = CoordDelta::from_xy(-self.field.map[*mov].dir.dx, -self.field.map[*mov].dir.dy);
-                        // If hero "visible" forward or sideways, move one sideways towards them, if passable.
-                        // TODO: Check for obstacles to vision.
-                        let hero_dir = CoordDelta::from_xy((self.field.ros.hero.x - mov.x).signum(),(self.field.ros.hero.y - mov.y).signum());
-                        if self.field.map[*mov].dir.dx == 0 {
-                            if hero_dir.dy != -self.field.map[*mov].dir.dy {
-                                drift_dir = CoordDelta::from_xy(hero_dir.dx, 0);
-                            }
-                        } else if self.field.map[*mov].dir.dy == 0 {
-                            if hero_dir.dx != -self.field.map[*mov].dir.dx {
-                                drift_dir = CoordDelta::from_xy(0, hero_dir.dy);
-                            }
-                        } else {
-                            panic!("AI::Drift only implemented for orthogal movement");
-                        }
-                    }
-
-                    // Move. Provided next space is passable. If both sides are impassable, don't move.
-                    // TODO: Animation for turning? At least avoiding wall?
-                    let delta = self.field.map[*mov].dir + drift_dir;
-                    if self.field.map.loc_at(*mov + delta).passable() {
-                        self.field.map.move_delta(mov, delta);
-                    }
-
-                    // Hero dies if mov moves onto hero
-                    if self.field.map[*mov].effect == Effect::Kill {
-                        if mov.x == self.field.ros.hero.x && mov.y == self.field.ros.hero.y {
-                            return Some(Continuation::PlayDie);
-                        }
-                    }
-                },
-                AI::Scuttle => {
-                    // If hitting wall, choose new direction.
-                    if self.field.map.loc_at(*mov + self.field.map[*mov].dir).impassable() {
-                        let dx_to_hero = self.field.ros.hero.x - mov.x;
-                        let dy_to_hero = self.field.ros.hero.y - mov.y;
-                        // Find whether x or y is more towards the hero
-                        let x_longer_than_y = match dx_to_hero.abs() - dy_to_hero.abs() {
-                            num if num > 0 => true,
-                            num if num < 0 => false,
-                            _ => self.field.map[*mov].dir.dy.abs() < self.field.map[*mov].dir.dy.abs(),
-                        };
-                        // dlongcoord is the orthogonal direction most towards the hero. dshortcoord is the other best.
-                        let (dlongcoord, dshortcoord) = if x_longer_than_y {
-                            (CoordDelta::from_xy(dx_to_hero.signum(), 0), CoordDelta::from_xy(0, dy_to_hero.signum()))
-                        } else {
-                            (CoordDelta::from_xy(0, dy_to_hero.signum()), CoordDelta::from_xy(dx_to_hero.signum(), 0))
-                        };
-                        // Prefer the directions "most" towards the hero first
-                        let try_dirs = vec![dlongcoord, dshortcoord, -dshortcoord, -dlongcoord];
-                        // Try each direction in turn, use the first passable one.
-                        // Can't be the same as original direction because that was impassable.
-                        // If none are passable, stay in the same direction we started.
-                        if let Some(dir) = try_dirs.iter().find(|dir|
-                            self.field.map.loc_at(*mov + **dir).passable()
-                        ) {
-                            self.field.map[*mov].dir = *dir;
-                        }
-                    }
-
-                    // Move. Provided next space is passable. If all sides were impassable, don't move.
-                    if self.field.map.loc_at(*mov + self.field.map[*mov].dir).passable() {
-                        self.field.map.move_delta(mov, self.field.map[*mov].dir);
-                    }
-
-                    // Hero dies if bot moves onto hero
-                    if self.field.map[*mov].effect == Effect::Kill {
-                        if mov.x == self.field.ros.hero.x && mov.y == self.field.ros.hero.y {
-                            return Some(Continuation::PlayDie);
-                        }
-                    }
-                },
+            if let Some(cont) = Self::move_mov(&mut self.field.map, &self.field.roster.hero, mov) {
+                return Some(cont);
             }
         }
         return None

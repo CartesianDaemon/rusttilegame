@@ -30,7 +30,7 @@ pub struct Map {
 pub struct Field {
     pub map: Map,
     // Moveable objects in the current map.
-    pub ros: Ros,
+    pub roster: Roster,
     // Key used to represent things in map as ascii for init and debugging. Not comprehensive.
     pub map_key: std::collections::HashMap<char, Vec<Obj>>,
 }
@@ -39,7 +39,7 @@ impl Field {
     pub fn empty(w: u16, h: u16) -> Field {
         Field {
             map: Map::new(w, h),
-            ros: Ros::new(),
+            roster: Roster::new(),
             map_key: std::collections::HashMap::new(),
         }
     }
@@ -53,9 +53,9 @@ impl Field {
         let placed_obj = &self.map[hdl];
 
         if placed_obj.is_hero() {
-            self.ros.hero = hdl;
+            self.roster.hero = hdl;
         } else if placed_obj.is_other_mov() {
-            self.ros.push_mov(hdl);
+            self.roster.push_mov(hdl);
         }
     }
 
@@ -369,7 +369,7 @@ impl<'a> Iterator for LocIteratorMut<'a> {
 ///
 /// Would still like to simplify how ownership of map objects works.
 #[derive(Clone, Debug)]
-pub struct Ros {
+pub struct Roster {
     // Hero
     // FIXME: Better name for protagonist than "hero".
     pub hero: MapHandle,
@@ -381,9 +381,9 @@ pub struct Ros {
     pub movs: Vec<MapHandle>,
 }
 
-impl Ros {
-    pub fn new() -> Ros {
-        Ros {
+impl Roster {
+    pub fn new() -> Roster {
+        Roster {
             hero: MapHandle::from_xyh(0, 0, 1),
             movs: vec![],
         }
