@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::engine::*;
+use crate::engine::scripting::*;
 use crate::scripts::*;
 
 pub fn new_hero_crab() -> Obj {

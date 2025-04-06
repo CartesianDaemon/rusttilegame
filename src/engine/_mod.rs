@@ -25,16 +25,21 @@ mod input;
 #[path = "scene/_mod.rs"] mod scene;
 mod obj;
 
-// Public interface for starting the engine
 pub use engine::Engine;
 
-// Public interface for writing game scripts
-pub use obj::Obj;
-pub use field::{Field, Map};
+pub mod scripting {
+    pub use super::obj::Obj;
+    pub use super::field::{Field, Map};
+    pub use super::map_coords::*;
+    pub use super::scene::{SceneEnding, Continuation};
+}
 
 // Public interface for writing a custom game
-pub use gametrait::*;
-pub use scene::{Scene, SceneEnding, Continuation};
-pub use map_coords::*;
+pub mod customgame {
+    pub use super::obj::Obj;
+    pub use super::gametrait::*;
+    pub use super::scene::{Scene, Continuation};
+    pub use super::map_coords::*;
+}
 
 #[path = "tests/_mod.rs"] mod engine_tests;

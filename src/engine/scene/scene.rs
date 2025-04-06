@@ -1,6 +1,3 @@
-// Would be nice to remove if easy
-use macroquad::prelude::*;
-
 use std::collections::HashMap;
 use std::ops::ControlFlow;
 

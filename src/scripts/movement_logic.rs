@@ -1,6 +1,6 @@
 use std::ops::ControlFlow;
 
-use crate::engine::*;
+use crate::engine::scripting::*;
 use super::obj_types::*;
 
 // Would be nice to remove if easy

@@ -4,6 +4,7 @@ use super::*;
 use super::scene::Scene;
 use super::input::Input;
 use super::render::Render;
+use super::scene::*;
 
 /// Overall Engine state.
 ///
