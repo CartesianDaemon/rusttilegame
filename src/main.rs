@@ -2,21 +2,13 @@
 
 #![allow(unused_braces)]
 
-#[path = "engine/_mod.rs"]
-mod engine;
-
-#[path = "scripts/_mod.rs"]
-mod scripts;
-
-#[path = "gamedata/_mod.rs"]
-mod _mod;
-
-use engine::Engine;
-use _mod::BiobotGame;
+#[path = "engine/_mod.rs"] mod engine;
+#[path = "scripts/_mod.rs"] mod scripts;
+#[path = "gamedata/_mod.rs"] mod gamedata;
 
 #[macroquad::main("Tile Game")]
 async fn main() {
-    let mut engine = Engine::<BiobotGame>::new();
+    let mut engine = engine::Engine::<gamedata::BiobotGame>::new();
 
     loop {
         engine.do_frame().await;
