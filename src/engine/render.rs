@@ -4,7 +4,7 @@ use macroquad::prelude::*;
 use assrt::rsst;
 
 // For ::Pass?
-use crate::game_helpers;
+use crate::scripts;
 
 use super::scene;
 use super::scene::Scene;
@@ -151,7 +151,7 @@ impl<'a> RenderLev<'a> {
         // TODO: Move as_ghost to parameter?
     ) {
         // TODO: move to calling function?
-        if self.as_ghost && obj.pass != game_helpers::Pass::Mov {
+        if self.as_ghost && obj.pass != scripts::Pass::Mov {
             return;
         }
 

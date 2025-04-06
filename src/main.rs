@@ -5,14 +5,14 @@
 #[path = "engine/_mod.rs"]
 mod engine;
 
-#[path = "game_helpers/_mod.rs"]
-mod game_helpers;
+#[path = "scripts/_mod.rs"]
+mod scripts;
 
-#[path = "biobot_game/_mod.rs"]
-mod biobot_game;
+#[path = "gamedata/_mod.rs"]
+mod _mod;
 
 use engine::Engine;
-use biobot_game::BiobotGame;
+use _mod::BiobotGame;
 
 #[macroquad::main("Tile Game")]
 async fn main() {

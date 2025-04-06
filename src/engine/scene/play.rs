@@ -1,7 +1,7 @@
 use super::{SceneEnding};
 
 // TODO: Better to have as template or function parameter than as import
-use crate::game_helpers::*;
+use crate::scripts::*;
 
 // Would be nice to remove if easy
 use macroquad::prelude::*;

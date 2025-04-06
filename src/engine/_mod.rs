@@ -1,24 +1,18 @@
-/// This directory contains the game engine.
+/// This directory contains the core game engine.
 ///
 /// This is Copyright Jack Vickeridge (CartesianDaemon on github) but
-/// licensed for other people to use under GPL3 or later terms.
-///
-/// My main intention is that anyone can build on this engine or use
-/// it to make their own games, as long as I am credited a proportionate
-/// amount for the design of the engine, and any further development is
-/// equally freely available for other people to use.
-///
-/// I don't really expect it to come up, but my intention is that you can
-/// use the engine to develop commercial games if you want. And you can keep
-/// copyright over the gameplay, art, plot, etc. But modifications to the
-/// engine stay open source. But I haven't thought through the details yet --
-/// ask me if it comes up.
-///
-/// I think of the engine and the game design as two separate crates even
-/// though I haven't implemented that yet.
+/// licensed for other people to use under LGPL3 or later terms. (TBD:
+/// Clarify details, allow pepole to ship combined binary with their
+/// own copyrighted gamedata.)
 
-// TODO: Try to tidy up what each module exports.
+// TODO: Try to tidy up so:
+//          Engine is templated on gamedata. No reference to scripts.
+//          Everything else can import (some part of?) engine.
+//          Gamedata imports one or more scripts modules.
+//          Engine tests might import scripts as helpers.
+// TODO: Try to tidy up what types/functions each module exports.
 // TODO: Remove warning on redundant braces in use statements.
+// TODO: Give permanent names to biobot game and engine.
 //
 // TODO: Remove "emphasized items" for changed code?
 

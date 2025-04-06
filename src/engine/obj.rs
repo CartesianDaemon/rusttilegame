@@ -1,6 +1,6 @@
 use super::map_coords::{CoordDelta, MapHandle};
 
-use crate::game_helpers::*;
+use crate::scripts::*;
 
 use macroquad::prelude::*;
 
