@@ -42,7 +42,7 @@ TBD: If I'm compiling an existing levset do I want to compile the assets into th
 
 # To make a new release
 
-Should be able to build release build, then run `scripts/release.sh` to copy release and assets to published folder.
+Should be able to build release build, then run `build_scripts/release.sh` to copy release and assets to published folder.
 Need to check workflow.
 
 Should be able to then run `basic-http-server docs/` and check it works ok.

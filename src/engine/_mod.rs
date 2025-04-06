@@ -28,7 +28,7 @@ mod obj;
 // Public interface for starting the engine
 pub use engine::Engine;
 
-// Public interface for writing game helpers
+// Public interface for writing game scripts
 pub use obj::Obj;
 pub use field::{Field, Map};
 
