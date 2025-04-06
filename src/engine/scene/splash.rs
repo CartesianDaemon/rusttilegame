@@ -42,8 +42,8 @@ impl Splash
         input.last_real_update = get_time();
 
         match key {
-            Some(_) => Continuation::SplashContinue,
-            None => SceneEnding::None,
+            Some(_) => SceneEnding::NextScene(Continuation::SplashContinue),
+            None => SceneEnding::ContinuePlaying,
         }
     }
 }

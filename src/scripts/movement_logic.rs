@@ -20,12 +20,12 @@ pub fn move_character(field: &mut Field, last_key_pressed: Option<KeyCode>) -> S
                 field.map.move_delta(&mut field.roster.hero, dir);
                 // STUB: Check for win condition on ents other than the lowest one.
                 if field.map[MapHandle::from_xyh(field.roster.hero.x, field.roster.hero.y, 0)].effect == Effect::Win {
-                    return Continuation::PlayWin;
+                    return SceneEnding::NextScene(Continuation::PlayWin);
                 }
             }
         }
     }
-    return Continuation::None;
+    return SceneEnding::ContinuePlaying;
 }
 
 pub fn move_mov(map: &mut Map, hero: &MapHandle, mov: &mut MapHandle) -> SceneEnding {
@@ -48,7 +48,7 @@ pub fn move_mov(map: &mut Map, hero: &MapHandle, mov: &mut MapHandle) -> SceneEn
             if !(0..map.w() as i16).contains(&(mov.x + map[*mov].dir.dx)) ||
                 !(0..map.h() as i16).contains(&(mov.y + map[*mov].dir.dy))
             {
-                return Continuation::PlayWin;
+                return SceneEnding::NextScene(Continuation::PlayWin);
             }
             else
             {
@@ -60,7 +60,7 @@ pub fn move_mov(map: &mut Map, hero: &MapHandle, mov: &mut MapHandle) -> SceneEn
 
             // Die if mov moves onto hero
             if mov.x == hero.x && mov.y == hero.y {
-                return Continuation::PlayDie;
+                return SceneEnding::NextScene(Continuation::PlayDie);
             }
         },
         AI::Bounce => {
@@ -80,7 +80,7 @@ pub fn move_mov(map: &mut Map, hero: &MapHandle, mov: &mut MapHandle) -> SceneEn
             // Hero dies if mov moves onto hero
             if map[*mov].effect == Effect::Kill {
                 if mov.x == hero.x && mov.y == hero.y {
-                    return Continuation::PlayDie;
+                    return SceneEnding::NextScene(Continuation::PlayDie);
                 }
             }
         },
@@ -117,7 +117,7 @@ pub fn move_mov(map: &mut Map, hero: &MapHandle, mov: &mut MapHandle) -> SceneEn
             // Hero dies if mov moves onto hero
             if map[*mov].effect == Effect::Kill {
                 if mov.x == hero.x && mov.y == hero.y {
-                    return Continuation::PlayDie;
+                    return SceneEnding::NextScene(Continuation::PlayDie);
                 }
             }
         },
@@ -158,10 +158,10 @@ pub fn move_mov(map: &mut Map, hero: &MapHandle, mov: &mut MapHandle) -> SceneEn
             // Hero dies if bot moves onto hero
             if map[*mov].effect == Effect::Kill {
                 if mov.x == hero.x && mov.y == hero.y {
-                    return Continuation::PlayDie;
+                    return SceneEnding::NextScene(Continuation::PlayDie);
                 }
             }
         },
     }
-    return Continuation::None;
+    return SceneEnding::ContinuePlaying;
 }

@@ -11,29 +11,31 @@ pub enum Continuation {
     SplashContinue,
     PlayWin,
     PlayDie,
-    None,
 }
 
-pub type SceneEnding = Continuation;
+pub enum SceneEnding {
+    NextScene(Continuation),
+    ContinuePlaying
+}
 
-impl std::ops::FromResidual<Self> for Continuation {
-    fn from_residual(continuation: <Self as std::ops::Try>::Residual) -> Self {
-        continuation
+impl std::ops::FromResidual<Continuation> for SceneEnding {
+    fn from_residual(continuation: Continuation) -> Self {
+        SceneEnding::NextScene(continuation)
     }
 }
 
-impl std::ops::Try for Continuation {
+impl std::ops::Try for SceneEnding {
     type Output = ();
     type Residual = Continuation;
 
     fn from_output(_: Self::Output) -> Self {
-        Continuation::None
+        SceneEnding::ContinuePlaying
     }
 
     fn branch(self) -> ControlFlow<Self::Residual, Self::Output> {
         match self {
-            Self::None => ControlFlow::Continue(()),
-            _ => ControlFlow::Break(self),
+            SceneEnding::ContinuePlaying => ControlFlow::Continue(()),
+            SceneEnding::NextScene(continuation) => ControlFlow::Break(continuation),
         }
     }
 }

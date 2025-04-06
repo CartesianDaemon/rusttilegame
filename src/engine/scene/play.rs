@@ -70,7 +70,7 @@ impl Play
 
             move_mov(&mut self.field.map, &self.field.roster.hero, mov)?;
         }
-        SceneEnding::None
+        SceneEnding::ContinuePlaying
     }
 
 }
