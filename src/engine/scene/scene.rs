@@ -11,9 +11,32 @@ pub enum Continuation {
     SplashContinue,
     PlayWin,
     PlayDie,
+    None,
 }
 
-pub type SceneEnding = ControlFlow<Continuation, ()>;
+pub type SceneEnding = Continuation;
+
+impl std::ops::FromResidual<Self> for Continuation {
+    fn from_residual(continuation: <Self as std::ops::Try>::Residual) -> Self {
+        continuation
+    }
+}
+
+impl std::ops::Try for Continuation {
+    type Output = ();
+    type Residual = Continuation;
+
+    fn from_output(_: Self::Output) -> Self {
+        Continuation::None
+    }
+
+    fn branch(self) -> ControlFlow<Self::Residual, Self::Output> {
+        match self {
+            Self::None => ControlFlow::Continue(()),
+            _ => ControlFlow::Break(self),
+        }
+    }
+}
 
 // TODO: Might be nice to make common base type trait for Play and Splash.
 // TODO: Or even move Scene types into a helper directory somewhere between

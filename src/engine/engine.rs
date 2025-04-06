@@ -82,9 +82,9 @@ impl<Game: gametrait::GameTrait> Engine<Game> {
         self.input.read_input();
 
         if self.play_state.continuous() || self.input.ready_to_advance_game_state(&mut self.anim_real_pc, &mut self.slide_real_pc) {
-            let scene_ending = self.play_state.advance(&mut self.input);
-            if let SceneEnding::Break(continuation) = scene_ending {
-                self.play_state = self.game.load_next_scene(continuation);
+            match self.play_state.advance(&mut self.input) {
+                SceneEnding::None => (),
+                continuation => self.play_state = self.game.load_next_scene(continuation),
             }
             self.init_ghost_state();
         } else if self.input.ready_to_advance_ghost_state(&mut self.anim_ghost_pc) {
