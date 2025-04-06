@@ -22,8 +22,7 @@ mod render;
 mod field;
 mod gametrait;
 mod input;
-#[path = "scene/_scene.rs"]
-mod scene;
+#[path = "scene/_mod.rs"] mod scene;
 mod obj;
 
 // Public interface for starting the engine
@@ -38,5 +37,4 @@ pub use gametrait::*;
 pub use scene::{Scene, SceneEnding, Continuation};
 pub use map_coords::*;
 
-#[path = "tests/_mod.rs"]
-mod engine_tests;
+#[path = "tests/_mod.rs"] mod engine_tests;

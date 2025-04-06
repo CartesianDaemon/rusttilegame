@@ -1,20 +1,13 @@
 // Would be nice to remove if easy
 use macroquad::prelude::*;
 
-mod play;
-mod splash;
-
-pub use play::Play;
-pub use splash::Splash;
-
-mod dialogue;
-
 use std::collections::HashMap;
 use std::ops::ControlFlow;
 
-use super::input::Input;
-use super::field::Field;
-use super::obj::Obj;
+use super::*;
+use crate::engine::input::Input;
+use crate::engine::field::Field;
+use crate::engine::obj::Obj;
 
 /// How a scene ended, used to tell which to go to next
 pub enum Continuation {
