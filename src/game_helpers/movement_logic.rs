@@ -1,10 +1,12 @@
+use std::ops::ControlFlow;
+
 use crate::engine::*;
 use super::obj_types::*;
 
 // Would be nice to remove if easy
 use macroquad::prelude::*;
 
-pub fn move_character(field: &mut Field, last_key_pressed: Option<KeyCode>) -> Option<Continuation> {
+pub fn move_character(field: &mut Field, last_key_pressed: Option<KeyCode>) -> SceneEnding {
     // Move character
     if let Some(key) = last_key_pressed {
         let mut dir = CoordDelta::from_xy(0, 0);
@@ -20,15 +22,15 @@ pub fn move_character(field: &mut Field, last_key_pressed: Option<KeyCode>) -> O
                 field.map.move_delta(&mut field.roster.hero, dir);
                 // STUB: Check for win condition on ents other than the lowest one.
                 if field.map[MapHandle::from_xyh(field.roster.hero.x, field.roster.hero.y, 0)].effect == Effect::Win {
-                    return Some(Continuation::PlayWin);
+                    return ControlFlow::Break(Continuation::PlayWin);
                 }
             }
         }
     }
-    None
+    return ControlFlow::Continue(());
 }
 
-pub fn move_mov(map: &mut Map, hero: &MapHandle, mov: &mut MapHandle) -> Option<Continuation> {
+pub fn move_mov(map: &mut Map, hero: &MapHandle, mov: &mut MapHandle) -> SceneEnding {
     match map[*mov].ai {
         AI::Stay => {
             // Do nothing
@@ -48,7 +50,7 @@ pub fn move_mov(map: &mut Map, hero: &MapHandle, mov: &mut MapHandle) -> Option<
             if !(0..map.w() as i16).contains(&(mov.x + map[*mov].dir.dx)) ||
                 !(0..map.h() as i16).contains(&(mov.y + map[*mov].dir.dy))
             {
-                return Some(Continuation::PlayWin);
+                return SceneEnding::Break(Continuation::PlayWin);
             }
             else
             {
@@ -60,7 +62,7 @@ pub fn move_mov(map: &mut Map, hero: &MapHandle, mov: &mut MapHandle) -> Option<
 
             // Die if mov moves onto hero
             if mov.x == hero.x && mov.y == hero.y {
-                return Some(Continuation::PlayDie);
+                return SceneEnding::Break(Continuation::PlayDie);
             }
         },
         AI::Bounce => {
@@ -80,7 +82,7 @@ pub fn move_mov(map: &mut Map, hero: &MapHandle, mov: &mut MapHandle) -> Option<
             // Hero dies if mov moves onto hero
             if map[*mov].effect == Effect::Kill {
                 if mov.x == hero.x && mov.y == hero.y {
-                    return Some(Continuation::PlayDie);
+                    return SceneEnding::Break(Continuation::PlayDie);
                 }
             }
         },
@@ -117,7 +119,7 @@ pub fn move_mov(map: &mut Map, hero: &MapHandle, mov: &mut MapHandle) -> Option<
             // Hero dies if mov moves onto hero
             if map[*mov].effect == Effect::Kill {
                 if mov.x == hero.x && mov.y == hero.y {
-                    return Some(Continuation::PlayDie);
+                    return SceneEnding::Break(Continuation::PlayDie);
                 }
             }
         },
@@ -158,10 +160,10 @@ pub fn move_mov(map: &mut Map, hero: &MapHandle, mov: &mut MapHandle) -> Option<
             // Hero dies if bot moves onto hero
             if map[*mov].effect == Effect::Kill {
                 if mov.x == hero.x && mov.y == hero.y {
-                    return Some(Continuation::PlayDie);
+                    return SceneEnding::Break(Continuation::PlayDie);
                 }
             }
         },
     }
-    None
+    return ControlFlow::Continue(());
 }

@@ -1,5 +1,7 @@
 #![feature(coroutines, coroutine_trait, iter_from_coroutine)]
 
+#![allow(unused_braces)]
+
 #[path = "engine/_mod.rs"]
 mod engine;
 

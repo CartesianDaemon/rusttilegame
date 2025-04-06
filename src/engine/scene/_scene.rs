@@ -10,16 +10,20 @@ pub use splash::Splash;
 mod dialogue;
 
 use std::collections::HashMap;
+use std::ops::ControlFlow;
 
 use super::input::Input;
 use super::field::Field;
 use super::obj::Obj;
 
+/// How a scene ended, used to tell which to go to next
 pub enum Continuation {
     SplashContinue,
     PlayWin,
     PlayDie,
 }
+
+pub type SceneEnding = ControlFlow<Continuation, ()>;
 
 // TODO: Might be nice to make common base type trait for Play and Splash.
 // TODO: Or even move Scene types into a helper directory somewhere between
@@ -65,7 +69,7 @@ impl Scene {
 
     // Advance game state according to current state
     // TODO: Consider implementing common interface from input to structs?
-    pub fn advance(&mut self, input : &mut Input) -> Option<Continuation> {
+    pub fn advance(&mut self, input : &mut Input) -> SceneEnding {
         match self {
             Self::Play(play) => play.advance(input.consume_keypresses()),
             Self::Splash(play) => play.advance(input),

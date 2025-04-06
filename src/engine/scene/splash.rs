@@ -1,4 +1,4 @@
-use super::Continuation;
+use super::{SceneEnding, Continuation};
 
 // Would be nice to remove if easy
 use macroquad::prelude::*;
@@ -34,7 +34,7 @@ impl Splash
         }
     }
 
-    pub fn advance(&mut self, input: &mut Input) -> Option<Continuation> {
+    pub fn advance(&mut self, input: &mut Input) -> SceneEnding {
         let key = input.consume_keypresses();
 
         // Reset "most recent tick" when leaving menu.
@@ -42,8 +42,8 @@ impl Splash
         input.last_real_update = get_time();
 
         match key {
-            Some(_) => Some(Continuation::SplashContinue),
-            None => None,
+            Some(_) => SceneEnding::Break(Continuation::SplashContinue),
+            None => SceneEnding::Continue(()),
         }
     }
 }

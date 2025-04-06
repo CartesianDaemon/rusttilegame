@@ -1,4 +1,4 @@
-use super::Continuation;
+use super::{SceneEnding};
 
 // TODO: Better to have as template or function parameter than as import
 use crate::game_helpers::*;
@@ -53,7 +53,7 @@ impl Play
     }
 
     /// TODO: Try to extract to object-type specific parts to function in game-helper directory
-    pub fn advance(&mut self, last_key_pressed: Option<KeyCode>) -> Option<Continuation>  {
+    pub fn advance(&mut self, last_key_pressed: Option<KeyCode>) -> SceneEnding  {
         // FIXME: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // STUB: Maybe display char moving out of sync with enemy.
@@ -61,20 +61,16 @@ impl Play
         // Before movement, reset "prev". Will be overwritten if movement happens.
         self.field.map[self.field.roster.hero].prev_pos = self.field.map[self.field.roster.hero].cached_pos;
 
-        if let Some(cont) = move_character(&mut self.field, last_key_pressed) {
-            return Some(cont);
-        }
+        move_character(&mut self.field, last_key_pressed)?;
 
         // Move all movs
         for mov in &mut self.field.roster.movs {
             // Before movement, reset "prev". Will be overwritten if movement happens.
             self.field.map[*mov].prev_pos = self.field.map[*mov].cached_pos;
 
-            if let Some(cont) = move_mov(&mut self.field.map, &self.field.roster.hero, mov) {
-                return Some(cont);
-            }
+            move_mov(&mut self.field.map, &self.field.roster.hero, mov)?;
         }
-        return None
+        SceneEnding::Continue(())
     }
 
 }

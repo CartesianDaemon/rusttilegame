@@ -17,12 +17,18 @@
 /// I think of the engine and the game design as two separate crates even
 /// though I haven't implemented that yet.
 
+// TODO: Try to tidy up what each module exports.
+// TODO: Remove warning on redundant braces in use statements.
+//
+// TODO: Remove "emphasized items" for changed code?
+
 mod engine;
 mod map_coords;
 mod render;
 mod field;
 mod gametrait;
 mod input;
+#[path = "scene/_scene.rs"]
 mod scene;
 mod obj;
 
@@ -35,7 +41,7 @@ pub use field::{Field, Map};
 
 // Public interface for writing a custom game
 pub use gametrait::*;
-pub use scene::{Scene, Continuation};
+pub use scene::{Scene, SceneEnding, Continuation};
 pub use map_coords::*;
 
 #[path = "tests/_mod.rs"]
