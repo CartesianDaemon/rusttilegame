@@ -9,6 +9,7 @@
 
 use std::cell::RefCell;
 use std::mem;
+use std::ops::Add;
 use std::ops::Index;
 use std::ops::IndexMut;
 
@@ -23,16 +24,60 @@ use super::obj::Obj;
 
 // "Map": Grid of locations. Represents state of current level.
 #[derive(Clone)]
-pub struct Map {
+pub struct InternalMap {
     // Stored as a collection of columns, e.g. map.locs[x][y]
     // Must always be rectangular.
     locs: Vec<Vec<Loc>>,
 }
 
+/// A handle identifying an Ent in the map.
+///
+/// Implemented as the MapCoord and index into Ents at that Loc.
+///
+/// TODO: Include RosIdx in MapHandle too??
+#[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
+pub struct MapHandle {
+    pub x: i16,
+    pub y: i16,
+    pub h: u16,
+}
+
+impl MapHandle
+{
+    pub fn from_xyh(x: i16, y: i16, h: u16) -> MapHandle {
+        MapHandle {x, y, h}
+    }
+
+    pub fn invalid() -> MapHandle {
+        MapHandle {
+            x: -1, // For now "-1" flags "this element is a placeholder in height vector"
+            y: -1,
+            h: 0,
+        }
+    }
+
+    // TODO: Indicates places which shouldn't take a handle to start with..
+    pub fn from_coord(coord: MapCoord) -> MapHandle {
+        MapHandle{x: coord.x, y: coord.y, h:0 }
+    }
+
+    pub fn to_coord(pos: MapHandle) -> MapCoord {
+        MapCoord { x: pos.x, y: pos.y}
+    }
+}
+
+// TODO: Can we remove this? And "use Add".
+impl Add<CoordDelta> for MapHandle {
+    type Output = MapCoord;
+    fn add(self, delta: CoordDelta) -> MapCoord {
+        MapCoord { x: self.x + delta.dx, y: self.y + delta.dy }
+    }
+}
+
 /// Map together with Ros. Those are two separate classes so they can more easily be borrowed separately.
 #[derive(Clone, Debug)]
 pub struct Field {
-    pub map: RefCell<Map>,
+    pub map: RefCell<InternalMap>,
     // Moveable objects in the current map.
     pub roster: Roster,
     // Key used to represent things in map as ascii for init and debugging. Not comprehensive.
@@ -42,7 +87,7 @@ pub struct Field {
 impl Field {
     pub fn empty(w: u16, h: u16) -> Field {
         Field {
-            map: Into::into(Map::new(w, h)),
+            map: Into::into(InternalMap::new(w, h)),
             roster: Roster::new(),
             map_key: std::collections::HashMap::new(),
         }
@@ -86,7 +131,7 @@ impl Field {
     }
 }
 
-impl Index<MapHandle> for Map {
+impl Index<MapHandle> for InternalMap {
     type Output = Obj;
 
     fn index(&self, pos: MapHandle) -> &Self::Output {
@@ -94,13 +139,13 @@ impl Index<MapHandle> for Map {
     }
 }
 
-impl IndexMut<MapHandle> for Map {
+impl IndexMut<MapHandle> for InternalMap {
     fn index_mut(&mut self, pos: MapHandle) -> &mut Self::Output {
         &mut self.locs[pos.x as usize][pos.y as usize].0[pos.h as usize]
     }
 }
 
-impl std::fmt::Debug for Map {
+impl std::fmt::Debug for InternalMap {
     #[try_fn]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         write!(f, "Map[")?;
@@ -114,9 +159,9 @@ impl std::fmt::Debug for Map {
     }
 }
 
-impl Map {
-    pub fn new(w: u16, h: u16) -> Map {
-        Map {
+impl InternalMap {
+    pub fn new(w: u16, h: u16) -> InternalMap {
+        InternalMap {
             locs: vec!(vec!(Loc::new(); h.into()); w.into()),
         }
     }
@@ -182,7 +227,7 @@ impl Map {
         }
 
         // Update caller's handle to new coords. Height will be set by put_at().
-        *hdl = to.to_hdl();
+        *hdl = MapHandle::from_coord(to);
 
         // Add Ent to top of stack at new map coords. Updates hdl to match new height.
         *hdl = self.place_obj_at(to.x, to.y, obj);
@@ -190,11 +235,11 @@ impl Map {
 
     // As move_to, but move relative not abs.
     pub fn move_delta(&mut self, pos: &mut MapHandle, delta: CoordDelta) {
-        self.move_to(pos, MapCoord::from_hdl(*pos) + delta);
+        self.move_to(pos, *pos + delta);
     }
 
     pub fn can_move(&self, pos: MapHandle, delta: CoordDelta) -> bool {
-        self.loc_at( MapCoord::from_hdl(pos) + delta ).passable()
+        self.loc_at( pos + delta ).passable()
     }
 
     // Loc at given coords.
@@ -221,7 +266,7 @@ impl Map {
     }
 
     pub fn at_hdl(&self, pos: MapHandle) -> &Vec<Obj> {
-        &self.loc_at(MapCoord::from_hdl(pos)).0
+        &self.loc_at(MapHandle::to_coord(pos)).0
     }
 
     // As "at" but mutably
@@ -285,7 +330,7 @@ pub struct LocIterator<'a> {
     x: i16,
     y: i16,
     // Pointer back to original collection
-    map: &'a Map,
+    map: &'a InternalMap,
 }
 
 /*

@@ -1,4 +1,5 @@
-use super::map_coords::{CoordDelta, MapHandle};
+use super::map_coords::CoordDelta;
+use super::field::MapHandle;
 
 use crate::scripts::*;
 

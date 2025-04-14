@@ -28,55 +28,12 @@ pub struct MapCoord {
 }
 
 impl MapCoord {
-    // TODO: Indicates places which shouldn't take a handle to start with..
-    pub fn to_hdl(self) -> MapHandle {
-        MapHandle{x: self.x, y: self.y, h:0 }
-    }
-
-    pub fn from_hdl(pos: MapHandle) -> MapCoord {
-        MapCoord { x: pos.x, y: pos.y}
-    }
-
     pub fn from_xy(x: i16, y: i16) -> MapCoord {
         MapCoord {x, y}
     }
 }
 
 impl Add<CoordDelta> for MapCoord {
-    type Output = MapCoord;
-    fn add(self, delta: CoordDelta) -> MapCoord {
-        MapCoord { x: self.x + delta.dx, y: self.y + delta.dy }
-    }
-}
-
-/// A handle identifying an Ent in the map.
-///
-/// Implemented as the MapCoord and index into Ents at that Loc.
-///
-/// TODO: Include RosIdx in MapHandle too??
-#[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
-pub struct MapHandle {
-    pub x: i16,
-    pub y: i16,
-    pub h: u16,
-}
-
-impl MapHandle
-{
-    pub fn from_xyh(x: i16, y: i16, h: u16) -> MapHandle {
-        MapHandle {x, y, h}
-    }
-
-    pub fn invalid() -> MapHandle {
-        MapHandle {
-            x: -1, // For now "-1" flags "this element is a placeholder in height vector"
-            y: -1,
-            h: 0,
-        }
-    }
-}
-
-impl Add<CoordDelta> for MapHandle {
     type Output = MapCoord;
     fn add(self, delta: CoordDelta) -> MapCoord {
         MapCoord { x: self.x + delta.dx, y: self.y + delta.dy }
