@@ -16,10 +16,10 @@ pub fn move_character(field: &mut Field, last_key_pressed: Option<KeyCode>) -> S
             _ => (),
         }
         if dir != CoordDelta::from_xy(0, 0) {
-            if field.map.can_move(field.roster.hero, dir) {
-                field.map.move_delta(&mut field.roster.hero, dir);
+            if field.map.borrow().can_move(field.roster.hero, dir) {
+                field.map.borrow_mut().move_delta(&mut field.roster.hero, dir);
                 // STUB: Check for win condition on ents other than the lowest one.
-                if field.map[MapHandle::from_xyh(field.roster.hero.x, field.roster.hero.y, 0)].effect == Effect::Win {
+                if field.map.borrow()[MapHandle::from_xyh(field.roster.hero.x, field.roster.hero.y, 0)].effect == Effect::Win {
                     return SceneEnding::NextScene(Continuation::PlayWin);
                 }
             }

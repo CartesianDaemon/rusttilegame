@@ -59,16 +59,18 @@ impl Play
         // STUB: Maybe display char moving out of sync with enemy.
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
-        self.field.map[self.field.roster.hero].prev_pos = self.field.map[self.field.roster.hero].cached_pos;
+        let tmp = self.field.map.borrow()[self.field.roster.hero].cached_pos;
+        self.field.map.borrow_mut()[self.field.roster.hero].prev_pos = tmp;
 
         move_character(&mut self.field, last_key_pressed)?;
 
         // Move all movs
         for mov in &mut self.field.roster.movs {
             // Before movement, reset "prev". Will be overwritten if movement happens.
-            self.field.map[*mov].prev_pos = self.field.map[*mov].cached_pos;
+            let tmp = self.field.map.borrow()[*mov].cached_pos;
+            self.field.map.borrow_mut()[*mov].prev_pos = tmp;
 
-            move_mov(&mut self.field.map, &self.field.roster.hero, mov)?;
+            move_mov(&mut self.field.map.borrow_mut(), &self.field.roster.hero, mov)?;
         }
         SceneEnding::ContinuePlaying
     }

@@ -7,6 +7,7 @@
 // These are also used by level data files, even though
 // they don't need any of the indexing.
 
+use std::cell::RefCell;
 use std::mem;
 use std::ops::Index;
 use std::ops::IndexMut;
@@ -31,7 +32,7 @@ pub struct Map {
 /// Map together with Ros. Those are two separate classes so they can more easily be borrowed separately.
 #[derive(Clone, Debug)]
 pub struct Field {
-    pub map: Map,
+    pub map: RefCell<Map>,
     // Moveable objects in the current map.
     pub roster: Roster,
     // Key used to represent things in map as ascii for init and debugging. Not comprehensive.
@@ -41,7 +42,7 @@ pub struct Field {
 impl Field {
     pub fn empty(w: u16, h: u16) -> Field {
         Field {
-            map: Map::new(w, h),
+            map: Into::into(Map::new(w, h)),
             roster: Roster::new(),
             map_key: std::collections::HashMap::new(),
         }
@@ -52,8 +53,8 @@ impl Field {
     /// All new objs go through this to keep map and roster in sync.
     pub fn place_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj)
     {
-        let hdl = self.map.place_obj_at(x, y, orig_obj);
-        let placed_obj = &self.map[hdl];
+        let hdl = self.map.borrow_mut().place_obj_at(x, y, orig_obj);
+        let placed_obj = &self.map.borrow()[hdl];
 
         if placed_obj.is_hero() {
             self.roster.hero = hdl;
@@ -64,7 +65,7 @@ impl Field {
 
     /// Ascii representation of map. Test functions check it's as expected.
     pub fn as_ascii_cols(&self) -> Vec<String> {
-        (&self.map.locs).into_iter().map(|row|
+        (&self.map.borrow().locs).into_iter().map(|row|
             (&row).into_iter().map(|loc| {
                 self.map_key.iter().find_map(|(ch,objs)|
                     if loc.0 == *objs {Some(ch.to_string())} else {None}
@@ -75,10 +76,10 @@ impl Field {
 
     /// Ascii representation of map. Test functions check it's as expected.
     pub fn as_ascii_rows(&self) -> Vec<String> {
-        (0..self.map.h() as i16).map(|y|
-            (0..self.map.w() as i16).map(|x| {
+        (0..self.map.borrow().h() as i16).map(|y|
+            (0..self.map.borrow().w() as i16).map(|x| {
                 self.map_key.iter().find_map(|(ch,objs)|
-                    if self.map.at_xy(x,y) == objs {Some(ch.to_string())} else {None}
+                    if self.map.borrow().at_xy(x,y) == objs {Some(ch.to_string())} else {None}
                 ).unwrap_or("?".to_string())
             }).collect::<Vec<_>>().join("")
         ).collect()
