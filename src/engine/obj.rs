@@ -160,10 +160,11 @@ impl Obj {
     }
 
     // Indicate Obj which can move in their own logic, and need to be added to roster.
-    pub fn is_other_mov(self: &Obj) -> bool {
+    pub fn is_mob(self: &Obj) -> bool {
         self.is_any_mov() && ! self.is_hero()
     }
 
+    // Mob or Hero
     pub fn is_any_mov(self: &Obj) -> bool {
         self.ai != AI::Stay
     }

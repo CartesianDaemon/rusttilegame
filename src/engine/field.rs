@@ -103,7 +103,7 @@ impl Field {
 
         if placed_obj.is_hero() {
             self.roster.hero = hdl;
-        } else if placed_obj.is_other_mov() {
+        } else if placed_obj.is_mob() {
             self.roster.push_mov(hdl);
         }
     }
