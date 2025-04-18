@@ -7,7 +7,6 @@
 // These are also used by level data files, even though
 // they don't need any of the indexing.
 
-use std::cell::RefCell;
 use std::mem;
 use std::ops::Add;
 use std::ops::Index;
@@ -126,10 +125,9 @@ impl Field {
             let rich_mov = RichMapHandle { ros_idx };
             // Before movement, reset "prev". Will be overwritten if movement happens.
             // Going through tmp is necessary to avoid two dynamic borrows at the same time..
-            // TODO: Make an easier way of accessing object? Can't just have a "get object" fn
-            //       because it needs to go through RefCell..?
-            let curr_pos = self.obj_get_pos(rich_mov);
-            self.map[self.roster[ros_idx]].prev_pos = MapHandle::from_coord(curr_pos);
+            // NOTE: If map is RefCell needs to be done in two steps else runtime panic.
+            // NOTE: And obj_at() is also incompatible with RefCell.
+            self.obj_atm(ros_idx).prev_pos = MapHandle::from_coord(self.obj_get_pos(rich_mov));
 
             move_mov_refactored(self, rich_mov)?;
         }
@@ -149,6 +147,14 @@ impl Field {
         } else if placed_obj.is_mob() {
             self.roster.push_mov(hdl);
         }
+    }
+
+    pub fn obj_at(&self, ros_idx: usize) -> &Obj {
+        &self.map[self.roster[ros_idx]]
+    }
+
+    pub fn obj_atm(&mut self, ros_idx: usize) -> &mut Obj {
+        &mut self.map[self.roster[ros_idx]]
     }
 
     pub fn obj_get_pos(&self, rich_hdl: RichMapHandle) -> MapCoord {
