@@ -1,8 +1,5 @@
 use super::{SceneEnding};
 
-// TODO: Better to have as template or function parameter than as import
-use crate::scripts::*;
-
 // Would be nice to remove if easy
 use macroquad::prelude::*;
 
@@ -52,27 +49,7 @@ impl Play
         self.field.place_obj_at(x, y, orig_obj);
     }
 
-    /// TODO: Try to extract to object-type specific parts to function in game-helper directory
     pub fn advance(&mut self, last_key_pressed: Option<KeyCode>) -> SceneEnding  {
-        // FIXME: Decide order of char, enemy. Before or after not quite right. Or need
-        // to handle char moving onto enemy.
-        // STUB: Maybe display char moving out of sync with enemy.
-
-        // Before movement, reset "prev". Will be overwritten if movement happens.
-        let tmp = self.field.map.borrow()[self.field.roster.hero].cached_pos;
-        self.field.map.borrow_mut()[self.field.roster.hero].prev_pos = tmp;
-
-        move_character(&mut self.field, last_key_pressed)?;
-
-        // Move all movs
-        for mov in &mut self.field.roster.movs {
-            // Before movement, reset "prev". Will be overwritten if movement happens.
-            let tmp = self.field.map.borrow()[*mov].cached_pos;
-            self.field.map.borrow_mut()[*mov].prev_pos = tmp;
-
-            move_mov(&mut self.field.map.borrow_mut(), &self.field.roster.hero, mov)?;
-        }
-        SceneEnding::ContinuePlaying
+        self.field.advance(last_key_pressed)
     }
-
 }

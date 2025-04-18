@@ -12,11 +12,13 @@ use std::mem;
 use std::ops::Add;
 use std::ops::Index;
 use std::ops::IndexMut;
+use macroquad::input::KeyCode;
 
 use culpa::try_fn;
 
-// For ::Pass?
-use crate::scripts;
+use crate::scripts::*;
+
+use super::scene::SceneEnding;
 
 use super::map_coords::*;
 
@@ -106,6 +108,28 @@ impl Field {
             roster: Roster::new(),
             map_key: std::collections::HashMap::new(),
         }
+    }
+
+    pub fn advance(&mut self, last_key_pressed: Option<KeyCode>) -> SceneEnding  {
+        // FIXME: Decide order of char, enemy. Before or after not quite right. Or need
+        // to handle char moving onto enemy.
+        // STUB: Maybe display char moving out of sync with enemy.
+
+        // Before movement, reset "prev". Will be overwritten if movement happens.
+        let tmp = self.map.borrow()[self.roster.hero].cached_pos;
+        self.map.borrow_mut()[self.roster.hero].prev_pos = tmp;
+
+        move_character(self, last_key_pressed)?;
+
+        // Move all movs
+        for mov in &mut self.roster.movs {
+            // Before movement, reset "prev". Will be overwritten if movement happens.
+            let tmp = self.map.borrow()[*mov].cached_pos;
+            self.map.borrow_mut()[*mov].prev_pos = tmp;
+
+            move_mov(&mut self.map.borrow_mut(), &self.roster.hero, mov)?;
+        }
+        SceneEnding::ContinuePlaying
     }
 
     /// Create an object in the map and in the roster.
@@ -520,7 +544,6 @@ impl Loc {
 
     pub fn impassable(&self) -> bool {
         // Can this fn work without knowledge of specific properties?
-        use scripts::Pass;
         self.iter().any(|x| x.pass == Pass::Solid)
     }
 

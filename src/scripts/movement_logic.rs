@@ -1,8 +1,7 @@
 use crate::engine::scripting::*;
 use super::obj_types::*;
 
-// Would be nice to remove if easy
-use macroquad::prelude::*;
+use macroquad::input::KeyCode;
 
 pub fn refactored_move_character(rich_hero: RichMapHandle, field: &mut Field, last_key_pressed: Option<KeyCode>) -> SceneEnding {
     // Move character
