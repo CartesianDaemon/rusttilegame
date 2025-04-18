@@ -62,7 +62,7 @@ impl MapHandle
         MapHandle{x: coord.x, y: coord.y, h:0 }
     }
 
-    pub fn as_pos(self: MapHandle) -> MapCoord {
+    pub fn pos(self: MapHandle) -> MapCoord {
         MapCoord { x: self.x, y: self.y}
     }
 }
@@ -85,7 +85,7 @@ pub struct RichMapHandle {
 }
 
 impl RichMapHandle {
-    fn pos(self: RichMapHandle) -> MapCoord {
+    pub fn pos(self: RichMapHandle) -> MapCoord {
         MapCoord{x: self.x, y: self.y}
     }
 }
@@ -148,17 +148,18 @@ impl Field {
         }
     }
 
-    pub fn obj_can_move_refactored(self: &mut Field, rich_hdl: RichMapHandle, dir: CoordDelta) -> bool {
-        self.map.borrow().obj_can_move_refactored(rich_hdl, dir)
-    }
-
-    pub fn obj_move_delta_refactored(&mut self, rich_hdl: RichMapHandle, delta: CoordDelta) {
+    pub fn obj_move_to_refactored(&mut self, rich_hdl: RichMapHandle, pos: MapCoord) {
         let mov_roster_hdl = &mut self.roster[rich_hdl.ros_idx];
-        self.map.borrow_mut().obj_move_to(mov_roster_hdl, *mov_roster_hdl + delta);
+        self.map.borrow_mut().obj_move_to(mov_roster_hdl, pos);
     }
 
-    pub fn any_effect(&mut self, pos: MapCoord, sought_effect: Effect) -> bool {
+    // TODO: Can we return a "location handle" (or just a Loc) and have movement_logic call Loc::any_effect directly??
+    pub fn any_effect(&self, pos: MapCoord, sought_effect: Effect) -> bool {
         self.map.borrow().loc_at(pos).any_effect(sought_effect)
+    }
+
+    pub fn all_pass(&self, pos: MapCoord, sought_pass: Pass) -> bool {
+        self.map.borrow().loc_at(pos).all_pass(sought_pass)
     }
 
     /// Ascii representation of map. Test functions check it's as expected.
@@ -291,10 +292,6 @@ impl InternalMap {
         self.obj_move_to(pos, *pos + delta);
     }
 
-    pub fn obj_can_move_refactored(&self, hdl: RichMapHandle, delta: CoordDelta) -> bool {
-        self.loc_at( hdl.pos() + delta ).passable()
-    }
-
     // Loc at given coords.
     pub fn loc_at_xy(&self, x: i16, y: i16) -> &Loc {
         &self.locs[x as usize][y as usize]
@@ -319,7 +316,7 @@ impl InternalMap {
     }
 
     pub fn at_hdl(&self, pos: MapHandle) -> &Vec<Obj> {
-        &self.loc_at(MapHandle::as_pos(pos)).0
+        &self.loc_at(MapHandle::pos(pos)).0
     }
 
     // As "at" but mutably
@@ -542,13 +539,21 @@ impl Loc {
         self.iter().any(|x| x.effect == sought_effect)
     }
 
+    pub fn any_pass(&self, sought_pass: Pass) -> bool {
+        self.iter().any(|x| x.pass == sought_pass)
+    }
+
+    pub fn all_pass(&self, sought_pass: Pass) -> bool {
+        self.iter().all(|x| x.pass == sought_pass)
+    }
+
     pub fn passable(&self) -> bool {
         !self.impassable()
     }
 
     pub fn impassable(&self) -> bool {
         // Can this fn work without knowledge of specific properties?
-        self.iter().any(|x| x.pass == Pass::Solid)
+        self.any_pass(Pass::Solid)
     }
 
     fn map_fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {

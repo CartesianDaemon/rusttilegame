@@ -1,15 +1,19 @@
 use crate::engine::scripting::*;
 use super::obj_types::*;
 
+pub fn passable(field: &Field, pos: MapCoord) -> bool {
+    field.all_pass(pos, Pass::Empty)
+}
+
 pub fn move_character_refactored(rich_hero: RichMapHandle, field: &mut Field, cmd: Cmd) -> SceneEnding {
     if cmd != Cmd::Stay {
-        let dir = cmd.as_dir();
-        if field.obj_can_move_refactored(rich_hero, dir) {
-            field.obj_move_delta_refactored(rich_hero, dir);
+        let target_pos = rich_hero.pos() + cmd.as_dir();
+        if passable(field, target_pos) {
+            field.obj_move_to_refactored(rich_hero, target_pos);
         }
     }
     // TODO: Avoid needing to re-get the hero handle, make move function consume or update the rich_hero handle.
-    return if field.any_effect(field.roster.hero.as_pos(), Effect::Win) {
+    return if field.any_effect(field.roster.hero.pos(), Effect::Win) {
         SceneEnding::NextScene(Continuation::PlayWin)
     } else {
         SceneEnding::ContinuePlaying
