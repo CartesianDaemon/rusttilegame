@@ -7,7 +7,7 @@ pub fn passable(field: &Field, pos: MapCoord) -> bool {
 
 pub fn move_character_refactored(rich_hero: RichMapHandle, field: &mut Field, cmd: Cmd) -> SceneEnding {
     if cmd != Cmd::Stay {
-        let target_pos = rich_hero.pos() + cmd.as_dir();
+        let target_pos = field.obj_get_pos(rich_hero) + cmd.as_dir();
         if passable(field, target_pos) {
             field.obj_move_to_refactored(rich_hero, target_pos);
         }

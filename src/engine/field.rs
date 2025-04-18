@@ -84,12 +84,6 @@ pub struct RichMapHandle {
     pub h: u16,
 }
 
-impl RichMapHandle {
-    pub fn pos(self: RichMapHandle) -> MapCoord {
-        MapCoord{x: self.x, y: self.y}
-    }
-}
-
 /// Map together with Ros. Those are two separate classes so they can more easily be borrowed separately.
 #[derive(Clone, Debug)]
 pub struct Field {
@@ -146,6 +140,10 @@ impl Field {
         } else if placed_obj.is_mob() {
             self.roster.push_mov(hdl);
         }
+    }
+
+    pub fn obj_get_pos(&self, rich_hdl: RichMapHandle) -> MapCoord {
+        self.roster[rich_hdl.ros_idx].pos()
     }
 
     pub fn obj_move_to_refactored(&mut self, rich_hdl: RichMapHandle, pos: MapCoord) {
