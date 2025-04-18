@@ -114,10 +114,18 @@ mod basic_tests {
 
     #[test]
     fn basic_move() {
+        // TODO: Need to simplify how keypress is "used up"
         let mut play_state = get_lev(1);
         let key = &mut Input::from_key(KeyCode::Right);
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[4], "#        h   # #");
+        let key = &mut Input::from_key(KeyCode::Right); play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[4], "#        h   # #");
+        let key = &mut Input::from_key(KeyCode::Right); play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[4], "#         h  # #");
+        // play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[4], "#          h # #");
+        // play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[4], "#           h# #");
+        // play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[4], "#           h# #");
     }
+
+    // TODO: Test win
+    // TODO: Test die
 
     #[test]
     fn clone_map_and_move() {
