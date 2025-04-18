@@ -1,8 +1,8 @@
 #![allow(unused)] // TODO
 
-mod test_objs;
+mod sample_objs;
 
-use test_objs::*;
+use sample_objs::*;
 
 use std::collections::HashMap;
 
