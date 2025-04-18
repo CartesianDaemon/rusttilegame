@@ -110,7 +110,7 @@ impl Field {
         }
     }
 
-    pub fn advance(&mut self, cmd: Option<Cmd>) -> SceneEnding  {
+    pub fn advance(&mut self, cmd: Cmd) -> SceneEnding  {
         // FIXME: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // STUB: Maybe display char moving out of sync with enemy.

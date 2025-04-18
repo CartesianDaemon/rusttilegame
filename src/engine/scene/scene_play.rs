@@ -8,6 +8,7 @@ use std::collections::HashMap;
 use crate::engine::field::Field;
 use crate::engine::obj::Obj;
 use crate::engine::input::Input;
+use crate::engine::scripting::Cmd;
 
 /// Interactive map, the actual gameplay part of the game.
 #[derive(Clone, Debug)]
@@ -51,6 +52,7 @@ impl Play
     }
 
     pub fn advance(&mut self, input : &mut Input) -> SceneEnding  {
-        self.field.advance(input.consume_cmd())
+        let cmd = input.consume_cmd().unwrap_or(Cmd::default_cmd());
+        self.field.advance(cmd)
     }
 }

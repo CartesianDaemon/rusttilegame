@@ -104,14 +104,14 @@ mod basic_tests {
     fn basic_move() {
         let mut play_state = get_lev(1);
         let mut input = Input::new_blank();
-        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#       h    # #");
-        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#       h    # #");
+        input.inject_cmd(Cmd::Stay);  play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#       h    # #");
+        input.inject_cmd(Cmd::Stay);  play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#       h    # #");
         input.inject_cmd(Cmd::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#        h   # #");
         input.inject_cmd(Cmd::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#         h  # #");
         input.inject_cmd(Cmd::Left);  play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#        h   # #");
         input.inject_cmd(Cmd::Left);  play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#       h    # #");
         input.inject_cmd(Cmd::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#        h   # #");
-        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#        h   # #");
+        input.inject_cmd(Cmd::Stay);  play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#        h   # #");
         input.inject_cmd(Cmd::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#         h  # #");
         input.inject_cmd(Cmd::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#          h # #");
         input.inject_cmd(Cmd::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#           h# #");

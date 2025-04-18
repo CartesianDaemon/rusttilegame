@@ -1,17 +1,14 @@
 use crate::engine::scripting::*;
 use super::obj_types::*;
 
-pub fn move_character_refactored(rich_hero: RichMapHandle, field: &mut Field, maybe_cmd: Option<Cmd>) -> SceneEnding {
-    // Move character
-    if let Some(cmd) = maybe_cmd {
+pub fn move_character_refactored(rich_hero: RichMapHandle, field: &mut Field, cmd: Cmd) -> SceneEnding {
+    if cmd != Cmd::Stay {
         let dir = cmd.as_dir();
-        if dir != CoordDelta::from_xy(0, 0) {
-            if field.obj_can_move_refactored(rich_hero, dir) {
-                field.obj_move_delta_refactored(rich_hero, dir);
-                // TODO: Refactor to use Field::_refactor() fns
-                if field.map.borrow()[MapHandle::from_xyh(field.roster.hero.x, field.roster.hero.y, 0)].effect == Effect::Win {
-                    return SceneEnding::NextScene(Continuation::PlayWin);
-                }
+        if field.obj_can_move_refactored(rich_hero, dir) {
+            field.obj_move_delta_refactored(rich_hero, dir);
+            // TODO: Refactor to use Field::_refactor() fns
+            if field.map.borrow()[MapHandle::from_xyh(field.roster.hero.x, field.roster.hero.y, 0)].effect == Effect::Win {
+                return SceneEnding::NextScene(Continuation::PlayWin);
             }
         }
     }
