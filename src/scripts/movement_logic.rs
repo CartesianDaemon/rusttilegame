@@ -6,7 +6,6 @@ pub fn move_character_refactored(rich_hero: RichMapHandle, field: &mut Field, cm
         let dir = cmd.as_dir();
         if field.obj_can_move_refactored(rich_hero, dir) {
             field.obj_move_delta_refactored(rich_hero, dir);
-            // TODO: Refactor to use Field::_refactor() fns
             if field.map.borrow()[MapHandle::from_xyh(field.roster.hero.x, field.roster.hero.y, 0)].effect == Effect::Win {
                 return SceneEnding::NextScene(Continuation::PlayWin);
             }

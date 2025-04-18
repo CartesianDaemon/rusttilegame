@@ -12,7 +12,6 @@ use std::mem;
 use std::ops::Add;
 use std::ops::Index;
 use std::ops::IndexMut;
-use macroquad::input::KeyCode;
 
 use culpa::try_fn;
 
@@ -290,10 +289,6 @@ impl InternalMap {
 
     pub fn obj_can_move_refactored(&self, hdl: RichMapHandle, delta: CoordDelta) -> bool {
         self.loc_at( hdl.pos() + delta ).passable()
-    }
-
-    pub fn obj_can_move(&self, pos: MapHandle, delta: CoordDelta) -> bool {
-        self.loc_at( pos + delta ).passable()
     }
 
     // Loc at given coords.
