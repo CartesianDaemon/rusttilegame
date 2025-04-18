@@ -35,7 +35,7 @@ impl Splash
     }
 
     pub fn advance(&mut self, input: &mut Input) -> SceneEnding {
-        let key = input.consume_keypresses();
+        let key = input.consume_cmd();
 
         // Reset "most recent tick" when leaving menu.
         // FIXME: Avoid needing input as a parameter, move time update to input code.

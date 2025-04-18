@@ -63,60 +63,60 @@ mod basic_tests {
     #[test]
     fn basic_bounce() {
         let mut play_state = get_lev(1);
-        let key = &mut Input::from_key(KeyCode::Space);
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#   >        @ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#    >       @ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#     >      @ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#      >     @ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#       >    @ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#        >   @ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#         >  @ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#          > @ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#           >@ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#          < @ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#         <  @ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#        <   @ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#       <    @ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#      <     @ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#     <      @ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#    <       @ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#   <        @ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#  <         @ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "# <          @ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#<           @ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "# >          @ @");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#  >         @ @");
+        let mut input = Input::new_blank();
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#   >        @ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#    >       @ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#     >      @ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#      >     @ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#       >    @ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#        >   @ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#         >  @ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#          > @ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#           >@ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#          < @ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#         <  @ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#        <   @ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#       <    @ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#      <     @ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#     <      @ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#    <       @ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#   <        @ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#  <         @ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "# <          @ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#<           @ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "# >          @ @");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#  >         @ @");
     }
 
     #[test]
     fn basic_drift() {
         // TODO: Test rotated version of map somehow
         let mut play_state = get_lev(2);
-        let key = &mut Input::from_key(KeyCode::Space);
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[0], "# g #"); assert_eq!(&play_state.as_ascii_rows()[1], "#   #");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[0], "#  g#"); assert_eq!(&play_state.as_ascii_rows()[1], "#   #");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[0], "#   #"); assert_eq!(&play_state.as_ascii_rows()[1], "# G #");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[0], "#   #"); assert_eq!(&play_state.as_ascii_rows()[1], "#G  #");
-        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[0], "#   #"); assert_eq!(&play_state.as_ascii_rows()[1], "# g #");
+        let mut input = Input::new_blank();
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[0], "# g #"); assert_eq!(&play_state.as_ascii_rows()[1], "#   #");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[0], "#  g#"); assert_eq!(&play_state.as_ascii_rows()[1], "#   #");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[0], "#   #"); assert_eq!(&play_state.as_ascii_rows()[1], "# G #");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[0], "#   #"); assert_eq!(&play_state.as_ascii_rows()[1], "#G  #");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[0], "#   #"); assert_eq!(&play_state.as_ascii_rows()[1], "# g #");
     }
 
     #[test]
     fn basic_move() {
         let mut play_state = get_lev(1);
         let mut input = Input::new_blank();
-        input.inject_key_press(KeyCode::Space); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#       h    # #");
-        input.inject_key_press(KeyCode::Space); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#       h    # #");
-        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#        h   # #");
-        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#         h  # #");
-        input.inject_key_press(KeyCode::Left);  play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#        h   # #");
-        input.inject_key_press(KeyCode::Left);  play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#       h    # #");
-        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#        h   # #");
-        input.inject_key_press(KeyCode::Space); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#        h   # #");
-        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#         h  # #");
-        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#          h # #");
-        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#           h# #");
-        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#           h# #");
-        input.inject_key_press(KeyCode::Left);  play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#          h # #");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#       h    # #");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#       h    # #");
+        input.inject_cmd(Cmd::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#        h   # #");
+        input.inject_cmd(Cmd::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#         h  # #");
+        input.inject_cmd(Cmd::Left);  play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#        h   # #");
+        input.inject_cmd(Cmd::Left);  play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#       h    # #");
+        input.inject_cmd(Cmd::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#        h   # #");
+        input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#        h   # #");
+        input.inject_cmd(Cmd::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#         h  # #");
+        input.inject_cmd(Cmd::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#          h # #");
+        input.inject_cmd(Cmd::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#           h# #");
+        input.inject_cmd(Cmd::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#           h# #");
+        input.inject_cmd(Cmd::Left);  play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#          h # #");
     }
 
     // TODO: Test win
@@ -126,8 +126,9 @@ mod basic_tests {
     fn clone_map_and_move() {
         let orig_play_state = get_lev(1);
         let mut play_state = orig_play_state.clone();
+        let mut input = Input::new_blank();
         println!("Orig>> {orig_play_state:?}");
         println!("Clone>> {play_state:?}");
-        play_state.advance(&mut Input::from_key(KeyCode::Right));
+        input.inject_cmd(Cmd::Right); play_state.advance(&mut input);
     }
 }

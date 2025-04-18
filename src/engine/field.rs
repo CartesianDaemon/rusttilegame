@@ -110,7 +110,7 @@ impl Field {
         }
     }
 
-    pub fn advance(&mut self, last_key_pressed: Option<KeyCode>) -> SceneEnding  {
+    pub fn advance(&mut self, cmd: Option<Cmd>) -> SceneEnding  {
         // FIXME: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // STUB: Maybe display char moving out of sync with enemy.
@@ -121,7 +121,7 @@ impl Field {
         self.map.borrow_mut()[self.roster.hero].prev_pos = tmp;
 
         let rich_hero = RichMapHandle { ros_idx: 100, x: self.roster.hero.x, y: self.roster.hero.y, h: self.roster.hero.h };
-        move_character_refactored(rich_hero, self, last_key_pressed)?;
+        move_character_refactored(rich_hero, self, cmd)?;
 
         // Move all movs
         for mov in &mut self.roster.movs {

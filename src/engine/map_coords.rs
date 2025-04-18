@@ -52,6 +52,27 @@ impl CoordDelta {
     }
 }
 
+// Different file?
+pub enum Cmd {
+    Stay,
+    Left,
+    Right,
+    Up,
+    Down,
+}
+
+impl Cmd {
+    pub fn as_dir(self: Self) -> CoordDelta {
+        match self {
+            Self::Stay => CoordDelta::from_xy(0,0),
+            Self::Left  => CoordDelta::from_xy(0,0),
+            Self::Right => CoordDelta::from_xy(0,0),
+            Self::Up    => CoordDelta::from_xy(0,0),
+            Self::Down  => CoordDelta::from_xy(0,0),
+        }
+    }
+}
+
 /* // Can't do this when type is actually a tuple. When it's reimplemented then yes.
 impl Add<Delta> for Pos {
     type Output = Pos;

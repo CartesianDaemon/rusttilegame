@@ -1,17 +1,15 @@
 use crate::engine::scripting::*;
 use super::obj_types::*;
 
-use macroquad::input::KeyCode;
-
-pub fn move_character_refactored(rich_hero: RichMapHandle, field: &mut Field, last_key_pressed: Option<KeyCode>) -> SceneEnding {
+pub fn move_character_refactored(rich_hero: RichMapHandle, field: &mut Field, cmd: Option<Cmd>) -> SceneEnding {
     // Move character
-    if let Some(key) = last_key_pressed {
+    if let Some(key) = cmd {
         let mut dir = CoordDelta::from_xy(0, 0);
         match key {
-            KeyCode::Left  => dir = CoordDelta::from_xy(-1, 0),
-            KeyCode::Right => dir = CoordDelta::from_xy(1, 0),
-            KeyCode::Up    => dir = CoordDelta::from_xy(0, -1),
-            KeyCode::Down  => dir = CoordDelta::from_xy(0, 1),
+            Cmd::Left  => dir = CoordDelta::from_xy(-1, 0),
+            Cmd::Right => dir = CoordDelta::from_xy(1, 0),
+            Cmd::Up    => dir = CoordDelta::from_xy(0, -1),
+            Cmd::Down  => dir = CoordDelta::from_xy(0, 1),
             _ => (),
         }
         if dir != CoordDelta::from_xy(0, 0) {

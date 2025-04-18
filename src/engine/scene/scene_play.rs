@@ -51,6 +51,6 @@ impl Play
     }
 
     pub fn advance(&mut self, input : &mut Input) -> SceneEnding  {
-        self.field.advance(input.consume_keypresses())
+        self.field.advance(input.consume_cmd())
     }
 }
