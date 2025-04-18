@@ -84,7 +84,7 @@ pub struct RichMapHandle {
 /// Map together with Ros. Those are two separate classes so they can more easily be borrowed separately.
 #[derive(Clone, Debug)]
 pub struct Field {
-    pub map: RefCell<InternalMap>,
+    pub map: InternalMap,
     // Moveable objects in the current map.
     pub roster: Roster,
     // Key used to represent things in map as ascii for init and debugging. Not comprehensive.
@@ -107,8 +107,8 @@ impl Field {
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.
-        let tmp = self.map.borrow()[self.roster.hero].cached_pos;
-        self.map.borrow_mut()[self.roster.hero].prev_pos = tmp;
+        let tmp = self.map[self.roster.hero].cached_pos;
+        self.map[self.roster.hero].prev_pos = tmp;
 
         let rich_hero = RichMapHandle { ros_idx: 100 };
         move_character_refactored(self, rich_hero, cmd)?;
@@ -116,11 +116,12 @@ impl Field {
         // Move all movs
         for mov in &mut self.roster.movs {
             // Before movement, reset "prev". Will be overwritten if movement happens.
-            let tmp = self.map.borrow()[*mov].cached_pos;
-            self.map.borrow_mut()[*mov].prev_pos = tmp;
+            let tmp = self.map[*mov].cached_pos;
+            self.map[*mov].prev_pos = tmp;
 
-            move_mov(&mut self.map.borrow_mut(), &self.roster.hero, mov)?;
+            move_mov(&mut self.map, &self.roster.hero, mov)?;
         }
+        // Transitioning to this version of "Move all movs"
         for ros_idx in 0..self.roster.movs.len() {
             let rich_mov = RichMapHandle { ros_idx };
             // Before movement, reset "prev". Will be overwritten if movement happens.
@@ -128,7 +129,7 @@ impl Field {
             // TODO: Make an easier way of accessing object? Can't just have a "get object" fn
             //       because it needs to go through RefCell..?
             let curr_pos = self.obj_get_pos(rich_mov);
-            self.map.borrow_mut()[self.roster[ros_idx]].prev_pos = MapHandle::from_coord(curr_pos);
+            self.map[self.roster[ros_idx]].prev_pos = MapHandle::from_coord(curr_pos);
 
             move_mov_refactored(self, rich_mov)?;
         }
@@ -140,8 +141,8 @@ impl Field {
     /// All new objs go through this to keep map and roster in sync.
     pub fn place_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj)
     {
-        let hdl = self.map.borrow_mut().place_obj_at(x, y, orig_obj);
-        let placed_obj = &self.map.borrow()[hdl];
+        let hdl = self.map.place_obj_at(x, y, orig_obj);
+        let placed_obj = &self.map[hdl];
 
         if placed_obj.is_hero() {
             self.roster.hero = hdl;
@@ -156,21 +157,21 @@ impl Field {
 
     pub fn obj_move_to_refactored(&mut self, rich_hdl: RichMapHandle, pos: MapCoord) {
         let mov_roster_hdl = &mut self.roster[rich_hdl.ros_idx];
-        self.map.borrow_mut().obj_move_to(mov_roster_hdl, pos);
+        self.map.obj_move_to(mov_roster_hdl, pos);
     }
 
     // TODO: Can we return a "location handle" (or just a Loc) and have movement_logic call Loc::any_effect directly??
     pub fn any_effect(&self, pos: MapCoord, sought_effect: Effect) -> bool {
-        self.map.borrow().loc_at(pos).any_effect(sought_effect)
+        self.map.loc_at(pos).any_effect(sought_effect)
     }
 
     pub fn all_pass(&self, pos: MapCoord, sought_pass: Pass) -> bool {
-        self.map.borrow().loc_at(pos).all_pass(sought_pass)
+        self.map.loc_at(pos).all_pass(sought_pass)
     }
 
     /// Ascii representation of map. Test functions check it's as expected.
     pub fn as_ascii_cols(&self) -> Vec<String> {
-        (&self.map.borrow().locs).into_iter().map(|row|
+        (&self.map.locs).into_iter().map(|row|
             (&row).into_iter().map(|loc| {
                 self.map_key.iter().find_map(|(ch,objs)|
                     if loc.0 == *objs {Some(ch.to_string())} else {None}
@@ -181,10 +182,10 @@ impl Field {
 
     /// Ascii representation of map. Test functions check it's as expected.
     pub fn as_ascii_rows(&self) -> Vec<String> {
-        (0..self.map.borrow().h() as i16).map(|y|
-            (0..self.map.borrow().w() as i16).map(|x| {
+        (0..self.map.h() as i16).map(|y|
+            (0..self.map.w() as i16).map(|x| {
                 self.map_key.iter().find_map(|(ch,objs)|
-                    if self.map.borrow().at_xy(x,y) == objs {Some(ch.to_string())} else {None}
+                    if self.map.at_xy(x,y) == objs {Some(ch.to_string())} else {None}
                 ).unwrap_or("?".to_string())
             }).collect::<Vec<_>>().join("")
         ).collect()
