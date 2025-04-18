@@ -76,10 +76,11 @@ impl Add<CoordDelta> for MapHandle {
 
 #[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
 pub struct RichMapHandle {
+    // TODO: Think of as "Mov handle"? Think of ros_idx as value and x, y, h as cached coords?
+    pub ros_idx: usize,
     pub x: i16,
     pub y: i16,
     pub h: u16,
-    pub ros_idx: usize,
 }
 
 impl RichMapHandle {
@@ -127,7 +128,7 @@ impl Field {
     }
 
     pub fn obj_move_delta_refactored(&mut self, rich_hdl: RichMapHandle, delta: CoordDelta) {
-        // assume hero..
+        // TODO: Detect from actual roster, don't assume hero
         let hero_hdl = &mut self.roster.hero;
         self.map.borrow_mut().obj_move_to(hero_hdl, *hero_hdl + delta);
     }
@@ -437,6 +438,8 @@ impl<'a> Iterator for LocIteratorMut<'a> {
 }
 */
 
+type RosIndex = usize;
+
 /// Roster of objects which move autonomously.
 ///
 /// Objects are stored as MapHandles.
@@ -468,6 +471,30 @@ impl Roster {
 
     pub fn push_mov(&mut self, hdl: MapHandle) {
         self.movs.push(hdl);
+    }
+}
+
+impl Index<RosIndex> for Roster {
+    type Output = MapHandle;
+
+    fn index(&self, idx: RosIndex) -> &Self::Output {
+        match idx {
+            0..99 => &self.movs[idx],
+            99 => panic!("Used invalid 99 index into roster"),
+            100 => &self.hero,
+            _ => panic!("Unknown index into roster: {}", idx),
+        }
+    }
+}
+
+impl IndexMut<RosIndex> for Roster {
+    fn index_mut(&mut self, idx: RosIndex) -> &mut Self::Output {
+        match idx {
+            0..99 => &mut self.movs[idx],
+            99 => panic!("Used invalid 99 index into roster"),
+            100 => &mut self.hero,
+            _ => panic!("Unknown index into roster: {}", idx),
+        }
     }
 }
 
