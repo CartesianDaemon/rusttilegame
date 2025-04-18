@@ -74,6 +74,14 @@ impl Add<CoordDelta> for MapHandle {
     }
 }
 
+#[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
+pub struct RichMapHandle {
+    pub x: i16,
+    pub y: i16,
+    pub h: u16,
+    pub ros_idx: usize,
+}
+
 /// Map together with Ros. Those are two separate classes so they can more easily be borrowed separately.
 #[derive(Clone, Debug)]
 pub struct Field {

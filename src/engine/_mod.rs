@@ -29,7 +29,7 @@ pub use engine::Engine;
 
 pub mod scripting {
     pub use super::obj::Obj;
-    pub use super::field::{Field, InternalMap, MapHandle};
+    pub use super::field::{Field, InternalMap, MapHandle, RichMapHandle};
     pub use super::map_coords::*;
     pub use super::scene::{SceneEnding, Continuation};
 }

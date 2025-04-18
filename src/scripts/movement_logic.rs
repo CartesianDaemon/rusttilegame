@@ -4,6 +4,10 @@ use super::obj_types::*;
 // Would be nice to remove if easy
 use macroquad::prelude::*;
 
+pub fn refactored_move_character(hero: RichMapHandle, field: &mut Field, last_key_pressed: Option<KeyCode>) -> SceneEnding {
+    return SceneEnding::ContinuePlaying;
+}
+
 pub fn move_character(field: &mut Field, last_key_pressed: Option<KeyCode>) -> SceneEnding {
     // Move character
     if let Some(key) = last_key_pressed {
