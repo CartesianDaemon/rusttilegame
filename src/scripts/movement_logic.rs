@@ -5,6 +5,26 @@ use super::obj_types::*;
 use macroquad::prelude::*;
 
 pub fn refactored_move_character(hero: RichMapHandle, field: &mut Field, last_key_pressed: Option<KeyCode>) -> SceneEnding {
+    // Move character
+    if let Some(key) = last_key_pressed {
+        let mut dir = CoordDelta::from_xy(0, 0);
+        match key {
+            KeyCode::Left  => dir = CoordDelta::from_xy(-1, 0),
+            KeyCode::Right => dir = CoordDelta::from_xy(1, 0),
+            KeyCode::Up    => dir = CoordDelta::from_xy(0, -1),
+            KeyCode::Down  => dir = CoordDelta::from_xy(0, 1),
+            _ => (),
+        }
+        if dir != CoordDelta::from_xy(0, 0) {
+            if field.map.borrow().refactored_obj_can_move(hero, dir) {
+                field.map.borrow_mut().obj_move_delta(&mut field.roster.hero, dir);
+                // STUB: Check for win condition on ents other than the lowest one.
+                if field.map.borrow()[MapHandle::from_xyh(field.roster.hero.x, field.roster.hero.y, 0)].effect == Effect::Win {
+                    return SceneEnding::NextScene(Continuation::PlayWin);
+                }
+            }
+        }
+    }
     return SceneEnding::ContinuePlaying;
 }
 
@@ -20,8 +40,8 @@ pub fn move_character(field: &mut Field, last_key_pressed: Option<KeyCode>) -> S
             _ => (),
         }
         if dir != CoordDelta::from_xy(0, 0) {
-            if field.map.borrow().can_move(field.roster.hero, dir) {
-                field.map.borrow_mut().move_delta(&mut field.roster.hero, dir);
+            if field.map.borrow().obj_can_move(field.roster.hero, dir) {
+                field.map.borrow_mut().obj_move_delta(&mut field.roster.hero, dir);
                 // STUB: Check for win condition on ents other than the lowest one.
                 if field.map.borrow()[MapHandle::from_xyh(field.roster.hero.x, field.roster.hero.y, 0)].effect == Effect::Win {
                     return SceneEnding::NextScene(Continuation::PlayWin);
@@ -59,7 +79,7 @@ pub fn move_mov(map: &mut InternalMap, hero: &MapHandle, mov: &mut MapHandle) ->
                 // move mov to new location
                 // TODO: Have a "move_dir" fn.
                 let dir = map[*mov].dir;
-                map.move_delta(mov, dir);
+                map.obj_move_delta(mov, dir);
             }
 
             // Die if mov moves onto hero
@@ -78,7 +98,7 @@ pub fn move_mov(map: &mut InternalMap, hero: &MapHandle, mov: &mut MapHandle) ->
             // Move. Provided next space is passable. If both sides are impassable, don't
             // move.
             if map.loc_at(*mov + map[*mov].dir).passable() {
-                map.move_delta(mov, map[*mov].dir);
+                map.obj_move_delta(mov, map[*mov].dir);
             }
 
             // Hero dies if mov moves onto hero
@@ -115,7 +135,7 @@ pub fn move_mov(map: &mut InternalMap, hero: &MapHandle, mov: &mut MapHandle) ->
             // TODO: Animation for turning? At least avoiding wall?
             let delta = map[*mov].dir + drift_dir;
             if map.loc_at(*mov + delta).passable() {
-                map.move_delta(mov, delta);
+                map.obj_move_delta(mov, delta);
             }
 
             // Hero dies if mov moves onto hero
@@ -156,7 +176,7 @@ pub fn move_mov(map: &mut InternalMap, hero: &MapHandle, mov: &mut MapHandle) ->
 
             // Move. Provided next space is passable. If all sides were impassable, don't move.
             if map.loc_at(*mov + map[*mov].dir).passable() {
-                map.move_delta(mov, map[*mov].dir);
+                map.obj_move_delta(mov, map[*mov].dir);
             }
 
             // Hero dies if bot moves onto hero

@@ -82,6 +82,12 @@ pub struct RichMapHandle {
     pub ros_idx: usize,
 }
 
+impl RichMapHandle {
+    fn pos(self: RichMapHandle) -> MapCoord {
+        MapCoord{x: self.x, y: self.y}
+    }
+}
+
 /// Map together with Ros. Those are two separate classes so they can more easily be borrowed separately.
 #[derive(Clone, Debug)]
 pub struct Field {
@@ -211,7 +217,7 @@ impl InternalMap {
     /// should call it with a handle from the roster so the roster is updated.
     ///
     /// TODO: Reduce need for code outside map.rs to know how to use roster handles.
-    pub fn move_to(&mut self, hdl: &mut MapHandle, to: MapCoord) {
+    pub fn obj_move_to(&mut self, hdl: &mut MapHandle, to: MapCoord) {
         let on_top = hdl.h as usize == self.at_hdl(*hdl).len();
 
         let orig_obj = if on_top {
@@ -242,11 +248,15 @@ impl InternalMap {
     }
 
     // As move_to, but move relative not abs.
-    pub fn move_delta(&mut self, pos: &mut MapHandle, delta: CoordDelta) {
-        self.move_to(pos, *pos + delta);
+    pub fn obj_move_delta(&mut self, pos: &mut MapHandle, delta: CoordDelta) {
+        self.obj_move_to(pos, *pos + delta);
     }
 
-    pub fn can_move(&self, pos: MapHandle, delta: CoordDelta) -> bool {
+    pub fn refactored_obj_can_move(&self, hdl: RichMapHandle, delta: CoordDelta) -> bool {
+        self.loc_at( hdl.pos() + delta ).passable()
+    }
+
+    pub fn obj_can_move(&self, pos: MapHandle, delta: CoordDelta) -> bool {
         self.loc_at( pos + delta ).passable()
     }
 
