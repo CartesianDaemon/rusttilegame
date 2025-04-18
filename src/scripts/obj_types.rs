@@ -13,7 +13,7 @@ pub enum Pass {
 }
 
 // Types of movement-control logic ents can use
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 #[allow(dead_code)]
 pub enum AI {
     Stay, // No self movement. Not added to Roster's list of movs.

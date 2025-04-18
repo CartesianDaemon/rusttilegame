@@ -109,8 +109,7 @@ impl Field {
         let tmp = self.map[self.roster.hero].cached_pos;
         self.map[self.roster.hero].prev_pos = tmp;
 
-        let rich_hero = RichMapHandle { ros_idx: 100 };
-        move_character_refactored(self, rich_hero, cmd)?;
+        move_character_refactored(self, self.rich_hero(), cmd)?;
 
         // Move all movs
         for mov in &mut self.roster.movs {
@@ -147,6 +146,10 @@ impl Field {
         } else if placed_obj.is_mob() {
             self.roster.push_mov(hdl);
         }
+    }
+
+    pub fn rich_hero(&self) -> RichMapHandle {
+        RichMapHandle { ros_idx: 100 }
     }
 
     pub fn obj_at(&self, ros_idx: usize) -> &Obj {
