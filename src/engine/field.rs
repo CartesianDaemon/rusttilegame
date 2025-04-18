@@ -122,11 +122,12 @@ impl Field {
             move_mov(&mut self.map.borrow_mut(), &self.roster.hero, mov)?;
         }
         for ros_idx in 0..self.roster.movs.len() {
-            let rich_mov = RichMapHandle { ros_idx };
             // Before movement, reset "prev". Will be overwritten if movement happens.
+            // Going through tmp is necessary to avoid two dynamic borrows at the same time..
             let tmp = self.map.borrow()[self.roster[ros_idx]].cached_pos;
             self.map.borrow_mut()[self.roster[ros_idx]].prev_pos = tmp;
 
+            let rich_mov = RichMapHandle { ros_idx };
             move_mov_refactored(self, rich_mov)?;
             // move_mov(&mut self.map.borrow_mut(), &self.roster.hero, mov)?;
         }
