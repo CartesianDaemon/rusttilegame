@@ -4,7 +4,7 @@ use super::obj_types::*;
 // Would be nice to remove if easy
 use macroquad::prelude::*;
 
-pub fn refactored_move_character(hero: RichMapHandle, field: &mut Field, last_key_pressed: Option<KeyCode>) -> SceneEnding {
+pub fn refactored_move_character(rich_hero: RichMapHandle, field: &mut Field, last_key_pressed: Option<KeyCode>) -> SceneEnding {
     // Move character
     if let Some(key) = last_key_pressed {
         let mut dir = CoordDelta::from_xy(0, 0);
@@ -16,9 +16,9 @@ pub fn refactored_move_character(hero: RichMapHandle, field: &mut Field, last_ke
             _ => (),
         }
         if dir != CoordDelta::from_xy(0, 0) {
-            if field.obj_can_move_refactored(hero, dir) {
-                field.map.borrow_mut().obj_move_delta(&mut field.roster.hero, dir);
-                // STUB: Check for win condition on ents other than the lowest one.
+            if field.obj_can_move_refactored(rich_hero, dir) {
+                field.obj_move_delta_refactored(rich_hero, dir);
+                // TODO: Refactor to use Field::_refactor() fns
                 if field.map.borrow()[MapHandle::from_xyh(field.roster.hero.x, field.roster.hero.y, 0)].effect == Effect::Win {
                     return SceneEnding::NextScene(Continuation::PlayWin);
                 }

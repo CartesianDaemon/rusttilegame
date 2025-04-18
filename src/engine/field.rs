@@ -122,8 +122,14 @@ impl Field {
         }
     }
 
-    pub fn obj_can_move_refactored(self: &mut Field, hdl: RichMapHandle, dir: CoordDelta) -> bool {
-        self.map.borrow().obj_can_move_refactored(hdl, dir)
+    pub fn obj_can_move_refactored(self: &mut Field, rich_hdl: RichMapHandle, dir: CoordDelta) -> bool {
+        self.map.borrow().obj_can_move_refactored(rich_hdl, dir)
+    }
+
+    pub fn obj_move_delta_refactored(&mut self, rich_hdl: RichMapHandle, delta: CoordDelta) {
+        // assume hero..
+        let hero_hdl = &mut self.roster.hero;
+        self.map.borrow_mut().obj_move_to(hero_hdl, *hero_hdl + delta);
     }
 
     /// Ascii representation of map. Test functions check it's as expected.
