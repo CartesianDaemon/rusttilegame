@@ -129,8 +129,8 @@ impl Field {
 
     pub fn obj_move_delta_refactored(&mut self, rich_hdl: RichMapHandle, delta: CoordDelta) {
         // TODO: Detect from actual roster, don't assume hero
-        let hero_hdl = &mut self.roster.hero;
-        self.map.borrow_mut().obj_move_to(hero_hdl, *hero_hdl + delta);
+        let mov_roster_hdl = &mut self.roster[rich_hdl.ros_idx];
+        self.map.borrow_mut().obj_move_to(mov_roster_hdl, *mov_roster_hdl + delta);
     }
 
     /// Ascii representation of map. Test functions check it's as expected.
