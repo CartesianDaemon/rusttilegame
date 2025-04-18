@@ -158,7 +158,7 @@ impl Field {
     }
 
     pub fn any_effect(&mut self, pos: MapCoord, sought_effect: Effect) -> bool {
-        self.map.borrow().at(pos).iter().any(|x| x.effect == sought_effect)
+        self.map.borrow().loc_at(pos).any_effect(sought_effect)
     }
 
     /// Ascii representation of map. Test functions check it's as expected.
@@ -536,6 +536,10 @@ pub struct Loc(Vec<Obj>);
 impl Loc {
     pub fn new() -> Loc {
         Loc { 0: vec![] }
+    }
+
+    pub fn any_effect(&self, sought_effect: Effect) -> bool {
+        self.iter().any(|x| x.effect == sought_effect)
     }
 
     pub fn passable(&self) -> bool {
