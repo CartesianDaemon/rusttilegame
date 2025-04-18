@@ -16,7 +16,7 @@ pub fn refactored_move_character(hero: RichMapHandle, field: &mut Field, last_ke
             _ => (),
         }
         if dir != CoordDelta::from_xy(0, 0) {
-            if field.map.borrow().refactored_obj_can_move(hero, dir) {
+            if field.obj_can_move_refactored(hero, dir) {
                 field.map.borrow_mut().obj_move_delta(&mut field.roster.hero, dir);
                 // STUB: Check for win condition on ents other than the lowest one.
                 if field.map.borrow()[MapHandle::from_xyh(field.roster.hero.x, field.roster.hero.y, 0)].effect == Effect::Win {

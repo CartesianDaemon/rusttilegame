@@ -122,6 +122,10 @@ impl Field {
         }
     }
 
+    pub fn obj_can_move_refactored(self: &mut Field, hdl: RichMapHandle, dir: CoordDelta) -> bool {
+        self.map.borrow().obj_can_move_refactored(hdl, dir)
+    }
+
     /// Ascii representation of map. Test functions check it's as expected.
     pub fn as_ascii_cols(&self) -> Vec<String> {
         (&self.map.borrow().locs).into_iter().map(|row|
@@ -252,7 +256,7 @@ impl InternalMap {
         self.obj_move_to(pos, *pos + delta);
     }
 
-    pub fn refactored_obj_can_move(&self, hdl: RichMapHandle, delta: CoordDelta) -> bool {
+    pub fn obj_can_move_refactored(&self, hdl: RichMapHandle, delta: CoordDelta) -> bool {
         self.loc_at( hdl.pos() + delta ).passable()
     }
 
