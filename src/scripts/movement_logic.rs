@@ -1,17 +1,10 @@
 use crate::engine::scripting::*;
 use super::obj_types::*;
 
-pub fn move_character_refactored(rich_hero: RichMapHandle, field: &mut Field, cmd: Option<Cmd>) -> SceneEnding {
+pub fn move_character_refactored(rich_hero: RichMapHandle, field: &mut Field, maybe_cmd: Option<Cmd>) -> SceneEnding {
     // Move character
-    if let Some(key) = cmd {
-        let mut dir = CoordDelta::from_xy(0, 0);
-        match key {
-            Cmd::Left  => dir = CoordDelta::from_xy(-1, 0),
-            Cmd::Right => dir = CoordDelta::from_xy(1, 0),
-            Cmd::Up    => dir = CoordDelta::from_xy(0, -1),
-            Cmd::Down  => dir = CoordDelta::from_xy(0, 1),
-            _ => (),
-        }
+    if let Some(cmd) = maybe_cmd {
+        let dir = cmd.as_dir();
         if dir != CoordDelta::from_xy(0, 0) {
             if field.obj_can_move_refactored(rich_hero, dir) {
                 field.obj_move_delta_refactored(rich_hero, dir);

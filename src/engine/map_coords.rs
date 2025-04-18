@@ -64,12 +64,16 @@ pub enum Cmd {
 impl Cmd {
     pub fn as_dir(self: Self) -> CoordDelta {
         match self {
-            Self::Stay => CoordDelta::from_xy(0,0),
-            Self::Left  => CoordDelta::from_xy(0,0),
-            Self::Right => CoordDelta::from_xy(0,0),
-            Self::Up    => CoordDelta::from_xy(0,0),
-            Self::Down  => CoordDelta::from_xy(0,0),
+            Self::Stay  => CoordDelta::from_xy(0, 0),
+            Self::Left  => CoordDelta::from_xy(-1, 0),
+            Self::Right => CoordDelta::from_xy(1, 0),
+            Self::Up    => CoordDelta::from_xy(0, -1),
+            Self::Down  => CoordDelta::from_xy(0, 1),
         }
+    }
+
+    pub fn default_cmd() -> Self {
+        Self::Stay
     }
 }
 
