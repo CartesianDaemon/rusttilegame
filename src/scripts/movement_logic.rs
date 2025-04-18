@@ -6,7 +6,8 @@ pub fn move_character_refactored(rich_hero: RichMapHandle, field: &mut Field, cm
         let dir = cmd.as_dir();
         if field.obj_can_move_refactored(rich_hero, dir) {
             field.obj_move_delta_refactored(rich_hero, dir);
-            if field.map.borrow()[MapHandle::from_xyh(field.roster.hero.x, field.roster.hero.y, 0)].effect == Effect::Win {
+            // TODO: Avoid needing to re-get the hero handle, make move function consume or update the rich_hero handle.
+            if field.any_effect(field.roster.hero.as_pos(), Effect::Win) {
                 return SceneEnding::NextScene(Continuation::PlayWin);
             }
         }

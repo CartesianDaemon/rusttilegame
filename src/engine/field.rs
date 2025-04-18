@@ -57,13 +57,13 @@ impl MapHandle
         }
     }
 
-    // TODO: Indicates places which shouldn't take a handle to start with..
+    // TODO: Indicates places which shouldn't take a handle to start with..?
     pub fn from_coord(coord: MapCoord) -> MapHandle {
         MapHandle{x: coord.x, y: coord.y, h:0 }
     }
 
-    pub fn to_coord(pos: MapHandle) -> MapCoord {
-        MapCoord { x: pos.x, y: pos.y}
+    pub fn as_pos(self: MapHandle) -> MapCoord {
+        MapCoord { x: self.x, y: self.y}
     }
 }
 
@@ -155,6 +155,10 @@ impl Field {
     pub fn obj_move_delta_refactored(&mut self, rich_hdl: RichMapHandle, delta: CoordDelta) {
         let mov_roster_hdl = &mut self.roster[rich_hdl.ros_idx];
         self.map.borrow_mut().obj_move_to(mov_roster_hdl, *mov_roster_hdl + delta);
+    }
+
+    pub fn any_effect(&mut self, pos: MapCoord, sought_effect: Effect) -> bool {
+        self.map.borrow().at(pos).iter().any(|x| x.effect == sought_effect)
     }
 
     /// Ascii representation of map. Test functions check it's as expected.
@@ -302,7 +306,7 @@ impl InternalMap {
         self.loc_at_xy(pos.x, pos.y)
     }
 
-    // Ents at given MapCoord.
+    // Ents at given coords.
     pub fn at_xy(&self, x: i16, y:i16) -> &Vec<Obj> {
         &self.loc_at_xy(x, y).0
     }
@@ -315,7 +319,7 @@ impl InternalMap {
     }
 
     pub fn at_hdl(&self, pos: MapHandle) -> &Vec<Obj> {
-        &self.loc_at(MapHandle::to_coord(pos)).0
+        &self.loc_at(MapHandle::as_pos(pos)).0
     }
 
     // As "at" but mutably
