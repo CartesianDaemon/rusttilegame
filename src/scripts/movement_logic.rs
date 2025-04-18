@@ -27,30 +27,6 @@ pub fn move_character_refactored(rich_hero: RichMapHandle, field: &mut Field, la
     return SceneEnding::ContinuePlaying;
 }
 
-pub fn move_character(field: &mut Field, last_key_pressed: Option<KeyCode>) -> SceneEnding {
-    // Move character
-    if let Some(key) = last_key_pressed {
-        let mut dir = CoordDelta::from_xy(0, 0);
-        match key {
-            KeyCode::Left  => dir = CoordDelta::from_xy(-1, 0),
-            KeyCode::Right => dir = CoordDelta::from_xy(1, 0),
-            KeyCode::Up    => dir = CoordDelta::from_xy(0, -1),
-            KeyCode::Down  => dir = CoordDelta::from_xy(0, 1),
-            _ => (),
-        }
-        if dir != CoordDelta::from_xy(0, 0) {
-            if field.map.borrow().obj_can_move(field.roster.hero, dir) {
-                field.map.borrow_mut().obj_move_delta(&mut field.roster.hero, dir);
-                // STUB: Check for win condition on ents other than the lowest one.
-                if field.map.borrow()[MapHandle::from_xyh(field.roster.hero.x, field.roster.hero.y, 0)].effect == Effect::Win {
-                    return SceneEnding::NextScene(Continuation::PlayWin);
-                }
-            }
-        }
-    }
-    return SceneEnding::ContinuePlaying;
-}
-
 pub fn move_mov(map: &mut InternalMap, hero: &MapHandle, mov: &mut MapHandle) -> SceneEnding {
     match map[*mov].ai {
         AI::Stay => {
