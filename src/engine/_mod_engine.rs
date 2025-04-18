@@ -22,7 +22,7 @@ mod render;
 mod field;
 mod gametrait;
 mod input;
-#[path = "scene/_mod.rs"] mod scene;
+#[path = "scene/_mod_scene.rs"] mod scene;
 mod obj;
 
 pub use engine::Engine;
@@ -42,4 +42,4 @@ pub mod customgame {
     pub use super::map_coords::*;
 }
 
-#[path = "tests/_mod.rs"] mod engine_tests;
+#[path = "tests/_mod_tests.rs"] mod engine_tests;
