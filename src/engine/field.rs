@@ -79,9 +79,6 @@ impl Add<CoordDelta> for MapHandle {
 pub struct RichMapHandle {
     // TODO: Think of as "Mov handle"? Think of ros_idx as value and x, y, h as cached coords?
     pub ros_idx: usize,
-    pub x: i16,
-    pub y: i16,
-    pub h: u16,
 }
 
 /// Map together with Ros. Those are two separate classes so they can more easily be borrowed separately.
@@ -113,8 +110,8 @@ impl Field {
         let tmp = self.map.borrow()[self.roster.hero].cached_pos;
         self.map.borrow_mut()[self.roster.hero].prev_pos = tmp;
 
-        let rich_hero = RichMapHandle { ros_idx: 100, x: self.roster.hero.x, y: self.roster.hero.y, h: self.roster.hero.h };
-        move_character_refactored(rich_hero, self, cmd)?;
+        let rich_hero = RichMapHandle { ros_idx: 100 };
+        move_character_refactored(self, rich_hero, cmd)?;
 
         // Move all movs
         for mov in &mut self.roster.movs {
@@ -123,6 +120,15 @@ impl Field {
             self.map.borrow_mut()[*mov].prev_pos = tmp;
 
             move_mov(&mut self.map.borrow_mut(), &self.roster.hero, mov)?;
+        }
+        for ros_idx in 0..self.roster.movs.len() {
+            let rich_mov = RichMapHandle { ros_idx };
+            // Before movement, reset "prev". Will be overwritten if movement happens.
+            let tmp = self.map.borrow()[self.roster[ros_idx]].cached_pos;
+            self.map.borrow_mut()[self.roster[ros_idx]].prev_pos = tmp;
+
+            move_mov_refactored(self, rich_mov)?;
+            // move_mov(&mut self.map.borrow_mut(), &self.roster.hero, mov)?;
         }
         SceneEnding::ContinuePlaying
     }

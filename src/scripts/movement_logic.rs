@@ -5,7 +5,7 @@ pub fn passable(field: &Field, pos: MapCoord) -> bool {
     field.all_pass(pos, Pass::Empty)
 }
 
-pub fn move_character_refactored(rich_hero: RichMapHandle, field: &mut Field, cmd: Cmd) -> SceneEnding {
+pub fn move_character_refactored(field: &mut Field, rich_hero: RichMapHandle, cmd: Cmd) -> SceneEnding {
     if cmd != Cmd::Stay {
         let target_pos = field.obj_get_pos(rich_hero) + cmd.as_dir();
         if passable(field, target_pos) {
@@ -19,6 +19,10 @@ pub fn move_character_refactored(rich_hero: RichMapHandle, field: &mut Field, cm
         SceneEnding::ContinuePlaying
     }
     // TODO: Also check if hero died? Usually superfluous if we don't allow moving into death.
+}
+
+pub fn move_mov_refactored(field: &mut Field, mov: RichMapHandle) -> SceneEnding {
+    return SceneEnding::ContinuePlaying;
 }
 
 pub fn move_mov(map: &mut InternalMap, hero: &MapHandle, mov: &mut MapHandle) -> SceneEnding {
