@@ -119,9 +119,9 @@ mod basic_tests {
         let key = &mut Input::from_key(KeyCode::Right);
         let key = &mut Input::from_key(KeyCode::Right); play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[4], "#        h   # #");
         let key = &mut Input::from_key(KeyCode::Right); play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[4], "#         h  # #");
-        // play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[4], "#          h # #");
-        // play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[4], "#           h# #");
-        // play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[4], "#           h# #");
+        let key = &mut Input::from_key(KeyCode::Right); play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[4], "#          h # #");
+        let key = &mut Input::from_key(KeyCode::Right); play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[4], "#           h# #");
+        let key = &mut Input::from_key(KeyCode::Right); play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[4], "#           h# #");
     }
 
     // TODO: Test win
