@@ -35,7 +35,6 @@ pub fn move_mov(map: &mut InternalMap, hero: &MapHandle, mov: &mut MapHandle) ->
         AI::Hero => {
             // Handled separately.
         },
-        // STUB: When we see what mov movement logic are like, try to combine them into one fn.
         AI::Snake => {
             // if mov on same row xor column as hero, change dir to face hero
             if (mov.x == hero.x) != (mov.y == hero.y) {

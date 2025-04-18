@@ -19,18 +19,6 @@ mod basic_tests {
 
     use super::*;
 
-    /// TODO: Could compare whole map?
-    fn expect_eq(got: &String, expected: &str) {
-        if got != expected {
-            panic!("Got, expected:\n{got}\n{expected}");
-        }
-    }
-
-    #[test]
-    fn basic_compare() {
-        rsst!(true);
-    }
-
     fn get_lev(n: i32) -> Scene {
         let test_key = HashMap::from([
             (' ', vec![ new_floor() ]),
@@ -69,35 +57,35 @@ mod basic_tests {
     #[test]
     fn basic_init() {
         let mut play_state = get_lev(1);
-        expect_eq(&play_state.as_ascii_rows()[2], "#  >         @ @");
+        assert_eq!(&play_state.as_ascii_rows()[2], "#  >         @ @");
     }
 
     #[test]
     fn basic_bounce() {
         let mut play_state = get_lev(1);
         let key = &mut Input::from_key(KeyCode::Space);
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#   >        @ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#    >       @ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#     >      @ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#      >     @ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#       >    @ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#        >   @ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#         >  @ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#          > @ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#           >@ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#          < @ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#         <  @ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#        <   @ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#       <    @ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#      <     @ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#     <      @ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#    <       @ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#   <        @ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#  <         @ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "# <          @ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#<           @ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "# >          @ @");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[2], "#  >         @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#   >        @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#    >       @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#     >      @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#      >     @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#       >    @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#        >   @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#         >  @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#          > @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#           >@ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#          < @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#         <  @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#        <   @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#       <    @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#      <     @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#     <      @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#    <       @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#   <        @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#  <         @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "# <          @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#<           @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "# >          @ @");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[2], "#  >         @ @");
     }
 
     #[test]
@@ -105,31 +93,30 @@ mod basic_tests {
         // TODO: Test rotated version of map somehow
         let mut play_state = get_lev(2);
         let key = &mut Input::from_key(KeyCode::Space);
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[0], "# g #"); expect_eq(&play_state.as_ascii_rows()[1], "#   #");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[0], "#  g#"); expect_eq(&play_state.as_ascii_rows()[1], "#   #");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[0], "#   #"); expect_eq(&play_state.as_ascii_rows()[1], "# G #");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[0], "#   #"); expect_eq(&play_state.as_ascii_rows()[1], "#G  #");
-        play_state.advance(key); expect_eq(&play_state.as_ascii_rows()[0], "#   #"); expect_eq(&play_state.as_ascii_rows()[1], "# g #");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[0], "# g #"); assert_eq!(&play_state.as_ascii_rows()[1], "#   #");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[0], "#  g#"); assert_eq!(&play_state.as_ascii_rows()[1], "#   #");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[0], "#   #"); assert_eq!(&play_state.as_ascii_rows()[1], "# G #");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[0], "#   #"); assert_eq!(&play_state.as_ascii_rows()[1], "#G  #");
+        play_state.advance(key); assert_eq!(&play_state.as_ascii_rows()[0], "#   #"); assert_eq!(&play_state.as_ascii_rows()[1], "# g #");
     }
 
     #[test]
     fn basic_move() {
-        // TODO: Need to simplify how keypress is "used up"
         let mut play_state = get_lev(1);
         let mut input = Input::new_blank();
-        input.inject_key_press(KeyCode::Space); play_state.advance(&mut input); expect_eq(&play_state.as_ascii_rows()[4], "#       h    # #");
-        input.inject_key_press(KeyCode::Space); play_state.advance(&mut input); expect_eq(&play_state.as_ascii_rows()[4], "#       h    # #");
-        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); expect_eq(&play_state.as_ascii_rows()[4], "#        h   # #");
-        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); expect_eq(&play_state.as_ascii_rows()[4], "#         h  # #");
-        input.inject_key_press(KeyCode::Left);  play_state.advance(&mut input); expect_eq(&play_state.as_ascii_rows()[4], "#        h   # #");
-        input.inject_key_press(KeyCode::Left);  play_state.advance(&mut input); expect_eq(&play_state.as_ascii_rows()[4], "#       h    # #");
-        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); expect_eq(&play_state.as_ascii_rows()[4], "#        h   # #");
-        input.inject_key_press(KeyCode::Space); play_state.advance(&mut input); expect_eq(&play_state.as_ascii_rows()[4], "#        h   # #");
-        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); expect_eq(&play_state.as_ascii_rows()[4], "#         h  # #");
-        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); expect_eq(&play_state.as_ascii_rows()[4], "#          h # #");
-        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); expect_eq(&play_state.as_ascii_rows()[4], "#           h# #");
-        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); expect_eq(&play_state.as_ascii_rows()[4], "#           h# #");
-        input.inject_key_press(KeyCode::Left);  play_state.advance(&mut input); expect_eq(&play_state.as_ascii_rows()[4], "#          h # #");
+        input.inject_key_press(KeyCode::Space); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#       h    # #");
+        input.inject_key_press(KeyCode::Space); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#       h    # #");
+        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#        h   # #");
+        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#         h  # #");
+        input.inject_key_press(KeyCode::Left);  play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#        h   # #");
+        input.inject_key_press(KeyCode::Left);  play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#       h    # #");
+        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#        h   # #");
+        input.inject_key_press(KeyCode::Space); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#        h   # #");
+        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#         h  # #");
+        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#          h # #");
+        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#           h# #");
+        input.inject_key_press(KeyCode::Right); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#           h# #");
+        input.inject_key_press(KeyCode::Left);  play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[4], "#          h # #");
     }
 
     // TODO: Test win

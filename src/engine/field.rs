@@ -116,6 +116,7 @@ impl Field {
         // STUB: Maybe display char moving out of sync with enemy.
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
+        // Should be moved into obj_move*() fn.
         let tmp = self.map.borrow()[self.roster.hero].cached_pos;
         self.map.borrow_mut()[self.roster.hero].prev_pos = tmp;
 
@@ -153,7 +154,6 @@ impl Field {
     }
 
     pub fn obj_move_delta_refactored(&mut self, rich_hdl: RichMapHandle, delta: CoordDelta) {
-        // TODO: Detect from actual roster, don't assume hero
         let mov_roster_hdl = &mut self.roster[rich_hdl.ros_idx];
         self.map.borrow_mut().obj_move_to(mov_roster_hdl, *mov_roster_hdl + delta);
     }
