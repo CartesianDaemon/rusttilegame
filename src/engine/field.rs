@@ -119,7 +119,8 @@ impl Field {
         let tmp = self.map.borrow()[self.roster.hero].cached_pos;
         self.map.borrow_mut()[self.roster.hero].prev_pos = tmp;
 
-        move_character(self, last_key_pressed)?;
+        let rich_hero = RichMapHandle { ros_idx: 100, x: self.roster.hero.x, y: self.roster.hero.y, h: self.roster.hero.h };
+        move_character_refactored(rich_hero, self, last_key_pressed);
 
         // Move all movs
         for mov in &mut self.roster.movs {

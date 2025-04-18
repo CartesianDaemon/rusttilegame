@@ -3,7 +3,7 @@ use super::obj_types::*;
 
 use macroquad::input::KeyCode;
 
-pub fn refactored_move_character(rich_hero: RichMapHandle, field: &mut Field, last_key_pressed: Option<KeyCode>) -> SceneEnding {
+pub fn move_character_refactored(rich_hero: RichMapHandle, field: &mut Field, last_key_pressed: Option<KeyCode>) -> SceneEnding {
     // Move character
     if let Some(key) = last_key_pressed {
         let mut dir = CoordDelta::from_xy(0, 0);
