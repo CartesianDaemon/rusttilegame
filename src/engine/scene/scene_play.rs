@@ -7,6 +7,7 @@ use std::collections::HashMap;
 
 use crate::engine::field::Field;
 use crate::engine::obj::Obj;
+use crate::engine::input::Input;
 
 /// Interactive map, the actual gameplay part of the game.
 #[derive(Clone, Debug)]
@@ -49,7 +50,7 @@ impl Play
         self.field.place_obj_at(x, y, orig_obj);
     }
 
-    pub fn advance(&mut self, last_key_pressed: Option<KeyCode>) -> SceneEnding  {
-        self.field.advance(last_key_pressed)
+    pub fn advance(&mut self, input : &mut Input) -> SceneEnding  {
+        self.field.advance(input.consume_keypresses())
     }
 }

@@ -86,7 +86,7 @@ impl Scene {
     // TODO: Consider implementing common interface from input to structs?
     pub fn advance(&mut self, input : &mut Input) -> SceneEnding {
         match self {
-            Self::Play(play) => play.advance(input.consume_keypresses()),
+            Self::Play(play) => play.advance(input),
             Self::Splash(play) => play.advance(input),
         }
     }

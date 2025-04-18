@@ -34,9 +34,19 @@ impl Input {
         }
     }
 
+    // TODO: Rename from "keypress" to "Movementcommand"
+    pub fn inject_key_press(self: &mut Input, key: KeyCode)
+    {
+        self.last_key_pressed = Some(key);
+    }
+
     #[allow(dead_code)]
     pub fn from_key(last_key_pressed: KeyCode) -> Input {
         Input {last_key_pressed: Some(last_key_pressed), ..Input::new_blank()}
+    }
+
+    pub fn consume_keypresses(&mut self) -> Option<KeyCode> {
+        self.last_key_pressed.take()
     }
 
     pub fn read_input(&mut self) {
@@ -83,10 +93,6 @@ impl Input {
             *anim_pc = (( (get_time() - self.last_ghost_update) / self.speed) as f32).min(1.0);
             false
         }
-    }
-
-    pub fn consume_keypresses(&mut self) -> Option<KeyCode> {
-        self.last_key_pressed.take()
     }
 }
 
