@@ -1,8 +1,8 @@
 mod scene;
-mod play;
-mod splash;
+mod scene_play;
+mod scene_splash;
 mod dialogue;
 
-pub use play::Play;
-pub use splash::Splash;
+pub use scene_play::Play;
+pub use scene_splash::Splash;
 pub use scene::*;
