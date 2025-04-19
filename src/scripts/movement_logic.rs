@@ -10,7 +10,7 @@ pub fn impassable(field: &Field, pos: MapCoord) -> bool {
     !passable(field, pos)
 }
 
-pub fn move_mov(field: &mut Field, obj_hdl: RosterHandle, cmd: Cmd) -> SceneEnding {
+pub fn move_mov(field: &mut Field, obj_hdl: RichHandle, very_rich_obj_hdl: VeryRichHandle, cmd: Cmd) -> SceneEnding {
     match field[obj_hdl].ai {
         AI::Stay => {
             // Do nothing
