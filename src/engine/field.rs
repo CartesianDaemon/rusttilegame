@@ -27,12 +27,6 @@ pub struct RosterHandle {
     pub ros_idx: u16,
 }
 
-impl RosterHandle {
-    pub fn invalid() -> RosterHandle {
-        RosterHandle {ros_idx: 99}
-    }
-}
-
 /// Map together with Ros. Those are two separate classes so they can more easily be borrowed separately.
 #[derive(Clone, Debug)]
 pub struct Field {
@@ -112,11 +106,11 @@ impl Field {
     /// Internally adds it to the map, and to the roster if its animate.
     pub fn spawn_obj_at(&mut self, x: i16, y:i16, props: ObjProperties)
     {
-        // TODO: These are overwritten almost immediately. Create MapBackref::invalid() fn?
-        // TODO: Or split up what we pass to put_obj_in_map_and_return_updated_objmapref to pass Option?
+        // TODO: These are overwritten almost immediately. Can we avoid placeholders?
+        //       Split up what we pass to put_obj_in_map_and_return_updated_objmapref to pass Option?
         let orig_obj = Obj {
             backref: MapBackref {
-                curr_roster_handle: RosterHandle::invalid(),
+                curr_roster_handle: RosterHandle{ ros_idx: 99},
                 curr_pos: MapCoord{ x: -1, y: -1},
                 prev_pos: MapCoord{ x: -1, y: -1},
             },
@@ -402,10 +396,6 @@ struct ObjMapRef {
 
 impl ObjMapRef
 {
-    pub fn invalid() -> ObjMapRef {
-        ObjMapRef {x: 0, y: 0, h: 1}
-    }
-
     pub fn pos(self: ObjMapRef) -> MapCoord {
         MapCoord { x: self.x, y: self.y}
     }
@@ -436,7 +426,7 @@ struct Roster {
 impl Roster {
     pub fn new() -> Roster {
         Roster {
-            hero: ObjMapRef::invalid(),
+            hero: ObjMapRef{x:0, y:0, h:1}, // Overwritten immediate, but can we avoid placeholder?
             movs: vec![],
         }
     }
