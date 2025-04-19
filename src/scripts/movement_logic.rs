@@ -13,7 +13,7 @@ pub fn impassable(field: &Field, pos: MapCoord) -> bool {
 //       to call it for the hero obj and when to call it for the other objs
 pub fn move_character_refactored(field: &mut Field, rich_hero: RichMapHandle, cmd: Cmd) -> SceneEnding {
     if cmd != Cmd::Stay {
-        let target_pos = field.obj_get_pos(rich_hero) + cmd.as_dir();
+        let target_pos = field.obj_pos(rich_hero) + cmd.as_dir();
         if passable(field, target_pos) {
             field.obj_move_to_refactored(rich_hero, target_pos);
         }
@@ -28,7 +28,7 @@ pub fn move_character_refactored(field: &mut Field, rich_hero: RichMapHandle, cm
 }
 
 pub fn move_mov_refactored(field: &mut Field, rich_mov: RichMapHandle) -> SceneEnding {
-    match field.obj_at(rich_mov.ros_idx).ai {
+    match field.obj_props(rich_mov).ai {
         AI::Stay => {
             // Do nothing
         },
@@ -39,14 +39,14 @@ pub fn move_mov_refactored(field: &mut Field, rich_mov: RichMapHandle) -> SceneE
             // TODO: Simplify duplication in field.obj_at(rich_mov.ros_idx) throughout?
 
             // TODO: Add local target_pos fn
-            let target_pos = field.obj_get_pos(rich_mov) + field.obj_at(rich_mov.ros_idx).dir;
+            let target_pos = field.obj_pos(rich_mov) + field.obj_props(rich_mov).dir;
             // If moving would hit a wall, first reverse direction.
             if impassable(field, target_pos) {
-                let objm = field.obj_atm(rich_mov.ros_idx);
+                let objm = field.obj_props_m(rich_mov);
                 objm.dir = CoordDelta::from_xy(-objm.dir.dx, -objm.dir.dy);
             }
 
-            let target_pos = field.obj_get_pos(rich_mov) + field.obj_at(rich_mov.ros_idx).dir;
+            let target_pos = field.obj_pos(rich_mov) + field.obj_props(rich_mov).dir;
             // Move. Provided next space is passable. If both sides are impassable, don't move.
             if passable(field, target_pos) {
                 field.obj_move_to_refactored(rich_mov, target_pos);
@@ -54,7 +54,7 @@ pub fn move_mov_refactored(field: &mut Field, rich_mov: RichMapHandle) -> SceneE
 
             // Hero dies if mov moves onto hero
             // TODO: Check at end of function? Or as part of obj?
-            if field.obj_at(rich_mov.ros_idx).effect == Effect::Kill && field.obj_get_pos(rich_mov) == field.obj_get_pos(field.rich_hero()) {
+            if field.obj_props(rich_mov).effect == Effect::Kill && field.obj_pos(rich_mov) == field.obj_pos(field.rich_hero()) {
                 return SceneEnding::NextScene(Continuation::PlayDie);
             }
         },
@@ -71,32 +71,6 @@ pub fn move_mov(map: &mut InternalMap, hero: &MapHandle, mov: &mut MapHandle) ->
         },
         AI::Hero => {
             // Handled separately.
-        },
-        AI::Snake => {
-            // if mov on same row xor column as hero, change dir to face hero
-            if (mov.x == hero.x) != (mov.y == hero.y) {
-                let new_dir = CoordDelta::from_xy((hero.x - mov.x).signum(),(hero.y - mov.y).signum());
-                map[*mov].dir = new_dir;
-            }
-
-            // NOTE: When mov goes out of bounds is placeholder for real win condition.
-            if !(0..map.w() as i16).contains(&(mov.x + map[*mov].dir.dx)) ||
-                !(0..map.h() as i16).contains(&(mov.y + map[*mov].dir.dy))
-            {
-                return SceneEnding::NextScene(Continuation::PlayWin);
-            }
-            else
-            {
-                // move mov to new location
-                // TODO: Have a "move_dir" fn.
-                let dir = map[*mov].dir;
-                map.obj_move_delta(mov, dir);
-            }
-
-            // Die if mov moves onto hero
-            if mov.x == hero.x && mov.y == hero.y {
-                return SceneEnding::NextScene(Continuation::PlayDie);
-            }
         },
         AI::Drift => {
             // TODO: Deal with collisions between movs

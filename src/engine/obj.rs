@@ -44,7 +44,7 @@ pub struct Obj {
     // Movement control logic for enemies
     pub ai: AI,
 
-    // Internal status for specific ent types.
+    // Internal status for ents which have a current movement direction.
     pub dir: CoordDelta,
 
     // Effect of intersecting hero

@@ -19,7 +19,6 @@ pub enum AI {
     Stay, // No self movement. Not added to Roster's list of movs.
     Hero, // Controlled by keys. Assume only one hero, added to Roster's hero entry.
     // Everything else may spontaneously move or need to be enumerated, ie needs to be added to roster.
-    Snake, // Move in direction, move orthogonally towards hero. Maybe: bounce off walls.
     Bounce, // Move in direction, reverse direction at walls.
     Drift, // Move in direction, reverse direction at walls, move diagonally towards hero at reversal.
     Scuttle, // Move in direction, when hit wall change to move orthogonally towards hero.

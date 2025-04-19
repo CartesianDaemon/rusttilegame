@@ -126,7 +126,7 @@ impl Field {
             // Going through tmp is necessary to avoid two dynamic borrows at the same time..
             // NOTE: If map is RefCell needs to be done in two steps else runtime panic.
             // NOTE: And obj_at() is also incompatible with RefCell.
-            self.obj_atm(ros_idx).prev_pos = MapHandle::from_coord(self.obj_get_pos(rich_mov));
+            self.obj_props_m(rich_mov).prev_pos = MapHandle::from_coord(self.obj_pos(rich_mov));
 
             move_mov_refactored(self, rich_mov)?;
         }
@@ -152,15 +152,15 @@ impl Field {
         RichMapHandle { ros_idx: 100 }
     }
 
-    pub fn obj_at(&self, ros_idx: usize) -> &Obj {
-        &self.map[self.roster[ros_idx]]
+    pub fn obj_props(&self, rich_hdl: RichMapHandle) -> &Obj {
+        &self.map[self.roster[rich_hdl.ros_idx]]
     }
 
-    pub fn obj_atm(&mut self, ros_idx: usize) -> &mut Obj {
-        &mut self.map[self.roster[ros_idx]]
+    pub fn obj_props_m(&mut self, rich_hdl: RichMapHandle) -> &mut Obj {
+        &mut self.map[self.roster[rich_hdl.ros_idx]]
     }
 
-    pub fn obj_get_pos(&self, rich_hdl: RichMapHandle) -> MapCoord {
+    pub fn obj_pos(&self, rich_hdl: RichMapHandle) -> MapCoord {
         self.roster[rich_hdl.ros_idx].pos()
     }
 
