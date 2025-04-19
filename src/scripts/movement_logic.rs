@@ -23,7 +23,7 @@ pub fn move_mov(field: &mut Field, rich_mov: RichMapHandle, cmd: Cmd) -> SceneEn
                 }
             }
             // TODO: Avoid needing to re-get the hero handle, make move function consume or update the rich_mov handle.
-            return if field.any_effect(field.roster.hero.pos(), Effect::Win) {
+            return if field.any_effect(field.obj_pos(field.rich_hero()), Effect::Win) {
                 SceneEnding::NextScene(Continuation::PlayWin)
             } else {
                 SceneEnding::ContinuePlaying

@@ -8,6 +8,7 @@
 // they don't need any of the indexing.
 
 use std::mem;
+use std::collections::HashMap;
 use std::ops::Add;
 use std::ops::Index;
 use std::ops::IndexMut;
@@ -85,7 +86,7 @@ pub struct RichMapHandle {
 pub struct Field {
     pub map: InternalMap,
     // Moveable objects in the current map.
-    pub roster: Roster,
+    roster: Roster,
     // Key used to represent things in map as ascii for init and debugging. Not comprehensive.
     pub map_key: std::collections::HashMap<char, Vec<Obj>>,
 }
@@ -97,6 +98,26 @@ impl Field {
             roster: Roster::new(),
             map_key: std::collections::HashMap::new(),
         }
+    }
+
+    pub fn from_map_and_key<const HEIGHT: usize>(
+        ascii_map: &[&str; HEIGHT],
+        map_key: HashMap<char, Vec<Obj>>,
+    ) -> Field {
+        let mut field = Field {
+            map_key: map_key.clone(),
+            ..Field::empty(ascii_map[0].len() as u16, HEIGHT as u16)
+        };
+
+        for (y, line) in ascii_map.iter().enumerate() {
+            for (x, ch) in line.chars().enumerate() {
+                for ent in map_key.get(&ch).unwrap() {
+                    field.place_obj_at(x as i16, y as i16, ent.clone());
+                }
+            }
+        }
+
+        field
     }
 
     pub fn advance(&mut self, cmd: Cmd) -> SceneEnding  {
