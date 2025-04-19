@@ -38,16 +38,18 @@ pub fn move_mov_refactored(field: &mut Field, rich_mov: RichMapHandle) -> SceneE
         AI::Bounce => {
             // TODO: Simplify duplication in field.obj_at(rich_mov.ros_idx) throughout?
 
-            // TODO: Add local target_pos fn
-            let target_pos = field.obj_pos(rich_mov) + field.obj_props(rich_mov).dir;
             // If moving would hit a wall, first reverse direction.
+            // TODO: Consider adding field.try_move() fn.
+            // TODO: Consider adding map_coord *= -1.
+            let target_pos = field.obj_target_pos(rich_mov);
             if impassable(field, target_pos) {
                 let objm = field.obj_props_m(rich_mov);
                 objm.dir = CoordDelta::from_xy(-objm.dir.dx, -objm.dir.dy);
             }
 
-            let target_pos = field.obj_pos(rich_mov) + field.obj_props(rich_mov).dir;
             // Move. Provided next space is passable. If both sides are impassable, don't move.
+            // TODO: Consider adding field.obj_try_move() function?
+            let target_pos = field.obj_pos(rich_mov) + field.obj_props(rich_mov).dir;
             if passable(field, target_pos) {
                 field.obj_move_to_refactored(rich_mov, target_pos);
             }

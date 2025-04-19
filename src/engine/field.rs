@@ -164,6 +164,10 @@ impl Field {
         self.roster[rich_hdl.ros_idx].pos()
     }
 
+    pub fn obj_target_pos(&self, rich_hdl: RichMapHandle) -> MapCoord {
+        self.obj_pos(rich_hdl) + self.obj_props(rich_hdl).dir
+    }
+
     pub fn obj_move_to_refactored(&mut self, rich_hdl: RichMapHandle, pos: MapCoord) {
         let mov_roster_hdl = &mut self.roster[rich_hdl.ros_idx];
         self.map.obj_move_to(mov_roster_hdl, pos);
