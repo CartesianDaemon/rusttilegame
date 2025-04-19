@@ -87,7 +87,7 @@ impl Field {
             // Going through tmp is necessary to avoid two dynamic borrows at the same time..
             // NOTE: If map is RefCell needs to be done in two steps else runtime panic.
             // NOTE: And obj_at() is also incompatible with RefCell.
-            self[rich_mov].prev_pos = self.obj_pos(rich_mov);
+            self.objm(rich_mov).prev_pos = self.obj_pos(rich_mov);
 
             move_mov(self, rich_mov, cmd)?;
         }
@@ -171,7 +171,7 @@ impl Field {
     }
 
     pub fn hero(&mut self) -> &mut Obj {
-        &mut self[Roster::hero_handle()]
+        self.objm(Roster::hero_handle())
     }
 
     pub fn hero_pos(&self) -> MapCoord {
@@ -192,7 +192,7 @@ impl Field {
 
     // TODO: Only valid if "dir" represents actual direction of movement, not just facing.
     pub fn obj_target_pos(&self, roster_hdl: RosterHandle) -> MapCoord {
-        self.obj_pos(roster_hdl) + self[roster_hdl].dir
+        self.obj_pos(roster_hdl) + self.obj(roster_hdl).dir
     }
 
     pub fn any_effect(&self, pos: MapCoord, sought_effect: Effect) -> bool {
@@ -223,21 +223,6 @@ impl Field {
                 ).unwrap_or("?".to_string())
             }).collect::<Vec<_>>().join("")
         ).collect()
-    }
-}
-
-// TODO: Remove these again?
-impl Index<RosterHandle> for Field {
-    type Output = Obj;
-
-    fn index(&self, roster_handle: RosterHandle) -> &Self::Output {
-        self.at_ref(self.roster[roster_handle])
-    }
-}
-
-impl IndexMut<RosterHandle> for Field {
-    fn index_mut(&mut self, roster_handle: RosterHandle) -> &mut Self::Output {
-        self.at_ref_m(self.roster[roster_handle])
     }
 }
 
