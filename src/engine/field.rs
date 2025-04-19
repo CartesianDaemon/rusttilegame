@@ -80,7 +80,7 @@ impl Field {
         // Should be moved into obj_move*() fn.
         self.hero().prev_pos = self.hero().curr_pos;
 
-        move_mov(self, self.hero_handle(), cmd)?;
+        move_mov(self, Roster::hero_handle(), cmd)?;
 
         for rich_mov in self.roster.all_movs() {
             // Before movement, reset "prev". Will be overwritten if movement happens.
@@ -168,10 +168,6 @@ impl Field {
 
     fn at_ref_m(&mut self, objmapref: ObjMapRef) -> &mut Obj {
         &mut self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
-    }
-
-    pub fn hero_handle(&self) -> RosterHandle {
-        Roster::hero_handle()
     }
 
     pub fn hero(&mut self) -> &mut Obj {
