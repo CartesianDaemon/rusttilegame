@@ -115,19 +115,8 @@ impl Field {
     /// Internally adds it to the map, and to the roster if its animate.
     pub fn spawn_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj)
     {
-        let map_ref = self.put_obj_in_map_and_return_updated_objmapref(x, y, orig_obj);
-        let placed_obj = &self.map[map_ref];
-
-        // TODO: Move "add to member if hero" logic to roster??
-        self.map[map_ref].curr_roster_handle = if placed_obj.is_hero() {
-            self.roster.hero = map_ref;
-            RosterHandle { ros_idx: 100 }
-        } else if placed_obj.is_mob() {
-            self.roster.push_mov(map_ref);
-            RosterHandle { ros_idx: self.roster.movs.len()-1 }
-        } else {
-            RosterHandle { ros_idx: 98 }
-        }
+        let objmapref = self.put_obj_in_map_and_return_updated_objmapref(x, y, orig_obj);
+        self.map[objmapref].curr_roster_handle = self.roster.add_to_roster_if_mov(objmapref, &self.map[objmapref])
     }
 
     /// Move obj to a new location.
@@ -441,8 +430,16 @@ impl Roster {
         }
     }
 
-    pub fn push_mov(&mut self, objmapref: ObjMapRef) {
-        self.movs.push(objmapref);
+    fn add_to_roster_if_mov(&mut self, objmapref: ObjMapRef, placed_obj: &Obj) -> RosterHandle {
+        if placed_obj.is_hero() {
+            self.hero = objmapref;
+            RosterHandle { ros_idx: 100 }
+        } else if placed_obj.is_mob() {
+            self.movs.push(objmapref);
+            RosterHandle { ros_idx: self.movs.len()-1 }
+        } else {
+            RosterHandle { ros_idx: 98 }
+        }
     }
 }
 
