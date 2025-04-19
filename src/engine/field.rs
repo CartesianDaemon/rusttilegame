@@ -300,11 +300,6 @@ impl InternalMap {
         *hdl = self.place_obj_at(to.x, to.y, obj);
     }
 
-    // As move_to, but move relative not abs.
-    pub fn obj_move_delta(&mut self, pos: &mut MapHandle, delta: CoordDelta) {
-        self.obj_move_to(pos, *pos + delta);
-    }
-
     // Loc at given coords.
     pub fn loc_at_xy(&self, x: i16, y: i16) -> &Loc {
         &self.locs[x as usize][y as usize]
