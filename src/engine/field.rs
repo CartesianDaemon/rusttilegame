@@ -110,23 +110,19 @@ impl Field {
     pub fn spawn_obj_at(&mut self, x: i16, y:i16, props: ObjProperties)
     {
         let pos = MapCoord::from_xy(x, y);
-        let new_objmapref = ObjMapRef { x, y, h: self.map[pos].len() as u16 };
-        let new_roster_handle = self.roster.add_to_roster_if_mov(new_objmapref, &props);
-        self.map[pos].objs_m().push(
-            Obj {
-                backref: MapBackref {
-                    curr_roster_handle: new_roster_handle,
-                    curr_pos: pos,
-                    prev_pos: pos,
-                },
-                props,
-            }
-        );
+        let h = self.map[pos].objs().len() as u16;
+        let new_roster_handle = self.roster.add_to_roster_if_mov( MapRef{x, y, h}, &props );
+        let backref = MapBackref {
+            curr_roster_handle: new_roster_handle,
+            curr_pos: pos,
+            prev_pos: pos,
+        };
+        self.map[pos].objs_m().push( Obj{backref, props} );
     }
 
     /// Move obj to a new location.
     ///
-    /// Update roster, obj.curr_pos and obj.prev_pos. Still untested for multiple movs.
+    /// Update roster and backref.curr_pos and backref.prev_pos. Still untested for multiple movs.
     pub fn move_obj_to(&mut self, roster_hdl: RosterHandle, target_pos: MapCoord) {
         let orig_pos = self.roster[roster_hdl].pos();
         let orig_h = self.roster[roster_hdl].h;
@@ -134,14 +130,14 @@ impl Field {
         // Remove object from previous map location.
         let obj = self.map[orig_pos].objs_m().remove(orig_h as usize);
 
-        // For each other object in location, update its objmapref in roster with changed height.
+        // For each other object in location, update its mapref in roster with changed height.
         for h in orig_h+1..self.map[orig_pos].len() as u16 {
-            let other_roster_hdl = self.backref_at_ref(ObjMapRef {x: orig_pos.x, y: orig_pos.y, h}).curr_roster_handle;
+            let other_roster_hdl = self.backref_at_ref(MapRef {x: orig_pos.x, y: orig_pos.y, h}).curr_roster_handle;
             self.roster[other_roster_hdl].h = h;
         }
 
-        // TODO: Put in assert that put_obj_in_map_and_return_updated_objmapref updates prev_pos as expected.
-        // let obj = Obj {prev_pos: objmapref.pos(), ..obj};
+        // TODO: Put in assert that put_obj_in_map_and_return_updated_mapref updates prev_pos as expected.
+        // let obj = Obj {prev_pos: mapref.pos(), ..obj};
 
         // Add object to top of stack at new map location.
         self.map[target_pos].objs_m().push(
@@ -161,21 +157,21 @@ impl Field {
         self.roster[roster_hdl].h = self.map[target_pos].len() as u16 -1;
     }
 
-    // TODO: Could have a dummy intermediate class self.ref[objmapref]
-    fn props_at_ref(&self, objmapref: ObjMapRef) -> &ObjProperties {
-        &self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize].props
+    // TODO: Could have a dummy intermediate class self.ref[mapref]
+    fn props_at_ref(&self, mapref: MapRef) -> &ObjProperties {
+        &self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].props
     }
 
-    fn props_at_ref_m(&mut self, objmapref: ObjMapRef) -> &mut ObjProperties {
-        &mut self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize].props
+    fn props_at_ref_m(&mut self, mapref: MapRef) -> &mut ObjProperties {
+        &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].props
     }
 
-    fn backref_at_ref(&self, objmapref: ObjMapRef) -> &MapBackref {
-        &self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize].backref
+    fn backref_at_ref(&self, mapref: MapRef) -> &MapBackref {
+        &self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].backref
     }
 
-    fn backref_at_ref_m(&mut self, objmapref: ObjMapRef) -> &mut MapBackref {
-        &mut self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize].backref
+    fn backref_at_ref_m(&mut self, mapref: MapRef) -> &mut MapBackref {
+        &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].backref
     }
 
     pub fn obj(&self, roster_handle: RosterHandle) -> &ObjProperties {
@@ -383,15 +379,15 @@ impl<'a> Iterator for LocIterator<'a> {
 /// Used in Roster to cache index to object to access it.
 /// We should keep this ONLY in roster, so it can be updated when objs move.
 #[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
-struct ObjMapRef {
+struct MapRef {
     pub x: i16,
     pub y: i16,
     pub h: u16,
 }
 
-impl ObjMapRef
+impl MapRef
 {
-    pub fn pos(self: ObjMapRef) -> MapCoord {
+    pub fn pos(self: MapRef) -> MapCoord {
         MapCoord { x: self.x, y: self.y}
     }
 }
@@ -409,19 +405,19 @@ impl ObjMapRef
 struct Roster {
     // Hero
     // FIXME: Better name for protagonist than "hero".
-    pub hero: ObjMapRef,
+    pub hero: MapRef,
 
     // Anything which updates each tick, especially enemies.
     //
     // Might be replaced by a set of lists of "everything that has this property" etc
     // like a Component system.
-    movs: Vec<ObjMapRef>,
+    movs: Vec<MapRef>,
 }
 
 impl Roster {
     pub fn new() -> Roster {
         Roster {
-            hero: ObjMapRef{x:0, y:0, h:1}, // Overwritten immediate, but can we avoid placeholder?
+            hero: MapRef{x:0, y:0, h:1}, // Overwritten immediate, but can we avoid placeholder?
             movs: vec![],
         }
     }
@@ -439,12 +435,12 @@ impl Roster {
         (0..self.movs.len() as u16).into_iter().map(|ros_idx| RosterHandle { ros_idx } ).collect()
     }
 
-    fn add_to_roster_if_mov(&mut self, objmapref: ObjMapRef, props: &ObjProperties) -> RosterHandle {
+    fn add_to_roster_if_mov(&mut self, mapref: MapRef, props: &ObjProperties) -> RosterHandle {
         if ObjProperties::is_hero(props.ai) {
-        self.hero = objmapref;
+        self.hero = mapref;
             Self::hero_handle()
         } else if ObjProperties::is_mob(props.ai) {
-            self.movs.push(objmapref);
+            self.movs.push(mapref);
             RosterHandle { ros_idx: self.movs.len() as u16 - 1 }
         } else {
             Self::non_mov_handle()
@@ -453,7 +449,7 @@ impl Roster {
 }
 
 impl Index<RosterHandle> for Roster {
-    type Output = ObjMapRef;
+    type Output = MapRef;
 
     fn index(&self, hdl: RosterHandle) -> &Self::Output {
         let idx = hdl.ros_idx as usize;
