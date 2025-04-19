@@ -270,13 +270,13 @@ impl Index<ObjMapRef> for InternalMap {
     type Output = Obj;
 
     fn index(&self, pos: ObjMapRef) -> &Self::Output {
-        &self.locs[pos.x as usize][pos.y as usize].objs()[pos.h as usize]
+        &self.locs[pos.x as usize][pos.y as usize][pos.h as usize]
     }
 }
 
 impl IndexMut<ObjMapRef> for InternalMap {
     fn index_mut(&mut self, pos: ObjMapRef) -> &mut Self::Output {
-        &mut self.locs[pos.x as usize][pos.y as usize].objs_m()[pos.h as usize]
+        &mut self.locs[pos.x as usize][pos.y as usize][pos.h as usize]
     }
 }
 
@@ -533,12 +533,17 @@ impl<'a> IntoIterator for &'a Loc {
     }
 }
 
-// Previously we only cloned empty locs, now we clone maps.
-/* impl Clone for Loc {
-    fn clone(&self) -> Loc {
-        assert!(self.ents.is_empty());
-        Loc::new()
-    }
 
-    // Consider implementing index [idx] for Loc returning loc.ents[idx]
-} */
+impl Index<usize> for Loc {
+    type Output = Obj;
+
+    fn index(&self, h: usize) -> &Self::Output {
+        &self.0[h]
+    }
+}
+
+impl IndexMut<usize> for Loc {
+    fn index_mut(&mut self, h: usize) -> &mut Self::Output {
+        &mut self.0[h]
+    }
+}
