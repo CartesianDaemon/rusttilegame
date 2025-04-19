@@ -22,8 +22,7 @@ use super::map_coords::*;
 use super::obj::ObjProperties;
 
 #[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
-pub struct RosterHandle {
-    // TODO: Think of as "Mov handle"? Think of ros_idx as value and x, y, h as cached coords?
+pub struct RosterIndex {
     pub ros_idx: u16,
 }
 
@@ -72,7 +71,7 @@ impl Field {
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.
-        self.hero_backref().prev_pos = self.hero_backref().curr_pos;
+        self.hero_backpos().prev_pos = self.hero_backpos().curr_pos;
 
         move_mov(self, Roster::hero_handle(), cmd)?;
 
@@ -81,7 +80,7 @@ impl Field {
             // Going through tmp is necessary to avoid two dynamic borrows at the same time..
             // NOTE: If map is RefCell needs to be done in two steps else runtime panic.
             // NOTE: And obj_at() is also incompatible with RefCell.
-            self.backref(rich_mov).prev_pos = self.obj_pos(rich_mov);
+            self.backpos(rich_mov).prev_pos = self.obj_pos(rich_mov);
 
             move_mov(self, rich_mov, cmd)?;
         }
@@ -106,34 +105,34 @@ impl Field {
     /// Internally adds it to the map and roster.
     ///
     /// NOTE: Objects are put in map by place_obj_at and move_obj_to. They need to maintain
-    ///       consistency of roster, roster_handle, prev_pos, curr_pos for all objects.
+    ///       consistency of roster, roster_idx, prev_pos, curr_pos for all objects.
     pub fn spawn_obj_at(&mut self, x: i16, y:i16, props: ObjProperties)
     {
         let pos = MapCoord::from_xy(x, y);
         let h = self.map[pos].objs().len() as u16;
-        let new_roster_handle = self.roster.add_to_roster_if_mov( MapRef{x, y, h}, &props );
-        let backref = MapBackref {
-            curr_roster_handle: new_roster_handle,
+        let new_roster_idx = self.roster.add_to_roster_if_mov( MapRef{x, y, h}, &props );
+        let backpos = Backpos {
+            curr_roster_idx: new_roster_idx,
             curr_pos: pos,
             prev_pos: pos,
         };
-        self.map[pos].objs_m().push( Obj{backref, props} );
+        self.map[pos].objs_m().push( Obj{backpos, props} );
     }
 
     /// Move obj to a new location.
     ///
-    /// Update roster and backref.curr_pos and backref.prev_pos. Still untested for multiple movs.
-    pub fn move_obj_to(&mut self, roster_hdl: RosterHandle, target_pos: MapCoord) {
-        let orig_pos = self.roster[roster_hdl].pos();
-        let orig_h = self.roster[roster_hdl].h;
+    /// Update roster and backpos.curr_pos and backpos.prev_pos. Still untested for multiple movs.
+    pub fn move_obj_to(&mut self, roster_idx: RosterIndex, target_pos: MapCoord) {
+        let orig_pos = self.roster[roster_idx].pos();
+        let orig_h = self.roster[roster_idx].h;
 
         // Remove object from previous map location.
         let obj = self.map[orig_pos].objs_m().remove(orig_h as usize);
 
         // For each other object in location, update its mapref in roster with changed height.
         for h in orig_h+1..self.map[orig_pos].len() as u16 {
-            let other_roster_hdl = self.backref_at_ref(MapRef {x: orig_pos.x, y: orig_pos.y, h}).curr_roster_handle;
-            self.roster[other_roster_hdl].h = h;
+            let other_roster_idx = self.backpos_at_ref(MapRef {x: orig_pos.x, y: orig_pos.y, h}).curr_roster_idx;
+            self.roster[other_roster_idx].h = h;
         }
 
         // TODO: Put in assert that put_obj_in_map_and_return_updated_mapref updates prev_pos as expected.
@@ -142,19 +141,19 @@ impl Field {
         // Add object to top of stack at new map location.
         self.map[target_pos].objs_m().push(
             Obj {
-                backref: MapBackref {
-                    curr_roster_handle: obj.backref.curr_roster_handle,
+                backpos: Backpos {
+                    curr_roster_idx: obj.backpos.curr_roster_idx,
                     curr_pos: target_pos,
-                    prev_pos: obj.backref.curr_pos,
+                    prev_pos: obj.backpos.curr_pos,
                 },
                props: obj.props,
             }
         );
 
         // Update roster hdl to match new position and height.
-        self.roster[roster_hdl].x = target_pos.x;
-        self.roster[roster_hdl].y = target_pos.y;
-        self.roster[roster_hdl].h = self.map[target_pos].len() as u16 -1;
+        self.roster[roster_idx].x = target_pos.x;
+        self.roster[roster_idx].y = target_pos.y;
+        self.roster[roster_idx].h = self.map[target_pos].len() as u16 -1;
     }
 
     // TODO: Could have a dummy intermediate class self.ref[mapref]
@@ -166,28 +165,28 @@ impl Field {
         &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].props
     }
 
-    fn backref_at_ref(&self, mapref: MapRef) -> &MapBackref {
-        &self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].backref
+    fn backpos_at_ref(&self, mapref: MapRef) -> &Backpos {
+        &self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].backpos
     }
 
-    fn backref_at_ref_m(&mut self, mapref: MapRef) -> &mut MapBackref {
-        &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].backref
+    fn backpos_at_ref_m(&mut self, mapref: MapRef) -> &mut Backpos {
+        &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].backpos
     }
 
-    pub fn obj(&self, roster_handle: RosterHandle) -> &ObjProperties {
-        self.props_at_ref(self.roster[roster_handle])
+    pub fn obj(&self, roster_idx: RosterIndex) -> &ObjProperties {
+        self.props_at_ref(self.roster[roster_idx])
     }
 
-    pub fn objm(&mut self, roster_handle: RosterHandle) -> &mut ObjProperties {
-        self.props_at_ref_m(self.roster[roster_handle])
+    pub fn objm(&mut self, roster_idx: RosterIndex) -> &mut ObjProperties {
+        self.props_at_ref_m(self.roster[roster_idx])
     }
 
-    pub fn backref(&mut self, roster_handle: RosterHandle) -> &mut MapBackref {
-        self.backref_at_ref_m(self.roster[roster_handle])
+    pub fn backpos(&mut self, roster_idx: RosterIndex) -> &mut Backpos {
+        self.backpos_at_ref_m(self.roster[roster_idx])
     }
 
-    pub fn obj_pos(&self, roster_hdl: RosterHandle) -> MapCoord {
-        self.roster[roster_hdl].pos()
+    pub fn obj_pos(&self, roster_idx: RosterIndex) -> MapCoord {
+        self.roster[roster_idx].pos()
     }
 
     #[allow(dead_code)]
@@ -195,8 +194,8 @@ impl Field {
         self.objm(Roster::hero_handle())
     }
 
-    pub fn hero_backref(&mut self) -> &mut MapBackref {
-        self.backref(Roster::hero_handle())
+    pub fn hero_backpos(&mut self) -> &mut Backpos {
+        self.backpos(Roster::hero_handle())
     }
 
     pub fn hero_pos(&self) -> MapCoord {
@@ -204,8 +203,8 @@ impl Field {
     }
 
     // TODO: Only valid if "dir" represents actual direction of movement, not just facing.
-    pub fn obj_target_pos(&self, roster_hdl: RosterHandle) -> MapCoord {
-        self.obj_pos(roster_hdl) + self.obj(roster_hdl).dir
+    pub fn obj_target_pos(&self, roster_idx: RosterIndex) -> MapCoord {
+        self.obj_pos(roster_idx) + self.obj(roster_idx).dir
     }
 
     pub fn any_effect(&self, pos: MapCoord, sought_effect: Effect) -> bool {
@@ -239,16 +238,17 @@ impl Field {
     }
 }
 
+// TODO: Better name. "Cachedpos"? ..?
 #[derive(Clone, Debug)]
-pub struct MapBackref {
-    pub curr_roster_handle: RosterHandle,
+pub struct Backpos {
+    pub curr_roster_idx: RosterIndex,
     pub curr_pos: MapCoord,
     pub prev_pos: MapCoord,
 }
 
 #[derive(Clone, Debug)]
 pub struct Obj {
-    pub backref: MapBackref,
+    pub backpos: Backpos,
     pub props: ObjProperties,
 }
 
@@ -422,36 +422,36 @@ impl Roster {
         }
     }
 
-    pub fn hero_handle() -> RosterHandle {
-        RosterHandle { ros_idx: 100 }
+    pub fn hero_handle() -> RosterIndex {
+        RosterIndex { ros_idx: 100 }
     }
 
-    pub fn non_mov_handle() -> RosterHandle {
-        RosterHandle { ros_idx: 98 }
+    pub fn non_mov_handle() -> RosterIndex {
+        RosterIndex { ros_idx: 98 }
     }
 
-    pub fn all_movs(&self) -> Vec<RosterHandle> {
+    pub fn all_movs(&self) -> Vec<RosterIndex> {
         // TODO: Possible to return iter() instead of collection, without borrow problems?
-        (0..self.movs.len() as u16).into_iter().map(|ros_idx| RosterHandle { ros_idx } ).collect()
+        (0..self.movs.len() as u16).into_iter().map(|ros_idx| RosterIndex { ros_idx } ).collect()
     }
 
-    fn add_to_roster_if_mov(&mut self, mapref: MapRef, props: &ObjProperties) -> RosterHandle {
+    fn add_to_roster_if_mov(&mut self, mapref: MapRef, props: &ObjProperties) -> RosterIndex {
         if ObjProperties::is_hero(props.ai) {
         self.hero = mapref;
             Self::hero_handle()
         } else if ObjProperties::is_mob(props.ai) {
             self.movs.push(mapref);
-            RosterHandle { ros_idx: self.movs.len() as u16 - 1 }
+            RosterIndex { ros_idx: self.movs.len() as u16 - 1 }
         } else {
             Self::non_mov_handle()
         }
     }
 }
 
-impl Index<RosterHandle> for Roster {
+impl Index<RosterIndex> for Roster {
     type Output = MapRef;
 
-    fn index(&self, hdl: RosterHandle) -> &Self::Output {
+    fn index(&self, hdl: RosterIndex) -> &Self::Output {
         let idx = hdl.ros_idx as usize;
         match idx {
             0..99 => &self.movs[idx],
@@ -462,8 +462,8 @@ impl Index<RosterHandle> for Roster {
     }
 }
 
-impl IndexMut<RosterHandle> for Roster {
-    fn index_mut(&mut self, hdl: RosterHandle) -> &mut Self::Output {
+impl IndexMut<RosterIndex> for Roster {
+    fn index_mut(&mut self, hdl: RosterIndex) -> &mut Self::Output {
         let idx = hdl.ros_idx as usize;
         match idx {
             0..98 => &mut self.movs[idx],

@@ -29,7 +29,7 @@ pub use engine::Engine;
 
 pub mod scripting {
     pub use super::obj::ObjProperties;
-    pub use super::field::{Field, RosterHandle};
+    pub use super::field::{Field, RosterIndex};
     pub use super::map_coords::*;
     pub use super::scene::{SceneEnding, Continuation};
 }
