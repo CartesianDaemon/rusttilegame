@@ -1,5 +1,5 @@
 use super::map_coords::CoordDelta;
-use super::field::{RichMapHandle};
+use super::field::{RosterHandle};
 use super::scripting::MapCoord;
 
 use crate::scripts::*;
@@ -15,7 +15,7 @@ pub struct Obj {
     // Invalid is only used before placing in map?
     // TODO: Consider moving curr_handle, curr_pos, prev_pos into a sister struct in Field,
     //       only used by objs which are actually in the map.
-    pub curr_handle: RichMapHandle,
+    pub curr_roster_handle: RosterHandle,
 
     // curr_pos and prev_pos should only be informative. Kept up to date by field. Needs api?
     // Invalid is only used before placing in map? (And for placeholders for heights?)
@@ -59,7 +59,7 @@ impl Obj {
     // An unitialised ent
     pub fn invalid() -> Obj {
         Obj {
-            curr_handle: RichMapHandle::invalid(),
+            curr_roster_handle: RosterHandle::invalid(),
             curr_pos: MapCoord::invalid(),
             prev_pos: MapCoord::from_xy(-1, -1),
 

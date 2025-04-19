@@ -23,14 +23,14 @@ use super::map_coords::*;
 use super::obj::Obj;
 
 #[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
-pub struct RichMapHandle {
+pub struct RosterHandle {
     // TODO: Think of as "Mov handle"? Think of ros_idx as value and x, y, h as cached coords?
     pub ros_idx: RosIndex,
 }
 
-impl RichMapHandle {
-    pub fn invalid() -> RichMapHandle {
-        RichMapHandle {ros_idx: 99}
+impl RosterHandle {
+    pub fn invalid() -> RosterHandle {
+        RosterHandle {ros_idx: 99}
     }
 }
 
@@ -85,7 +85,7 @@ impl Field {
 
         // Transitioning to this version of "Move all movs"
         for ros_idx in 0..self.roster.movs.len() {
-            let rich_mov = RichMapHandle { ros_idx };
+            let rich_mov = RosterHandle { ros_idx };
             // Before movement, reset "prev". Will be overwritten if movement happens.
             // Going through tmp is necessary to avoid two dynamic borrows at the same time..
             // NOTE: If map is RefCell needs to be done in two steps else runtime panic.
@@ -115,18 +115,18 @@ impl Field {
     /// Internally adds it to the map, and to the roster if its animate.
     pub fn spawn_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj)
     {
-        let hdl = self.put_obj_in_map_and_return_updated_hdl(x, y, orig_obj);
-        let placed_obj = &self.map[hdl];
+        let map_ref = self.put_obj_in_map_and_return_updated_objmapref(x, y, orig_obj);
+        let placed_obj = &self.map[map_ref];
 
         // TODO: Move "add to member if hero" logic to roster??
-        self.map[hdl].curr_handle = if placed_obj.is_hero() {
-            self.roster.hero = hdl;
-            RichMapHandle { ros_idx: 100 }
+        self.map[map_ref].curr_roster_handle = if placed_obj.is_hero() {
+            self.roster.hero = map_ref;
+            RosterHandle { ros_idx: 100 }
         } else if placed_obj.is_mob() {
-            self.roster.push_mov(hdl);
-            RichMapHandle { ros_idx: self.roster.movs.len()-1 }
+            self.roster.push_mov(map_ref);
+            RosterHandle { ros_idx: self.roster.movs.len()-1 }
         } else {
-            RichMapHandle { ros_idx: 98 }
+            RosterHandle { ros_idx: 98 }
         }
     }
 
@@ -139,43 +139,43 @@ impl Field {
     /// Update roster (actually not needed?), obj.curr_pos and obj.prev_pos.
     ///
     /// TODO: Second half of function is a bit old, could be updated.
-    pub fn move_obj_to(&mut self, rich_hdl: RichMapHandle, pos: MapCoord) {
-        let roster_hdl = &mut self.roster[rich_hdl.ros_idx];
+    pub fn move_obj_to(&mut self, roster_hdl: RosterHandle, pos: MapCoord) {
+        let objmapref = &mut self.roster[roster_hdl.ros_idx];
 
-        let on_top = roster_hdl.h as usize == self.map.ents_at_hdl(*roster_hdl).len();
+        let on_top = objmapref.h as usize == self.map.ents_at_objmapref(*objmapref).len();
 
         let orig_obj = if on_top {
             // Pop ent from top of stack.
-            self.map.at_hdlm(*roster_hdl).pop().unwrap()
+            self.map.at_objmaoref_m(*objmapref).pop().unwrap()
         } else {
             // Replace ent with a placeholder type ignored by render and gameplay.
             // This keeps height coords of other ents valid.
             // ENH: Can we update the other objects here and do away with placeholder?
             // Would need to update Roster in sync.
-            mem::replace(&mut self.map[*roster_hdl], Obj::placeholder())
+            mem::replace(&mut self.map[*objmapref], Obj::placeholder())
         };
 
-        let obj = Obj {prev_pos: roster_hdl.pos(), ..orig_obj};
+        let obj = Obj {prev_pos: objmapref.pos(), ..orig_obj};
 
         // Remove any placeholders now at the top of the stack. Should only happen
         // if we popped ent from on top of them.
-        while !self.map.ents_at_hdl(*roster_hdl).is_empty() &&
-            self.map.ents_at_hdl(*roster_hdl).last().unwrap().is_placeholder() {
-            self.map.at_hdlm(*roster_hdl).pop();
+        while !self.map.ents_at_objmapref(*objmapref).is_empty() &&
+            self.map.ents_at_objmapref(*objmapref).last().unwrap().is_placeholder() {
+            self.map.at_objmaoref_m(*objmapref).pop();
         }
 
-        // Add Ent to top of stack at new map coords. Updates hdl to match new height.
-        self.roster[rich_hdl.ros_idx] = self.put_obj_in_map_and_return_updated_hdl(pos.x, pos.y, obj);
+        // Add Ent to top of stack at new map coords. Updates roster hdl to match new height.
+        self.roster[roster_hdl.ros_idx] = self.put_obj_in_map_and_return_updated_objmapref(pos.x, pos.y, obj);
     }
 
     /// Place an object in the map.
     ///
-    /// Update curr_handle, curr_pos, prev_pos. Return new obj ref.
+    /// Update curr_roster_handle, curr_pos, prev_pos. Return new obj ref.
     ///
     /// All obj placement and movement goes through spawn_at or move_obj_to, then this fn.
-    fn put_obj_in_map_and_return_updated_hdl(&mut self, x: i16, y:i16, orig_obj: Obj) -> ObjRef {
+    fn put_obj_in_map_and_return_updated_objmapref(&mut self, x: i16, y:i16, orig_obj: Obj) -> ObjMapRef {
         let new_curr_pos = MapCoord::from_xy(x, y);
-        let obj_ref = ObjRef { x, y, h: self.map.ents_at_xy(x, y).len() as u16 };
+        let obj_ref = ObjMapRef { x, y, h: self.map.ents_at_xy(x, y).len() as u16 };
         let prev_pos = if orig_obj.curr_pos.x >=0 { orig_obj.curr_pos } else {new_curr_pos};
         self.map.at_xym(x, y).push(
             Obj {
@@ -187,25 +187,25 @@ impl Field {
         obj_ref
     }
 
-    pub fn rich_hero(&self) -> RichMapHandle {
-        RichMapHandle { ros_idx: 100 }
+    pub fn rich_hero(&self) -> RosterHandle {
+        RosterHandle { ros_idx: 100 }
     }
 
-    pub fn obj_props(&self, rich_hdl: RichMapHandle) -> &Obj {
-        &self.map[self.roster[rich_hdl.ros_idx]]
+    pub fn obj_props(&self, roster_hdl: RosterHandle) -> &Obj {
+        &self.map[self.roster[roster_hdl.ros_idx]]
     }
 
-    pub fn obj_props_m(&mut self, rich_hdl: RichMapHandle) -> &mut Obj {
-        &mut self.map[self.roster[rich_hdl.ros_idx]]
+    pub fn obj_props_m(&mut self, roster_hdl: RosterHandle) -> &mut Obj {
+        &mut self.map[self.roster[roster_hdl.ros_idx]]
     }
 
-    pub fn obj_pos(&self, rich_hdl: RichMapHandle) -> MapCoord {
-        self.roster[rich_hdl.ros_idx].pos()
+    pub fn obj_pos(&self, roster_hdl: RosterHandle) -> MapCoord {
+        self.roster[roster_hdl.ros_idx].pos()
     }
 
     // TODO: Only valid if "dir" represents actual direction of movement, not just facing.
-    pub fn obj_target_pos(&self, rich_hdl: RichMapHandle) -> MapCoord {
-        self.obj_pos(rich_hdl) + self.obj_props(rich_hdl).dir
+    pub fn obj_target_pos(&self, roster_hdl: RosterHandle) -> MapCoord {
+        self.obj_pos(roster_hdl) + self.obj_props(roster_hdl).dir
     }
 
     pub fn any_effect(&self, pos: MapCoord, sought_effect: Effect) -> bool {
@@ -248,16 +248,16 @@ struct InternalMap {
     locs: Vec<Vec<Loc>>,
 }
 
-impl Index<ObjRef> for InternalMap {
+impl Index<ObjMapRef> for InternalMap {
     type Output = Obj;
 
-    fn index(&self, pos: ObjRef) -> &Self::Output {
+    fn index(&self, pos: ObjMapRef) -> &Self::Output {
         &self.locs[pos.x as usize][pos.y as usize].0[pos.h as usize]
     }
 }
 
-impl IndexMut<ObjRef> for InternalMap {
-    fn index_mut(&mut self, pos: ObjRef) -> &mut Self::Output {
+impl IndexMut<ObjMapRef> for InternalMap {
+    fn index_mut(&mut self, pos: ObjMapRef) -> &mut Self::Output {
         &mut self.locs[pos.x as usize][pos.y as usize].0[pos.h as usize]
     }
 }
@@ -303,12 +303,12 @@ impl InternalMap {
         &self.loc_at(MapCoord::from_xy(x, y)).0
     }
 
-    pub fn ents_at_hdl(&self, pos: ObjRef) -> &Vec<Obj> {
+    pub fn ents_at_objmapref(&self, pos: ObjMapRef) -> &Vec<Obj> {
         &self.loc_at(pos.pos()).0
     }
 
     // As "at" but mutably
-    pub fn at_hdlm(&mut self, pos: ObjRef) -> &mut Vec<Obj> {
+    pub fn at_objmaoref_m(&mut self, pos: ObjMapRef) -> &mut Vec<Obj> {
         &mut self.locs[pos.x as usize][pos.y as usize].0
     }
 
@@ -392,19 +392,19 @@ impl<'a> Iterator for LocIterator<'a> {
 /// Used in Roster to cache index to object to access it.
 /// We should keep this ONLY in roster, so it can be updated when objs move.
 #[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
-struct ObjRef {
+struct ObjMapRef {
     pub x: i16,
     pub y: i16,
     pub h: u16,
 }
 
-impl ObjRef
+impl ObjMapRef
 {
-    pub fn invalid() -> ObjRef {
-        ObjRef {x: 0, y: 0, h: 1}
+    pub fn invalid() -> ObjMapRef {
+        ObjMapRef {x: 0, y: 0, h: 1}
     }
 
-    pub fn pos(self: ObjRef) -> MapCoord {
+    pub fn pos(self: ObjMapRef) -> MapCoord {
         MapCoord { x: self.x, y: self.y}
     }
 }
@@ -424,30 +424,30 @@ type RosIndex = usize;
 struct Roster {
     // Hero
     // FIXME: Better name for protagonist than "hero".
-    pub hero: ObjRef,
+    pub hero: ObjMapRef,
 
     // Anything which updates each tick, especially enemies.
     //
     // Might be replaced by a set of lists of "everything that has this property" etc
     // like a Component system.
-    pub movs: Vec<ObjRef>,
+    pub movs: Vec<ObjMapRef>,
 }
 
 impl Roster {
     pub fn new() -> Roster {
         Roster {
-            hero: ObjRef::invalid(),
+            hero: ObjMapRef::invalid(),
             movs: vec![],
         }
     }
 
-    pub fn push_mov(&mut self, hdl: ObjRef) {
-        self.movs.push(hdl);
+    pub fn push_mov(&mut self, objmapref: ObjMapRef) {
+        self.movs.push(objmapref);
     }
 }
 
 impl Index<RosIndex> for Roster {
-    type Output = ObjRef;
+    type Output = ObjMapRef;
 
     fn index(&self, idx: RosIndex) -> &Self::Output {
         match idx {
