@@ -114,7 +114,23 @@ impl Field {
             },
             props,
         };
-        let objmapref = self.put_obj_in_map_and_return_updated_objmapref(x, y, orig_obj, false);
+        let objmapref = {
+            let this = &mut *self;
+            let new_curr_pos = MapCoord::from_xy(x, y);
+            let new_obj_ref = ObjMapRef { x: x, y: y, h: this.map[new_curr_pos].len() as u16 };
+            let prev_pos = if false { orig_obj.backref.curr_pos } else {new_curr_pos};
+            this.map[new_curr_pos].objs_m().push(
+                Obj {
+                    backref: MapBackref {
+                        curr_roster_handle: orig_obj.backref.curr_roster_handle,
+                        curr_pos: new_curr_pos,
+                        prev_pos,
+                    },
+                   props: orig_obj.props,
+                }
+            );
+            new_obj_ref
+        };
         let new_roster_handle = self.roster.get_next_roster_handle(self.props_at_ref(objmapref).ai);
         // TODO: Can't pass obj to add_to_roster. For now used ai value. Could try obj as plain value, not borrow??
         self.roster.add_to_roster_if_mov(new_roster_handle, objmapref);
@@ -140,30 +156,25 @@ impl Field {
         let obj = orig_obj.clone();
 
         // Add Ent to top of stack at new map coords. Updates roster hdl to match new height.
-        self.roster[roster_hdl] = self.put_obj_in_map_and_return_updated_objmapref(pos.x, pos.y, obj, true);
+        self.roster[roster_hdl] = {
+            let new_curr_pos = pos;
+            let new_obj_ref = ObjMapRef { x:pos.x, y:pos.y, h: self.map[new_curr_pos].len() as u16 };
+            let prev_pos = if true { obj.backref.curr_pos } else {new_curr_pos};
+            self.map[new_curr_pos].objs_m().push(
+                Obj {
+                    backref: MapBackref {
+                        curr_roster_handle: obj.backref.curr_roster_handle,
+                        curr_pos: new_curr_pos,
+                        prev_pos,
+                    },
+                   props: obj.props,
+                }
+            );
+            new_obj_ref
+        };
     }
 
-    /// Place an object in the map.
-    ///
-    /// Update curr_roster_handle, curr_pos, prev_pos. Return new obj ref.
-    ///
-    /// All obj placement and movement goes through spawn_at or move_obj_to, then this fn.
-    fn put_obj_in_map_and_return_updated_objmapref(&mut self, x: i16, y:i16, orig_obj: Obj, preexisting: bool) -> ObjMapRef {
-        let new_curr_pos = MapCoord::from_xy(x, y);
-        let new_obj_ref = ObjMapRef { x, y, h: self.map[new_curr_pos].len() as u16 };
-        let prev_pos = if preexisting { orig_obj.backref.curr_pos } else {new_curr_pos};
-        self.map[new_curr_pos].objs_m().push(
-            Obj {
-                backref: MapBackref {
-                    curr_roster_handle: orig_obj.backref.curr_roster_handle,
-                    curr_pos: new_curr_pos,
-                    prev_pos,
-                },
-               props: orig_obj.props,
-            }
-        );
-        new_obj_ref
-    }
+    
 
     // TODO: Could have a dummy intermediate class self.ref[objmapref]
     fn props_at_ref(&self, objmapref: ObjMapRef) -> &ObjProperties {
