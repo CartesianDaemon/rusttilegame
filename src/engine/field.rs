@@ -85,10 +85,9 @@ pub struct RichMapHandle {
 #[derive(Clone, Debug)]
 pub struct Field {
     pub map: InternalMap,
-    // Moveable objects in the current map.
     roster: Roster,
-    // Key used to represent things in map as ascii for init and debugging. Not comprehensive.
-    pub map_key: std::collections::HashMap<char, Vec<Obj>>,
+    // Used to represent map as ascii for init and debugging. Not comprehensive.
+    map_key: std::collections::HashMap<char, Vec<Obj>>,
 }
 
 impl Field {
