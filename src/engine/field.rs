@@ -133,8 +133,7 @@ impl Field {
 
         // For each other object in location, update objmapref in roster with changed height.
         for h in objmapref.h+1..self.map.loc_at(origin_pos).len() as u16 {
-            self.roster[self.map.ents_at_pos(origin_pos)[h as usize].curr_roster_handle].h = h;
-            // TODO: Further rewrite ents_at_pos to map[], with allowing Loc to be indexed?
+            self.roster[self.map.loc_at(origin_pos)[h as usize].curr_roster_handle].h = h;
         }
 
         let obj = Obj {prev_pos: objmapref.pos(), ..orig_obj};
@@ -150,9 +149,9 @@ impl Field {
     /// All obj placement and movement goes through spawn_at or move_obj_to, then this fn.
     fn put_obj_in_map_and_return_updated_objmapref(&mut self, x: i16, y:i16, orig_obj: Obj) -> ObjMapRef {
         let new_curr_pos = MapCoord::from_xy(x, y);
-        let obj_ref = ObjMapRef { x, y, h: self.map.ents_at_pos(new_curr_pos).len() as u16 };
+        let obj_ref = ObjMapRef { x, y, h: self.map.loc_at(new_curr_pos).len() as u16 };
         let prev_pos = if orig_obj.curr_pos.x >=0 { orig_obj.curr_pos } else {new_curr_pos};
-        self.map.ents_at_pos_m(new_curr_pos).push(
+        self.map.loc_at_m(new_curr_pos).objs_m().push(
             Obj {
                 curr_pos: new_curr_pos,
                 prev_pos,
@@ -239,10 +238,12 @@ impl InternalMap {
         self.locs[0].len() as u16
     }
 
-    // Loc at given MapCoord.
-    // TODO: Instead make loc indexable, and have at() or [] return loc?
     pub fn loc_at(&self, pos: MapCoord) -> &Loc {
         &self.locs[pos.x as usize][pos.y as usize]
+    }
+
+    pub fn loc_at_m(&mut self, pos: MapCoord) -> &mut Loc {
+        &mut self.locs[pos.x as usize][pos.y as usize]
     }
 
     // Ents at coord.
