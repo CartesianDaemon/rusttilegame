@@ -132,7 +132,7 @@ impl Field {
         let orig_obj = self.map.ents_at_pos_m(origin_pos).swap_remove(objmapref.h as usize);
 
         // For each other object in location, update objmapref in roster with changed height.
-        for h in objmapref.h+1..self.map.ents_at_pos(origin_pos).len() as u16 {
+        for h in objmapref.h+1..self.map.loc_at(origin_pos).len() as u16 {
             self.roster[self.map.ents_at_pos(origin_pos)[h as usize].curr_roster_handle].h = h;
             // TODO: Further rewrite ents_at_pos to map[], with allowing Loc to be indexed?
         }
@@ -196,7 +196,7 @@ impl Field {
         (&self.map.locs).into_iter().map(|row|
             (&row).into_iter().map(|loc| {
                 self.map_key.iter().find_map(|(ch,objs)|
-                    if loc.0 == *objs {Some(ch.to_string())} else {None}
+                    if loc.objs() == objs {Some(ch.to_string())} else {None}
                 ).unwrap_or("?".to_string())
             }).collect::<Vec<_>>().join("")
         ).collect()
@@ -247,12 +247,12 @@ impl InternalMap {
 
     // Ents at coord.
     pub fn ents_at_pos(&self, pos: MapCoord) -> &Vec<Obj> {
-        &self.locs[pos.x as usize][pos.y as usize].0
+        self.locs[pos.x as usize][pos.y as usize].objs()
     }
 
     // Ents at coord.
     pub fn ents_at_pos_m(&mut self, pos: MapCoord) -> &mut Vec<Obj> {
-        &mut self.locs[pos.x as usize][pos.y as usize].0
+        self.locs[pos.x as usize][pos.y as usize].objs_m()
     }
 
     pub fn locs(&self) -> LocIterator {
@@ -270,13 +270,13 @@ impl Index<ObjMapRef> for InternalMap {
     type Output = Obj;
 
     fn index(&self, pos: ObjMapRef) -> &Self::Output {
-        &self.locs[pos.x as usize][pos.y as usize].0[pos.h as usize]
+        &self.locs[pos.x as usize][pos.y as usize].objs()[pos.h as usize]
     }
 }
 
 impl IndexMut<ObjMapRef> for InternalMap {
     fn index_mut(&mut self, pos: ObjMapRef) -> &mut Self::Output {
-        &mut self.locs[pos.x as usize][pos.y as usize].0[pos.h as usize]
+        &mut self.locs[pos.x as usize][pos.y as usize].objs_m()[pos.h as usize]
     }
 }
 
@@ -467,7 +467,6 @@ pub struct Loc(Vec<Obj>);
 ///
 /// Should make it Vec<Objs> newtype with push etc and these impl fns
 ///
-/// TODO: Remove remaining places in this file using .0
 /// TODO: Check places using .at and see if they do need a list of objs or not.
 impl Loc {
     pub fn new() -> Loc {
@@ -500,6 +499,19 @@ impl Loc {
     /// Or implement SliceIndex?
     pub fn get(&self, idx: usize) -> Option<&Obj> {
         self.0.get(idx)
+    }
+
+    // Reimplementations of list operations. Any better way of avoiding without lots of ".0"?
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    pub fn objs(&self) -> &Vec<Obj> {
+        &self.0
+    }
+
+    pub fn objs_m(&mut self) -> &mut Vec<Obj> {
+        &mut self.0
     }
 }
 
