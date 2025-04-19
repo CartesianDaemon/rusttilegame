@@ -1,3 +1,4 @@
+// TODO: Add these types to a Script struct?
 use crate::engine::scripting::*;
 use super::obj_types::*;
 
@@ -39,12 +40,12 @@ pub fn move_mov_refactored(field: &mut Field, rich_mov: RichMapHandle) -> SceneE
             // TODO: Simplify duplication in field.obj_at(rich_mov.ros_idx) throughout?
 
             // If moving would hit a wall, first reverse direction.
+            // TODO: Consider adding "can_move" function. Field would need movement_logic "passable(obj, tile)" dependency injection.
             // TODO: Consider adding field.try_move() fn.
             // TODO: Consider adding map_coord *= -1.
             let target_pos = field.obj_target_pos(rich_mov);
             if impassable(field, target_pos) {
-                let objm = field.obj_props_m(rich_mov);
-                objm.dir = CoordDelta::from_xy(-objm.dir.dx, -objm.dir.dy);
+                field.obj_props_m(rich_mov).dir.reverse();
             }
 
             // Move. Provided next space is passable. If both sides are impassable, don't move.
@@ -60,36 +61,24 @@ pub fn move_mov_refactored(field: &mut Field, rich_mov: RichMapHandle) -> SceneE
                 return SceneEnding::NextScene(Continuation::PlayDie);
             }
         },
-        _ => {
-        }
-    }
-    return SceneEnding::ContinuePlaying;
-}
-
-pub fn move_mov(map: &mut InternalMap, hero: &MapHandle, mov: &mut MapHandle) -> SceneEnding {
-    match map[*mov].ai {
-        AI::Stay => {
-            // Do nothing
-        },
-        AI::Hero => {
-            // Handled separately.
-        },
         AI::Drift => {
             // TODO: Deal with collisions between movs
 
             let mut drift_dir = CoordDelta::from_xy(0, 0);
+
             // If hitting wall, reverse direction.
-            if map.loc_at(*mov + map[*mov].dir).impassable() {
-                map[*mov].dir = CoordDelta::from_xy(-map[*mov].dir.dx, -map[*mov].dir.dy);
-                // If hero "visible" forward or sideways, move one sideways towards them, if passable.
+            if impassable(field, field.obj_target_pos(rich_mov)) {
+                field.obj_props_m(rich_mov).dir.reverse();
+
+                // And if hero "visible" forward or sideways, move one sideways towards them, if passable.
                 // TODO: Check for obstacles to vision.
-                let hero_dir = CoordDelta::from_xy((hero.x - mov.x).signum(),(hero.y - mov.y).signum());
-                if map[*mov].dir.dx == 0 {
-                    if hero_dir.dy != -map[*mov].dir.dy {
+                let hero_dir = field.obj_pos(rich_mov).dir_to(field.obj_pos(field.rich_hero()));
+                if field.obj_props(rich_mov).dir.dx == 0 {
+                    if hero_dir.dy != -field.obj_props(rich_mov).dir.dy {
                         drift_dir = CoordDelta::from_xy(hero_dir.dx, 0);
                     }
-                } else if map[*mov].dir.dy == 0 {
-                    if hero_dir.dx != -map[*mov].dir.dx {
+                } else if field.obj_props(rich_mov).dir.dy == 0 {
+                    if hero_dir.dx != -field.obj_props(rich_mov).dir.dx {
                         drift_dir = CoordDelta::from_xy(0, hero_dir.dy);
                     }
                 } else {
@@ -99,18 +88,24 @@ pub fn move_mov(map: &mut InternalMap, hero: &MapHandle, mov: &mut MapHandle) ->
 
             // Move. Provided next space is passable. If both sides are impassable, don't move.
             // TODO: Animation for turning? At least avoiding wall?
-            let delta = map[*mov].dir + drift_dir;
-            if map.loc_at(*mov + delta).passable() {
-                map.obj_move_delta(mov, delta);
+            let delta = field.obj_props(rich_mov).dir + drift_dir;
+            if passable(field, field.obj_pos(rich_mov) + delta) {
+                field.obj_move_to_refactored(rich_mov, field.obj_pos(rich_mov) + delta);
             }
 
             // Hero dies if mov moves onto hero
-            if map[*mov].effect == Effect::Kill {
-                if mov.x == hero.x && mov.y == hero.y {
-                    return SceneEnding::NextScene(Continuation::PlayDie);
-                }
+            if field.obj_props(rich_mov).effect == Effect::Kill && field.obj_pos(rich_mov) == field.obj_pos(field.rich_hero()) {
+                return SceneEnding::NextScene(Continuation::PlayDie);
             }
         },
+        _ => {
+        }
+    }
+    return SceneEnding::ContinuePlaying;
+}
+
+pub fn move_mov(map: &mut InternalMap, hero: &MapHandle, mov: &mut MapHandle) -> SceneEnding {
+    match map[*mov].ai {
         AI::Scuttle => {
             // If hitting wall, choose new direction.
             if map.loc_at(*mov + map[*mov].dir).impassable() {

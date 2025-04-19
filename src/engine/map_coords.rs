@@ -31,6 +31,10 @@ impl MapCoord {
     pub fn from_xy(x: i16, y: i16) -> MapCoord {
         MapCoord {x, y}
     }
+
+    pub fn dir_to(self, target: MapCoord) -> CoordDelta {
+        CoordDelta { dx: (target.x - self.x).signum(), dy: (target.y - self.y).signum() }
+    }
 }
 
 impl Add<CoordDelta> for MapCoord {
@@ -47,8 +51,17 @@ pub struct CoordDelta {
 }
 
 impl CoordDelta {
-    pub fn from_xy(dx: i16, dy: i16) -> CoordDelta {
+    pub fn from_xy(dx: i16, dy: i16) -> Self {
         CoordDelta {dx, dy}
+    }
+
+    // TODO: Consider implementing Mul<> on integer types instead?
+    pub fn reverse(&mut self) {
+        *self = self.reversed()
+    }
+
+    pub fn reversed(self) -> Self {
+        CoordDelta { dx: self.dx * -1, dy: self.dy * -1 }
     }
 }
 

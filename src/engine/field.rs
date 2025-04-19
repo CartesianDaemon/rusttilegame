@@ -164,6 +164,7 @@ impl Field {
         self.roster[rich_hdl.ros_idx].pos()
     }
 
+    // TODO: Only valid if "dir" represents actual direction of movement, not just facing.
     pub fn obj_target_pos(&self, rich_hdl: RichMapHandle) -> MapCoord {
         self.obj_pos(rich_hdl) + self.obj_props(rich_hdl).dir
     }
