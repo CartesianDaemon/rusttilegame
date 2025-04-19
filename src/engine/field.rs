@@ -213,6 +213,20 @@ impl Field {
     }
 }
 
+impl Index<ObjMapRef> for Field {
+    type Output = Obj;
+
+    fn index(&self, objmapref: ObjMapRef) -> &Self::Output {
+        &self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
+    }
+}
+
+impl IndexMut<ObjMapRef> for Field {
+    fn index_mut(&mut self, objmapref: ObjMapRef) -> &mut Self::Output {
+        &mut self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
+    }
+}
+
 // "Map": Grid of locations. Represents state of current level.
 // NOTE: Could currently be moved back into Field. Not borrowed separately.
 #[derive(Clone)]
