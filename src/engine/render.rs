@@ -8,6 +8,7 @@ use crate::scripts;
 
 use super::scene;
 use super::scene::Scene;
+use super::field::Obj;
 use super::obj::ObjProperties;
 use super::map_coords::CoordDelta;
 
@@ -37,7 +38,7 @@ impl Render {
                 for h in 0..max_h {
                     for (x, y, loc) in play_state.field.map_locs() {
                         if let Some(ent) = loc.get(h) {
-                            render_lev.draw_ent(x - ox, y - oy, &ent.props, anim_real_pc, slide_real_pc).await;
+                            render_lev.draw_ent(x - ox, y - oy, ent, anim_real_pc, slide_real_pc).await;
                         }
                     }
                 }
@@ -48,7 +49,7 @@ impl Render {
                     let (ox, oy) = (0, 0); // TODO: Dedup to RenderLev::function
                     for (x, y, loc) in ghost_state.field.map_locs() {
                         for ent in loc {
-                            r.draw_ent(x - ox, y - oy, &ent.props, anim_ghost_pc, anim_ghost_pc).await;
+                            r.draw_ent(x - ox, y - oy, ent, anim_ghost_pc, anim_ghost_pc).await;
                         }
                     }
                 }
@@ -143,15 +144,17 @@ impl<'a> RenderLev<'a> {
         vx: i16,
         vy: i16,
         // Ent to draw
-        obj: &ObjProperties,
+        obj: &Obj,
         // Proportion of animation from previous state to current (frame)
         anim_pc: f32,
         // Proportion of animation from previous state to current (position)
         slide_pc: f32,
         // TODO: Move as_ghost to parameter?
     ) {
+        let props = &obj.props;
+        let map_backref = &obj.backref;
         // TODO: move to calling function?
-        if self.as_ghost && obj.pass != scripts::Pass::Mov {
+        if self.as_ghost && props.pass != scripts::Pass::Mov {
             return;
         }
 
@@ -163,8 +166,8 @@ impl<'a> RenderLev<'a> {
 
         // FYI "let px = base_px + self.sq_w * (1.-pc_size) / 2. + self.sq_w * anim_pc;" makes me really seasick.
 
-        let dx = obj.backref.as_ref().unwrap().curr_pos.x - obj.backref.as_ref().unwrap().prev_pos.x;
-        let dy = obj.backref.as_ref().unwrap().curr_pos.y - obj.backref.as_ref().unwrap().prev_pos.y;
+        let dx = map_backref.curr_pos.x - map_backref.prev_pos.x;
+        let dy = map_backref.curr_pos.y - map_backref.prev_pos.y;
 
         // Switch to using fixed frame throughout from here?
         let slide_in_frame_units = Some(3);
@@ -179,24 +182,24 @@ impl<'a> RenderLev<'a> {
         let w = self.sq_w * pc_size;
         let h = self.sq_h * pc_size;
 
-        if !ObjProperties::is_any_mov(obj.ai) {rsst!(obj.backref.as_ref().unwrap().prev_pos == obj.backref.as_ref().unwrap().curr_pos)}
+        if !ObjProperties::is_any_mov(props.ai) {rsst!(map_backref.prev_pos == map_backref.curr_pos)}
 
         let alpha = if self.as_ghost {self.ghost_alpha} else {1.};
 
-        if let Some(col) = obj.fill {
+        if let Some(col) = props.fill {
             draw_rectangle(px, py, w, h, Self::alpha_col(col, alpha));
         }
 
-        if let Some(col) = obj.border {
+        if let Some(col) = props.border {
             draw_rectangle_lines(px, py, w, h, 2., Self::alpha_col(col, alpha));
         }
 
         // TODO: For tex, disable ghosts or make transparency work.
         // TODO: Or better, add idle animation in place.
-        if obj.tex_paths.len() > 0 {
+        if props.tex_paths.len() > 0 {
             // TODO: Simplify calc? Prevent anim_pc being 100? Or being 0?
-            let tex_frame_idx = (obj.tex_paths.len()-1).min((anim_pc * obj.tex_paths.len() as f32) as usize);
-            let tex_path = &obj.tex_paths[tex_frame_idx];
+            let tex_frame_idx = (props.tex_paths.len()-1).min((anim_pc * props.tex_paths.len() as f32) as usize);
+            let tex_path = &props.tex_paths[tex_frame_idx];
 
             let tex_data: &Texture2D = if let Some(tex_data) = self.texture_cache.get(tex_path) {
                 tex_data
@@ -205,7 +208,7 @@ impl<'a> RenderLev<'a> {
                 self.texture_cache.get(tex_path).unwrap()
             };
 
-            let rotation = match obj.dir {
+            let rotation = match props.dir {
                 CoordDelta{dx:0, dy:-1} => std::f32::consts::PI / 2.,
                 CoordDelta{dx:1, dy: 0} => std::f32::consts::PI,
                 CoordDelta{dx:0, dy: 1} => std::f32::consts::PI * 1.5,
@@ -213,11 +216,11 @@ impl<'a> RenderLev<'a> {
             };
             draw_texture_ex(
                 &tex_data,
-                px - w * (obj.tex_scale-1.0) / 2.,
-                py - h * (obj.tex_scale-1.0) / 2.,
+                px - w * (props.tex_scale-1.0) / 2.,
+                py - h * (props.tex_scale-1.0) / 2.,
                 WHITE,
                 DrawTextureParams {
-                    dest_size: Some(vec2(w * obj.tex_scale, h * obj.tex_scale)),
+                    dest_size: Some(vec2(w * props.tex_scale, h * props.tex_scale)),
                     rotation,
                     ..Default::default()
                     // TODO: alpha
@@ -225,8 +228,8 @@ impl<'a> RenderLev<'a> {
             );
         }
 
-        if let Some(text) = obj.text.clone() {
-            let text_col = Self::alpha_col(obj.text_col.unwrap_or(DARKGRAY), alpha);
+        if let Some(text) = props.text.clone() {
+            let text_col = Self::alpha_col(props.text_col.unwrap_or(DARKGRAY), alpha);
             draw_text(&text, (px + w*0.1).floor(), (py + h*0.6).floor(), 15., text_col);
         }
     }

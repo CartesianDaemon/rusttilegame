@@ -15,7 +15,6 @@ use culpa::try_fn;
 
 use crate::scripts::*;
 
-use super::obj::MapBackref;
 use super::scene::SceneEnding;
 
 use super::map_coords::*;
@@ -125,7 +124,7 @@ impl Field {
         };
         let objmapref = self.put_obj_in_map_and_return_updated_objmapref(x, y, orig_obj);
         // TODO: Can't pass obj to add_to_roster. For now used ai value. Could try obj as plain value, not borrow??
-        self.backref_at_ref_m(objmapref).curr_roster_handle = self.roster.add_to_roster_if_mov(objmapref, self.at_ref(objmapref).ai);
+        self.backref_at_ref_m(objmapref).curr_roster_handle = self.roster.add_to_roster_if_mov(objmapref, self.props_at_ref(objmapref).ai);
     }
 
     /// Move obj to a new location.
@@ -162,7 +161,7 @@ impl Field {
         let prev_pos = if orig_obj.backref.curr_pos.is_valid() { orig_obj.backref.curr_pos } else {new_curr_pos};
         self.map[new_curr_pos].objs_m().push(
             Obj {
-                backref: super::obj::MapBackref {
+                backref: MapBackref {
                     curr_roster_handle: orig_obj.backref.curr_roster_handle,
                     curr_pos: new_curr_pos,
                     prev_pos,
@@ -174,49 +173,49 @@ impl Field {
     }
 
     // TODO: Could have a dummy intermediate class self.ref[objmapref]
-    fn at_ref(&self, objmapref: ObjMapRef) -> &ObjProperties {
+    fn props_at_ref(&self, objmapref: ObjMapRef) -> &ObjProperties {
         &self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize].props
     }
 
-    fn at_ref_m(&mut self, objmapref: ObjMapRef) -> &mut ObjProperties {
+    fn props_at_ref_m(&mut self, objmapref: ObjMapRef) -> &mut ObjProperties {
         &mut self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize].props
     }
 
-    fn backref_at_ref(&self, objmapref: ObjMapRef) -> &super::obj::MapBackref {
+    fn backref_at_ref(&self, objmapref: ObjMapRef) -> &MapBackref {
         &self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize].backref
     }
 
-    fn backref_at_ref_m(&mut self, objmapref: ObjMapRef) -> &mut super::obj::MapBackref {
+    fn backref_at_ref_m(&mut self, objmapref: ObjMapRef) -> &mut MapBackref {
         &mut self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize].backref
     }
 
+    pub fn obj(&self, roster_handle: RosterHandle) -> &ObjProperties {
+        self.props_at_ref(self.roster[roster_handle])
+    }
+
+    pub fn objm(&mut self, roster_handle: RosterHandle) -> &mut ObjProperties {
+        self.props_at_ref_m(self.roster[roster_handle])
+    }
+
+    pub fn backref(&mut self, roster_handle: RosterHandle) -> &mut MapBackref {
+        self.backref_at_ref_m(self.roster[roster_handle])
+    }
+
+    pub fn obj_pos(&self, roster_hdl: RosterHandle) -> MapCoord {
+        self.roster[roster_hdl].pos()
+    }
+
     #[allow(dead_code)]
-    pub fn hero(&mut self) -> &mut ObjProperties {
+    pub fn hero_props(&mut self) -> &mut ObjProperties {
         self.objm(Roster::hero_handle())
     }
 
-    pub fn hero_backref(&mut self) -> &mut super::obj::MapBackref {
-        self.objm(Roster::hero_handle()).backref.as_mut().unwrap()
+    pub fn hero_backref(&mut self) -> &mut MapBackref {
+        self.backref(Roster::hero_handle())
     }
 
     pub fn hero_pos(&self) -> MapCoord {
         self.obj_pos(Roster::hero_handle())
-    }
-
-    pub fn obj(&self, roster_handle: RosterHandle) -> &ObjProperties {
-        self.at_ref(self.roster[roster_handle])
-     }
-
-     pub fn objm(&mut self, roster_handle: RosterHandle) -> &mut ObjProperties {
-        self.at_ref_m(self.roster[roster_handle])
-     }
-
-     pub fn backref(&mut self, roster_handle: RosterHandle) -> &mut super::obj::MapBackref {
-        self.at_ref_m(self.roster[roster_handle]).backref.as_mut().unwrap()
-     }
-
-      pub fn obj_pos(&self, roster_hdl: RosterHandle) -> MapCoord {
-        self.roster[roster_hdl].pos()
     }
 
     // TODO: Only valid if "dir" represents actual direction of movement, not just facing.
@@ -253,6 +252,13 @@ impl Field {
             }).collect::<Vec<_>>().join("")
         ).collect()
     }
+}
+
+#[derive(Clone, Debug)]
+pub struct MapBackref {
+    pub curr_roster_handle: RosterHandle,
+    pub curr_pos: MapCoord,
+    pub prev_pos: MapCoord,
 }
 
 #[derive(Clone, Debug)]

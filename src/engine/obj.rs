@@ -1,30 +1,14 @@
 use super::map_coords::CoordDelta;
-use super::field::{RosterHandle};
-use super::scripting::MapCoord;
 
 use crate::scripts::*;
 
 use macroquad::prelude::*;
-
-/// Information about an object currently in the map
-///
-/// Maybe should move into field.rs.
-///
-/// Maybe field should store this separately to obj.
-#[derive(Clone, Debug)]
-pub struct MapBackref {
-    pub curr_roster_handle: RosterHandle,
-    pub curr_pos: MapCoord,
-    pub prev_pos: MapCoord,
-}
 
 /// Anything tile-sized and drawable including floor, wall, object, being.
 /// TODO: Could have a separate "Object in map" or "active object" representation in map?
 #[derive(Clone, Debug)]
 //#[allow(dead_code)]
 pub struct ObjProperties {
-    pub backref: Option<MapBackref>,
-
     /// String representation of object, used internally for debug fmt etc.
     pub name: String,
 
@@ -62,12 +46,6 @@ impl ObjProperties {
     // An unitialised ent
     pub fn invalid() -> ObjProperties {
         ObjProperties {
-            backref: Some(MapBackref {
-                curr_roster_handle: RosterHandle::invalid(),
-                curr_pos: MapCoord::invalid(),
-                prev_pos: MapCoord::from_xy(-1, -1),
-            }),
-
             name: "????".to_string(),
 
             border: None,
@@ -96,10 +74,6 @@ impl ObjProperties {
         ObjProperties {
             ..ObjProperties::invalid()
         }
-    }
-
-    pub fn is_placeholder(&self) -> bool {
-        self.backref.as_ref().unwrap().curr_pos.is_invalid()
     }
 
     pub fn assets_path() -> String {
