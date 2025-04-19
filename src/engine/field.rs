@@ -109,7 +109,7 @@ impl Field {
         let tmp = self.map[self.roster.hero].cached_pos;
         self.map[self.roster.hero].prev_pos = tmp;
 
-        move_character(self, self.rich_hero(), cmd)?;
+        move_mov(self, self.rich_hero(), cmd)?;
 
         // Transitioning to this version of "Move all movs"
         for ros_idx in 0..self.roster.movs.len() {
@@ -120,7 +120,7 @@ impl Field {
             // NOTE: And obj_at() is also incompatible with RefCell.
             self.obj_props_m(rich_mov).prev_pos = MapHandle::from_coord(self.obj_pos(rich_mov));
 
-            move_mov(self, rich_mov)?;
+            move_mov(self, rich_mov, cmd)?;
         }
         SceneEnding::ContinuePlaying
     }

@@ -10,32 +10,26 @@ pub fn impassable(field: &Field, pos: MapCoord) -> bool {
     !passable(field, pos)
 }
 
-// TODO: Could recombine into a single move function, with the engine or script logic deciding when
-//       to call it for the hero obj and when to call it for the other objs
-pub fn move_character(field: &mut Field, rich_hero: RichMapHandle, cmd: Cmd) -> SceneEnding {
-    if cmd != Cmd::Stay {
-        let target_pos = field.obj_pos(rich_hero) + cmd.as_dir();
-        if passable(field, target_pos) {
-            field.obj_move_to(rich_hero, target_pos);
-        }
-    }
-    // TODO: Avoid needing to re-get the hero handle, make move function consume or update the rich_hero handle.
-    return if field.any_effect(field.roster.hero.pos(), Effect::Win) {
-        SceneEnding::NextScene(Continuation::PlayWin)
-    } else {
-        SceneEnding::ContinuePlaying
-    }
-    // TODO: Also check if hero died? Usually superfluous if we don't allow moving into death.
-}
-
-pub fn move_mov(field: &mut Field, rich_mov: RichMapHandle) -> SceneEnding {
+pub fn move_mov(field: &mut Field, rich_mov: RichMapHandle, cmd: Cmd) -> SceneEnding {
     match field.obj_props(rich_mov).ai {
         AI::Stay => {
             // Do nothing
         },
         AI::Hero => {
-            // Handled separately.
-        },
+            if cmd != Cmd::Stay {
+                let target_pos = field.obj_pos(rich_mov) + cmd.as_dir();
+                if passable(field, target_pos) {
+                    field.obj_move_to(rich_mov, target_pos);
+                }
+            }
+            // TODO: Avoid needing to re-get the hero handle, make move function consume or update the rich_mov handle.
+            return if field.any_effect(field.roster.hero.pos(), Effect::Win) {
+                SceneEnding::NextScene(Continuation::PlayWin)
+            } else {
+                SceneEnding::ContinuePlaying
+            }
+            // TODO: Also check if hero died? Usually superfluous if we don't allow moving into death.
+        }
         AI::Bounce => {
             // TODO: Simplify duplication in field.obj_at(rich_mov.ros_idx) throughout?
 

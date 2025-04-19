@@ -70,7 +70,7 @@ impl CoordDelta {
 }
 
 // Different file?
-#[derive(PartialEq)]
+#[derive(PartialEq, Copy, Clone)]
 pub enum Cmd {
     Stay,
     Left,
