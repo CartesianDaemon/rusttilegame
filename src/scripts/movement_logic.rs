@@ -11,7 +11,7 @@ pub fn impassable(field: &Field, pos: MapCoord) -> bool {
 }
 
 pub fn move_mov(field: &mut Field, rich_mov: RosterHandle, cmd: Cmd) -> SceneEnding {
-    match field.obj_props(rich_mov).ai {
+    match field[rich_mov].ai {
         AI::Stay => {
             // Do nothing
         },
@@ -39,19 +39,19 @@ pub fn move_mov(field: &mut Field, rich_mov: RosterHandle, cmd: Cmd) -> SceneEnd
             // TODO: Consider adding map_coord *= -1.
             let target_pos = field.obj_target_pos(rich_mov);
             if impassable(field, target_pos) {
-                field.obj_props_m(rich_mov).dir.reverse();
+                field[rich_mov].dir.reverse();
             }
 
             // Move. Provided next space is passable. If both sides are impassable, don't move.
             // TODO: Consider adding field.obj_try_move() function?
-            let target_pos = field.obj_pos(rich_mov) + field.obj_props(rich_mov).dir;
+            let target_pos = field.obj_pos(rich_mov) + field[rich_mov].dir;
             if passable(field, target_pos) {
                 field.move_obj_to(rich_mov, target_pos);
             }
 
             // Hero dies if mov moves onto hero
             // TODO: Check at end of function? Or as part of obj?
-            if field.obj_props(rich_mov).effect == Effect::Kill && field.obj_pos(rich_mov) == field.obj_pos(field.hero_handle()) {
+            if field[rich_mov].effect == Effect::Kill && field.obj_pos(rich_mov) == field.obj_pos(field.hero_handle()) {
                 return SceneEnding::NextScene(Continuation::PlayDie);
             }
         },
@@ -62,17 +62,17 @@ pub fn move_mov(field: &mut Field, rich_mov: RosterHandle, cmd: Cmd) -> SceneEnd
 
             // If hitting wall, reverse direction.
             if impassable(field, field.obj_target_pos(rich_mov)) {
-                field.obj_props_m(rich_mov).dir.reverse();
+                field[rich_mov].dir.reverse();
 
                 // And if hero "visible" forward or sideways, move one sideways towards them, if passable.
                 // TODO: Check for obstacles to vision.
                 let hero_dir = field.obj_pos(rich_mov).dir_to(field.obj_pos(field.hero_handle()));
-                if field.obj_props(rich_mov).dir.dx == 0 {
-                    if hero_dir.dy != -field.obj_props(rich_mov).dir.dy {
+                if field[rich_mov].dir.dx == 0 {
+                    if hero_dir.dy != -field[rich_mov].dir.dy {
                         drift_dir = CoordDelta::from_xy(hero_dir.dx, 0);
                     }
-                } else if field.obj_props(rich_mov).dir.dy == 0 {
-                    if hero_dir.dx != -field.obj_props(rich_mov).dir.dx {
+                } else if field[rich_mov].dir.dy == 0 {
+                    if hero_dir.dx != -field[rich_mov].dir.dx {
                         drift_dir = CoordDelta::from_xy(0, hero_dir.dy);
                     }
                 } else {
@@ -82,13 +82,13 @@ pub fn move_mov(field: &mut Field, rich_mov: RosterHandle, cmd: Cmd) -> SceneEnd
 
             // Move. Provided next space is passable. If both sides are impassable, don't move.
             // TODO: Animation for turning? At least avoiding wall?
-            let delta = field.obj_props(rich_mov).dir + drift_dir;
+            let delta = field[rich_mov].dir + drift_dir;
             if passable(field, field.obj_pos(rich_mov) + delta) {
                 field.move_obj_to(rich_mov, field.obj_pos(rich_mov) + delta);
             }
 
             // Hero dies if mov moves onto hero
-            if field.obj_props(rich_mov).effect == Effect::Kill && field.obj_pos(rich_mov) == field.obj_pos(field.hero_handle()) {
+            if field[rich_mov].effect == Effect::Kill && field.obj_pos(rich_mov) == field.obj_pos(field.hero_handle()) {
                 return SceneEnding::NextScene(Continuation::PlayDie);
             }
         },
@@ -101,7 +101,7 @@ pub fn move_mov(field: &mut Field, rich_mov: RosterHandle, cmd: Cmd) -> SceneEnd
                 let x_longer_than_y = match hero_delta.dx.abs() - hero_delta.dy.abs() {
                     num if num > 0 => true,
                     num if num < 0 => false,
-                    _ => field.obj_props(rich_mov).dir.dy.abs() < field.obj_props(rich_mov).dir.dy.abs(),
+                    _ => field[rich_mov].dir.dy.abs() < field[rich_mov].dir.dy.abs(),
                 };
                 // dlongcoord is the orthogonal direction most towards the hero. dshortcoord is the other best.
                 let (dlongcoord, dshortcoord) = if x_longer_than_y {
@@ -117,17 +117,17 @@ pub fn move_mov(field: &mut Field, rich_mov: RosterHandle, cmd: Cmd) -> SceneEnd
                 if let Some(dir) = try_dirs.iter().find(|dir|
                     passable(field, field.obj_pos(rich_mov) + **dir)
                 ) {
-                    field.obj_props_m(rich_mov).dir = *dir;
+                    field[rich_mov].dir = *dir;
                 }
             }
 
             // Move. Provided next space is passable. If all sides were impassable, don't move.
             if passable(field, field.obj_target_pos(rich_mov)) {
-                field.move_obj_to(rich_mov, field.obj_pos(rich_mov) + field.obj_props(rich_mov).dir);
+                field.move_obj_to(rich_mov, field.obj_pos(rich_mov) + field[rich_mov].dir);
             }
 
             // Hero dies if bot moves onto hero
-            if field.obj_props(rich_mov).effect == Effect::Kill && field.obj_pos(rich_mov) == field.obj_pos(field.hero_handle()) {
+            if field[rich_mov].effect == Effect::Kill && field.obj_pos(rich_mov) == field.obj_pos(field.hero_handle()) {
                 return SceneEnding::NextScene(Continuation::PlayDie);
             }
         },
