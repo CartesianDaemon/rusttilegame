@@ -178,12 +178,20 @@ impl Field {
         RosterHandle { ros_idx: 100 }
     }
 
+    fn obj_props_at_objmapref(&self, objmapref: ObjMapRef) -> &Obj {
+        &self.map[objmapref]
+    }
+
+    fn obj_props_at_objmapref_m(&mut self, objmapref: ObjMapRef) -> &mut Obj {
+        &mut self.map[objmapref]
+    }
+
     pub fn obj_props(&self, roster_hdl: RosterHandle) -> &Obj {
-        &self.map[self.roster[roster_hdl.ros_idx]]
+        &self.obj_props_at_objmapref(self.roster[roster_hdl.ros_idx])
     }
 
     pub fn obj_props_m(&mut self, roster_hdl: RosterHandle) -> &mut Obj {
-        &mut self.map[self.roster[roster_hdl.ros_idx]]
+        self.obj_props_at_objmapref_m(self.roster[roster_hdl.ros_idx])
     }
 
     pub fn obj_pos(&self, roster_hdl: RosterHandle) -> MapCoord {
