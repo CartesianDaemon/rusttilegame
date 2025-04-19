@@ -121,6 +121,7 @@ mod basic_tests {
 
     // TODO: Test win
     // TODO: Test die
+    // TODO: Test moving two objs into same Loc
 
     #[test]
     fn clone_map_and_move() {

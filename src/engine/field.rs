@@ -115,13 +115,18 @@ impl Field {
     /// Internally adds it to the map, and to the roster if its animate.
     pub fn spawn_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj)
     {
-        let hdl = self.add_obj_to_map_and_return_hdl(x, y, orig_obj);
-        let placed_obj = &self.map[hdl];
+        let hdl = self.put_obj_in_map_and_return_updated_hdl(x, y, orig_obj);
+        let placed_obj = &mut self.map[hdl];
 
+        // TODO: Move "add to member if hero" logic to roster??
         if placed_obj.is_hero() {
+            placed_obj.curr_handle = RichMapHandle { ros_idx: 100 };
             self.roster.hero = hdl;
         } else if placed_obj.is_mob() {
+            placed_obj.curr_handle = RichMapHandle { ros_idx: self.roster.movs.len() };
             self.roster.push_mov(hdl);
+        } else {
+            placed_obj.curr_handle = RichMapHandle { ros_idx: 98 };
         }
     }
 
@@ -160,17 +165,17 @@ impl Field {
         }
 
         // Add Ent to top of stack at new map coords. Updates hdl to match new height.
-        self.roster[rich_hdl.ros_idx] = self.add_obj_to_map_and_return_hdl(pos.x, pos.y, obj);
+        self.roster[rich_hdl.ros_idx] = self.put_obj_in_map_and_return_updated_hdl(pos.x, pos.y, obj);
     }
 
-    /// Place an object in the map and return a handle.
+    /// Place an object in the map.
     ///
-    /// May go away if we only use rich handles to roster not to map.
+    /// Update curr_handle, curr_pos, prev_pos. Return new obj ref.
     ///
     /// All obj placement and movement goes through spawn_at or move_obj_to, then this fn.
-    fn add_obj_to_map_and_return_hdl(&mut self, x: i16, y:i16, orig_obj: Obj) -> ObjRef {
+    fn put_obj_in_map_and_return_updated_hdl(&mut self, x: i16, y:i16, orig_obj: Obj) -> ObjRef {
         let new_curr_pos = MapCoord::from_xy(x, y);
-        let handle = ObjRef { x, y, h: self.map.ents_at_xy(x, y).len() as u16 };
+        let obj_ref = ObjRef { x, y, h: self.map.ents_at_xy(x, y).len() as u16 };
         let prev_pos = if orig_obj.curr_pos.x >=0 { orig_obj.curr_pos } else {new_curr_pos};
         self.map.at_xym(x, y).push(
             Obj {
@@ -179,7 +184,7 @@ impl Field {
                 ..orig_obj
             }
         );
-        handle
+        obj_ref
     }
 
     pub fn rich_hero(&self) -> RichMapHandle {
@@ -457,7 +462,8 @@ impl Index<RosIndex> for Roster {
 impl IndexMut<RosIndex> for Roster {
     fn index_mut(&mut self, idx: RosIndex) -> &mut Self::Output {
         match idx {
-            0..99 => &mut self.movs[idx],
+            0..98 => &mut self.movs[idx],
+            98 => panic!("Used non-mov obj 98 index into roster"),
             99 => panic!("Used invalid 99 index into roster"),
             100 => &mut self.hero,
             _ => panic!("Unknown index into roster: {}", idx),

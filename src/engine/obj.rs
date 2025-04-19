@@ -13,6 +13,8 @@ use macroquad::prelude::*;
 pub struct Obj {
     // RichMapHandle is necessary to update object. Needs api?
     // Invalid is only used before placing in map?
+    // TODO: Consider moving curr_handle, curr_pos, prev_pos into a sister struct in Field,
+    //       only used by objs which are actually in the map.
     pub curr_handle: RichMapHandle,
 
     // curr_pos and prev_pos should only be informative. Kept up to date by field. Needs api?
