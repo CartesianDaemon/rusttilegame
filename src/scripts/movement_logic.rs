@@ -140,10 +140,3 @@ pub fn move_mov_refactored(field: &mut Field, rich_mov: RichMapHandle) -> SceneE
     }
     return SceneEnding::ContinuePlaying;
 }
-
-pub fn move_mov(map: &mut InternalMap, hero: &MapHandle, mov: &mut MapHandle) -> SceneEnding {
-    match map[*mov].ai {
-        _ => {}
-    }
-    return SceneEnding::ContinuePlaying;
-}

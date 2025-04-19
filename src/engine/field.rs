@@ -111,14 +111,6 @@ impl Field {
 
         move_character_refactored(self, self.rich_hero(), cmd)?;
 
-        // Move all movs
-        for mov in &mut self.roster.movs {
-            // Before movement, reset "prev". Will be overwritten if movement happens.
-            let tmp = self.map[*mov].cached_pos;
-            self.map[*mov].prev_pos = tmp;
-
-            move_mov(&mut self.map, &self.roster.hero, mov)?;
-        }
         // Transitioning to this version of "Move all movs"
         for ros_idx in 0..self.roster.movs.len() {
             let rich_mov = RichMapHandle { ros_idx };
