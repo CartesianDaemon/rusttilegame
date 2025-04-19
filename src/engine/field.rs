@@ -129,7 +129,7 @@ impl Field {
         let objmapref = self.roster[roster_hdl];
         let origin_pos = objmapref.pos();
 
-        let orig_obj = self.map.ents_at_pos_m(origin_pos).swap_remove(objmapref.h as usize);
+        let orig_obj = self.map.loc_at_m(origin_pos).objs_m().swap_remove(objmapref.h as usize);
 
         // For each other object in location, update objmapref in roster with changed height.
         for h in objmapref.h+1..self.map.loc_at(origin_pos).len() as u16 {
@@ -206,7 +206,7 @@ impl Field {
         (0..self.map.h() as i16).map(|y|
             (0..self.map.w() as i16).map(|x| {
                 self.map_key.iter().find_map(|(ch,objs)|
-                    if self.map.ents_at_pos(MapCoord::from_xy(x, y)) == objs {Some(ch.to_string())} else {None}
+                    if self.map.loc_at(MapCoord::from_xy(x, y)).objs() == objs {Some(ch.to_string())} else {None}
                 ).unwrap_or("?".to_string())
             }).collect::<Vec<_>>().join("")
         ).collect()
@@ -244,16 +244,6 @@ impl InternalMap {
 
     pub fn loc_at_m(&mut self, pos: MapCoord) -> &mut Loc {
         &mut self.locs[pos.x as usize][pos.y as usize]
-    }
-
-    // Ents at coord.
-    pub fn ents_at_pos(&self, pos: MapCoord) -> &Vec<Obj> {
-        self.locs[pos.x as usize][pos.y as usize].objs()
-    }
-
-    // Ents at coord.
-    pub fn ents_at_pos_m(&mut self, pos: MapCoord) -> &mut Vec<Obj> {
-        self.locs[pos.x as usize][pos.y as usize].objs_m()
     }
 
     pub fn locs(&self) -> LocIterator {
