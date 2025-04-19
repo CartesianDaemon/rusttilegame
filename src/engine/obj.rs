@@ -22,7 +22,7 @@ pub struct MapBackref {
 /// TODO: Could have a separate "Object in map" or "active object" representation in map?
 #[derive(Clone, Debug)]
 //#[allow(dead_code)]
-pub struct Obj {
+pub struct ObjProperties {
     pub backref: Option<MapBackref>,
 
     /// String representation of object, used internally for debug fmt etc.
@@ -58,10 +58,10 @@ pub struct Obj {
     pub effect: Effect,
 }
 
-impl Obj {
+impl ObjProperties {
     // An unitialised ent
-    pub fn invalid() -> Obj {
-        Obj {
+    pub fn invalid() -> ObjProperties {
+        ObjProperties {
             backref: Some(MapBackref {
                 curr_roster_handle: RosterHandle::invalid(),
                 curr_pos: MapCoord::invalid(),
@@ -86,15 +86,15 @@ impl Obj {
     }
 
     // An ent which is ignored when it exists in the map.
-    pub fn placeholder() -> Obj {
-        Obj::invalid()
+    pub fn placeholder() -> ObjProperties {
+        ObjProperties::invalid()
     }
 
     // Default values for fields not used in a particular ent type.
     #[allow(dead_code)]
-    pub fn empty() -> Obj {
-        Obj {
-            ..Obj::invalid()
+    pub fn empty() -> ObjProperties {
+        ObjProperties {
+            ..ObjProperties::invalid()
         }
     }
 
@@ -107,57 +107,57 @@ impl Obj {
     }
 
     #[allow(dead_code)]
-    pub fn new_tex(tex_path: &str) -> Obj {
-        Obj {
+    pub fn new_tex(tex_path: &str) -> ObjProperties {
+        ObjProperties {
             tex_paths: vec![Self::assets_path() + tex_path],
-            ..Obj::invalid()
+            ..ObjProperties::invalid()
         }
     }
 
-    pub fn new_tex_col(tex_path: &str, fill: Color) -> Obj {
-        Obj {
+    pub fn new_tex_col(tex_path: &str, fill: Color) -> ObjProperties {
+        ObjProperties {
             tex_paths: vec![Self::assets_path() + tex_path],
             fill: Some(fill),
-            ..Obj::invalid()
+            ..ObjProperties::invalid()
         }
     }
 
     /// TODO: Need to add "rotate" option for directional movs.
     /// TODO: Fix path in wasm. No prefix?
     /// TODO: Bigger fish?
-    pub fn new_tex_anim(tex_paths: Vec<&str>) -> Obj {
-        Obj {
+    pub fn new_tex_anim(tex_paths: Vec<&str>) -> ObjProperties {
+        ObjProperties {
             // TODO: Consider using a list comprehension crate
             // TODO: Consider implementing my abbreviated map chain crate.
             //       Note whether that could usefully do .iter() and .collect()?
             // TODO: Consider whether simpler for caller to offer wildcard like "FishB*.png"
             // TODO: Consider where to specify path to imgs? Here? As part of levset?
             tex_paths: tex_paths.iter().map(|x| Self::assets_path() + x).collect(),
-            ..Obj::invalid()
+            ..ObjProperties::invalid()
         }
     }
 
-    pub fn new_col(fill: Color) -> Obj {
-        Obj {
+    pub fn new_col(fill: Color) -> ObjProperties {
+        ObjProperties {
             fill: Some(fill),
-            ..Obj::invalid()
+            ..ObjProperties::invalid()
         }
     }
 
-    pub fn new_col_outline(fill: Color, outline: Color) -> Obj {
-        Obj {
+    pub fn new_col_outline(fill: Color, outline: Color) -> ObjProperties {
+        ObjProperties {
             fill: Some(fill),
             border: Some(outline),
-            ..Obj::invalid()
+            ..ObjProperties::invalid()
         }
     }
 
-    pub fn new_text_fill(text: String, fill: Option<Color>, text_col: Option<Color>) -> Obj {
-        Obj {
+    pub fn new_text_fill(text: String, fill: Option<Color>, text_col: Option<Color>) -> ObjProperties {
+        ObjProperties {
             text: Some(text),
             fill,
             text_col,
-            ..Obj::invalid()
+            ..ObjProperties::invalid()
         }
     }
 
@@ -185,7 +185,7 @@ impl Obj {
 
 /// Somewhat fuzzy match used for determining ascii representation.
 /// Ideally would have a different name not PartialEq.
-impl PartialEq for Obj {
+impl PartialEq for ObjProperties {
     fn eq(&self, other:&Self) -> bool {
         self.comparable_fields() == other.comparable_fields()
     }

@@ -8,7 +8,7 @@ use crate::scripts;
 
 use super::scene;
 use super::scene::Scene;
-use super::obj::Obj;
+use super::obj::ObjProperties;
 use super::map_coords::CoordDelta;
 
 type TextureCache = HashMap<String, Texture2D>;
@@ -37,7 +37,7 @@ impl Render {
                 for h in 0..max_h {
                     for (x, y, loc) in play_state.field.map_locs() {
                         if let Some(ent) = loc.get(h) {
-                            render_lev.draw_ent(x - ox, y - oy, ent, anim_real_pc, slide_real_pc).await;
+                            render_lev.draw_ent(x - ox, y - oy, &ent.props, anim_real_pc, slide_real_pc).await;
                         }
                     }
                 }
@@ -48,7 +48,7 @@ impl Render {
                     let (ox, oy) = (0, 0); // TODO: Dedup to RenderLev::function
                     for (x, y, loc) in ghost_state.field.map_locs() {
                         for ent in loc {
-                            r.draw_ent(x - ox, y - oy, ent, anim_ghost_pc, anim_ghost_pc).await;
+                            r.draw_ent(x - ox, y - oy, &ent.props, anim_ghost_pc, anim_ghost_pc).await;
                         }
                     }
                 }
@@ -143,7 +143,7 @@ impl<'a> RenderLev<'a> {
         vx: i16,
         vy: i16,
         // Ent to draw
-        obj: &Obj,
+        obj: &ObjProperties,
         // Proportion of animation from previous state to current (frame)
         anim_pc: f32,
         // Proportion of animation from previous state to current (position)
@@ -179,7 +179,7 @@ impl<'a> RenderLev<'a> {
         let w = self.sq_w * pc_size;
         let h = self.sq_h * pc_size;
 
-        if !Obj::is_any_mov(obj.ai) {rsst!(obj.backref.as_ref().unwrap().prev_pos == obj.backref.as_ref().unwrap().curr_pos)}
+        if !ObjProperties::is_any_mov(obj.ai) {rsst!(obj.backref.as_ref().unwrap().prev_pos == obj.backref.as_ref().unwrap().curr_pos)}
 
         let alpha = if self.as_ghost {self.ghost_alpha} else {1.};
 

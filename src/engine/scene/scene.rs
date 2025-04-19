@@ -4,7 +4,7 @@ use std::ops::ControlFlow;
 use super::*;
 use crate::engine::input::Input;
 use crate::engine::field::Field;
-use crate::engine::obj::Obj;
+use crate::engine::obj::ObjProperties;
 
 /// How a scene ended, used to tell which to go to next
 pub enum Continuation {
@@ -67,7 +67,7 @@ impl Scene {
 
     pub fn from_play_ascii_map<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
-        map_key: HashMap<char, Vec<Obj>>,
+        map_key: HashMap<char, Vec<ObjProperties>>,
     ) -> Scene {
         Scene::Play(Play::from_ascii(ascii_map, map_key))
     }

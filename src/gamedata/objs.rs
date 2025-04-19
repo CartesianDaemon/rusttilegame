@@ -3,75 +3,75 @@ use macroquad::prelude::*;
 use crate::engine::customgame::*;
 use crate::scripts::*;
 
-pub fn new_hero_crab() -> Obj {
-    Obj {
+pub fn new_hero_crab() -> ObjProperties {
+    ObjProperties {
         name:"Hero".to_string(),
         pass: Pass::Mov,
         ai: AI::Hero,
-        ..Obj::new_text_fill("HERO".to_string(), Some(GOLD), Some(BLACK))
+        ..ObjProperties::new_text_fill("HERO".to_string(), Some(GOLD), Some(BLACK))
     }
 }
 
-pub fn new_fish(dir: CoordDelta) -> Obj {
-    Obj {
+pub fn new_fish(dir: CoordDelta) -> ObjProperties {
+    ObjProperties {
         name: "Fish".to_string(),
         pass: Pass::Mov,
         ai: AI::Bounce,
         dir: dir,
         effect: Effect::Kill,
         tex_scale: 1.7,
-        ..Obj::new_tex_anim(vec!["FishB.0001.png", "FishB.0002.png", "FishB.0003.png"])
+        ..ObjProperties::new_tex_anim(vec!["FishB.0001.png", "FishB.0002.png", "FishB.0003.png"])
     }
 }
 
-pub fn new_gawpie(dir: CoordDelta) -> Obj {
-    Obj {
+pub fn new_gawpie(dir: CoordDelta) -> ObjProperties {
+    ObjProperties {
         name: "Gawpie".to_string(),
         pass: Pass::Mov,
         ai: AI::Drift,
         dir: dir,
         effect: Effect::Kill,
         tex_scale: 1.7,
-        ..Obj::new_tex_anim(vec!["FishB.0001.png", "FishB.0002.png", "FishB.0003.png"])
+        ..ObjProperties::new_tex_anim(vec!["FishB.0001.png", "FishB.0002.png", "FishB.0003.png"])
     }
 }
 
-pub fn new_floor() -> Obj {
-    Obj {
+pub fn new_floor() -> ObjProperties {
+    ObjProperties {
         name: "Floor".to_string(),
-        ..Obj::new_col_outline(WHITE, LIGHTGRAY)
+        ..ObjProperties::new_col_outline(WHITE, LIGHTGRAY)
     }
 }
 
-pub fn new_wall() -> Obj {
-    Obj {
+pub fn new_wall() -> ObjProperties {
+    ObjProperties {
         name: "Wall".to_string(),
         pass: Pass::Solid,
-        ..Obj::new_col(DARKGRAY)
+        ..ObjProperties::new_col(DARKGRAY)
     }
 }
 
-pub fn new_door_open() -> Obj {
-    Obj {
+pub fn new_door_open() -> ObjProperties {
+    ObjProperties {
         name: "OpenDoor".to_string(),
-        ..Obj::new_col(LIGHTGRAY)
+        ..ObjProperties::new_col(LIGHTGRAY)
     }
 }
 
-pub fn new_door_closed() -> Obj {
-    Obj {
+pub fn new_door_closed() -> ObjProperties {
+    ObjProperties {
         name: "ClosedDoor".to_string(),
         pass: Pass::Solid,
-        ..Obj::new_col_outline(DARKGRAY, LIGHTGRAY)
+        ..ObjProperties::new_col_outline(DARKGRAY, LIGHTGRAY)
     }
 }
 
-pub fn new_door_win() -> Obj {
-    Obj {
+pub fn new_door_win() -> ObjProperties {
+    ObjProperties {
         name: "Goal".to_string(),
         effect: Effect::Win,
 
         border: Some(LIGHTGRAY),
-        ..Obj::new_text_fill("EXIT".to_string(), Some(GOLD), Some(WHITE))
+        ..ObjProperties::new_text_fill("EXIT".to_string(), Some(GOLD), Some(WHITE))
     }
 }

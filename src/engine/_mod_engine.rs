@@ -28,7 +28,7 @@ mod obj;
 pub use engine::Engine;
 
 pub mod scripting {
-    pub use super::obj::Obj;
+    pub use super::obj::ObjProperties;
     pub use super::field::{Field, RosterHandle};
     pub use super::map_coords::*;
     pub use super::scene::{SceneEnding, Continuation};
@@ -36,7 +36,7 @@ pub mod scripting {
 
 // Public interface for writing a custom game
 pub mod customgame {
-    pub use super::obj::Obj;
+    pub use super::obj::ObjProperties;
     pub use super::gametrait::*;
     pub use super::scene::{Scene, Continuation};
     pub use super::map_coords::*;

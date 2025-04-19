@@ -15,11 +15,12 @@ use culpa::try_fn;
 
 use crate::scripts::*;
 
+use super::obj::MapBackref;
 use super::scene::SceneEnding;
 
 use super::map_coords::*;
 
-use super::obj::Obj;
+use super::obj::ObjProperties;
 
 #[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
 pub struct RosterHandle {
@@ -36,16 +37,16 @@ impl RosterHandle {
 /// Map together with Ros. Those are two separate classes so they can more easily be borrowed separately.
 #[derive(Clone, Debug)]
 pub struct Field {
-    map: InternalMap,
+    map: Map,
     roster: Roster,
     // Used to represent map as ascii for init and debugging. Not comprehensive.
-    map_key: std::collections::HashMap<char, Vec<Obj>>,
+    map_key: std::collections::HashMap<char, Vec<ObjProperties>>,
 }
 
 impl Field {
     pub fn empty(w: u16, h: u16) -> Field {
         Field {
-            map: Into::into(InternalMap::new(w, h)),
+            map: Into::into(Map::new(w, h)),
             roster: Roster::new(),
             map_key: std::collections::HashMap::new(),
         }
@@ -53,7 +54,7 @@ impl Field {
 
     pub fn from_map_and_key<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
-        map_key: HashMap<char, Vec<Obj>>,
+        map_key: HashMap<char, Vec<ObjProperties>>,
     ) -> Field {
         let mut field = Field {
             map_key: map_key.clone(),
@@ -110,8 +111,18 @@ impl Field {
     /// Spawn new object.
     ///
     /// Internally adds it to the map, and to the roster if its animate.
-    pub fn spawn_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj)
+    pub fn spawn_obj_at(&mut self, x: i16, y:i16, props: ObjProperties)
     {
+        // TODO: Create MapBackref::invalid() fn?
+        // TODO: Or split up what we pass to put_obj_in_map_and_return_updated_objmapref to pass Option?
+        let orig_obj = Obj {
+            backref: MapBackref {
+                curr_roster_handle: RosterHandle::invalid(),
+                curr_pos: MapCoord::invalid(),
+                prev_pos: MapCoord::invalid()
+            },
+            props,
+        };
         let objmapref = self.put_obj_in_map_and_return_updated_objmapref(x, y, orig_obj);
         // TODO: Can't pass obj to add_to_roster. For now used ai value. Could try obj as plain value, not borrow??
         self.backref_at_ref_m(objmapref).curr_roster_handle = self.roster.add_to_roster_if_mov(objmapref, self.at_ref(objmapref).ai);
@@ -148,39 +159,39 @@ impl Field {
     fn put_obj_in_map_and_return_updated_objmapref(&mut self, x: i16, y:i16, orig_obj: Obj) -> ObjMapRef {
         let new_curr_pos = MapCoord::from_xy(x, y);
         let new_obj_ref = ObjMapRef { x, y, h: self.map[new_curr_pos].len() as u16 };
-        let prev_pos = if orig_obj.backref.as_ref().unwrap().curr_pos.is_valid() { orig_obj.backref.as_ref().unwrap().curr_pos } else {new_curr_pos};
+        let prev_pos = if orig_obj.backref.curr_pos.is_valid() { orig_obj.backref.curr_pos } else {new_curr_pos};
         self.map[new_curr_pos].objs_m().push(
             Obj {
-                backref: Some(super::obj::MapBackref {
-                    curr_roster_handle: orig_obj.backref.as_ref().unwrap().curr_roster_handle,
+                backref: super::obj::MapBackref {
+                    curr_roster_handle: orig_obj.backref.curr_roster_handle,
                     curr_pos: new_curr_pos,
                     prev_pos,
-                }),
-               ..orig_obj
+                },
+               props: orig_obj.props,
             }
         );
         new_obj_ref
     }
 
     // TODO: Could have a dummy intermediate class self.ref[objmapref]
-    fn at_ref(&self, objmapref: ObjMapRef) -> &Obj {
-        &self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
+    fn at_ref(&self, objmapref: ObjMapRef) -> &ObjProperties {
+        &self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize].props
     }
 
-    fn at_ref_m(&mut self, objmapref: ObjMapRef) -> &mut Obj {
-        &mut self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
+    fn at_ref_m(&mut self, objmapref: ObjMapRef) -> &mut ObjProperties {
+        &mut self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize].props
     }
 
     fn backref_at_ref(&self, objmapref: ObjMapRef) -> &super::obj::MapBackref {
-        self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize].backref.as_ref().unwrap()
+        &self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize].backref
     }
 
     fn backref_at_ref_m(&mut self, objmapref: ObjMapRef) -> &mut super::obj::MapBackref {
-        self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize].backref.as_mut().unwrap()
+        &mut self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize].backref
     }
 
     #[allow(dead_code)]
-    pub fn hero(&mut self) -> &mut Obj {
+    pub fn hero(&mut self) -> &mut ObjProperties {
         self.objm(Roster::hero_handle())
     }
 
@@ -192,11 +203,11 @@ impl Field {
         self.obj_pos(Roster::hero_handle())
     }
 
-    pub fn obj(&self, roster_handle: RosterHandle) -> &Obj {
+    pub fn obj(&self, roster_handle: RosterHandle) -> &ObjProperties {
         self.at_ref(self.roster[roster_handle])
      }
 
-     pub fn objm(&mut self, roster_handle: RosterHandle) -> &mut Obj {
+     pub fn objm(&mut self, roster_handle: RosterHandle) -> &mut ObjProperties {
         self.at_ref_m(self.roster[roster_handle])
      }
 
@@ -226,7 +237,7 @@ impl Field {
         (&self.map.locs).into_iter().map(|row|
             (&row).into_iter().map(|loc| {
                 self.map_key.iter().find_map(|(ch,objs)|
-                    if loc.objs() == objs {Some(ch.to_string())} else {None}
+                    if loc.obj_props() == *objs {Some(ch.to_string())} else {None}
                 ).unwrap_or("?".to_string())
             }).collect::<Vec<_>>().join("")
         ).collect()
@@ -237,25 +248,31 @@ impl Field {
         (0..self.map.h() as i16).map(|y|
             (0..self.map.w() as i16).map(|x| {
                 self.map_key.iter().find_map(|(ch,objs)|
-                    if self.map[MapCoord::from_xy(x, y)].objs() == objs {Some(ch.to_string())} else {None}
+                    if self.map[MapCoord::from_xy(x, y)].obj_props() == *objs {Some(ch.to_string())} else {None}
                 ).unwrap_or("?".to_string())
             }).collect::<Vec<_>>().join("")
         ).collect()
     }
 }
 
+#[derive(Clone, Debug)]
+pub struct Obj {
+    pub backref: MapBackref,
+    pub props: ObjProperties,
+}
+
 // "Map": Grid of locations. Represents state of current level.
 // NOTE: Could currently be moved back into Field. Not borrowed separately.
 #[derive(Clone)]
-struct InternalMap {
+struct Map {
     // Stored as a collection of columns, e.g. map.locs[x][y]
     // Must always be rectangular.
     locs: Vec<Vec<Loc>>,
 }
 
-impl InternalMap {
-    pub fn new(w: u16, h: u16) -> InternalMap {
-        InternalMap {
+impl Map {
+    pub fn new(w: u16, h: u16) -> Map {
+        Map {
             locs: vec!(vec!(Loc::new(); h.into()); w.into()),
         }
     }
@@ -279,7 +296,7 @@ impl InternalMap {
     }
 }
 
-impl Index<MapCoord> for InternalMap {
+impl Index<MapCoord> for Map {
     type Output = Loc;
 
     fn index(&self, pos: MapCoord) -> &Self::Output {
@@ -287,13 +304,13 @@ impl Index<MapCoord> for InternalMap {
     }
 }
 
-impl IndexMut<MapCoord> for InternalMap {
+impl IndexMut<MapCoord> for Map {
     fn index_mut(&mut self, pos: MapCoord) -> &mut Self::Output {
         &mut self.locs[pos.x as usize][pos.y as usize]
     }
 }
 
-impl std::fmt::Debug for InternalMap {
+impl std::fmt::Debug for Map {
     #[try_fn]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         write!(f, "Map[")?;
@@ -324,7 +341,7 @@ pub struct LocIterator<'a> {
     x: i16,
     y: i16,
     // Pointer back to original collection
-    map: &'a InternalMap,
+    map: &'a Map,
 }
 
 impl Iterator for CoordIterator {
@@ -432,10 +449,10 @@ impl Roster {
     }
 
     fn add_to_roster_if_mov(&mut self, objmapref: ObjMapRef, ai: AI) -> RosterHandle {
-        if Obj::is_hero(ai) {
+        if ObjProperties::is_hero(ai) {
             self.hero = objmapref;
             Self::hero_handle()
-        } else if Obj::is_mob(ai) {
+        } else if ObjProperties::is_mob(ai) {
             self.movs.push(objmapref);
             RosterHandle { ros_idx: self.movs.len() as u16 - 1 }
         } else {
@@ -487,20 +504,20 @@ impl Loc {
     }
 
     pub fn any_effect(&self, sought_effect: Effect) -> bool {
-        self.0.iter().any(|x| x.effect == sought_effect)
+        self.0.iter().any(|x| x.props.effect == sought_effect)
     }
 
     pub fn any_pass(&self, sought_pass: Pass) -> bool {
-        self.0.iter().any(|x| x.pass == sought_pass)
+        self.0.iter().any(|x| x.props.pass == sought_pass)
     }
 
     pub fn all_pass(&self, sought_pass: Pass) -> bool {
-        self.0.iter().all(|x| x.pass == sought_pass)
+        self.0.iter().all(|x| x.props.pass == sought_pass)
     }
 
     fn map_fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         for ent in self {
-            write!(f, "{},", ent.name)?;
+            write!(f, "{},", ent.props.name)?;
         }
         write!(f, ";")
     }
@@ -521,6 +538,11 @@ impl Loc {
 
     pub fn objs_m(&mut self) -> &mut Vec<Obj> {
         &mut self.0
+    }
+
+    pub fn obj_props(&self) -> Vec<ObjProperties> {
+        // TODO: Avoid clone
+        self.0.iter().map(|o| o.props.clone()).collect()
     }
 }
 

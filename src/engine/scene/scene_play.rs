@@ -3,7 +3,7 @@ use super::{SceneEnding};
 use std::collections::HashMap;
 
 use crate::engine::field::Field;
-use crate::engine::obj::Obj;
+use crate::engine::obj::ObjProperties;
 use crate::engine::input::Input;
 use crate::engine::scripting::Cmd;
 
@@ -20,7 +20,7 @@ impl Play
     // TODO: Use lifetime or Rc on map_key instead of clone()?
     pub fn from_ascii<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
-        map_key: HashMap<char, Vec<Obj>>,
+        map_key: HashMap<char, Vec<ObjProperties>>,
     ) -> Play {
         Play {
             field: Field::from_map_and_key(ascii_map, map_key),
