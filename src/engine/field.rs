@@ -116,17 +116,17 @@ impl Field {
     pub fn spawn_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj)
     {
         let hdl = self.put_obj_in_map_and_return_updated_hdl(x, y, orig_obj);
-        let placed_obj = &mut self.map[hdl];
+        let placed_obj = &self.map[hdl];
 
         // TODO: Move "add to member if hero" logic to roster??
-        if placed_obj.is_hero() {
-            placed_obj.curr_handle = RichMapHandle { ros_idx: 100 };
+        self.map[hdl].curr_handle = if placed_obj.is_hero() {
             self.roster.hero = hdl;
+            RichMapHandle { ros_idx: 100 }
         } else if placed_obj.is_mob() {
-            placed_obj.curr_handle = RichMapHandle { ros_idx: self.roster.movs.len() };
             self.roster.push_mov(hdl);
+            RichMapHandle { ros_idx: self.roster.movs.len()-1 }
         } else {
-            placed_obj.curr_handle = RichMapHandle { ros_idx: 98 };
+            RichMapHandle { ros_idx: 98 }
         }
     }
 
