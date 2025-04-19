@@ -84,7 +84,7 @@ pub struct RichMapHandle {
 /// Map together with Ros. Those are two separate classes so they can more easily be borrowed separately.
 #[derive(Clone, Debug)]
 pub struct Field {
-    pub map: InternalMap,
+    map: InternalMap,
     roster: Roster,
     // Used to represent map as ascii for init and debugging. Not comprehensive.
     map_key: std::collections::HashMap<char, Vec<Obj>>,
@@ -143,6 +143,19 @@ impl Field {
             move_mov(self, rich_mov, cmd)?;
         }
         SceneEnding::ContinuePlaying
+    }
+
+    pub fn map_w(&self) -> u16 {
+        self.map.w()
+    }
+
+    pub fn map_h(&self) -> u16 {
+        self.map.h()
+    }
+
+    // TODO: Any better way to expose this for iterating?
+    pub fn map_locs(&self) -> LocIterator {
+        self.map.locs()
     }
 
     /// Create an object in the map and in the roster.

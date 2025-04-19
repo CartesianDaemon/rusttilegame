@@ -30,12 +30,12 @@ impl Render {
         // ENH: Avoid passing in whole Play object.
         match play_state {
             Scene::Play(play_state) => {
-                let mut render_lev = RenderLev::begin(&mut self.texture_cache, play_state.field.map.w(), play_state.field.map.h());
+                let mut render_lev = RenderLev::begin(&mut self.texture_cache, play_state.field.map_w(), play_state.field.map_h());
                 // Coords of first visible tile. Currently always 0,0.
                 let (ox, oy) = (0, 0);
                 let max_h = 5;
                 for h in 0..max_h {
-                    for (x, y, loc) in play_state.field.map.locs() {
+                    for (x, y, loc) in play_state.field.map_locs() {
                         if let Some(ent) = loc.get(h) {
                             render_lev.draw_ent(x - ox, y - oy, ent, anim_real_pc, slide_real_pc).await;
                         }
@@ -46,7 +46,7 @@ impl Render {
                 {
                     let mut r = RenderLev::begin_ghost_overlay(render_lev, 1.0 - ghost_opacity);
                     let (ox, oy) = (0, 0); // TODO: Dedup to RenderLev::function
-                    for (x, y, loc) in ghost_state.field.map.locs() {
+                    for (x, y, loc) in ghost_state.field.map_locs() {
                         for ent in loc {
                             r.draw_ent(x - ox, y - oy, ent, anim_ghost_pc, anim_ghost_pc).await;
                         }
