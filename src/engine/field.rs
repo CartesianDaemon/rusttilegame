@@ -112,7 +112,7 @@ impl Field {
     /// Internally adds it to the map, and to the roster if its animate.
     pub fn spawn_obj_at(&mut self, x: i16, y:i16, props: ObjProperties)
     {
-        // TODO: Create MapBackref::invalid() fn?
+        // TODO: These are overwritten almost immediately. Create MapBackref::invalid() fn?
         // TODO: Or split up what we pass to put_obj_in_map_and_return_updated_objmapref to pass Option?
         let orig_obj = Obj {
             backref: MapBackref {

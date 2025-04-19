@@ -43,8 +43,7 @@ pub struct ObjProperties {
 }
 
 impl ObjProperties {
-    // An unitialised ent
-    pub fn invalid() -> ObjProperties {
+    fn defaults() -> ObjProperties {
         ObjProperties {
             name: "????".to_string(),
 
@@ -63,19 +62,6 @@ impl ObjProperties {
         }
     }
 
-    // An ent which is ignored when it exists in the map.
-    pub fn placeholder() -> ObjProperties {
-        ObjProperties::invalid()
-    }
-
-    // Default values for fields not used in a particular ent type.
-    #[allow(dead_code)]
-    pub fn empty() -> ObjProperties {
-        ObjProperties {
-            ..ObjProperties::invalid()
-        }
-    }
-
     pub fn assets_path() -> String {
         "imgs/".to_string()
     }
@@ -84,7 +70,7 @@ impl ObjProperties {
     pub fn new_tex(tex_path: &str) -> ObjProperties {
         ObjProperties {
             tex_paths: vec![Self::assets_path() + tex_path],
-            ..ObjProperties::invalid()
+            ..ObjProperties::defaults()
         }
     }
 
@@ -92,7 +78,7 @@ impl ObjProperties {
         ObjProperties {
             tex_paths: vec![Self::assets_path() + tex_path],
             fill: Some(fill),
-            ..ObjProperties::invalid()
+            ..ObjProperties::defaults()
         }
     }
 
@@ -107,14 +93,14 @@ impl ObjProperties {
             // TODO: Consider whether simpler for caller to offer wildcard like "FishB*.png"
             // TODO: Consider where to specify path to imgs? Here? As part of levset?
             tex_paths: tex_paths.iter().map(|x| Self::assets_path() + x).collect(),
-            ..ObjProperties::invalid()
+            ..ObjProperties::defaults()
         }
     }
 
     pub fn new_col(fill: Color) -> ObjProperties {
         ObjProperties {
             fill: Some(fill),
-            ..ObjProperties::invalid()
+            ..ObjProperties::defaults()
         }
     }
 
@@ -122,7 +108,7 @@ impl ObjProperties {
         ObjProperties {
             fill: Some(fill),
             border: Some(outline),
-            ..ObjProperties::invalid()
+            ..ObjProperties::defaults()
         }
     }
 
@@ -131,7 +117,7 @@ impl ObjProperties {
             text: Some(text),
             fill,
             text_col,
-            ..ObjProperties::invalid()
+            ..ObjProperties::defaults()
         }
     }
 
