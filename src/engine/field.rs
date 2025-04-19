@@ -79,7 +79,7 @@ impl Field {
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.
-        self.map[self.roster.hero].prev_pos = self.map[self.roster.hero].curr_pos;
+        self.obj_props_m(self.roster.hero_hdl()).prev_pos = self.obj_props(self.roster.hero_hdl()).curr_pos;
 
         move_mov(self, self.rich_hero(), cmd)?;
 
@@ -237,34 +237,6 @@ struct InternalMap {
     locs: Vec<Vec<Loc>>,
 }
 
-impl Index<ObjMapRef> for InternalMap {
-    type Output = Obj;
-
-    fn index(&self, pos: ObjMapRef) -> &Self::Output {
-        &self.locs[pos.x as usize][pos.y as usize].0[pos.h as usize]
-    }
-}
-
-impl IndexMut<ObjMapRef> for InternalMap {
-    fn index_mut(&mut self, pos: ObjMapRef) -> &mut Self::Output {
-        &mut self.locs[pos.x as usize][pos.y as usize].0[pos.h as usize]
-    }
-}
-
-impl std::fmt::Debug for InternalMap {
-    #[try_fn]
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
-        write!(f, "Map[")?;
-        for (x, y, loc) in self.locs() {
-            loc.map_fmt(f)?;
-            if x ==0 && y > 0 {
-                write!(f, "|")?;
-            }
-        }
-        write!(f, "]")?;
-    }
-}
-
 // TODO: at_ and loc_at_ etc fns only used in this file. Simplify what they should be?
 impl InternalMap {
     pub fn new(w: u16, h: u16) -> InternalMap {
@@ -314,6 +286,34 @@ impl InternalMap {
             y: -1,
             map: &self,
         }
+    }
+}
+
+impl Index<ObjMapRef> for InternalMap {
+    type Output = Obj;
+
+    fn index(&self, pos: ObjMapRef) -> &Self::Output {
+        &self.locs[pos.x as usize][pos.y as usize].0[pos.h as usize]
+    }
+}
+
+impl IndexMut<ObjMapRef> for InternalMap {
+    fn index_mut(&mut self, pos: ObjMapRef) -> &mut Self::Output {
+        &mut self.locs[pos.x as usize][pos.y as usize].0[pos.h as usize]
+    }
+}
+
+impl std::fmt::Debug for InternalMap {
+    #[try_fn]
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        write!(f, "Map[")?;
+        for (x, y, loc) in self.locs() {
+            loc.map_fmt(f)?;
+            if x ==0 && y > 0 {
+                write!(f, "|")?;
+            }
+        }
+        write!(f, "]")?;
     }
 }
 
@@ -430,15 +430,23 @@ impl Roster {
         }
     }
 
+    pub fn hero_hdl(&self) -> RosterHandle {
+        RosterHandle { ros_idx: 100 }
+    }
+
+    pub fn non_mov_handle(&self) -> RosterHandle {
+        RosterHandle { ros_idx: 98 }
+    }
+
     fn add_to_roster_if_mov(&mut self, objmapref: ObjMapRef, placed_obj: &Obj) -> RosterHandle {
         if placed_obj.is_hero() {
             self.hero = objmapref;
-            RosterHandle { ros_idx: 100 }
+            self.hero_hdl()
         } else if placed_obj.is_mob() {
             self.movs.push(objmapref);
             RosterHandle { ros_idx: self.movs.len()-1 }
         } else {
-            RosterHandle { ros_idx: 98 }
+            self.non_mov_handle()
         }
     }
 }
