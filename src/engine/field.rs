@@ -78,7 +78,7 @@ impl Field {
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.
-        self.hero().prev_pos = self.hero().curr_pos;
+        self.hero_backref().prev_pos = self.hero_backref().curr_pos;
 
         move_mov(self, Roster::hero_handle(), cmd)?;
 
@@ -87,7 +87,7 @@ impl Field {
             // Going through tmp is necessary to avoid two dynamic borrows at the same time..
             // NOTE: If map is RefCell needs to be done in two steps else runtime panic.
             // NOTE: And obj_at() is also incompatible with RefCell.
-            self.objm(rich_mov).prev_pos = self.obj_pos(rich_mov);
+            self.backref(rich_mov).prev_pos = self.obj_pos(rich_mov);
 
             move_mov(self, rich_mov, cmd)?;
         }
@@ -114,17 +114,12 @@ impl Field {
     {
         let objmapref = self.put_obj_in_map_and_return_updated_objmapref(x, y, orig_obj);
         // TODO: Can't pass obj to add_to_roster. For now used ai value. Could try obj as plain value, not borrow??
-        self.at_ref_m(objmapref).curr_roster_handle = self.roster.add_to_roster_if_mov(objmapref, self.at_ref(objmapref).ai);
+        self.backref_at_ref_m(objmapref).curr_roster_handle = self.roster.add_to_roster_if_mov(objmapref, self.at_ref(objmapref).ai);
     }
 
     /// Move obj to a new location.
     ///
-    /// Handles placeholder objects to keep height of objects consistent with
-    /// handles. Hope to get rid of that if handle's location is stored only
-    /// in roster.
-    ///
-    /// Update roster (actually not needed?), obj.curr_pos and obj.prev_pos.
-    // NOTE: The logic for maintaining ros indexes for multiple movs in one loc is still untested.
+    /// Update roster, obj.curr_pos and obj.prev_pos. Still untested for multiple movs.
     pub fn move_obj_to(&mut self, roster_hdl: RosterHandle, pos: MapCoord) {
         let objmapref = self.roster[roster_hdl];
         let origin_pos = objmapref.pos();
@@ -133,10 +128,13 @@ impl Field {
 
         // For each other object in location, update objmapref in roster with changed height.
         for h in objmapref.h+1..self.map[origin_pos].len() as u16 {
-            self.roster[self.map[origin_pos][h as usize].curr_roster_handle].h = h;
+            let other_roster_hdl = self.backref_at_ref(ObjMapRef {x: origin_pos.x, y: origin_pos.y, h}).curr_roster_handle;
+            self.roster[other_roster_hdl].h = h;
         }
 
-        let obj = Obj {prev_pos: objmapref.pos(), ..orig_obj};
+        // TODO: Put in assert that put_obj_in_map_and_return_updated_objmapref updates prev_pos as expected.
+        // let obj = Obj {prev_pos: objmapref.pos(), ..orig_obj};
+        let obj = orig_obj.clone();
 
         // Add Ent to top of stack at new map coords. Updates roster hdl to match new height.
         self.roster[roster_hdl] = self.put_obj_in_map_and_return_updated_objmapref(pos.x, pos.y, obj);
@@ -149,16 +147,19 @@ impl Field {
     /// All obj placement and movement goes through spawn_at or move_obj_to, then this fn.
     fn put_obj_in_map_and_return_updated_objmapref(&mut self, x: i16, y:i16, orig_obj: Obj) -> ObjMapRef {
         let new_curr_pos = MapCoord::from_xy(x, y);
-        let obj_ref = ObjMapRef { x, y, h: self.map[new_curr_pos].len() as u16 };
-        let prev_pos = if orig_obj.curr_pos.x >=0 { orig_obj.curr_pos } else {new_curr_pos};
+        let new_obj_ref = ObjMapRef { x, y, h: self.map[new_curr_pos].len() as u16 };
+        let prev_pos = if orig_obj.backref.as_ref().unwrap().curr_pos.is_valid() { orig_obj.backref.as_ref().unwrap().curr_pos } else {new_curr_pos};
         self.map[new_curr_pos].objs_m().push(
             Obj {
-                curr_pos: new_curr_pos,
-                prev_pos,
-                ..orig_obj
+                backref: Some(super::obj::MapBackref {
+                    curr_roster_handle: orig_obj.backref.as_ref().unwrap().curr_roster_handle,
+                    curr_pos: new_curr_pos,
+                    prev_pos,
+                }),
+               ..orig_obj
             }
         );
-        obj_ref
+        new_obj_ref
     }
 
     // TODO: Could have a dummy intermediate class self.ref[objmapref]
@@ -170,8 +171,21 @@ impl Field {
         &mut self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
     }
 
+    fn backref_at_ref(&self, objmapref: ObjMapRef) -> &super::obj::MapBackref {
+        self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize].backref.as_ref().unwrap()
+    }
+
+    fn backref_at_ref_m(&mut self, objmapref: ObjMapRef) -> &mut super::obj::MapBackref {
+        self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize].backref.as_mut().unwrap()
+    }
+
+    #[allow(dead_code)]
     pub fn hero(&mut self) -> &mut Obj {
         self.objm(Roster::hero_handle())
+    }
+
+    pub fn hero_backref(&mut self) -> &mut super::obj::MapBackref {
+        self.objm(Roster::hero_handle()).backref.as_mut().unwrap()
     }
 
     pub fn hero_pos(&self) -> MapCoord {
@@ -184,6 +198,10 @@ impl Field {
 
      pub fn objm(&mut self, roster_handle: RosterHandle) -> &mut Obj {
         self.at_ref_m(self.roster[roster_handle])
+     }
+
+     pub fn backref(&mut self, roster_handle: RosterHandle) -> &mut super::obj::MapBackref {
+        self.at_ref_m(self.roster[roster_handle]).backref.as_mut().unwrap()
      }
 
       pub fn obj_pos(&self, roster_hdl: RosterHandle) -> MapCoord {

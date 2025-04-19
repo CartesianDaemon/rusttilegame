@@ -6,21 +6,24 @@ use crate::scripts::*;
 
 use macroquad::prelude::*;
 
+/// Information about an object currently in the map
+///
+/// Maybe should move into field.rs.
+///
+/// Maybe field should store this separately to obj.
+#[derive(Clone, Debug)]
+pub struct MapBackref {
+    pub curr_roster_handle: RosterHandle,
+    pub curr_pos: MapCoord,
+    pub prev_pos: MapCoord,
+}
+
 /// Anything tile-sized and drawable including floor, wall, object, being.
 /// TODO: Could have a separate "Object in map" or "active object" representation in map?
 #[derive(Clone, Debug)]
-#[allow(dead_code)]
+//#[allow(dead_code)]
 pub struct Obj {
-    // RichMapHandle is necessary to update object. Needs api?
-    // Invalid is only used before placing in map?
-    // TODO: Consider moving curr_handle, curr_pos, prev_pos into a sister struct in Field,
-    //       only used by objs which are actually in the map.
-    pub curr_roster_handle: RosterHandle,
-
-    // curr_pos and prev_pos should only be informative. Kept up to date by field. Needs api?
-    // Invalid is only used before placing in map? (And for placeholders for heights?)
-    pub curr_pos: MapCoord,
-    pub prev_pos: MapCoord,
+    pub backref: Option<MapBackref>,
 
     /// String representation of object, used internally for debug fmt etc.
     pub name: String,
@@ -59,9 +62,11 @@ impl Obj {
     // An unitialised ent
     pub fn invalid() -> Obj {
         Obj {
-            curr_roster_handle: RosterHandle::invalid(),
-            curr_pos: MapCoord::invalid(),
-            prev_pos: MapCoord::from_xy(-1, -1),
+            backref: Some(MapBackref {
+                curr_roster_handle: RosterHandle::invalid(),
+                curr_pos: MapCoord::invalid(),
+                prev_pos: MapCoord::from_xy(-1, -1),
+            }),
 
             name: "????".to_string(),
 
@@ -94,7 +99,7 @@ impl Obj {
     }
 
     pub fn is_placeholder(&self) -> bool {
-        self.curr_pos == MapCoord::invalid()
+        self.backref.as_ref().unwrap().curr_pos.is_invalid()
     }
 
     pub fn assets_path() -> String {

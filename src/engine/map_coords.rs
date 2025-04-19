@@ -35,6 +35,15 @@ impl MapCoord {
         }
     }
 
+    pub fn is_valid(&self) -> bool {
+        // Used to detect placeholder values. We should be able to remove this.
+        self.x >= 0
+    }
+
+    pub fn is_invalid(&self) -> bool {
+        !self.is_valid()
+    }
+
     pub fn from_xy(x: i16, y: i16) -> MapCoord {
         MapCoord {x, y}
     }
