@@ -7,7 +7,6 @@
 // These are also used by level data files, even though
 // they don't need any of the indexing.
 
-use std::mem;
 use std::collections::HashMap;
 use std::ops::Index;
 use std::ops::IndexMut;
@@ -128,29 +127,14 @@ impl Field {
     ///
     /// TODO: Second half of function is a bit old, could be updated.
     pub fn move_obj_to(&mut self, roster_hdl: RosterHandle, pos: MapCoord) {
-        let objmapref = &mut self.roster[roster_hdl.ros_idx];
+        let objmapref = self.roster[roster_hdl.ros_idx];
 
-        let on_top = objmapref.h as usize == self.map.ents_at_objmapref(*objmapref).len();
+        let orig_obj = self.map.ents_at_objmapref_m(objmapref).swap_remove(objmapref.h as usize);
 
-        let orig_obj = if on_top {
-            // Pop ent from top of stack.
-            self.map.at_objmaoref_m(*objmapref).pop().unwrap()
-        } else {
-            // Replace ent with a placeholder type ignored by render and gameplay.
-            // This keeps height coords of other ents valid.
-            // ENH: Can we update the other objects here and do away with placeholder?
-            // Would need to update Roster in sync.
-            mem::replace(&mut self.map[*objmapref], Obj::placeholder())
-        };
+        // AND: Update h for all remaining ents
+        // NOTE: This logic is still untested.
 
         let obj = Obj {prev_pos: objmapref.pos(), ..orig_obj};
-
-        // Remove any placeholders now at the top of the stack. Should only happen
-        // if we popped ent from on top of them.
-        while !self.map.ents_at_objmapref(*objmapref).is_empty() &&
-            self.map.ents_at_objmapref(*objmapref).last().unwrap().is_placeholder() {
-            self.map.at_objmaoref_m(*objmapref).pop();
-        }
 
         // Add Ent to top of stack at new map coords. Updates roster hdl to match new height.
         self.roster[roster_hdl.ros_idx] = self.put_obj_in_map_and_return_updated_objmapref(pos.x, pos.y, obj);
@@ -165,7 +149,7 @@ impl Field {
         let new_curr_pos = MapCoord::from_xy(x, y);
         let obj_ref = ObjMapRef { x, y, h: self.map.ents_at_xy(x, y).len() as u16 };
         let prev_pos = if orig_obj.curr_pos.x >=0 { orig_obj.curr_pos } else {new_curr_pos};
-        self.map.at_xym(x, y).push(
+        self.map.ents_at_xym(x, y).push(
             Obj {
                 curr_pos: new_curr_pos,
                 prev_pos,
@@ -263,17 +247,13 @@ impl InternalMap {
         &self.loc_at(MapCoord::from_xy(x, y)).0
     }
 
-    pub fn ents_at_objmapref(&self, pos: ObjMapRef) -> &Vec<Obj> {
-        &self.loc_at(pos.pos()).0
-    }
-
     // As "at" but mutably
-    pub fn at_objmaoref_m(&mut self, pos: ObjMapRef) -> &mut Vec<Obj> {
+    pub fn ents_at_objmapref_m(&mut self, pos: ObjMapRef) -> &mut Vec<Obj> {
         &mut self.locs[pos.x as usize][pos.y as usize].0
     }
 
     // As "at" but mutably
-    pub fn at_xym(&mut self, x: i16, y: i16) -> &mut Vec<Obj> {
+    pub fn ents_at_xym(&mut self, x: i16, y: i16) -> &mut Vec<Obj> {
         &mut self.locs[x as usize][y as usize].0
     }
 
