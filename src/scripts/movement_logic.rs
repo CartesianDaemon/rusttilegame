@@ -98,30 +98,22 @@ pub fn move_mov_refactored(field: &mut Field, rich_mov: RichMapHandle) -> SceneE
                 return SceneEnding::NextScene(Continuation::PlayDie);
             }
         },
-        _ => {
-        }
-    }
-    return SceneEnding::ContinuePlaying;
-}
-
-pub fn move_mov(map: &mut InternalMap, hero: &MapHandle, mov: &mut MapHandle) -> SceneEnding {
-    match map[*mov].ai {
         AI::Scuttle => {
             // If hitting wall, choose new direction.
-            if map.loc_at(*mov + map[*mov].dir).impassable() {
-                let dx_to_hero = hero.x - mov.x;
-                let dy_to_hero = hero.y - mov.y;
+            if impassable(field, field.obj_target_pos(rich_mov)) {
+                let hero_dir = field.obj_pos(rich_mov).dir_to(field.obj_pos(field.rich_hero()));
+                let hero_delta = field.obj_pos(rich_mov).delta_to(field.obj_pos(field.rich_hero()));
                 // Find whether x or y is more towards the hero
-                let x_longer_than_y = match dx_to_hero.abs() - dy_to_hero.abs() {
+                let x_longer_than_y = match hero_delta.dx.abs() - hero_delta.dy.abs() {
                     num if num > 0 => true,
                     num if num < 0 => false,
-                    _ => map[*mov].dir.dy.abs() < map[*mov].dir.dy.abs(),
+                    _ => field.obj_props(rich_mov).dir.dy.abs() < field.obj_props(rich_mov).dir.dy.abs(),
                 };
                 // dlongcoord is the orthogonal direction most towards the hero. dshortcoord is the other best.
                 let (dlongcoord, dshortcoord) = if x_longer_than_y {
-                    (CoordDelta::from_xy(dx_to_hero.signum(), 0), CoordDelta::from_xy(0, dy_to_hero.signum()))
+                    (CoordDelta::from_xy(hero_dir.dx, 0), CoordDelta::from_xy(0, hero_dir.dy))
                 } else {
-                    (CoordDelta::from_xy(0, dy_to_hero.signum()), CoordDelta::from_xy(dx_to_hero.signum(), 0))
+                    (CoordDelta::from_xy(0, hero_dir.dy), CoordDelta::from_xy(hero_dir.dx, 0))
                 };
                 // Prefer the directions "most" towards the hero first
                 let try_dirs = vec![dlongcoord, dshortcoord, -dshortcoord, -dlongcoord];
@@ -129,24 +121,28 @@ pub fn move_mov(map: &mut InternalMap, hero: &MapHandle, mov: &mut MapHandle) ->
                 // Can't be the same as original direction because that was impassable.
                 // If none are passable, stay in the same direction we started.
                 if let Some(dir) = try_dirs.iter().find(|dir|
-                    map.loc_at(*mov + **dir).passable()
+                    passable(field, field.obj_pos(rich_mov) + **dir)
                 ) {
-                    map[*mov].dir = *dir;
+                    field.obj_props_m(rich_mov).dir = *dir;
                 }
             }
 
             // Move. Provided next space is passable. If all sides were impassable, don't move.
-            if map.loc_at(*mov + map[*mov].dir).passable() {
-                map.obj_move_delta(mov, map[*mov].dir);
+            if passable(field, field.obj_target_pos(rich_mov)) {
+                field.obj_move_to_refactored(rich_mov, field.obj_pos(rich_mov) + field.obj_props(rich_mov).dir);
             }
 
             // Hero dies if bot moves onto hero
-            if map[*mov].effect == Effect::Kill {
-                if mov.x == hero.x && mov.y == hero.y {
-                    return SceneEnding::NextScene(Continuation::PlayDie);
-                }
+            if field.obj_props(rich_mov).effect == Effect::Kill && field.obj_pos(rich_mov) == field.obj_pos(field.rich_hero()) {
+                return SceneEnding::NextScene(Continuation::PlayDie);
             }
         },
+    }
+    return SceneEnding::ContinuePlaying;
+}
+
+pub fn move_mov(map: &mut InternalMap, hero: &MapHandle, mov: &mut MapHandle) -> SceneEnding {
+    match map[*mov].ai {
         _ => {}
     }
     return SceneEnding::ContinuePlaying;

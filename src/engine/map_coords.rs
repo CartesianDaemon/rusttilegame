@@ -32,6 +32,10 @@ impl MapCoord {
         MapCoord {x, y}
     }
 
+    pub fn delta_to(self, target: MapCoord) -> CoordDelta {
+        CoordDelta { dx: target.x - self.x, dy: target.y - self.y }
+    }
+
     pub fn dir_to(self, target: MapCoord) -> CoordDelta {
         CoordDelta { dx: (target.x - self.x).signum(), dy: (target.y - self.y).signum() }
     }
