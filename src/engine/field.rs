@@ -9,7 +9,6 @@
 
 use std::mem;
 use std::collections::HashMap;
-use std::ops::Add;
 use std::ops::Index;
 use std::ops::IndexMut;
 
@@ -402,14 +401,6 @@ impl ObjRef
 
     pub fn pos(self: ObjRef) -> MapCoord {
         MapCoord { x: self.x, y: self.y}
-    }
-}
-
-// TODO: Can we remove this? And "use Add".
-impl Add<CoordDelta> for ObjRef {
-    type Output = MapCoord;
-    fn add(self, delta: CoordDelta) -> MapCoord {
-        MapCoord { x: self.x + delta.dx, y: self.y + delta.dy }
     }
 }
 
