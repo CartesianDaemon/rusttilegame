@@ -481,15 +481,15 @@ impl Loc {
     }
 
     pub fn any_effect(&self, sought_effect: Effect) -> bool {
-        self.iter().any(|x| x.effect == sought_effect)
+        self.0.iter().any(|x| x.effect == sought_effect)
     }
 
     pub fn any_pass(&self, sought_pass: Pass) -> bool {
-        self.iter().any(|x| x.pass == sought_pass)
+        self.0.iter().any(|x| x.pass == sought_pass)
     }
 
     pub fn all_pass(&self, sought_pass: Pass) -> bool {
-        self.iter().all(|x| x.pass == sought_pass)
+        self.0.iter().all(|x| x.pass == sought_pass)
     }
 
     fn map_fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
@@ -499,11 +499,7 @@ impl Loc {
         write!(f, ";")
     }
 
-    pub fn iter(&self) -> std::slice::Iter<'_,Obj> {
-        self.0.iter()
-    }
-
-    /// Or implement SliceIndex?
+    /// Only used by render() when unsure about height?
     pub fn get(&self, idx: usize) -> Option<&Obj> {
         self.0.get(idx)
     }
@@ -536,10 +532,9 @@ impl<'a> IntoIterator for &'a Loc {
     type IntoIter = <&'a Vec<Obj> as IntoIterator>::IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.iter()
+        self.0.iter()
     }
 }
-
 
 impl Index<usize> for Loc {
     type Output = Obj;
