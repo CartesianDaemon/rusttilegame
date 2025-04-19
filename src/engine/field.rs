@@ -78,9 +78,9 @@ impl Field {
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.
-        self.obj_props_m(self.roster.hero_hdl()).prev_pos = self[self.roster.hero_hdl()].curr_pos;
+        self.obj_props_m(Roster::hero_handle()).prev_pos = self[Roster::hero_handle()].curr_pos;
 
-        move_mov(self, self.rich_hero(), cmd)?;
+        move_mov(self, self.hero_handle(), cmd)?;
 
         for rich_mov in self.roster.all_movs() {
             // Before movement, reset "prev". Will be overwritten if movement happens.
@@ -170,8 +170,8 @@ impl Field {
         &mut self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
     }
 
-    pub fn rich_hero(&self) -> RosterHandle {
-        RosterHandle { ros_idx: 100 }
+    pub fn hero_handle(&self) -> RosterHandle {
+        Roster::hero_handle()
     }
 
     pub fn obj_props(&self, roster_hdl: RosterHandle) -> &Obj {
@@ -410,11 +410,11 @@ impl Roster {
         }
     }
 
-    pub fn hero_hdl(&self) -> RosterHandle {
+    pub fn hero_handle() -> RosterHandle {
         RosterHandle { ros_idx: 100 }
     }
 
-    pub fn non_mov_handle(&self) -> RosterHandle {
+    pub fn non_mov_handle() -> RosterHandle {
         RosterHandle { ros_idx: 98 }
     }
 
@@ -426,12 +426,12 @@ impl Roster {
     fn add_to_roster_if_mov(&mut self, objmapref: ObjMapRef, ai: AI) -> RosterHandle {
         if Obj::is_hero(ai) {
             self.hero = objmapref;
-            self.hero_hdl()
+            Self::hero_handle()
         } else if Obj::is_mob(ai) {
             self.movs.push(objmapref);
             RosterHandle { ros_idx: self.movs.len() as u16 - 1 }
         } else {
-            self.non_mov_handle()
+            Self::non_mov_handle()
         }
     }
 }
