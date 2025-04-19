@@ -103,9 +103,13 @@ impl Field {
 
     /// Spawn new object.
     ///
-    /// Internally adds it to the map, and to the roster if its animate.
+    /// Internally adds it to the map and roster.
+    ///
+    /// NOTE: Objects are put in map by place_obj_at and move_obj_to. They need to maintain
+    ///       consistency of roster, roster_handle, prev_pos, curr_pos for all objects.
     pub fn spawn_obj_at(&mut self, x: i16, y:i16, props: ObjProperties)
     {
+        let pos = MapCoord::from_xy(x, y);
         let orig_obj = Obj {
             backref: MapBackref {
                 curr_roster_handle: RosterHandle { ros_idx: 99 },
@@ -115,16 +119,13 @@ impl Field {
             props,
         };
         let objmapref = {
-            let this = &mut *self;
-            let new_curr_pos = MapCoord::from_xy(x, y);
-            let new_obj_ref = ObjMapRef { x: x, y: y, h: this.map[new_curr_pos].len() as u16 };
-            let prev_pos = if false { orig_obj.backref.curr_pos } else {new_curr_pos};
-            this.map[new_curr_pos].objs_m().push(
+            let new_obj_ref = ObjMapRef { x: x, y: y, h: self.map[pos].len() as u16 };
+            self.map[pos].objs_m().push(
                 Obj {
                     backref: MapBackref {
                         curr_roster_handle: orig_obj.backref.curr_roster_handle,
-                        curr_pos: new_curr_pos,
-                        prev_pos,
+                        curr_pos: pos,
+                        prev_pos: pos,
                     },
                    props: orig_obj.props,
                 }
@@ -140,22 +141,22 @@ impl Field {
     ///
     /// Update roster, obj.curr_pos and obj.prev_pos. Still untested for multiple movs.
     pub fn move_obj_to(&mut self, roster_hdl: RosterHandle, target_pos: MapCoord) {
-        let objmapref = self.roster[roster_hdl];
-        let orig_pos = objmapref.pos();
+        let orig_pos = self.roster[roster_hdl].pos();
+        let orig_h = self.roster[roster_hdl].h;
 
-        let orig_obj = self.map[orig_pos].objs_m().swap_remove(objmapref.h as usize);
+        // Remove object from previous map location.
+        let obj = self.map[orig_pos].objs_m().remove(orig_h as usize);
 
-        // For each other object in location, update objmapref in roster with changed height.
-        for h in objmapref.h+1..self.map[orig_pos].len() as u16 {
+        // For each other object in location, update its objmapref in roster with changed height.
+        for h in orig_h+1..self.map[orig_pos].len() as u16 {
             let other_roster_hdl = self.backref_at_ref(ObjMapRef {x: orig_pos.x, y: orig_pos.y, h}).curr_roster_handle;
             self.roster[other_roster_hdl].h = h;
         }
 
         // TODO: Put in assert that put_obj_in_map_and_return_updated_objmapref updates prev_pos as expected.
-        // let obj = Obj {prev_pos: objmapref.pos(), ..orig_obj};
-        let obj = orig_obj.clone();
+        // let obj = Obj {prev_pos: objmapref.pos(), ..obj};
 
-        // Add Ent to top of stack at new map coords.
+        // Add object to top of stack at new map location.
         self.map[target_pos].objs_m().push(
             Obj {
                 backref: MapBackref {
@@ -167,7 +168,7 @@ impl Field {
             }
         );
 
-        // Updates roster hdl to match new height.
+        // Update roster hdl to match new position and height.
         self.roster[roster_hdl].x = target_pos.x;
         self.roster[roster_hdl].y = target_pos.y;
         self.roster[roster_hdl].h = self.map[target_pos].len() as u16 -1;
