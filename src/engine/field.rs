@@ -106,19 +106,18 @@ impl Field {
     /// Internally adds it to the map, and to the roster if its animate.
     pub fn spawn_obj_at(&mut self, x: i16, y:i16, props: ObjProperties)
     {
-        // TODO: These are overwritten almost immediately. Can we avoid placeholders?
-        //       Split up what we pass to put_obj_in_map_and_return_updated_objmapref to pass Option?
         let orig_obj = Obj {
             backref: MapBackref {
-                curr_roster_handle: RosterHandle{ ros_idx: 99},
+                curr_roster_handle: RosterHandle { ros_idx: 99 },
                 curr_pos: MapCoord{ x: -1, y: -1},
                 prev_pos: MapCoord{ x: -1, y: -1},
             },
             props,
         };
         let objmapref = self.put_obj_in_map_and_return_updated_objmapref(x, y, orig_obj, false);
+        let new_roster_handle = self.roster.get_next_roster_handle(self.props_at_ref(objmapref).ai);
         // TODO: Can't pass obj to add_to_roster. For now used ai value. Could try obj as plain value, not borrow??
-        self.backref_at_ref_m(objmapref).curr_roster_handle = self.roster.add_to_roster_if_mov(objmapref, self.props_at_ref(objmapref).ai);
+        self.roster.add_to_roster_if_mov(new_roster_handle, objmapref);
     }
 
     /// Move obj to a new location.
@@ -444,15 +443,27 @@ impl Roster {
         (0..self.movs.len() as u16).into_iter().map(|ros_idx| RosterHandle { ros_idx } ).collect()
     }
 
-    fn add_to_roster_if_mov(&mut self, objmapref: ObjMapRef, ai: AI) -> RosterHandle {
+    // Returns handle for an object which is about to be added to the roster.
+    fn get_next_roster_handle(&self, ai: AI) -> RosterHandle {
         if ObjProperties::is_hero(ai) {
-            self.hero = objmapref;
             Self::hero_handle()
         } else if ObjProperties::is_mob(ai) {
-            self.movs.push(objmapref);
-            RosterHandle { ros_idx: self.movs.len() as u16 - 1 }
+            RosterHandle { ros_idx: self.movs.len() as u16 }
         } else {
             Self::non_mov_handle()
+        }
+    }
+
+    // Adds a moveable object to the roster. Must use a handle given by get_next_roster_handle().
+    fn add_to_roster_if_mov(&mut self, next_roster_handle: RosterHandle, objmapref: ObjMapRef) {
+        if next_roster_handle == Self::hero_handle() {
+            self.hero = objmapref;
+        } else if next_roster_handle.ros_idx < 98 {
+            assert!(next_roster_handle.ros_idx as usize == self.movs.len());
+            self.movs.push(objmapref);
+        } else if next_roster_handle == Self::non_mov_handle() {
+        } else {
+            panic!("Unexpected value in new_roster_handle: {}", next_roster_handle.ros_idx);
         }
     }
 }
