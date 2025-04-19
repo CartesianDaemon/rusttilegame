@@ -114,7 +114,7 @@ impl Field {
     {
         let objmapref = self.put_obj_in_map_and_return_updated_objmapref(x, y, orig_obj);
         // TODO: Borrowing in lines like this are the challenge for folding map and roster into field.
-        self.map.at_ref_m(objmapref).curr_roster_handle = self.roster.add_to_roster_if_mov(objmapref, &self.map.at_ref(objmapref))
+        self.map[objmapref].curr_roster_handle = self.roster.add_to_roster_if_mov(objmapref, &self.map[objmapref])
     }
 
     /// Move obj to a new location.
@@ -166,11 +166,11 @@ impl Field {
     }
 
     pub fn obj_props(&self, roster_hdl: RosterHandle) -> &Obj {
-        &self.map.at_ref(self.roster[roster_hdl])
+        &self.map[self.roster[roster_hdl]]
     }
 
     pub fn obj_props_m(&mut self, roster_hdl: RosterHandle) -> &mut Obj {
-        self.map.at_ref_m(self.roster[roster_hdl])
+        &mut self.map[self.roster[roster_hdl]]
     }
 
     pub fn obj_pos(&self, roster_hdl: RosterHandle) -> MapCoord {
@@ -213,17 +213,17 @@ impl Field {
     }
 }
 
-impl Index<ObjMapRef> for Field {
+impl Index<ObjMapRef> for InternalMap {
     type Output = Obj;
 
     fn index(&self, objmapref: ObjMapRef) -> &Self::Output {
-        &self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
+        &self.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
     }
 }
 
-impl IndexMut<ObjMapRef> for Field {
+impl IndexMut<ObjMapRef> for InternalMap {
     fn index_mut(&mut self, objmapref: ObjMapRef) -> &mut Self::Output {
-        &mut self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
+        &mut self.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
     }
 }
 
@@ -249,16 +249,6 @@ impl InternalMap {
 
     pub fn h(&self) -> u16 {
         self.locs[0].len() as u16
-    }
-
-    // TODO: Could replace these functions with a Index impl on Field.
-    // TODO: And if so, could subsume obj_props with that?
-    pub fn at_ref(&self, objmapref: ObjMapRef) -> &Obj {
-        &self.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
-    }
-
-    pub fn at_ref_m(&mut self, objmapref: ObjMapRef) -> &mut Obj {
-        &mut self.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
     }
 
     pub fn locs(&self) -> LocIterator {
