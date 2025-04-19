@@ -19,7 +19,7 @@ pub fn move_mov(field: &mut Field, rich_mov: RichMapHandle, cmd: Cmd) -> SceneEn
             if cmd != Cmd::Stay {
                 let target_pos = field.obj_pos(rich_mov) + cmd.as_dir();
                 if passable(field, target_pos) {
-                    field.obj_move_to(rich_mov, target_pos);
+                    field.move_obj_to(rich_mov, target_pos);
                 }
             }
             // TODO: Avoid needing to re-get the hero handle, make move function consume or update the rich_mov handle.
@@ -46,7 +46,7 @@ pub fn move_mov(field: &mut Field, rich_mov: RichMapHandle, cmd: Cmd) -> SceneEn
             // TODO: Consider adding field.obj_try_move() function?
             let target_pos = field.obj_pos(rich_mov) + field.obj_props(rich_mov).dir;
             if passable(field, target_pos) {
-                field.obj_move_to(rich_mov, target_pos);
+                field.move_obj_to(rich_mov, target_pos);
             }
 
             // Hero dies if mov moves onto hero
@@ -84,7 +84,7 @@ pub fn move_mov(field: &mut Field, rich_mov: RichMapHandle, cmd: Cmd) -> SceneEn
             // TODO: Animation for turning? At least avoiding wall?
             let delta = field.obj_props(rich_mov).dir + drift_dir;
             if passable(field, field.obj_pos(rich_mov) + delta) {
-                field.obj_move_to(rich_mov, field.obj_pos(rich_mov) + delta);
+                field.move_obj_to(rich_mov, field.obj_pos(rich_mov) + delta);
             }
 
             // Hero dies if mov moves onto hero
@@ -123,7 +123,7 @@ pub fn move_mov(field: &mut Field, rich_mov: RichMapHandle, cmd: Cmd) -> SceneEn
 
             // Move. Provided next space is passable. If all sides were impassable, don't move.
             if passable(field, field.obj_target_pos(rich_mov)) {
-                field.obj_move_to(rich_mov, field.obj_pos(rich_mov) + field.obj_props(rich_mov).dir);
+                field.move_obj_to(rich_mov, field.obj_pos(rich_mov) + field.obj_props(rich_mov).dir);
             }
 
             // Hero dies if bot moves onto hero
