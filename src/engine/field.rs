@@ -114,7 +114,7 @@ impl Field {
     {
         let objmapref = self.put_obj_in_map_and_return_updated_objmapref(x, y, orig_obj);
         // TODO: Borrowing in lines like this are the challenge for folding map and roster into field.
-        self.map[objmapref].curr_roster_handle = self.roster.add_to_roster_if_mov(objmapref, &self.map[objmapref])
+        self.map.at_ref_m(objmapref).curr_roster_handle = self.roster.add_to_roster_if_mov(objmapref, &self.map.at_ref(objmapref))
     }
 
     /// Move obj to a new location.
@@ -166,11 +166,11 @@ impl Field {
     }
 
     pub fn obj_props(&self, roster_hdl: RosterHandle) -> &Obj {
-        &self.map[self.roster[roster_hdl]]
+        &self.map.at_ref(self.roster[roster_hdl])
     }
 
     pub fn obj_props_m(&mut self, roster_hdl: RosterHandle) -> &mut Obj {
-        &mut self.map[self.roster[roster_hdl]]
+        self.map.at_ref_m(self.roster[roster_hdl])
     }
 
     pub fn obj_pos(&self, roster_hdl: RosterHandle) -> MapCoord {
@@ -238,6 +238,16 @@ impl InternalMap {
         self.locs[0].len() as u16
     }
 
+    // TODO: Could replace these functions with a Index impl on Field.
+    // TODO: And if so, could subsume obj_props with that?
+    pub fn at_ref(&self, objmapref: ObjMapRef) -> &Obj {
+        &self.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
+    }
+
+    pub fn at_ref_m(&mut self, objmapref: ObjMapRef) -> &mut Obj {
+        &mut self.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
+    }
+
     pub fn loc_at(&self, pos: MapCoord) -> &Loc {
         &self.locs[pos.x as usize][pos.y as usize]
     }
@@ -254,20 +264,6 @@ impl InternalMap {
             y: -1,
             map: &self,
         }
-    }
-}
-
-impl Index<ObjMapRef> for InternalMap {
-    type Output = Obj;
-
-    fn index(&self, pos: ObjMapRef) -> &Self::Output {
-        &self.locs[pos.x as usize][pos.y as usize][pos.h as usize]
-    }
-}
-
-impl IndexMut<ObjMapRef> for InternalMap {
-    fn index_mut(&mut self, pos: ObjMapRef) -> &mut Self::Output {
-        &mut self.locs[pos.x as usize][pos.y as usize][pos.h as usize]
     }
 }
 
