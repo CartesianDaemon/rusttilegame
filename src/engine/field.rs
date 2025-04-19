@@ -23,14 +23,6 @@ use super::map_coords::*;
 
 use super::obj::Obj;
 
-// "Map": Grid of locations. Represents state of current level.
-#[derive(Clone)]
-pub struct InternalMap {
-    // Stored as a collection of columns, e.g. map.locs[x][y]
-    // Must always be rectangular.
-    locs: Vec<Vec<Loc>>,
-}
-
 /// A handle identifying an Ent in the map.
 ///
 /// Implemented as the MapCoord and index into Ents at that Loc.
@@ -228,6 +220,14 @@ impl Field {
             }).collect::<Vec<_>>().join("")
         ).collect()
     }
+}
+
+// "Map": Grid of locations. Represents state of current level.
+#[derive(Clone)]
+struct InternalMap {
+    // Stored as a collection of columns, e.g. map.locs[x][y]
+    // Must always be rectangular.
+    locs: Vec<Vec<Loc>>,
 }
 
 impl Index<MapHandle> for InternalMap {
@@ -435,7 +435,7 @@ type RosIndex = usize;
 ///
 /// Would still like to simplify how ownership of map objects works.
 #[derive(Clone, Debug)]
-pub struct Roster {
+struct Roster {
     // Hero
     // FIXME: Better name for protagonist than "hero".
     pub hero: MapHandle,
