@@ -1,5 +1,5 @@
 use super::map_coords::CoordDelta;
-use super::field::MapHandle;
+use super::field::{RichMapHandle};
 use super::scripting::MapCoord;
 
 use crate::scripts::*;
@@ -11,10 +11,13 @@ use macroquad::prelude::*;
 #[derive(Clone, Debug)]
 #[allow(dead_code)]
 pub struct Obj {
-    // TODO: curr_pos, ros_idx, prev_pos should be abstracted into an api, possbily reliant on field?
-    pub curr_pos: MapHandle,
-    // pub ros_idx: MapHandle,
+    // RichMapHandle is necessary to update object. Needs api?
+    // Invalid is only used before placing in map?
+    pub curr_handle: RichMapHandle,
 
+    // curr_pos and prev_pos should only be informative. Kept up to date by field. Needs api?
+    // Invalid is only used before placing in map? (And for placeholders for heights?)
+    pub curr_pos: MapCoord,
     pub prev_pos: MapCoord,
 
     /// String representation of object, used internally for debug fmt etc.
@@ -54,7 +57,9 @@ impl Obj {
     // An unitialised ent
     pub fn invalid() -> Obj {
         Obj {
-            curr_pos: MapHandle::invalid(),
+            curr_handle: RichMapHandle::invalid(),
+            curr_pos: MapCoord::invalid(),
+            prev_pos: MapCoord::from_xy(-1, -1),
 
             name: "????".to_string(),
 
@@ -64,8 +69,6 @@ impl Obj {
             tex_scale: 1.0,
             text: None,
             text_col: None,
-
-            prev_pos: MapCoord::from_xy(-1, -1),
 
             pass: Pass::Empty,
             ai: AI::Stay, // STUB: Could use this as a better placeholder flag
@@ -89,7 +92,7 @@ impl Obj {
     }
 
     pub fn is_placeholder(&self) -> bool {
-        self.curr_pos == MapHandle::invalid()
+        self.curr_pos == MapCoord::invalid()
     }
 
     pub fn assets_path() -> String {

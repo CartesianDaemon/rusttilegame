@@ -41,14 +41,6 @@ impl MapHandle
         MapHandle {x, y, h}
     }
 
-    pub fn invalid() -> MapHandle {
-        MapHandle {
-            x: -1, // For now "-1" flags "this element is a placeholder in height vector"
-            y: -1,
-            h: 0,
-        }
-    }
-
     // TODO: Indicates places which shouldn't take a handle to start with..?
     pub fn from_coord(coord: MapCoord) -> MapHandle {
         MapHandle{x: coord.x, y: coord.y, h:0 }
@@ -71,6 +63,12 @@ impl Add<CoordDelta> for MapHandle {
 pub struct RichMapHandle {
     // TODO: Think of as "Mov handle"? Think of ros_idx as value and x, y, h as cached coords?
     pub ros_idx: usize,
+}
+
+impl RichMapHandle {
+    pub fn invalid() -> RichMapHandle {
+        RichMapHandle {ros_idx: 99}
+    }
 }
 
 /// Map together with Ros. Those are two separate classes so they can more easily be borrowed separately.
@@ -118,7 +116,7 @@ impl Field {
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.
-        self.map[self.roster.hero].prev_pos = self.map[self.roster.hero].curr_pos.pos();
+        self.map[self.roster.hero].prev_pos = self.map[self.roster.hero].curr_pos;
 
         move_mov(self, self.rich_hero(), cmd)?;
 
@@ -209,8 +207,9 @@ impl Field {
     ///
     /// May go away if we only use rich handles to roster not to map.
     fn add_obj_to_map_and_return_hdl(&mut self, x: i16, y:i16, orig_obj: Obj) -> MapHandle {
-        let new_pos = MapHandle::from_xyh(x, y, self.map.ents_at_xy(x, y).len() as u16);
-        let prev_pos = if orig_obj.curr_pos.x >=0 { orig_obj.curr_pos } else {new_pos}.pos();
+        let new_pos = MapCoord::from_xy(x, y);
+        let handle = MapHandle::from_xyh(x, y, self.map.ents_at_xy(x, y).len() as u16);
+        let prev_pos = if orig_obj.curr_pos.x >=0 { orig_obj.curr_pos } else {new_pos};
         self.map.at_xym(x, y).push(
             Obj {
                 curr_pos: new_pos,
@@ -218,7 +217,7 @@ impl Field {
                 ..orig_obj
             }
         );
-        new_pos
+        handle
     }
 
     pub fn rich_hero(&self) -> RichMapHandle {
