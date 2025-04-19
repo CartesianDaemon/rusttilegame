@@ -113,8 +113,8 @@ impl Field {
     pub fn spawn_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj)
     {
         let objmapref = self.put_obj_in_map_and_return_updated_objmapref(x, y, orig_obj);
-        // TODO: Borrowing in lines like this are the challenge for folding map and roster into field.
-        self.map[objmapref].curr_roster_handle = self.roster.add_to_roster_if_mov(objmapref, &self.map[objmapref])
+        // TODO: Can't pass obj to add_to_roster. For now used ai value. Could try obj as plain value, not borrow??
+        self.at_ref_m(objmapref).curr_roster_handle = self.roster.add_to_roster_if_mov(objmapref, self.at_ref(objmapref).ai);
     }
 
     /// Move obj to a new location.
@@ -161,16 +161,25 @@ impl Field {
         obj_ref
     }
 
+    // TODO: Could have a dummy intermediate class self.ref[objmapref]
+    fn at_ref(&self, objmapref: ObjMapRef) -> &Obj {
+        &self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
+    }
+
+    fn at_ref_m(&mut self, objmapref: ObjMapRef) -> &mut Obj {
+        &mut self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
+    }
+
     pub fn rich_hero(&self) -> RosterHandle {
         RosterHandle { ros_idx: 100 }
     }
 
     pub fn obj_props(&self, roster_hdl: RosterHandle) -> &Obj {
-        &self.map[self.roster[roster_hdl]]
+        self.at_ref(self.roster[roster_hdl])
     }
 
     pub fn obj_props_m(&mut self, roster_hdl: RosterHandle) -> &mut Obj {
-        &mut self.map[self.roster[roster_hdl]]
+        self.at_ref_m(self.roster[roster_hdl])
     }
 
     pub fn obj_pos(&self, roster_hdl: RosterHandle) -> MapCoord {
@@ -213,19 +222,21 @@ impl Field {
     }
 }
 
-impl Index<ObjMapRef> for InternalMap {
+/* TODO: Change to have Field deref RosterHandle to Obj?
+impl Index<ObjMapRef> for Field {
     type Output = Obj;
 
     fn index(&self, objmapref: ObjMapRef) -> &Self::Output {
-        &self.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
+        &self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
     }
 }
 
-impl IndexMut<ObjMapRef> for InternalMap {
+impl IndexMut<ObjMapRef> for Field {
     fn index_mut(&mut self, objmapref: ObjMapRef) -> &mut Self::Output {
-        &mut self.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
+        &mut self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
     }
 }
+*/
 
 // "Map": Grid of locations. Represents state of current level.
 // NOTE: Could currently be moved back into Field. Not borrowed separately.
@@ -414,11 +425,11 @@ impl Roster {
         (0..self.movs.len() as u16).into_iter().map(|ros_idx| RosterHandle { ros_idx } ).collect()
     }
 
-    fn add_to_roster_if_mov(&mut self, objmapref: ObjMapRef, placed_obj: &Obj) -> RosterHandle {
-        if placed_obj.is_hero() {
+    fn add_to_roster_if_mov(&mut self, objmapref: ObjMapRef, ai: AI) -> RosterHandle {
+        if Obj::is_hero(ai) {
             self.hero = objmapref;
             self.hero_hdl()
-        } else if placed_obj.is_mob() {
+        } else if Obj::is_mob(ai) {
             self.movs.push(objmapref);
             RosterHandle { ros_idx: self.movs.len() as u16 - 1 }
         } else {

@@ -159,18 +159,18 @@ impl Obj {
     // FUNCTIONS REFERRING TO SPECIFIC PROPERTIES
     // STUB: Could be combined if properties are made more generic.
 
-    pub fn is_hero(self: &Obj) -> bool {
-        self.ai == AI::Hero
+    pub fn is_hero(ai: AI) -> bool {
+        ai == AI::Hero
     }
 
     // Indicate Obj which can move in their own logic, and need to be added to roster.
-    pub fn is_mob(self: &Obj) -> bool {
-        self.is_any_mov() && ! self.is_hero()
+    pub fn is_mob(ai: AI) -> bool {
+        Self::is_any_mov(ai) && ! Self::is_hero(ai)
     }
 
     // Mob or Hero
-    pub fn is_any_mov(self: &Obj) -> bool {
-        self.ai != AI::Stay
+    pub fn is_any_mov(ai: AI) -> bool {
+        ai != AI::Stay
     }
 
     fn comparable_fields(&self) -> (&String, &CoordDelta, &AI, &Pass) {
