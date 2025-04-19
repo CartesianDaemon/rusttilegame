@@ -23,39 +23,10 @@ use super::map_coords::*;
 
 use super::obj::Obj;
 
-/// Coords and height of Ent in map.
-/// Used in Roster to cache index to object to access it.
-/// We should keep this ONLY in roster, so it can be updated when objs move.
-#[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
-struct ObjRef {
-    pub x: i16,
-    pub y: i16,
-    pub h: u16,
-}
-
-impl ObjRef
-{
-    pub fn invalid() -> ObjRef {
-        ObjRef {x: 0, y: 0, h: 1}
-    }
-
-    pub fn pos(self: ObjRef) -> MapCoord {
-        MapCoord { x: self.x, y: self.y}
-    }
-}
-
-// TODO: Can we remove this? And "use Add".
-impl Add<CoordDelta> for ObjRef {
-    type Output = MapCoord;
-    fn add(self, delta: CoordDelta) -> MapCoord {
-        MapCoord { x: self.x + delta.dx, y: self.y + delta.dy }
-    }
-}
-
 #[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
 pub struct RichMapHandle {
     // TODO: Think of as "Mov handle"? Think of ros_idx as value and x, y, h as cached coords?
-    pub ros_idx: usize,
+    pub ros_idx: RosIndex,
 }
 
 impl RichMapHandle {
@@ -410,6 +381,35 @@ impl<'a> Iterator for LocIterator<'a> {
             // Previous coord was w-1, h-1, the last coord.
             None
         }
+    }
+}
+
+/// Coords and height of Ent in map.
+/// Used in Roster to cache index to object to access it.
+/// We should keep this ONLY in roster, so it can be updated when objs move.
+#[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
+struct ObjRef {
+    pub x: i16,
+    pub y: i16,
+    pub h: u16,
+}
+
+impl ObjRef
+{
+    pub fn invalid() -> ObjRef {
+        ObjRef {x: 0, y: 0, h: 1}
+    }
+
+    pub fn pos(self: ObjRef) -> MapCoord {
+        MapCoord { x: self.x, y: self.y}
+    }
+}
+
+// TODO: Can we remove this? And "use Add".
+impl Add<CoordDelta> for ObjRef {
+    type Output = MapCoord;
+    fn add(self, delta: CoordDelta) -> MapCoord {
+        MapCoord { x: self.x + delta.dx, y: self.y + delta.dy }
     }
 }
 
