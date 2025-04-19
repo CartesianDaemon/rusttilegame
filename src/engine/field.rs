@@ -154,7 +154,7 @@ impl Field {
     /// All new objs go through this to keep map and roster in sync.
     pub fn place_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj)
     {
-        let hdl = self.map.place_obj_at(x, y, orig_obj);
+        let hdl = self.map_place_obj_at(x, y, orig_obj);
         let placed_obj = &self.map[hdl];
 
         if placed_obj.is_hero() {
@@ -162,6 +162,22 @@ impl Field {
         } else if placed_obj.is_mob() {
             self.roster.push_mov(hdl);
         }
+    }
+
+    /// Place a (copy of an) object into the map. Return a handle to its position.
+    ///
+    /// Only used externally by Field::place_obj_at which keeps Roster in sync.
+    fn map_place_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj) -> MapHandle {
+        let new_pos = MapHandle::from_xyh(x, y, self.map.ents_at_xy(x, y).len() as u16);
+        let prev_pos = if orig_obj.curr_pos.x >=0 { orig_obj.curr_pos } else {new_pos}.pos();
+        self.map.at_xym(x, y).push(
+            Obj {
+                curr_pos: new_pos,
+                prev_pos,
+                ..orig_obj
+            }
+        );
+        new_pos
     }
 
     pub fn rich_hero(&self) -> RichMapHandle {
@@ -185,9 +201,41 @@ impl Field {
         self.obj_pos(rich_hdl) + self.obj_props(rich_hdl).dir
     }
 
+    /// Move an obj identified by rich handle to a new location.
+    ///
+    /// Update roster (actually not needed?), obj.curr_pos and obj.prev_pos.
+    ///
+    /// TODO: Second half of function is a bit old, could be updated.
     pub fn obj_move_to(&mut self, rich_hdl: RichMapHandle, pos: MapCoord) {
-        let mov_roster_hdl = &mut self.roster[rich_hdl.ros_idx];
-        self.map.obj_move_to(mov_roster_hdl, pos);
+        let roster_hdl = &mut self.roster[rich_hdl.ros_idx];
+
+        let on_top = roster_hdl.h as usize == self.map.ents_at_hdl(*roster_hdl).len();
+
+        let orig_obj = if on_top {
+            // Pop ent from top of stack.
+            self.map.at_hdlm(*roster_hdl).pop().unwrap()
+        } else {
+            // Replace ent with a placeholder type ignored by render and gameplay.
+            // This keeps height coords of other ents valid.
+            // ENH: Can we update the other objects here and do away with placeholder?
+            // Would need to update Roster in sync.
+            mem::replace(&mut self.map[*roster_hdl], Obj::placeholder())
+        };
+
+        let obj = Obj {prev_pos: roster_hdl.pos(), ..orig_obj};
+
+        // Remove any placeholders now at the top of the stack. Should only happen
+        // if we popped ent from on top of them.
+        while !self.map.ents_at_hdl(*roster_hdl).is_empty() &&
+            self.map.ents_at_hdl(*roster_hdl).last().unwrap().is_placeholder() {
+            self.map.at_hdlm(*roster_hdl).pop();
+        }
+
+        // Update caller's handle to new coords. Height will be set by put_at().
+        *roster_hdl = MapHandle::from_coord(pos);
+
+        // Add Ent to top of stack at new map coords. Updates hdl to match new height.
+        self.roster[rich_hdl.ros_idx] = self.map_place_obj_at(pos.x, pos.y, obj);
     }
 
     pub fn any_effect(&self, pos: MapCoord, sought_effect: Effect) -> bool {
@@ -272,60 +320,6 @@ impl InternalMap {
 
     pub fn h(&self) -> u16 {
         self.locs[0].len() as u16
-    }
-
-    /// Place a (copy of an) object into the map. Return a handle to its position.
-    ///
-    /// Only used externally by Field::place_obj_at which keeps Roster in sync.
-    fn place_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj) -> MapHandle {
-        let new_pos = MapHandle::from_xyh(x, y, self.ents_at_xy(x, y).len() as u16);
-        let prev_pos = if orig_obj.curr_pos.x >=0 { orig_obj.curr_pos } else {new_pos}.pos();
-        self.at_xym(x, y).push(
-            Obj {
-                curr_pos: new_pos,
-                prev_pos,
-                ..orig_obj
-            }
-        );
-        new_pos
-    }
-
-    /// Move an obj identified by hdl from one loc to another. Update hdl to match.
-    ///
-    /// Also update prev_pos.
-    ///
-    /// All moves should go through this function. Anything using the play class
-    /// should call it with a handle from the roster so the roster is updated.
-    ///
-    /// TODO: Reduce need for code outside map.rs to know how to use roster handles.
-    pub fn obj_move_to(&mut self, hdl: &mut MapHandle, to: MapCoord) {
-        let on_top = hdl.h as usize == self.ents_at_hdl(*hdl).len();
-
-        let orig_obj = if on_top {
-            // Pop ent from top of stack.
-            self.at_hdlm(*hdl).pop().unwrap()
-        } else {
-            // Replace ent with a placeholder type ignored by render and gameplay.
-            // This keeps height coords of other ents valid.
-            // ENH: Can we update the other objects here and do away with placeholder?
-            // Would need to update Roster in sync.
-            mem::replace(&mut self[*hdl], Obj::placeholder())
-        };
-
-        let obj = Obj {prev_pos: hdl.pos(), ..orig_obj};
-
-        // Remove any placeholders now at the top of the stack. Should only happen
-        // if we popped ent from on top of them.
-        while !self.ents_at_hdl(*hdl).is_empty() &&
-            self.ents_at_hdl(*hdl).last().unwrap().is_placeholder() {
-            self.at_hdlm(*hdl).pop();
-        }
-
-        // Update caller's handle to new coords. Height will be set by put_at().
-        *hdl = MapHandle::from_coord(to);
-
-        // Add Ent to top of stack at new map coords. Updates hdl to match new height.
-        *hdl = self.place_obj_at(to.x, to.y, obj);
     }
 
     // Loc at given MapCoord.
