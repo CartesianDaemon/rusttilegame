@@ -124,15 +124,18 @@ impl Field {
     /// in roster.
     ///
     /// Update roster (actually not needed?), obj.curr_pos and obj.prev_pos.
-    ///
-    /// TODO: Second half of function is a bit old, could be updated.
+    // NOTE: The logic for maintaining ros indexes for multiple movs in one loc is still untested.
     pub fn move_obj_to(&mut self, roster_hdl: RosterHandle, pos: MapCoord) {
         let objmapref = self.roster[roster_hdl.ros_idx];
 
         let orig_obj = self.map.ents_at_objmapref_m(objmapref).swap_remove(objmapref.h as usize);
 
-        // AND: Update h for all remaining ents
-        // NOTE: This logic is still untested.
+        // For each other object in location, update objmapref in roster with changed height.
+        for h in (objmapref.h+1)..self.map.ents_at_objmapref_m(objmapref).len() as u16 {
+            self.roster[self.map.ents_at_objmapref_m(objmapref)[h as usize].curr_roster_handle.ros_idx].h = h;
+            // TODO: Also rewrite roster[] to take RosterHandle not ros_idx
+            // TODO: Also rewrite ents_at_objmapref_m to map[], with allowing Loc to be indexed?
+        }
 
         let obj = Obj {prev_pos: objmapref.pos(), ..orig_obj};
 
