@@ -178,6 +178,10 @@ impl Field {
         &mut self[Roster::hero_handle()]
     }
 
+    pub fn hero_pos(&self) -> MapCoord {
+        self.obj_pos(Roster::hero_handle())
+    }
+
     pub fn obj_pos(&self, roster_hdl: RosterHandle) -> MapCoord {
         self.roster[roster_hdl].pos()
     }
