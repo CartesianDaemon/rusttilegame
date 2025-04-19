@@ -22,19 +22,15 @@ use super::map_coords::*;
 use super::obj::Obj;
 
 #[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
-pub struct RichHandle {
+pub struct RosterHandle {
+    // TODO: Think of as "Mov handle"? Think of ros_idx as value and x, y, h as cached coords?
     pub ros_idx: u16,
 }
 
-impl RichHandle {
-    pub fn invalid() -> RichHandle {
-        RichHandle {ros_idx: 99}
+impl RosterHandle {
+    pub fn invalid() -> RosterHandle {
+        RosterHandle {ros_idx: 99}
     }
-}
-
-pub struct VeryRichHandle<'a> {
-    pub ros_idx: u16,
-    pub field: Option<&'a Field>,
 }
 
 /// Map together with Ros. Those are two separate classes so they can more easily be borrowed separately.
@@ -84,9 +80,7 @@ impl Field {
         // Should be moved into obj_move*() fn.
         self.hero().prev_pos = self.hero().curr_pos;
 
-        // let hero_very_rich_handle = VeryRichHandle { ros_idx: 100, field: Some(&self) };
-        let hero_very_rich_handle = VeryRichHandle { ros_idx: 100, field: None };
-        move_mov(self, Roster::hero_handle(), hero_very_rich_handle, cmd)?;
+        move_mov(self, Roster::hero_handle(), cmd)?;
 
         for rich_mov in self.roster.all_movs() {
             // Before movement, reset "prev". Will be overwritten if movement happens.
@@ -95,8 +89,7 @@ impl Field {
             // NOTE: And obj_at() is also incompatible with RefCell.
             self[rich_mov].prev_pos = self.obj_pos(rich_mov);
 
-            let invalid_very_rich_handle = VeryRichHandle { ros_idx: 99, field: None };
-            move_mov(self, rich_mov, invalid_very_rich_handle, cmd)?;
+            move_mov(self, rich_mov, cmd)?;
         }
         SceneEnding::ContinuePlaying
     }
@@ -132,7 +125,7 @@ impl Field {
     ///
     /// Update roster (actually not needed?), obj.curr_pos and obj.prev_pos.
     // NOTE: The logic for maintaining ros indexes for multiple movs in one loc is still untested.
-    pub fn move_obj_to(&mut self, roster_hdl: RichHandle, pos: MapCoord) {
+    pub fn move_obj_to(&mut self, roster_hdl: RosterHandle, pos: MapCoord) {
         let objmapref = self.roster[roster_hdl];
         let origin_pos = objmapref.pos();
 
@@ -185,12 +178,12 @@ impl Field {
         self.obj_pos(Roster::hero_handle())
     }
 
-    pub fn obj_pos(&self, roster_hdl: RichHandle) -> MapCoord {
+    pub fn obj_pos(&self, roster_hdl: RosterHandle) -> MapCoord {
         self.roster[roster_hdl].pos()
     }
 
     // TODO: Only valid if "dir" represents actual direction of movement, not just facing.
-    pub fn obj_target_pos(&self, roster_hdl: RichHandle) -> MapCoord {
+    pub fn obj_target_pos(&self, roster_hdl: RosterHandle) -> MapCoord {
         self.obj_pos(roster_hdl) + self[roster_hdl].dir
     }
 
@@ -225,16 +218,16 @@ impl Field {
     }
 }
 
-impl Index<RichHandle> for Field {
+impl Index<RosterHandle> for Field {
     type Output = Obj;
 
-    fn index(&self, roster_handle: RichHandle) -> &Self::Output {
+    fn index(&self, roster_handle: RosterHandle) -> &Self::Output {
         self.at_ref(self.roster[roster_handle])
     }
 }
 
-impl IndexMut<RichHandle> for Field {
-    fn index_mut(&mut self, roster_handle: RichHandle) -> &mut Self::Output {
+impl IndexMut<RosterHandle> for Field {
+    fn index_mut(&mut self, roster_handle: RosterHandle) -> &mut Self::Output {
         self.at_ref_m(self.roster[roster_handle])
     }
 }
@@ -413,36 +406,36 @@ impl Roster {
         }
     }
 
-    pub fn hero_handle() -> RichHandle {
-        RichHandle { ros_idx: 100 }
+    pub fn hero_handle() -> RosterHandle {
+        RosterHandle { ros_idx: 100 }
     }
 
-    pub fn non_mov_handle() -> RichHandle {
-        RichHandle { ros_idx: 98 }
+    pub fn non_mov_handle() -> RosterHandle {
+        RosterHandle { ros_idx: 98 }
     }
 
-    pub fn all_movs(&self) -> Vec<RichHandle> {
+    pub fn all_movs(&self) -> Vec<RosterHandle> {
         // TODO: Possible to return iter() instead of collection, without borrow problems?
-        (0..self.movs.len() as u16).into_iter().map(|ros_idx| RichHandle { ros_idx } ).collect()
+        (0..self.movs.len() as u16).into_iter().map(|ros_idx| RosterHandle { ros_idx } ).collect()
     }
 
-    fn add_to_roster_if_mov(&mut self, objmapref: ObjMapRef, ai: AI) -> RichHandle {
+    fn add_to_roster_if_mov(&mut self, objmapref: ObjMapRef, ai: AI) -> RosterHandle {
         if Obj::is_hero(ai) {
             self.hero = objmapref;
             Self::hero_handle()
         } else if Obj::is_mob(ai) {
             self.movs.push(objmapref);
-            RichHandle { ros_idx: self.movs.len() as u16 - 1 }
+            RosterHandle { ros_idx: self.movs.len() as u16 - 1 }
         } else {
             Self::non_mov_handle()
         }
     }
 }
 
-impl Index<RichHandle> for Roster {
+impl Index<RosterHandle> for Roster {
     type Output = ObjMapRef;
 
-    fn index(&self, hdl: RichHandle) -> &Self::Output {
+    fn index(&self, hdl: RosterHandle) -> &Self::Output {
         let idx = hdl.ros_idx as usize;
         match idx {
             0..99 => &self.movs[idx],
@@ -453,8 +446,8 @@ impl Index<RichHandle> for Roster {
     }
 }
 
-impl IndexMut<RichHandle> for Roster {
-    fn index_mut(&mut self, hdl: RichHandle) -> &mut Self::Output {
+impl IndexMut<RosterHandle> for Roster {
+    fn index_mut(&mut self, hdl: RosterHandle) -> &mut Self::Output {
         let idx = hdl.ros_idx as usize;
         match idx {
             0..98 => &mut self.movs[idx],
