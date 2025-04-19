@@ -84,8 +84,7 @@ impl Field {
         move_mov(self, self.rich_hero(), cmd)?;
 
         // Transitioning to this version of "Move all movs"
-        for ros_idx in 0..self.roster.movs.len() {
-            let rich_mov = RosterHandle { ros_idx };
+        for rich_mov in self.roster.all_movs() {
             // Before movement, reset "prev". Will be overwritten if movement happens.
             // Going through tmp is necessary to avoid two dynamic borrows at the same time..
             // NOTE: If map is RefCell needs to be done in two steps else runtime panic.
@@ -419,7 +418,7 @@ struct Roster {
     //
     // Might be replaced by a set of lists of "everything that has this property" etc
     // like a Component system.
-    pub movs: Vec<ObjMapRef>,
+    movs: Vec<ObjMapRef>,
 }
 
 impl Roster {
@@ -438,6 +437,11 @@ impl Roster {
         RosterHandle { ros_idx: 98 }
     }
 
+    pub fn all_movs(&self) -> RosterMovsIterator {
+        // TODO: Better as return range.into_iter().map()? Or as generator?
+        RosterMovsIterator {ros_idx: 0, max_idx: self.movs.len()}
+    }
+
     fn add_to_roster_if_mov(&mut self, objmapref: ObjMapRef, placed_obj: &Obj) -> RosterHandle {
         if placed_obj.is_hero() {
             self.hero = objmapref;
@@ -447,6 +451,24 @@ impl Roster {
             RosterHandle { ros_idx: self.movs.len()-1 }
         } else {
             self.non_mov_handle()
+        }
+    }
+}
+
+pub struct RosterMovsIterator {
+    ros_idx: usize,
+    max_idx: usize,
+}
+
+impl Iterator for RosterMovsIterator {
+    type Item = RosterHandle;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.ros_idx < self.max_idx {
+            self.ros_idx += 1;
+            Some(RosterHandle{ ros_idx: self.ros_idx-1})
+        } else {
+            None
         }
     }
 }
