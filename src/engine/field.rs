@@ -178,7 +178,15 @@ impl Field {
         self.obj_pos(Roster::hero_handle())
     }
 
-    pub fn obj_pos(&self, roster_hdl: RosterHandle) -> MapCoord {
+    pub fn obj(&self, roster_handle: RosterHandle) -> &Obj {
+        self.at_ref(self.roster[roster_handle])
+     }
+
+     pub fn objm(&mut self, roster_handle: RosterHandle) -> &mut Obj {
+        self.at_ref_m(self.roster[roster_handle])
+     }
+
+      pub fn obj_pos(&self, roster_hdl: RosterHandle) -> MapCoord {
         self.roster[roster_hdl].pos()
     }
 
@@ -218,6 +226,7 @@ impl Field {
     }
 }
 
+// TODO: Remove these again?
 impl Index<RosterHandle> for Field {
     type Output = Obj;
 
