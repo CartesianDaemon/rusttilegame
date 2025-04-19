@@ -35,8 +35,8 @@ struct ObjRef {
 
 impl ObjRef
 {
-    pub fn from_xyh(x: i16, y: i16, h: u16) -> ObjRef {
-        ObjRef {x, y, h}
+    pub fn invalid() -> ObjRef {
+        ObjRef {x: 0, y: 0, h: 1}
     }
 
     pub fn pos(self: ObjRef) -> MapCoord {
@@ -200,7 +200,7 @@ impl Field {
     /// All obj placement and movement goes through spawn_at or move_obj_to, then this fn.
     fn add_obj_to_map_and_return_hdl(&mut self, x: i16, y:i16, orig_obj: Obj) -> ObjRef {
         let new_curr_pos = MapCoord::from_xy(x, y);
-        let handle = ObjRef::from_xyh(x, y, self.map.ents_at_xy(x, y).len() as u16);
+        let handle = ObjRef { x, y, h: self.map.ents_at_xy(x, y).len() as u16 };
         let prev_pos = if orig_obj.curr_pos.x >=0 { orig_obj.curr_pos } else {new_curr_pos};
         self.map.at_xym(x, y).push(
             Obj {
@@ -440,7 +440,7 @@ struct Roster {
 impl Roster {
     pub fn new() -> Roster {
         Roster {
-            hero: ObjRef::from_xyh(0, 0, 1),
+            hero: ObjRef::invalid(),
             movs: vec![],
         }
     }
