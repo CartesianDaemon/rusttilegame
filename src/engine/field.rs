@@ -139,15 +139,15 @@ impl Field {
     /// Move obj to a new location.
     ///
     /// Update roster, obj.curr_pos and obj.prev_pos. Still untested for multiple movs.
-    pub fn move_obj_to(&mut self, roster_hdl: RosterHandle, pos: MapCoord) {
+    pub fn move_obj_to(&mut self, roster_hdl: RosterHandle, target_pos: MapCoord) {
         let objmapref = self.roster[roster_hdl];
-        let origin_pos = objmapref.pos();
+        let orig_pos = objmapref.pos();
 
-        let orig_obj = self.map[origin_pos].objs_m().swap_remove(objmapref.h as usize);
+        let orig_obj = self.map[orig_pos].objs_m().swap_remove(objmapref.h as usize);
 
         // For each other object in location, update objmapref in roster with changed height.
-        for h in objmapref.h+1..self.map[origin_pos].len() as u16 {
-            let other_roster_hdl = self.backref_at_ref(ObjMapRef {x: origin_pos.x, y: origin_pos.y, h}).curr_roster_handle;
+        for h in objmapref.h+1..self.map[orig_pos].len() as u16 {
+            let other_roster_hdl = self.backref_at_ref(ObjMapRef {x: orig_pos.x, y: orig_pos.y, h}).curr_roster_handle;
             self.roster[other_roster_hdl].h = h;
         }
 
@@ -155,26 +155,23 @@ impl Field {
         // let obj = Obj {prev_pos: objmapref.pos(), ..orig_obj};
         let obj = orig_obj.clone();
 
-        // Add Ent to top of stack at new map coords. Updates roster hdl to match new height.
-        self.roster[roster_hdl] = {
-            let new_curr_pos = pos;
-            let new_obj_ref = ObjMapRef { x:pos.x, y:pos.y, h: self.map[new_curr_pos].len() as u16 };
-            let prev_pos = if true { obj.backref.curr_pos } else {new_curr_pos};
-            self.map[new_curr_pos].objs_m().push(
-                Obj {
-                    backref: MapBackref {
-                        curr_roster_handle: obj.backref.curr_roster_handle,
-                        curr_pos: new_curr_pos,
-                        prev_pos,
-                    },
-                   props: obj.props,
-                }
-            );
-            new_obj_ref
-        };
-    }
+        // Add Ent to top of stack at new map coords.
+        self.map[target_pos].objs_m().push(
+            Obj {
+                backref: MapBackref {
+                    curr_roster_handle: obj.backref.curr_roster_handle,
+                    curr_pos: target_pos,
+                    prev_pos: obj.backref.curr_pos,
+                },
+               props: obj.props,
+            }
+        );
 
-    
+        // Updates roster hdl to match new height.
+        self.roster[roster_hdl].x = target_pos.x;
+        self.roster[roster_hdl].y = target_pos.y;
+        self.roster[roster_hdl].h = self.map[target_pos].len() as u16 -1;
+    }
 
     // TODO: Could have a dummy intermediate class self.ref[objmapref]
     fn props_at_ref(&self, objmapref: ObjMapRef) -> &ObjProperties {
