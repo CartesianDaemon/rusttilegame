@@ -166,7 +166,6 @@ impl Field {
         self.map.obj_move_to(mov_roster_hdl, pos);
     }
 
-    // TODO: Can we return a "location handle" (or just a Loc) and have movement_logic call Loc::any_effect directly??
     pub fn any_effect(&self, pos: MapCoord, sought_effect: Effect) -> bool {
         self.map.loc_at(pos).any_effect(sought_effect)
     }
@@ -241,11 +240,6 @@ impl InternalMap {
         self.locs[0].len() as u16
     }
 
-    #[allow(dead_code)]
-    pub fn is_edge(&self, x: i16, y: i16) -> bool {
-        x == 0 || x == self.w() as i16 -1 || y == 0 || y == self.h() as i16 -1
-    }
-
     /// Place a (copy of an) object into the map. Return a handle to its position.
     ///
     /// Only used externally by Field::place_obj_at which keeps Roster in sync.
@@ -300,31 +294,19 @@ impl InternalMap {
         *hdl = self.place_obj_at(to.x, to.y, obj);
     }
 
-    // Loc at given coords.
-    pub fn loc_at_xy(&self, x: i16, y: i16) -> &Loc {
-        &self.locs[x as usize][y as usize]
-    }
-
     // Loc at given MapCoord.
     // TODO: Instead make loc indexable, and have at() or [] return loc?
     pub fn loc_at(&self, pos: MapCoord) -> &Loc {
-        self.loc_at_xy(pos.x, pos.y)
+        &self.locs[pos.x as usize][pos.y as usize]
     }
 
     // Ents at given coords.
     pub fn at_xy(&self, x: i16, y:i16) -> &Vec<Obj> {
-        &self.loc_at_xy(x, y).0
-    }
-
-    // Ents at given MapCoord.
-    // Used to add and remove from map, mostly internally. And in Play?
-    #[allow(dead_code)]
-    pub fn at(&self, pos: MapCoord) -> &Vec<Obj> {
-        &self.loc_at(pos).0
+        &self.loc_at(MapCoord::from_xy(x, y)).0
     }
 
     pub fn at_hdl(&self, pos: MapHandle) -> &Vec<Obj> {
-        &self.loc_at(MapHandle::pos(pos)).0
+        &self.loc_at(pos.pos()).0
     }
 
     // As "at" but mutably
@@ -337,17 +319,6 @@ impl InternalMap {
         &mut self.locs[x as usize][y as usize].0
     }
 
-    // e.g. `for ( x, y ) in map.coords()`
-    #[allow(dead_code)]
-    pub fn coords(&self) -> CoordIterator {
-        CoordIterator {
-            w: self.w(),
-            h: self.h(),
-            x: 0,
-            y: -1,
-        }
-    }
-
     pub fn locs(&self) -> LocIterator {
         LocIterator {
             w: self.w(),
@@ -357,18 +328,6 @@ impl InternalMap {
             map: &self,
         }
     }
-
-    /*
-    fn locs_mut(&mut self) -> LocIteratorMut {
-        LocIteratorMut {
-            w: self.w(),
-            h: self.h(),
-            x: 0,
-            y: -1,
-            map: self,
-        }
-    }
-    */
 }
 
 pub struct CoordIterator {
@@ -390,19 +349,6 @@ pub struct LocIterator<'a> {
     // Pointer back to original collection
     map: &'a InternalMap,
 }
-
-/*
-struct LocIteratorMut<'a> {
-    // Original dimensions to iterate up to
-    w: u16,
-    h: u16,
-    // Previously returned coords, or (0, -1) initially.
-    x: i16,
-    y: i16,
-    // Pointer back to original collection
-    map: &'a mut Map,
-}
-*/
 
 impl Iterator for CoordIterator {
     type Item = (i16, i16);
@@ -443,29 +389,6 @@ impl<'a> Iterator for LocIterator<'a> {
         }
     }
 }
-
-/*
-// STUB: Fix or remove
-impl<'a> Iterator for LocIteratorMut<'a> {
-    type Item = (i16, i16, &'a mut Loc);
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.y < (self.h-1) as i16 {
-            // Continue to next coord down current column
-            self.y += 1;
-            Some((self.x, self.y, &mut self.map.locs[self.x as usize][self.y as usize]))
-        } else if self.x < (self.w-1) as i16 {
-            // Continue to top of next column
-            self.x += 1;
-            self.y = 0;
-            Some((self.x, self.y, &mut self.map.locs[self.x as usize][self.y as usize]))
-        } else {
-            // Previous coord was w-1, h-1, the last coord.
-            None
-        }
-    }
-}
-*/
 
 type RosIndex = usize;
 
