@@ -127,13 +127,14 @@ impl Field {
     // NOTE: The logic for maintaining ros indexes for multiple movs in one loc is still untested.
     pub fn move_obj_to(&mut self, roster_hdl: RosterHandle, pos: MapCoord) {
         let objmapref = self.roster[roster_hdl];
+        let origin_pos = objmapref.pos();
 
-        let orig_obj = self.map.ents_at_objmapref_m(objmapref).swap_remove(objmapref.h as usize);
+        let orig_obj = self.map.ents_at_pos_m(origin_pos).swap_remove(objmapref.h as usize);
 
         // For each other object in location, update objmapref in roster with changed height.
-        for h in objmapref.h+1..self.map.ents_at_objmapref_m(objmapref).len() as u16 {
-            self.roster[self.map.ents_at_objmapref_m(objmapref)[h as usize].curr_roster_handle].h = h;
-            // TODO: Also rewrite ents_at_objmapref_m to map[], with allowing Loc to be indexed?
+        for h in objmapref.h+1..self.map.ents_at_pos(origin_pos).len() as u16 {
+            self.roster[self.map.ents_at_pos(origin_pos)[h as usize].curr_roster_handle].h = h;
+            // TODO: Further rewrite ents_at_pos to map[], with allowing Loc to be indexed?
         }
 
         let obj = Obj {prev_pos: objmapref.pos(), ..orig_obj};
@@ -149,9 +150,9 @@ impl Field {
     /// All obj placement and movement goes through spawn_at or move_obj_to, then this fn.
     fn put_obj_in_map_and_return_updated_objmapref(&mut self, x: i16, y:i16, orig_obj: Obj) -> ObjMapRef {
         let new_curr_pos = MapCoord::from_xy(x, y);
-        let obj_ref = ObjMapRef { x, y, h: self.map.ents_at_xy(x, y).len() as u16 };
+        let obj_ref = ObjMapRef { x, y, h: self.map.ents_at_pos(new_curr_pos).len() as u16 };
         let prev_pos = if orig_obj.curr_pos.x >=0 { orig_obj.curr_pos } else {new_curr_pos};
-        self.map.ents_at_xym(x, y).push(
+        self.map.ents_at_pos_m(new_curr_pos).push(
             Obj {
                 curr_pos: new_curr_pos,
                 prev_pos,
@@ -206,7 +207,7 @@ impl Field {
         (0..self.map.h() as i16).map(|y|
             (0..self.map.w() as i16).map(|x| {
                 self.map_key.iter().find_map(|(ch,objs)|
-                    if self.map.ents_at_xy(x,y) == objs {Some(ch.to_string())} else {None}
+                    if self.map.ents_at_pos(MapCoord::from_xy(x, y)) == objs {Some(ch.to_string())} else {None}
                 ).unwrap_or("?".to_string())
             }).collect::<Vec<_>>().join("")
         ).collect()
@@ -244,19 +245,14 @@ impl InternalMap {
         &self.locs[pos.x as usize][pos.y as usize]
     }
 
-    // Ents at given coords.
-    pub fn ents_at_xy(&self, x: i16, y:i16) -> &Vec<Obj> {
-        &self.loc_at(MapCoord::from_xy(x, y)).0
+    // Ents at coord.
+    pub fn ents_at_pos(&self, pos: MapCoord) -> &Vec<Obj> {
+        &self.locs[pos.x as usize][pos.y as usize].0
     }
 
-    // As "at" but mutably
-    pub fn ents_at_objmapref_m(&mut self, pos: ObjMapRef) -> &mut Vec<Obj> {
+    // Ents at coord.
+    pub fn ents_at_pos_m(&mut self, pos: MapCoord) -> &mut Vec<Obj> {
         &mut self.locs[pos.x as usize][pos.y as usize].0
-    }
-
-    // As "at" but mutably
-    pub fn ents_at_xym(&mut self, x: i16, y: i16) -> &mut Vec<Obj> {
-        &mut self.locs[x as usize][y as usize].0
     }
 
     pub fn locs(&self) -> LocIterator {
