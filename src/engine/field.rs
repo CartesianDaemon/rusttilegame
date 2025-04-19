@@ -129,11 +129,11 @@ impl Field {
         let objmapref = self.roster[roster_hdl];
         let origin_pos = objmapref.pos();
 
-        let orig_obj = self.map.loc_at_m(origin_pos).objs_m().swap_remove(objmapref.h as usize);
+        let orig_obj = self.map[origin_pos].objs_m().swap_remove(objmapref.h as usize);
 
         // For each other object in location, update objmapref in roster with changed height.
-        for h in objmapref.h+1..self.map.loc_at(origin_pos).len() as u16 {
-            self.roster[self.map.loc_at(origin_pos)[h as usize].curr_roster_handle].h = h;
+        for h in objmapref.h+1..self.map[origin_pos].len() as u16 {
+            self.roster[self.map[origin_pos][h as usize].curr_roster_handle].h = h;
         }
 
         let obj = Obj {prev_pos: objmapref.pos(), ..orig_obj};
@@ -149,9 +149,9 @@ impl Field {
     /// All obj placement and movement goes through spawn_at or move_obj_to, then this fn.
     fn put_obj_in_map_and_return_updated_objmapref(&mut self, x: i16, y:i16, orig_obj: Obj) -> ObjMapRef {
         let new_curr_pos = MapCoord::from_xy(x, y);
-        let obj_ref = ObjMapRef { x, y, h: self.map.loc_at(new_curr_pos).len() as u16 };
+        let obj_ref = ObjMapRef { x, y, h: self.map[new_curr_pos].len() as u16 };
         let prev_pos = if orig_obj.curr_pos.x >=0 { orig_obj.curr_pos } else {new_curr_pos};
-        self.map.loc_at_m(new_curr_pos).objs_m().push(
+        self.map[new_curr_pos].objs_m().push(
             Obj {
                 curr_pos: new_curr_pos,
                 prev_pos,
@@ -183,11 +183,11 @@ impl Field {
     }
 
     pub fn any_effect(&self, pos: MapCoord, sought_effect: Effect) -> bool {
-        self.map.loc_at(pos).any_effect(sought_effect)
+        self.map[pos].any_effect(sought_effect)
     }
 
     pub fn all_pass(&self, pos: MapCoord, sought_pass: Pass) -> bool {
-        self.map.loc_at(pos).all_pass(sought_pass)
+        self.map[pos].all_pass(sought_pass)
     }
 
     /// Ascii representation of map. Test functions check it's as expected.
@@ -206,7 +206,7 @@ impl Field {
         (0..self.map.h() as i16).map(|y|
             (0..self.map.w() as i16).map(|x| {
                 self.map_key.iter().find_map(|(ch,objs)|
-                    if self.map.loc_at(MapCoord::from_xy(x, y)).objs() == objs {Some(ch.to_string())} else {None}
+                    if self.map[MapCoord::from_xy(x, y)].objs() == objs {Some(ch.to_string())} else {None}
                 ).unwrap_or("?".to_string())
             }).collect::<Vec<_>>().join("")
         ).collect()
@@ -222,7 +222,6 @@ struct InternalMap {
     locs: Vec<Vec<Loc>>,
 }
 
-// TODO: at_ and loc_at_ etc fns only used in this file. Simplify what they should be?
 impl InternalMap {
     pub fn new(w: u16, h: u16) -> InternalMap {
         InternalMap {
@@ -248,14 +247,6 @@ impl InternalMap {
         &mut self.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
     }
 
-    pub fn loc_at(&self, pos: MapCoord) -> &Loc {
-        &self.locs[pos.x as usize][pos.y as usize]
-    }
-
-    pub fn loc_at_m(&mut self, pos: MapCoord) -> &mut Loc {
-        &mut self.locs[pos.x as usize][pos.y as usize]
-    }
-
     pub fn locs(&self) -> LocIterator {
         LocIterator {
             w: self.w(),
@@ -264,6 +255,20 @@ impl InternalMap {
             y: -1,
             map: &self,
         }
+    }
+}
+
+impl Index<MapCoord> for InternalMap {
+    type Output = Loc;
+
+    fn index(&self, pos: MapCoord) -> &Self::Output {
+        &self.locs[pos.x as usize][pos.y as usize]
+    }
+}
+
+impl IndexMut<MapCoord> for InternalMap {
+    fn index_mut(&mut self, pos: MapCoord) -> &mut Self::Output {
+        &mut self.locs[pos.x as usize][pos.y as usize]
     }
 }
 
