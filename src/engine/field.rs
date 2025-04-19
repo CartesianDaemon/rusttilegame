@@ -118,7 +118,7 @@ impl Field {
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.
-        self.map[self.roster.hero].prev_pos = self.map[self.roster.hero].curr_pos;
+        self.map[self.roster.hero].prev_pos = self.map[self.roster.hero].curr_pos.pos();
 
         move_mov(self, self.rich_hero(), cmd)?;
 
@@ -129,7 +129,7 @@ impl Field {
             // Going through tmp is necessary to avoid two dynamic borrows at the same time..
             // NOTE: If map is RefCell needs to be done in two steps else runtime panic.
             // NOTE: And obj_at() is also incompatible with RefCell.
-            self.obj_props_m(rich_mov).prev_pos = MapHandle::from_coord(self.obj_pos(rich_mov));
+            self.obj_props_m(rich_mov).prev_pos = self.obj_pos(rich_mov);
 
             move_mov(self, rich_mov, cmd)?;
         }
@@ -279,7 +279,7 @@ impl InternalMap {
     /// Only used externally by Field::place_obj_at which keeps Roster in sync.
     fn place_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj) -> MapHandle {
         let new_pos = MapHandle::from_xyh(x, y, self.ents_at_xy(x, y).len() as u16);
-        let prev_pos = if orig_obj.curr_pos.x >=0 { orig_obj.curr_pos } else {new_pos};
+        let prev_pos = if orig_obj.curr_pos.x >=0 { orig_obj.curr_pos } else {new_pos}.pos();
         self.at_xym(x, y).push(
             Obj {
                 curr_pos: new_pos,
@@ -312,7 +312,7 @@ impl InternalMap {
             mem::replace(&mut self[*hdl], Obj::placeholder())
         };
 
-        let obj = Obj {prev_pos: *hdl, ..orig_obj};
+        let obj = Obj {prev_pos: hdl.pos(), ..orig_obj};
 
         // Remove any placeholders now at the top of the stack. Should only happen
         // if we popped ent from on top of them.

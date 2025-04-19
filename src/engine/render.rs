@@ -179,7 +179,7 @@ impl<'a> RenderLev<'a> {
         let w = self.sq_w * pc_size;
         let h = self.sq_h * pc_size;
 
-        if !obj.is_any_mov() {rsst!(obj.prev_pos == obj.curr_pos)}
+        if !obj.is_any_mov() {rsst!(obj.prev_pos == obj.curr_pos.pos())}
 
         let alpha = if self.as_ghost {self.ghost_alpha} else {1.};
 

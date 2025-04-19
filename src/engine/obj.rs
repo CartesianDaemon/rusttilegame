@@ -1,5 +1,6 @@
 use super::map_coords::CoordDelta;
 use super::field::MapHandle;
+use super::scripting::MapCoord;
 
 use crate::scripts::*;
 
@@ -14,7 +15,7 @@ pub struct Obj {
     pub curr_pos: MapHandle,
     // pub ros_idx: MapHandle,
 
-    pub prev_pos: MapHandle,
+    pub prev_pos: MapCoord,
 
     /// String representation of object, used internally for debug fmt etc.
     pub name: String,
@@ -64,7 +65,7 @@ impl Obj {
             text: None,
             text_col: None,
 
-            prev_pos: MapHandle::from_xyh(-1, -1, 0),
+            prev_pos: MapCoord::from_xy(-1, -1),
 
             pass: Pass::Empty,
             ai: AI::Stay, // STUB: Could use this as a better placeholder flag
