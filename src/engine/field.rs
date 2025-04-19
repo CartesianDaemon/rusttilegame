@@ -24,7 +24,7 @@ use super::obj::Obj;
 #[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
 pub struct RosterHandle {
     // TODO: Think of as "Mov handle"? Think of ros_idx as value and x, y, h as cached coords?
-    pub ros_idx: usize,
+    pub ros_idx: u16,
 }
 
 impl RosterHandle {
@@ -131,9 +131,8 @@ impl Field {
         let orig_obj = self.map.ents_at_objmapref_m(objmapref).swap_remove(objmapref.h as usize);
 
         // For each other object in location, update objmapref in roster with changed height.
-        for h in (objmapref.h+1)..self.map.ents_at_objmapref_m(objmapref).len() as u16 {
+        for h in objmapref.h+1..self.map.ents_at_objmapref_m(objmapref).len() as u16 {
             self.roster[self.map.ents_at_objmapref_m(objmapref)[h as usize].curr_roster_handle].h = h;
-            // TODO: Also rewrite roster[] to take RosterHandle not ros_idx
             // TODO: Also rewrite ents_at_objmapref_m to map[], with allowing Loc to be indexed?
         }
 
@@ -420,7 +419,7 @@ impl Roster {
 
     pub fn all_movs(&self) -> Vec<RosterHandle> {
         // TODO: Possible to return iter() instead of collection, without borrow problems?
-        (0..self.movs.len()).into_iter().map(|ros_idx| RosterHandle { ros_idx } ).collect()
+        (0..self.movs.len() as u16).into_iter().map(|ros_idx| RosterHandle { ros_idx } ).collect()
     }
 
     fn add_to_roster_if_mov(&mut self, objmapref: ObjMapRef, placed_obj: &Obj) -> RosterHandle {
@@ -429,7 +428,7 @@ impl Roster {
             self.hero_hdl()
         } else if placed_obj.is_mob() {
             self.movs.push(objmapref);
-            RosterHandle { ros_idx: self.movs.len()-1 }
+            RosterHandle { ros_idx: self.movs.len() as u16 - 1 }
         } else {
             self.non_mov_handle()
         }
@@ -440,7 +439,7 @@ impl Index<RosterHandle> for Roster {
     type Output = ObjMapRef;
 
     fn index(&self, hdl: RosterHandle) -> &Self::Output {
-        let idx = hdl.ros_idx;
+        let idx = hdl.ros_idx as usize;
         match idx {
             0..99 => &self.movs[idx],
             99 => panic!("Used invalid 99 index into roster"),
@@ -452,7 +451,7 @@ impl Index<RosterHandle> for Roster {
 
 impl IndexMut<RosterHandle> for Roster {
     fn index_mut(&mut self, hdl: RosterHandle) -> &mut Self::Output {
-        let idx = hdl.ros_idx;
+        let idx = hdl.ros_idx as usize;
         match idx {
             0..98 => &mut self.movs[idx],
             98 => panic!("Used non-mov obj 98 index into roster"),
