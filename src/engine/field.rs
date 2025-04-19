@@ -24,7 +24,7 @@ use super::obj::Obj;
 #[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
 pub struct RosterHandle {
     // TODO: Think of as "Mov handle"? Think of ros_idx as value and x, y, h as cached coords?
-    pub ros_idx: RosIndex,
+    pub ros_idx: usize,
 }
 
 impl RosterHandle {
@@ -126,13 +126,13 @@ impl Field {
     /// Update roster (actually not needed?), obj.curr_pos and obj.prev_pos.
     // NOTE: The logic for maintaining ros indexes for multiple movs in one loc is still untested.
     pub fn move_obj_to(&mut self, roster_hdl: RosterHandle, pos: MapCoord) {
-        let objmapref = self.roster[roster_hdl.ros_idx];
+        let objmapref = self.roster[roster_hdl];
 
         let orig_obj = self.map.ents_at_objmapref_m(objmapref).swap_remove(objmapref.h as usize);
 
         // For each other object in location, update objmapref in roster with changed height.
         for h in (objmapref.h+1)..self.map.ents_at_objmapref_m(objmapref).len() as u16 {
-            self.roster[self.map.ents_at_objmapref_m(objmapref)[h as usize].curr_roster_handle.ros_idx].h = h;
+            self.roster[self.map.ents_at_objmapref_m(objmapref)[h as usize].curr_roster_handle].h = h;
             // TODO: Also rewrite roster[] to take RosterHandle not ros_idx
             // TODO: Also rewrite ents_at_objmapref_m to map[], with allowing Loc to be indexed?
         }
@@ -140,7 +140,7 @@ impl Field {
         let obj = Obj {prev_pos: objmapref.pos(), ..orig_obj};
 
         // Add Ent to top of stack at new map coords. Updates roster hdl to match new height.
-        self.roster[roster_hdl.ros_idx] = self.put_obj_in_map_and_return_updated_objmapref(pos.x, pos.y, obj);
+        self.roster[roster_hdl] = self.put_obj_in_map_and_return_updated_objmapref(pos.x, pos.y, obj);
     }
 
     /// Place an object in the map.
@@ -167,15 +167,15 @@ impl Field {
     }
 
     pub fn obj_props(&self, roster_hdl: RosterHandle) -> &Obj {
-        &self.map[self.roster[roster_hdl.ros_idx]]
+        &self.map[self.roster[roster_hdl]]
     }
 
     pub fn obj_props_m(&mut self, roster_hdl: RosterHandle) -> &mut Obj {
-        &mut self.map[self.roster[roster_hdl.ros_idx]]
+        &mut self.map[self.roster[roster_hdl]]
     }
 
     pub fn obj_pos(&self, roster_hdl: RosterHandle) -> MapCoord {
-        self.roster[roster_hdl.ros_idx].pos()
+        self.roster[roster_hdl].pos()
     }
 
     // TODO: Only valid if "dir" represents actual direction of movement, not just facing.
@@ -380,8 +380,6 @@ impl ObjMapRef
     }
 }
 
-type RosIndex = usize;
-
 /// Roster of objects which move autonomously.
 ///
 /// Objects are stored as MapHandles.
@@ -438,10 +436,11 @@ impl Roster {
     }
 }
 
-impl Index<RosIndex> for Roster {
+impl Index<RosterHandle> for Roster {
     type Output = ObjMapRef;
 
-    fn index(&self, idx: RosIndex) -> &Self::Output {
+    fn index(&self, hdl: RosterHandle) -> &Self::Output {
+        let idx = hdl.ros_idx;
         match idx {
             0..99 => &self.movs[idx],
             99 => panic!("Used invalid 99 index into roster"),
@@ -451,8 +450,9 @@ impl Index<RosIndex> for Roster {
     }
 }
 
-impl IndexMut<RosIndex> for Roster {
-    fn index_mut(&mut self, idx: RosIndex) -> &mut Self::Output {
+impl IndexMut<RosterHandle> for Roster {
+    fn index_mut(&mut self, hdl: RosterHandle) -> &mut Self::Output {
+        let idx = hdl.ros_idx;
         match idx {
             0..98 => &mut self.movs[idx],
             98 => panic!("Used non-mov obj 98 index into roster"),
