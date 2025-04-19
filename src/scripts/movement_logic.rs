@@ -12,11 +12,11 @@ pub fn impassable(field: &Field, pos: MapCoord) -> bool {
 
 // TODO: Could recombine into a single move function, with the engine or script logic deciding when
 //       to call it for the hero obj and when to call it for the other objs
-pub fn move_character_refactored(field: &mut Field, rich_hero: RichMapHandle, cmd: Cmd) -> SceneEnding {
+pub fn move_character(field: &mut Field, rich_hero: RichMapHandle, cmd: Cmd) -> SceneEnding {
     if cmd != Cmd::Stay {
         let target_pos = field.obj_pos(rich_hero) + cmd.as_dir();
         if passable(field, target_pos) {
-            field.obj_move_to_refactored(rich_hero, target_pos);
+            field.obj_move_to(rich_hero, target_pos);
         }
     }
     // TODO: Avoid needing to re-get the hero handle, make move function consume or update the rich_hero handle.
@@ -28,7 +28,7 @@ pub fn move_character_refactored(field: &mut Field, rich_hero: RichMapHandle, cm
     // TODO: Also check if hero died? Usually superfluous if we don't allow moving into death.
 }
 
-pub fn move_mov_refactored(field: &mut Field, rich_mov: RichMapHandle) -> SceneEnding {
+pub fn move_mov(field: &mut Field, rich_mov: RichMapHandle) -> SceneEnding {
     match field.obj_props(rich_mov).ai {
         AI::Stay => {
             // Do nothing
@@ -52,7 +52,7 @@ pub fn move_mov_refactored(field: &mut Field, rich_mov: RichMapHandle) -> SceneE
             // TODO: Consider adding field.obj_try_move() function?
             let target_pos = field.obj_pos(rich_mov) + field.obj_props(rich_mov).dir;
             if passable(field, target_pos) {
-                field.obj_move_to_refactored(rich_mov, target_pos);
+                field.obj_move_to(rich_mov, target_pos);
             }
 
             // Hero dies if mov moves onto hero
@@ -90,7 +90,7 @@ pub fn move_mov_refactored(field: &mut Field, rich_mov: RichMapHandle) -> SceneE
             // TODO: Animation for turning? At least avoiding wall?
             let delta = field.obj_props(rich_mov).dir + drift_dir;
             if passable(field, field.obj_pos(rich_mov) + delta) {
-                field.obj_move_to_refactored(rich_mov, field.obj_pos(rich_mov) + delta);
+                field.obj_move_to(rich_mov, field.obj_pos(rich_mov) + delta);
             }
 
             // Hero dies if mov moves onto hero
@@ -129,7 +129,7 @@ pub fn move_mov_refactored(field: &mut Field, rich_mov: RichMapHandle) -> SceneE
 
             // Move. Provided next space is passable. If all sides were impassable, don't move.
             if passable(field, field.obj_target_pos(rich_mov)) {
-                field.obj_move_to_refactored(rich_mov, field.obj_pos(rich_mov) + field.obj_props(rich_mov).dir);
+                field.obj_move_to(rich_mov, field.obj_pos(rich_mov) + field.obj_props(rich_mov).dir);
             }
 
             // Hero dies if bot moves onto hero
