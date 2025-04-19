@@ -117,12 +117,12 @@ impl Field {
         let orig_obj = Obj {
             backref: MapBackref {
                 curr_roster_handle: RosterHandle::invalid(),
-                curr_pos: MapCoord::invalid(),
-                prev_pos: MapCoord::invalid()
+                curr_pos: MapCoord{ x: -1, y: -1},
+                prev_pos: MapCoord{ x: -1, y: -1},
             },
             props,
         };
-        let objmapref = self.put_obj_in_map_and_return_updated_objmapref(x, y, orig_obj);
+        let objmapref = self.put_obj_in_map_and_return_updated_objmapref(x, y, orig_obj, false);
         // TODO: Can't pass obj to add_to_roster. For now used ai value. Could try obj as plain value, not borrow??
         self.backref_at_ref_m(objmapref).curr_roster_handle = self.roster.add_to_roster_if_mov(objmapref, self.props_at_ref(objmapref).ai);
     }
@@ -147,7 +147,7 @@ impl Field {
         let obj = orig_obj.clone();
 
         // Add Ent to top of stack at new map coords. Updates roster hdl to match new height.
-        self.roster[roster_hdl] = self.put_obj_in_map_and_return_updated_objmapref(pos.x, pos.y, obj);
+        self.roster[roster_hdl] = self.put_obj_in_map_and_return_updated_objmapref(pos.x, pos.y, obj, true);
     }
 
     /// Place an object in the map.
@@ -155,10 +155,10 @@ impl Field {
     /// Update curr_roster_handle, curr_pos, prev_pos. Return new obj ref.
     ///
     /// All obj placement and movement goes through spawn_at or move_obj_to, then this fn.
-    fn put_obj_in_map_and_return_updated_objmapref(&mut self, x: i16, y:i16, orig_obj: Obj) -> ObjMapRef {
+    fn put_obj_in_map_and_return_updated_objmapref(&mut self, x: i16, y:i16, orig_obj: Obj, preexisting: bool) -> ObjMapRef {
         let new_curr_pos = MapCoord::from_xy(x, y);
         let new_obj_ref = ObjMapRef { x, y, h: self.map[new_curr_pos].len() as u16 };
-        let prev_pos = if orig_obj.backref.curr_pos.is_valid() { orig_obj.backref.curr_pos } else {new_curr_pos};
+        let prev_pos = if preexisting { orig_obj.backref.curr_pos } else {new_curr_pos};
         self.map[new_curr_pos].objs_m().push(
             Obj {
                 backref: MapBackref {
