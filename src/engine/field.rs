@@ -190,7 +190,7 @@ impl Field {
         (0..self.map.h() as i16).map(|y|
             (0..self.map.w() as i16).map(|x| {
                 self.map_key.iter().find_map(|(ch,objs)|
-                    if self.map.at_xy(x,y) == objs {Some(ch.to_string())} else {None}
+                    if self.map.ents_at_xy(x,y) == objs {Some(ch.to_string())} else {None}
                 ).unwrap_or("?".to_string())
             }).collect::<Vec<_>>().join("")
         ).collect()
@@ -225,6 +225,7 @@ impl std::fmt::Debug for InternalMap {
     }
 }
 
+// TODO: at_ and loc_at_ etc fns only used in this file. Simplify what they should be?
 impl InternalMap {
     pub fn new(w: u16, h: u16) -> InternalMap {
         InternalMap {
@@ -244,7 +245,7 @@ impl InternalMap {
     ///
     /// Only used externally by Field::place_obj_at which keeps Roster in sync.
     fn place_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj) -> MapHandle {
-        let new_pos = MapHandle::from_xyh(x, y, self.at_xy(x, y).len() as u16);
+        let new_pos = MapHandle::from_xyh(x, y, self.ents_at_xy(x, y).len() as u16);
         let prev_pos = if orig_obj.cached_pos.x >=0 { orig_obj.cached_pos } else {new_pos};
         self.at_xym(x, y).push(
             Obj {
@@ -265,7 +266,7 @@ impl InternalMap {
     ///
     /// TODO: Reduce need for code outside map.rs to know how to use roster handles.
     pub fn obj_move_to(&mut self, hdl: &mut MapHandle, to: MapCoord) {
-        let on_top = hdl.h as usize == self.at_hdl(*hdl).len();
+        let on_top = hdl.h as usize == self.ents_at_hdl(*hdl).len();
 
         let orig_obj = if on_top {
             // Pop ent from top of stack.
@@ -282,8 +283,8 @@ impl InternalMap {
 
         // Remove any placeholders now at the top of the stack. Should only happen
         // if we popped ent from on top of them.
-        while !self.at_hdl(*hdl).is_empty() &&
-            self.at_hdl(*hdl).last().unwrap().is_placeholder() {
+        while !self.ents_at_hdl(*hdl).is_empty() &&
+            self.ents_at_hdl(*hdl).last().unwrap().is_placeholder() {
             self.at_hdlm(*hdl).pop();
         }
 
@@ -301,11 +302,11 @@ impl InternalMap {
     }
 
     // Ents at given coords.
-    pub fn at_xy(&self, x: i16, y:i16) -> &Vec<Obj> {
+    pub fn ents_at_xy(&self, x: i16, y:i16) -> &Vec<Obj> {
         &self.loc_at(MapCoord::from_xy(x, y)).0
     }
 
-    pub fn at_hdl(&self, pos: MapHandle) -> &Vec<Obj> {
+    pub fn ents_at_hdl(&self, pos: MapHandle) -> &Vec<Obj> {
         &self.loc_at(pos.pos()).0
     }
 
