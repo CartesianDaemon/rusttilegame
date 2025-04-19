@@ -78,7 +78,7 @@ impl Field {
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.
-        self.obj_props_m(Roster::hero_handle()).prev_pos = self[Roster::hero_handle()].curr_pos;
+        self.hero().prev_pos = self.hero().curr_pos;
 
         move_mov(self, self.hero_handle(), cmd)?;
 
@@ -172,6 +172,10 @@ impl Field {
 
     pub fn hero_handle(&self) -> RosterHandle {
         Roster::hero_handle()
+    }
+
+    pub fn hero(&mut self) -> &mut Obj {
+        &mut self[Roster::hero_handle()]
     }
 
     pub fn obj_props(&self, roster_hdl: RosterHandle) -> &Obj {
