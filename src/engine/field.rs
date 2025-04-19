@@ -39,11 +39,6 @@ impl ObjRef
         ObjRef {x, y, h}
     }
 
-    // TODO: Indicates places which shouldn't take a handle to start with..?
-    pub fn from_coord(coord: MapCoord) -> ObjRef {
-        ObjRef{x: coord.x, y: coord.y, h:0 }
-    }
-
     pub fn pos(self: ObjRef) -> MapCoord {
         MapCoord { x: self.x, y: self.y}
     }
@@ -193,9 +188,6 @@ impl Field {
             self.map.ents_at_hdl(*roster_hdl).last().unwrap().is_placeholder() {
             self.map.at_hdlm(*roster_hdl).pop();
         }
-
-        // Update caller's handle to new coords. Height will be set by put_at().
-        *roster_hdl = ObjRef::from_coord(pos);
 
         // Add Ent to top of stack at new map coords. Updates hdl to match new height.
         self.roster[rich_hdl.ros_idx] = self.add_obj_to_map_and_return_hdl(pos.x, pos.y, obj);
