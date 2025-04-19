@@ -6,13 +6,15 @@ use crate::scripts::*;
 use macroquad::prelude::*;
 
 /// Anything tile-sized and drawable including floor, wall, object, being.
+/// TODO: Could have a separate "Object in map" or "active object" representation in map?
 #[derive(Clone, Debug)]
 #[allow(dead_code)]
 pub struct Obj {
-    // Cache of coords ent is at on map. These are useful for movement logic, but probably
-    // aren't required.
-    pub cached_pos: MapHandle,
+    // TODO: curr_pos, ros_idx, prev_pos should be abstracted into an api, possbily reliant on field?
+    pub curr_pos: MapHandle,
     // pub ros_idx: MapHandle,
+
+    pub prev_pos: MapHandle,
 
     /// String representation of object, used internally for debug fmt etc.
     pub name: String,
@@ -31,10 +33,6 @@ pub struct Obj {
 
     pub text: Option<String>,
     pub text_col: Option<Color>,
-
-    /// Previous pos, expressed as handle (i.e coords and height)
-    /// Height only relevant compared to prev_pos of other objs.
-    pub prev_pos: MapHandle,
 
     // Ent properties and behaviour, used by Game logic.
 
@@ -55,7 +53,7 @@ impl Obj {
     // An unitialised ent
     pub fn invalid() -> Obj {
         Obj {
-            cached_pos: MapHandle::invalid(),
+            curr_pos: MapHandle::invalid(),
 
             name: "????".to_string(),
 
@@ -90,7 +88,7 @@ impl Obj {
     }
 
     pub fn is_placeholder(&self) -> bool {
-        self.cached_pos == MapHandle::invalid()
+        self.curr_pos == MapHandle::invalid()
     }
 
     pub fn assets_path() -> String {

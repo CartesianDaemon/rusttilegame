@@ -163,8 +163,8 @@ impl<'a> RenderLev<'a> {
 
         // FYI "let px = base_px + self.sq_w * (1.-pc_size) / 2. + self.sq_w * anim_pc;" makes me really seasick.
 
-        let dx = obj.cached_pos.x - obj.prev_pos.x;
-        let dy = obj.cached_pos.y - obj.prev_pos.y;
+        let dx = obj.curr_pos.x - obj.prev_pos.x;
+        let dy = obj.curr_pos.y - obj.prev_pos.y;
 
         // Switch to using fixed frame throughout from here?
         let slide_in_frame_units = Some(3);
@@ -179,7 +179,7 @@ impl<'a> RenderLev<'a> {
         let w = self.sq_w * pc_size;
         let h = self.sq_h * pc_size;
 
-        if !obj.is_any_mov() {rsst!(obj.prev_pos == obj.cached_pos)}
+        if !obj.is_any_mov() {rsst!(obj.prev_pos == obj.curr_pos)}
 
         let alpha = if self.as_ghost {self.ghost_alpha} else {1.};
 

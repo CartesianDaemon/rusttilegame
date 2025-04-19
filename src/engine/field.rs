@@ -112,14 +112,13 @@ impl Field {
     }
 
     pub fn advance(&mut self, cmd: Cmd) -> SceneEnding  {
-        // FIXME: Decide order of char, enemy. Before or after not quite right. Or need
+        // TODO: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
-        // STUB: Maybe display char moving out of sync with enemy.
+        // TODO: Consider: Maybe display char moving out of sync with enemy.
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.
-        let tmp = self.map[self.roster.hero].cached_pos;
-        self.map[self.roster.hero].prev_pos = tmp;
+        self.map[self.roster.hero].prev_pos = self.map[self.roster.hero].curr_pos;
 
         move_mov(self, self.rich_hero(), cmd)?;
 
@@ -223,6 +222,7 @@ impl Field {
 }
 
 // "Map": Grid of locations. Represents state of current level.
+// NOTE: Could currently be moved back into Field. Not borrowed separately.
 #[derive(Clone)]
 struct InternalMap {
     // Stored as a collection of columns, e.g. map.locs[x][y]
@@ -279,10 +279,10 @@ impl InternalMap {
     /// Only used externally by Field::place_obj_at which keeps Roster in sync.
     fn place_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj) -> MapHandle {
         let new_pos = MapHandle::from_xyh(x, y, self.ents_at_xy(x, y).len() as u16);
-        let prev_pos = if orig_obj.cached_pos.x >=0 { orig_obj.cached_pos } else {new_pos};
+        let prev_pos = if orig_obj.curr_pos.x >=0 { orig_obj.curr_pos } else {new_pos};
         self.at_xym(x, y).push(
             Obj {
-                cached_pos: new_pos,
+                curr_pos: new_pos,
                 prev_pos,
                 ..orig_obj
             }
@@ -434,6 +434,7 @@ type RosIndex = usize;
 /// it's theoretically correct to have a roster. Especially for hero location.
 ///
 /// Would still like to simplify how ownership of map objects works.
+// NOTE: Could currently be moved back into Field. Not borrowed separately.
 #[derive(Clone, Debug)]
 struct Roster {
     // Hero
