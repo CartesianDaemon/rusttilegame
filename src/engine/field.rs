@@ -78,7 +78,7 @@ impl Field {
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.
-        self.obj_props_m(self.roster.hero_hdl()).prev_pos = self.obj_props(self.roster.hero_hdl()).curr_pos;
+        self.obj_props_m(self.roster.hero_hdl()).prev_pos = self[self.roster.hero_hdl()].curr_pos;
 
         move_mov(self, self.rich_hero(), cmd)?;
 
@@ -87,7 +87,7 @@ impl Field {
             // Going through tmp is necessary to avoid two dynamic borrows at the same time..
             // NOTE: If map is RefCell needs to be done in two steps else runtime panic.
             // NOTE: And obj_at() is also incompatible with RefCell.
-            self.obj_props_m(rich_mov).prev_pos = self.obj_pos(rich_mov);
+            self[rich_mov].prev_pos = self.obj_pos(rich_mov);
 
             move_mov(self, rich_mov, cmd)?;
         }
@@ -188,7 +188,7 @@ impl Field {
 
     // TODO: Only valid if "dir" represents actual direction of movement, not just facing.
     pub fn obj_target_pos(&self, roster_hdl: RosterHandle) -> MapCoord {
-        self.obj_pos(roster_hdl) + self.obj_props(roster_hdl).dir
+        self.obj_pos(roster_hdl) + self[roster_hdl].dir
     }
 
     pub fn any_effect(&self, pos: MapCoord, sought_effect: Effect) -> bool {
@@ -222,21 +222,19 @@ impl Field {
     }
 }
 
-/* TODO: Change to have Field deref RosterHandle to Obj?
-impl Index<ObjMapRef> for Field {
+impl Index<RosterHandle> for Field {
     type Output = Obj;
 
-    fn index(&self, objmapref: ObjMapRef) -> &Self::Output {
-        &self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
+    fn index(&self, roster_handle: RosterHandle) -> &Self::Output {
+        self.at_ref(self.roster[roster_handle])
     }
 }
 
-impl IndexMut<ObjMapRef> for Field {
-    fn index_mut(&mut self, objmapref: ObjMapRef) -> &mut Self::Output {
-        &mut self.map.locs[objmapref.x as usize][objmapref.y as usize][objmapref.h as usize]
+impl IndexMut<RosterHandle> for Field {
+    fn index_mut(&mut self, roster_handle: RosterHandle) -> &mut Self::Output {
+        self.at_ref_m(self.roster[roster_handle])
     }
 }
-*/
 
 // "Map": Grid of locations. Represents state of current level.
 // NOTE: Could currently be moved back into Field. Not borrowed separately.
