@@ -23,36 +23,34 @@ use super::map_coords::*;
 
 use super::obj::Obj;
 
-/// A handle identifying an Ent in the map.
-///
-/// Implemented as the MapCoord and index into Ents at that Loc.
-///
-/// TODO: Include RosIdx in MapHandle too??
+/// Coords and height of Ent in map.
+/// Used in Roster to cache index to object to access it.
+/// We should keep this ONLY in roster, so it can be updated when objs move.
 #[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
-pub struct MapHandle {
+struct ObjRef {
     pub x: i16,
     pub y: i16,
     pub h: u16,
 }
 
-impl MapHandle
+impl ObjRef
 {
-    pub fn from_xyh(x: i16, y: i16, h: u16) -> MapHandle {
-        MapHandle {x, y, h}
+    pub fn from_xyh(x: i16, y: i16, h: u16) -> ObjRef {
+        ObjRef {x, y, h}
     }
 
     // TODO: Indicates places which shouldn't take a handle to start with..?
-    pub fn from_coord(coord: MapCoord) -> MapHandle {
-        MapHandle{x: coord.x, y: coord.y, h:0 }
+    pub fn from_coord(coord: MapCoord) -> ObjRef {
+        ObjRef{x: coord.x, y: coord.y, h:0 }
     }
 
-    pub fn pos(self: MapHandle) -> MapCoord {
+    pub fn pos(self: ObjRef) -> MapCoord {
         MapCoord { x: self.x, y: self.y}
     }
 }
 
 // TODO: Can we remove this? And "use Add".
-impl Add<CoordDelta> for MapHandle {
+impl Add<CoordDelta> for ObjRef {
     type Output = MapCoord;
     fn add(self, delta: CoordDelta) -> MapCoord {
         MapCoord { x: self.x + delta.dx, y: self.y + delta.dy }
@@ -197,7 +195,7 @@ impl Field {
         }
 
         // Update caller's handle to new coords. Height will be set by put_at().
-        *roster_hdl = MapHandle::from_coord(pos);
+        *roster_hdl = ObjRef::from_coord(pos);
 
         // Add Ent to top of stack at new map coords. Updates hdl to match new height.
         self.roster[rich_hdl.ros_idx] = self.add_obj_to_map_and_return_hdl(pos.x, pos.y, obj);
@@ -206,13 +204,15 @@ impl Field {
     /// Place an object in the map and return a handle.
     ///
     /// May go away if we only use rich handles to roster not to map.
-    fn add_obj_to_map_and_return_hdl(&mut self, x: i16, y:i16, orig_obj: Obj) -> MapHandle {
-        let new_pos = MapCoord::from_xy(x, y);
-        let handle = MapHandle::from_xyh(x, y, self.map.ents_at_xy(x, y).len() as u16);
-        let prev_pos = if orig_obj.curr_pos.x >=0 { orig_obj.curr_pos } else {new_pos};
+    ///
+    /// All obj placement and movement goes through spawn_at or move_obj_to, then this fn.
+    fn add_obj_to_map_and_return_hdl(&mut self, x: i16, y:i16, orig_obj: Obj) -> ObjRef {
+        let new_curr_pos = MapCoord::from_xy(x, y);
+        let handle = ObjRef::from_xyh(x, y, self.map.ents_at_xy(x, y).len() as u16);
+        let prev_pos = if orig_obj.curr_pos.x >=0 { orig_obj.curr_pos } else {new_curr_pos};
         self.map.at_xym(x, y).push(
             Obj {
-                curr_pos: new_pos,
+                curr_pos: new_curr_pos,
                 prev_pos,
                 ..orig_obj
             }
@@ -281,16 +281,16 @@ struct InternalMap {
     locs: Vec<Vec<Loc>>,
 }
 
-impl Index<MapHandle> for InternalMap {
+impl Index<ObjRef> for InternalMap {
     type Output = Obj;
 
-    fn index(&self, pos: MapHandle) -> &Self::Output {
+    fn index(&self, pos: ObjRef) -> &Self::Output {
         &self.locs[pos.x as usize][pos.y as usize].0[pos.h as usize]
     }
 }
 
-impl IndexMut<MapHandle> for InternalMap {
-    fn index_mut(&mut self, pos: MapHandle) -> &mut Self::Output {
+impl IndexMut<ObjRef> for InternalMap {
+    fn index_mut(&mut self, pos: ObjRef) -> &mut Self::Output {
         &mut self.locs[pos.x as usize][pos.y as usize].0[pos.h as usize]
     }
 }
@@ -336,12 +336,12 @@ impl InternalMap {
         &self.loc_at(MapCoord::from_xy(x, y)).0
     }
 
-    pub fn ents_at_hdl(&self, pos: MapHandle) -> &Vec<Obj> {
+    pub fn ents_at_hdl(&self, pos: ObjRef) -> &Vec<Obj> {
         &self.loc_at(pos.pos()).0
     }
 
     // As "at" but mutably
-    pub fn at_hdlm(&mut self, pos: MapHandle) -> &mut Vec<Obj> {
+    pub fn at_hdlm(&mut self, pos: ObjRef) -> &mut Vec<Obj> {
         &mut self.locs[pos.x as usize][pos.y as usize].0
     }
 
@@ -436,30 +436,30 @@ type RosIndex = usize;
 struct Roster {
     // Hero
     // FIXME: Better name for protagonist than "hero".
-    pub hero: MapHandle,
+    pub hero: ObjRef,
 
     // Anything which updates each tick, especially enemies.
     //
     // Might be replaced by a set of lists of "everything that has this property" etc
     // like a Component system.
-    pub movs: Vec<MapHandle>,
+    pub movs: Vec<ObjRef>,
 }
 
 impl Roster {
     pub fn new() -> Roster {
         Roster {
-            hero: MapHandle::from_xyh(0, 0, 1),
+            hero: ObjRef::from_xyh(0, 0, 1),
             movs: vec![],
         }
     }
 
-    pub fn push_mov(&mut self, hdl: MapHandle) {
+    pub fn push_mov(&mut self, hdl: ObjRef) {
         self.movs.push(hdl);
     }
 }
 
 impl Index<RosIndex> for Roster {
-    type Output = MapHandle;
+    type Output = ObjRef;
 
     fn index(&self, idx: RosIndex) -> &Self::Output {
         match idx {
