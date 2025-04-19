@@ -555,15 +555,6 @@ impl Loc {
         self.iter().all(|x| x.pass == sought_pass)
     }
 
-    pub fn passable(&self) -> bool {
-        !self.impassable()
-    }
-
-    pub fn impassable(&self) -> bool {
-        // Can this fn work without knowledge of specific properties?
-        self.any_pass(Pass::Solid)
-    }
-
     fn map_fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         for ent in self {
             write!(f, "{},", ent.name)?;
