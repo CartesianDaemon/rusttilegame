@@ -114,6 +114,7 @@ impl Field {
     pub fn spawn_obj_at(&mut self, x: i16, y:i16, orig_obj: Obj)
     {
         let objmapref = self.put_obj_in_map_and_return_updated_objmapref(x, y, orig_obj);
+        // TODO: Borrowing in lines like this are the challenge for folding map and roster into field.
         self.map[objmapref].curr_roster_handle = self.roster.add_to_roster_if_mov(objmapref, &self.map[objmapref])
     }
 
@@ -178,20 +179,12 @@ impl Field {
         RosterHandle { ros_idx: 100 }
     }
 
-    fn obj_props_at_objmapref(&self, objmapref: ObjMapRef) -> &Obj {
-        &self.map[objmapref]
-    }
-
-    fn obj_props_at_objmapref_m(&mut self, objmapref: ObjMapRef) -> &mut Obj {
-        &mut self.map[objmapref]
-    }
-
     pub fn obj_props(&self, roster_hdl: RosterHandle) -> &Obj {
-        &self.obj_props_at_objmapref(self.roster[roster_hdl.ros_idx])
+        &self.map[self.roster[roster_hdl.ros_idx]]
     }
 
     pub fn obj_props_m(&mut self, roster_hdl: RosterHandle) -> &mut Obj {
-        self.obj_props_at_objmapref_m(self.roster[roster_hdl.ros_idx])
+        &mut self.map[self.roster[roster_hdl.ros_idx]]
     }
 
     pub fn obj_pos(&self, roster_hdl: RosterHandle) -> MapCoord {
