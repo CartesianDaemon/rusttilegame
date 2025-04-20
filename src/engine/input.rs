@@ -3,12 +3,11 @@ use macroquad::prelude::*;
 use super::map_coords::Cmd;
 
 /// Interaction from user. Including timing.
+///
+/// TODO: Nice to simplify interface and move the correct things here and into Play.
 pub struct Input {
-    // Time of last frame.
-    // Could be set via a ready_for_tick() fn
-    // TODO: Move into play?
     pub last_real_update: f64,
-    pub last_ghost_update: f64,
+    last_ghost_update: f64,
 
     // Time between ticks in sec.
     speed: f64,
