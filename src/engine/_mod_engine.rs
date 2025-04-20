@@ -31,14 +31,14 @@ pub mod scripting {
     pub use super::obj::ObjProperties;
     pub use super::field::{Field, RosterIndex};
     pub use super::map_coords::*;
-    pub use super::scene::{SceneEnding, Continuation};
+    pub use super::scene::{SceneContinuation, SceneEnding};
 }
 
 // Public interface for writing a custom game
 pub mod customgame {
     pub use super::obj::ObjProperties;
     pub use super::gametrait::*;
-    pub use super::scene::{Scene, Continuation};
+    pub use super::scene::{Scene, SceneEnding};
     pub use super::map_coords::*;
 }
 

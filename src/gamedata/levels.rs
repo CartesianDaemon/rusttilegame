@@ -26,17 +26,17 @@ impl GameTrait for BiobotGame {
         BiobotGame { current_sceneid: BiobotSceneId::NewGame }
     }
 
-    fn advance_scene(&mut self, continuation: Continuation) {
+    fn advance_scene(&mut self, continuation: SceneEnding) {
         self.current_sceneid = match (self.current_sceneid, continuation) {
-            (BiobotSceneId::NewGame, Continuation::SplashContinue) => BiobotSceneId::LevIntro(1),
-            (BiobotSceneId::LevIntro(levnum), Continuation::SplashContinue) => BiobotSceneId::LevPlay(levnum),
-            (BiobotSceneId::LevPlay(levnum), Continuation::PlayWin) => BiobotSceneId::LevOutro(levnum),
-            (BiobotSceneId::LevPlay(levnum), Continuation::PlayDie) => BiobotSceneId::LevRetry(levnum),
-            (BiobotSceneId::LevRetry(levnum), Continuation::SplashContinue) => BiobotSceneId::LevPlay(levnum),
+            (BiobotSceneId::NewGame, SceneEnding::SplashNext) => BiobotSceneId::LevIntro(1),
+            (BiobotSceneId::LevIntro(levnum), SceneEnding::SplashNext) => BiobotSceneId::LevPlay(levnum),
+            (BiobotSceneId::LevPlay(levnum), SceneEnding::PlayWin) => BiobotSceneId::LevOutro(levnum),
+            (BiobotSceneId::LevPlay(levnum), SceneEnding::PlayDie) => BiobotSceneId::LevRetry(levnum),
+            (BiobotSceneId::LevRetry(levnum), SceneEnding::SplashNext) => BiobotSceneId::LevPlay(levnum),
             // TODO: Get max levnum from list of levels?
-            (BiobotSceneId::LevOutro(2), Continuation::SplashContinue) => BiobotSceneId::Win,
-            (BiobotSceneId::LevOutro(levnum), Continuation::SplashContinue) => BiobotSceneId::LevOutro(levnum+1),
-            (BiobotSceneId::Win, Continuation::SplashContinue) => BiobotSceneId::NewGame,
+            (BiobotSceneId::LevOutro(2), SceneEnding::SplashNext) => BiobotSceneId::Win,
+            (BiobotSceneId::LevOutro(levnum), SceneEnding::SplashNext) => BiobotSceneId::LevOutro(levnum+1),
+            (BiobotSceneId::Win, SceneEnding::SplashNext) => BiobotSceneId::NewGame,
             _ => panic!()
         };
     }

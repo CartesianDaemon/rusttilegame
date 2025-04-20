@@ -6,39 +6,13 @@ use crate::engine::input::Input;
 use crate::engine::field::Field;
 use crate::engine::obj::ObjProperties;
 
-/// How a scene ended, used to tell which to go to next
-pub enum Continuation {
-    SplashContinue,
+pub enum SceneEnding {
+    SplashNext,
     PlayWin,
     PlayDie,
 }
 
-pub enum SceneEnding {
-    NextScene(Continuation),
-    ContinuePlaying
-}
-
-impl std::ops::FromResidual<Continuation> for SceneEnding {
-    fn from_residual(continuation: Continuation) -> Self {
-        SceneEnding::NextScene(continuation)
-    }
-}
-
-impl std::ops::Try for SceneEnding {
-    type Output = ();
-    type Residual = Continuation;
-
-    fn from_output(_: Self::Output) -> Self {
-        SceneEnding::ContinuePlaying
-    }
-
-    fn branch(self) -> ControlFlow<Self::Residual, Self::Output> {
-        match self {
-            SceneEnding::ContinuePlaying => ControlFlow::Continue(()),
-            SceneEnding::NextScene(continuation) => ControlFlow::Break(continuation),
-        }
-    }
-}
+pub type SceneContinuation = ControlFlow<SceneEnding, ()>;
 
 // TODO: Might be nice to make common base type trait for Play and Splash.
 // TODO: Or even move Scene types into a helper directory somewhere between
@@ -84,7 +58,7 @@ impl Scene {
 
     // Advance game state according to current state
     // TODO: Consider implementing common interface from input to structs?
-    pub fn advance(&mut self, input : &mut Input) -> SceneEnding {
+    pub fn advance(&mut self, input : &mut Input) -> SceneContinuation {
         match self {
             Self::Play(play) => play.advance(input),
             Self::Splash(play) => play.advance(input),

@@ -1,4 +1,4 @@
-use super::{SceneEnding};
+use super::{SceneContinuation};
 
 use std::collections::HashMap;
 
@@ -27,7 +27,7 @@ impl Play
         }
     }
 
-    pub fn advance(&mut self, input : &mut Input) -> SceneEnding  {
+    pub fn advance(&mut self, input : &mut Input) -> SceneContinuation  {
         let cmd = input.consume_cmd().unwrap_or(Cmd::default_cmd());
         self.field.advance(cmd)
     }

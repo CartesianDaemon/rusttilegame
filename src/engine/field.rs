@@ -15,7 +15,7 @@ use culpa::try_fn;
 
 use crate::scripts::*;
 
-use super::scene::SceneEnding;
+use super::scene::SceneContinuation;
 
 use super::map_coords::*;
 
@@ -64,7 +64,7 @@ impl Field {
         field
     }
 
-    pub fn advance(&mut self, cmd: Cmd) -> SceneEnding  {
+    pub fn advance(&mut self, cmd: Cmd) -> SceneContinuation  {
         // TODO: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // TODO: Consider: Maybe display char moving out of sync with enemy.
@@ -84,7 +84,7 @@ impl Field {
 
             move_mov(self, rich_mov, cmd)?;
         }
-        SceneEnding::ContinuePlaying
+        SceneContinuation::Continue(())
     }
 
     pub fn map_w(&self) -> u16 {

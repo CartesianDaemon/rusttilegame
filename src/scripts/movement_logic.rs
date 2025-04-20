@@ -10,7 +10,7 @@ pub fn impassable(field: &Field, pos: MapCoord) -> bool {
     !passable(field, pos)
 }
 
-pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneEnding {
+pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuation {
     match field.obj(mov).ai {
         AI::Stay => {
             // Do nothing
@@ -24,9 +24,9 @@ pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneEnding {
             }
             // TODO: Avoid needing to re-get the hero handle, make move function consume or update the rich_mov handle.
             return if field.any_effect(field.hero_pos(), Effect::Win) {
-                SceneEnding::NextScene(Continuation::PlayWin)
+                SceneContinuation::Break(SceneEnding::PlayWin)
             } else {
-                SceneEnding::ContinuePlaying
+                SceneContinuation::Continue(())
             }
             // TODO: Also check if hero died? Usually superfluous if we don't allow moving into death.
         }
@@ -52,7 +52,7 @@ pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneEnding {
             // Hero dies if mov moves onto hero
             // TODO: Check at end of function? Or as part of obj?
             if field.obj(mov).effect == Effect::Kill && field.obj_pos(mov) == field.hero_pos() {
-                return SceneEnding::NextScene(Continuation::PlayDie);
+                return SceneContinuation::Break(SceneEnding::PlayDie);
             }
         },
         AI::Drift => {
@@ -89,7 +89,7 @@ pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneEnding {
 
             // Hero dies if mov moves onto hero
             if field.obj(mov).effect == Effect::Kill && field.obj_pos(mov) == field.hero_pos() {
-                return SceneEnding::NextScene(Continuation::PlayDie);
+                return SceneContinuation::Break(SceneEnding::PlayDie);
             }
         },
         AI::Scuttle => {
@@ -128,9 +128,9 @@ pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneEnding {
 
             // Hero dies if bot moves onto hero
             if field.obj(mov).effect == Effect::Kill && field.obj_pos(mov) == field.hero_pos() {
-                return SceneEnding::NextScene(Continuation::PlayDie);
+                return SceneContinuation::Break(SceneEnding::PlayDie);
             }
         },
     }
-    return SceneEnding::ContinuePlaying;
+    return SceneContinuation::Continue(());
 }
