@@ -14,16 +14,9 @@ pub enum SceneEnding {
 
 pub type SceneContinuation = ControlFlow<SceneEnding, ()>;
 
-// TODO: Might be nice to make common base type trait for Play and Splash.
-// TODO: Or even move Scene types into a helper directory somewhere between
-//       game engine and individual game.
-
-/// State of current scene: current level, map, etc.
+/// One unit of gameplay: one map layout, one splash screen, etc.
 ///
-/// Public fields should only be needed by Render or produced by load, not
-/// used elsewhere.
-///
-/// TODO: Using Enum of alternate structs pattern, consider looking for helper crate?
+/// Would be nice to have base trait for scene types. Look for helper crate?
 #[derive(Clone, Debug)]
 pub enum Scene {
     Play(Play),
@@ -46,18 +39,15 @@ impl Scene {
         Scene::Play(Play::from_ascii(ascii_map, map_key))
     }
 
-    // Does current mode need UI to wait for tick before updating state?
-    // Yes during play of level, no in splash screens.
-    // TODO: Move into play and splash structs.
-    pub fn continuous(&self) -> bool {
+    // Does current scene act on user input immediately (not governed by a game tick)?
+    pub fn is_continuous(&self) -> bool {
         match self {
             Self::Splash(_) => true,
             Self::Play(_) => false,
         }
     }
 
-    // Advance game state according to current state
-    // TODO: Consider implementing common interface from input to structs?
+    // Advance game state. Called when clock ticks or when user inputs.
     pub fn advance(&mut self, input : &mut Input) -> SceneContinuation {
         match self {
             Self::Play(play) => play.advance(input),
@@ -65,8 +55,7 @@ impl Scene {
         }
     }
 
-    // TODO: Consider trying to remove necessity?
-    #[allow(dead_code)]
+    #[cfg(test)]
     pub fn as_play(&self) -> &Play {
         match self {
             Self::Play(play) => &play,
@@ -74,7 +63,7 @@ impl Scene {
         }
     }
 
-    // TODO: Consider trying to remove necessity?
+    // Used in game to create ghost map state. Ought to return Option.
     pub fn to_play_or_placeholder(&self) -> Play {
         match self {
             Self::Play(play) => play.clone(),
@@ -84,14 +73,8 @@ impl Scene {
         }
     }
 
-    // TODO: Move into play. Still needed?
-    #[allow(dead_code)]
-    pub fn as_ascii_cols(&self)-> Vec<String>  {
-        self.as_play().field.as_ascii_cols()
-    }
-
-    // TODO: Move into play. Still needed?
-    #[allow(dead_code)]
+    // Used for debugging. Ideally would avoid .as_play().
+    #[cfg(test)]
     pub fn as_ascii_rows(&self)-> Vec<String>  {
         self.as_play().field.as_ascii_rows()
     }

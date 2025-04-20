@@ -81,7 +81,7 @@ impl<Game: gametrait::GameTrait> Engine<Game> {
         /* ENH: Can read_input be combined with wait_for_tick? */
         self.input.read_input();
 
-        if self.play_state.continuous() || self.input.ready_to_advance_game_state(&mut self.anim_real_pc, &mut self.slide_real_pc) {
+        if self.play_state.is_continuous() || self.input.ready_to_advance_game_state(&mut self.anim_real_pc, &mut self.slide_real_pc) {
             match self.play_state.advance(&mut self.input) {
                 SceneContinuation::Continue(_) => (),
                 SceneContinuation::Break(scene_ending) => self.play_state = self.game.load_next_scene(scene_ending),

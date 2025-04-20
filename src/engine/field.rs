@@ -216,6 +216,7 @@ impl Field {
     }
 
     /// Ascii representation of map. Test functions check it's as expected.
+    #[allow(dead_code)]
     pub fn as_ascii_cols(&self) -> Vec<String> {
         (&self.map.locs).into_iter().map(|row|
             (&row).into_iter().map(|loc| {
@@ -227,6 +228,7 @@ impl Field {
     }
 
     /// Ascii representation of map. Test functions check it's as expected.
+    #[cfg(test)]
     pub fn as_ascii_rows(&self) -> Vec<String> {
         (0..self.map.h() as i16).map(|y|
             (0..self.map.w() as i16).map(|x| {
