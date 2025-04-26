@@ -141,7 +141,6 @@ impl Field {
         let obj = self.map[orig_pos].objs_m().remove(orig_h as usize);
 
         // For each other object in location, update its mapref in roster with changed height.
-        // TODO: Nice to have briefer indexing without "as usize"
         for h in orig_h+1..self.map[orig_pos].len() as u16 {
             let other_roster_idx = self.map[orig_pos][h].refs.curr_roster_idx;
             self.roster[other_roster_idx].h = h;
@@ -209,10 +208,10 @@ impl Field {
     /// Ascii representation of map. Test functions check it's as expected.
     #[cfg(test)]
     pub fn as_ascii_rows(&self) -> Vec<String> {
-        (0..self.map.h() as i16).map(|y|
-            (0..self.map.w() as i16).map(|x| {
+        (0..self.map.h() as usize).map(|y|
+            (0..self.map.w() as usize).map(|x| {
                 self.map_key.iter().find_map(|(ch,objs)|
-                    if self.map[MapCoord::from_xy(x, y)].obj_props() == *objs {Some(ch.to_string())} else {None}
+                    if self.map.locs[y][x].obj_props() == *objs {Some(ch.to_string())} else {None}
                 ).unwrap_or("?".to_string())
             }).collect::<Vec<_>>().join("")
         ).collect()
@@ -248,8 +247,6 @@ pub struct Refs {
 struct Map {
     // Stored as a collection of columns, e.g. map.locs[x][y]
     // Must always be rectangular.
-    //
-    // TODO: Expose better index fn on map or locs taking u16 not usize.
     locs: Vec<Vec<Loc>>,
 }
 
@@ -328,6 +325,7 @@ pub struct LocIterator<'a> {
 }
 
 impl Iterator for CoordIterator {
+    // TODO: Could convert to usize on input. Would need another way of representing "Before map" coord.
     type Item = (i16, i16);
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -509,6 +507,7 @@ impl Loc {
         self.0.len()
     }
 
+    // TODO: Remove tuple alias type and just have objs as a member?
     pub fn objs(&self) -> &Vec<MapObj> {
         &self.0
     }
