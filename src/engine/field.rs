@@ -73,21 +73,22 @@ impl Field {
         // TODO: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // TODO: Consider: Maybe display char moving out of sync with enemy.
+        let hero = Roster::hero();
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.
-        self[Roster::hero_handle()].backpos.prev_pos = self.hero_backpos().curr_pos;
+        self[hero].backpos.prev_pos = self[hero].backpos.curr_pos;
 
-        move_mov(self, Roster::hero_handle(), cmd)?;
+        move_mov(self, hero, cmd)?;
 
-        for rich_mov in self.roster.all_movs() {
+        for mov in self.roster.all_movs() {
             // Before movement, reset "prev". Will be overwritten if movement happens.
             // Going through tmp is necessary to avoid two dynamic borrows at the same time..
             // NOTE: If map is RefCell needs to be done in two steps else runtime panic.
             // NOTE: And obj_at() is also incompatible with RefCell.
-            self[rich_mov].backpos.prev_pos = self.obj_pos(rich_mov);
+            self[mov].backpos.prev_pos = self.obj_pos(mov);
 
-            move_mov(self, rich_mov, cmd)?;
+            move_mov(self, mov, cmd)?;
         }
         SceneContinuation::Continue(())
     }
@@ -166,20 +167,12 @@ impl Field {
         self.roster[roster_idx].h = self.map[target_pos].len() as u16 -1;
     }
 
-    pub fn backpos(&self, roster_idx: RosterIndex) -> &Backpos {
-        &self[roster_idx].backpos
-    }
-
     pub fn obj_pos(&self, roster_idx: RosterIndex) -> MapCoord {
         self.roster[roster_idx].pos()
     }
 
-    pub fn hero_backpos(&self) -> &Backpos {
-        self.backpos(Roster::hero_handle())
-    }
-
-    pub fn hero_pos(&self) -> MapCoord {
-        self.obj_pos(Roster::hero_handle())
+    pub fn hero(&self) -> RosterIndex {
+        Roster::hero()
     }
 
     // TODO: Only valid if "dir" represents actual direction of movement, not just facing.
@@ -423,7 +416,7 @@ impl Roster {
         }
     }
 
-    pub fn hero_handle() -> RosterIndex {
+    pub fn hero() -> RosterIndex {
         RosterIndex { ros_idx: 100 }
     }
 
@@ -439,7 +432,7 @@ impl Roster {
     fn add_to_roster_if_mov(&mut self, mapref: MapRef, props: &ObjProperties) -> RosterIndex {
         if ObjProperties::is_hero(props.ai) {
         self.hero = mapref;
-            Self::hero_handle()
+            Self::hero()
         } else if ObjProperties::is_mob(props.ai) {
             self.movs.push(mapref);
             RosterIndex { ros_idx: self.movs.len() as u16 - 1 }

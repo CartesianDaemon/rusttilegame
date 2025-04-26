@@ -11,6 +11,7 @@ pub fn impassable(field: &Field, pos: MapCoord) -> bool {
 }
 
 pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuation {
+    let hero = field.hero();
     match field[mov].props.ai {
         AI::Stay => {
             // Do nothing
@@ -23,7 +24,7 @@ pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuat
                 }
             }
             // TODO: Avoid needing to re-get the hero handle, make move function consume or update the rich_mov handle.
-            return if field.any_effect(field.hero_pos(), Effect::Win) {
+            return if field.any_effect(field[mov].backpos.curr_pos, Effect::Win) {
                 SceneContinuation::Break(SceneEnding::PlayWin)
             } else {
                 SceneContinuation::Continue(())
@@ -51,7 +52,7 @@ pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuat
 
             // Hero dies if mov moves onto hero
             // TODO: Check at end of function? Or as part of obj?
-            if field[mov].props.effect == Effect::Kill && field.obj_pos(mov) == field.hero_pos() {
+            if field[mov].props.effect == Effect::Kill && field.obj_pos(mov) == field.obj_pos(hero) {
                 return SceneContinuation::Break(SceneEnding::PlayDie);
             }
         },
@@ -66,7 +67,7 @@ pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuat
 
                 // And if hero "visible" forward or sideways, move one sideways towards them, if passable.
                 // TODO: Check for obstacles to vision.
-                let hero_dir = field.obj_pos(mov).dir_to(field.hero_pos());
+                let hero_dir = field.obj_pos(mov).dir_to(field.obj_pos(hero));
                 if field[mov].props.dir.dx == 0 {
                     if hero_dir.dy != -field[mov].props.dir.dy {
                         drift_dir = CoordDelta::from_xy(hero_dir.dx, 0);
@@ -88,15 +89,15 @@ pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuat
             }
 
             // Hero dies if mov moves onto hero
-            if field[mov].props.effect == Effect::Kill && field.obj_pos(mov) == field.hero_pos() {
+            if field[mov].props.effect == Effect::Kill && field.obj_pos(mov) == field.obj_pos(hero) {
                 return SceneContinuation::Break(SceneEnding::PlayDie);
             }
         },
         AI::Scuttle => {
             // If hitting wall, choose new direction.
             if impassable(field, field.obj_target_pos(mov)) {
-                let hero_dir = field.obj_pos(mov).dir_to(field.hero_pos());
-                let hero_delta = field.obj_pos(mov).delta_to(field.hero_pos());
+                let hero_dir = field.obj_pos(mov).dir_to(field.obj_pos(hero));
+                let hero_delta = field.obj_pos(mov).delta_to(field.obj_pos(hero));
                 // Find whether x or y is more towards the hero
                 let x_longer_than_y = match hero_delta.dx.abs() - hero_delta.dy.abs() {
                     num if num > 0 => true,
@@ -127,7 +128,7 @@ pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuat
             }
 
             // Hero dies if bot moves onto hero
-            if field[mov].props.effect == Effect::Kill && field.obj_pos(mov) == field.hero_pos() {
+            if field[mov].props.effect == Effect::Kill && field.obj_pos(mov) == field.obj_pos(hero) {
                 return SceneContinuation::Break(SceneEnding::PlayDie);
             }
         },
