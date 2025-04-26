@@ -166,21 +166,12 @@ impl Field {
         self.roster[roster_idx].h = self.map[target_pos].len() as u16 -1;
     }
 
-    pub fn objm(&mut self, roster_idx: RosterIndex) -> &mut ObjProperties {
-        &mut self[roster_idx].props
-    }
-
     pub fn backpos(&self, roster_idx: RosterIndex) -> &Backpos {
         &self[roster_idx].backpos
     }
 
     pub fn obj_pos(&self, roster_idx: RosterIndex) -> MapCoord {
         self.roster[roster_idx].pos()
-    }
-
-    #[allow(dead_code)]
-    pub fn hero_props(&mut self) -> &mut ObjProperties {
-        self.objm(Roster::hero_handle())
     }
 
     pub fn hero_backpos(&self) -> &Backpos {

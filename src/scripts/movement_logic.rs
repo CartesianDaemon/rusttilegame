@@ -39,7 +39,7 @@ pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuat
             // TODO: Consider adding map_coord *= -1.
             let target_pos = field.obj_target_pos(mov);
             if impassable(field, target_pos) {
-                field.objm(mov).dir.reverse();
+                field[mov].props.dir.reverse();
             }
 
             // Move. Provided next space is passable. If both sides are impassable, don't move.
@@ -62,7 +62,7 @@ pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuat
 
             // If hitting wall, reverse direction.
             if impassable(field, field.obj_target_pos(mov)) {
-                field.objm(mov).dir.reverse();
+                field[mov].props.dir.reverse();
 
                 // And if hero "visible" forward or sideways, move one sideways towards them, if passable.
                 // TODO: Check for obstacles to vision.
@@ -117,7 +117,7 @@ pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuat
                 if let Some(dir) = try_dirs.iter().find(|dir|
                     passable(field, field.obj_pos(mov) + **dir)
                 ) {
-                    field.objm(mov).dir = *dir;
+                    field[mov].props.dir = *dir;
                 }
             }
 
