@@ -69,7 +69,7 @@ impl CoordDelta {
     }
 }
 
-// Different file?
+// Move to different file? In input?
 #[derive(PartialEq, Copy, Clone)]
 pub enum Cmd {
     Stay,

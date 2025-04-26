@@ -36,6 +36,8 @@ pub struct Field {
 }
 
 impl Field {
+    /////////////////
+    /// Initialisers
     pub fn empty(w: u16, h: u16) -> Field {
         Field {
             map: Into::into(Map::new(w, h)),
@@ -63,6 +65,9 @@ impl Field {
 
         field
     }
+
+    //////////////////////////////////////////////
+    /// Exposed upward to front end of game engine
 
     pub fn advance(&mut self, cmd: Cmd) -> SceneContinuation  {
         // TODO: Decide order of char, enemy. Before or after not quite right. Or need
@@ -100,12 +105,16 @@ impl Field {
         self.map.locs()
     }
 
+    //////////////////////////////////////////////////////////////////////////////////
+    /// Obj spawn, move and update fns.
+    ///
+    /// Objects are only spawned or moved in map by place_obj_at and move_obj_to. Those
+    /// functions update coords in roster, roster_idx, prev_pos, curr_pos to maintain
+    /// consistency.
+    ///
+    /// Objects can be changed but not moved by other obj fns. Mainly (only?) .obj().
+
     /// Spawn new object.
-    ///
-    /// Internally adds it to the map and roster.
-    ///
-    /// NOTE: Objects are put in map by place_obj_at and move_obj_to. They need to maintain
-    ///       consistency of roster, roster_idx, prev_pos, curr_pos for all objects.
     pub fn spawn_obj_at(&mut self, x: i16, y:i16, props: ObjProperties)
     {
         let pos = MapCoord::from_xy(x, y);
@@ -156,23 +165,6 @@ impl Field {
         self.roster[roster_idx].h = self.map[target_pos].len() as u16 -1;
     }
 
-    // TODO: Could have a dummy intermediate class self.ref[mapref]
-    fn props_at_ref(&self, mapref: MapRef) -> &ObjProperties {
-        &self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].props
-    }
-
-    fn props_at_ref_m(&mut self, mapref: MapRef) -> &mut ObjProperties {
-        &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].props
-    }
-
-    fn backpos_at_ref(&self, mapref: MapRef) -> &Backpos {
-        &self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].backpos
-    }
-
-    fn backpos_at_ref_m(&mut self, mapref: MapRef) -> &mut Backpos {
-        &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].backpos
-    }
-
     pub fn obj(&self, roster_idx: RosterIndex) -> &ObjProperties {
         self.props_at_ref(self.roster[roster_idx])
     }
@@ -181,6 +173,7 @@ impl Field {
         self.props_at_ref_m(self.roster[roster_idx])
     }
 
+    // Should this be mutable??
     pub fn backpos(&mut self, roster_idx: RosterIndex) -> &mut Backpos {
         self.backpos_at_ref_m(self.roster[roster_idx])
     }
@@ -194,6 +187,7 @@ impl Field {
         self.objm(Roster::hero_handle())
     }
 
+    // Should this be mutable??
     pub fn hero_backpos(&mut self) -> &mut Backpos {
         self.backpos(Roster::hero_handle())
     }
@@ -214,6 +208,31 @@ impl Field {
     pub fn all_pass(&self, pos: MapCoord, sought_pass: Pass) -> bool {
         self.map[pos].all_pass(sought_pass)
     }
+
+    //////////////////////////////////////////////
+    /// More obj functions, non-pub helpers
+    ///
+    /// ..?
+
+    // TODO: Could have a dummy intermediate class self.ref[mapref]
+    fn props_at_ref(&self, mapref: MapRef) -> &ObjProperties {
+        &self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].props
+    }
+
+    fn props_at_ref_m(&mut self, mapref: MapRef) -> &mut ObjProperties {
+        &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].props
+    }
+
+    fn backpos_at_ref(&self, mapref: MapRef) -> &Backpos {
+        &self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].backpos
+    }
+
+    fn backpos_at_ref_m(&mut self, mapref: MapRef) -> &mut Backpos {
+        &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].backpos
+    }
+
+    //////////////////////////////////////////////////////
+    /// Representations of map. Used in logging and debug.
 
     /// Ascii representation of map. Test functions check it's as expected.
     #[allow(dead_code)]
@@ -249,7 +268,7 @@ pub struct Backpos {
 }
 
 #[derive(Clone, Debug)]
-pub struct Obj {
+pub struct Obj { // TODO: Rename MapObj?
     pub backpos: Backpos,
     pub props: ObjProperties,
 }
@@ -396,23 +415,21 @@ impl MapRef
 
 /// Roster of objects which move autonomously.
 ///
-/// Objects are stored as MapHandles.
+/// Objects are stored as MapRef.
 ///
 /// It would be simpler to iterate through the Map looking for any moveable objects, but
 /// it's theoretically correct to have a roster. Especially for hero location.
 ///
 /// Would still like to simplify how ownership of map objects works.
+///
+/// Could in theory extend to a component-like system storing overlapping lists of
+/// indexhandles for "objects with this property".
+//
 // NOTE: Could currently be moved back into Field. Not borrowed separately.
 #[derive(Clone, Debug)]
 struct Roster {
-    // Hero
-    // FIXME: Better name for protagonist than "hero".
     pub hero: MapRef,
 
-    // Anything which updates each tick, especially enemies.
-    //
-    // Might be replaced by a set of lists of "everything that has this property" etc
-    // like a Component system.
     movs: Vec<MapRef>,
 }
 
