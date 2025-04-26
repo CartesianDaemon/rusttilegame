@@ -23,7 +23,7 @@ use super::obj::ObjProperties;
 
 #[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
 pub struct RosterIndex {
-    pub ros_idx: u16,
+    ros_idx: u16,
 }
 
 /// Map together with Ros. Those are two separate classes so they can more easily be borrowed separately.
@@ -107,13 +107,14 @@ impl Field {
     }
 
     //////////////////////////////////////////////////////////////////////////////////
-    /// Obj spawn, move and update fns.
+    /// Obj spawn and move fns.
     ///
     /// Objects are only spawned or moved in map by place_obj_at and move_obj_to. Those
     /// functions update coords in roster, roster_idx, prev_pos, curr_pos to maintain
     /// consistency.
     ///
-    /// Objects can be changed but not moved by other obj fns. Mainly (only?) .obj().
+    /// Objects can be changed but not moved by field[] references.
+    /// TODO: Actually, add some interface there to avoid &mut Backref
 
     /// Spawn new object.
     pub fn spawn_obj_at(&mut self, x: i16, y:i16, props: ObjProperties)
@@ -167,10 +168,16 @@ impl Field {
         self.roster[roster_idx].h = self.map[target_pos].len() as u16 -1;
     }
 
+    ///////////////////////////////////////////////////
+    /// External helper functions for accessing objects.
+    ///
+    /// TODO: Would move into fns of Obj if we do that.
+
     pub fn hero(&self) -> RosterIndex {
         Roster::hero()
     }
 
+    /// Where object would move to based on current direction.
     // TODO: Only valid if "dir" represents actual direction of movement, not just facing.
     pub fn obj_target_pos(&self, roster_idx: RosterIndex) -> MapCoord {
         self[roster_idx].backpos.curr_pos + self[roster_idx].props.dir
@@ -231,13 +238,14 @@ impl IndexMut<RosterIndex> for Field {
 // TODO: Better name. "Cachedpos"? "Mappos"?
 #[derive(Clone, Debug)]
 pub struct Backpos {
-    pub curr_roster_idx: RosterIndex,
+    curr_roster_idx: RosterIndex,
     pub curr_pos: MapCoord,
     pub prev_pos: MapCoord,
 }
 
 #[derive(Clone, Debug)]
 pub struct Obj { // TODO: Rename MapObj?
+    // TODO: add "pub fn props()" and "pub fn curr_pos()" and "pub fn prev_pos()" and make members non-pub.
     pub backpos: Backpos,
     pub props: ObjProperties,
 }
