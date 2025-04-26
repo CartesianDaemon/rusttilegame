@@ -242,22 +242,6 @@ pub struct Refs {
     pub prev_pos: MapCoord,
 }
 
-#[derive(Clone, Debug)]
-pub struct MapObj { // TODO: Rename MapObj?
-    refs: Refs,
-    pub props: ObjProperties,
-}
-
-impl MapObj {
-    pub fn pos(&self) -> MapCoord {
-        self.refs.pos
-    }
-
-    pub fn prev_pos(&self) -> MapCoord {
-        self.refs.prev_pos
-    }
-}
-
 // "Map": Grid of locations. Represents state of current level.
 // NOTE: Could currently be moved back into Field. Not borrowed separately.
 #[derive(Clone)]
@@ -568,5 +552,21 @@ impl Index<u16> for Loc {
 impl IndexMut<u16> for Loc {
     fn index_mut(&mut self, h: u16) -> &mut Self::Output {
         &mut self.0[h as usize]
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct MapObj { // TODO: Rename MapObj?
+    refs: Refs,
+    pub props: ObjProperties,
+}
+
+impl MapObj {
+    pub fn pos(&self) -> MapCoord {
+        self.refs.pos
+    }
+
+    pub fn prev_pos(&self) -> MapCoord {
+        self.refs.prev_pos
     }
 }
