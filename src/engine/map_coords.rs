@@ -3,9 +3,6 @@ use derive_more::*;
 
 // Coord types (in theory)
 //
-// FIXME: Move to a coord type module.
-// FIXME: Decide whether implementing types would help.
-//
 // Dimension: Width/height of map. Unsigned. Vars w,h.
 // MapCoord: Coords on map. Signed to allow looping past edge.
 //           May need cast to index vector? Vars x,y.
@@ -13,14 +10,16 @@ use derive_more::*;
 //            Vars vx, vy.
 // Delta: Offset of map coord. Signed. Vars dx, dy.
 // PixCoord: Coords on screen. f32. Vars px, py.
-// Pos: Coords including height.
-//
-// Ideally allowing arithmetic between dimension, map, delta with least casting.
-// And multiplication of p coords by map coords.
-//
-// TODO: Would it be worth defining my own float type which can be multiplied by int?
+// MapRef: Coords including height, only used internally to identify objects.
 
-/// Identify loc in map.
+// Types of index (the int type most easily converted to MapCoord::x, ros_idx, etc)
+//
+// Index into map. i16.
+// Map diff. i16.
+// Index into roster. u16. Although could be an enum?
+//
+// TODO: Is it useful to have a type for them? May just add clutter.
+
 #[derive(Copy, Clone, PartialEq, Debug, Add, Mul)]
 pub struct MapCoord {
     pub x: i16,
