@@ -139,6 +139,7 @@ impl Field {
         let obj = self.map[orig_pos].objs_m().remove(orig_h as usize);
 
         // For each other object in location, update its mapref in roster with changed height.
+        // TODO: Nice to have briefer indexing without "as usize"
         for h in orig_h+1..self.map[orig_pos].len() as u16 {
             let other_roster_idx = self.map.locs[orig_pos.x as usize][orig_pos.y as usize][h as usize].backpos.curr_roster_idx;
             self.roster[other_roster_idx].h = h;
@@ -165,19 +166,17 @@ impl Field {
         self.roster[roster_idx].h = self.map[target_pos].len() as u16 -1;
     }
 
+    // TODO: Now simpler to inline??
     pub fn obj(&self, roster_idx: RosterIndex) -> &ObjProperties {
-        let mapref = self.roster[roster_idx];
-        &self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].props
+        &self[roster_idx].props
     }
 
     pub fn objm(&mut self, roster_idx: RosterIndex) -> &mut ObjProperties {
-        let mapref = self.roster[roster_idx];
-        &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].props
+        &mut self[roster_idx].props
     }
 
     pub fn backpos(&self, roster_idx: RosterIndex) -> &Backpos {
-        let mapref = self.roster[roster_idx];
-        &self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].backpos
+        &self[roster_idx].backpos
     }
 
     pub fn obj_pos(&self, roster_idx: RosterIndex) -> MapCoord {
