@@ -143,7 +143,7 @@ impl Field {
         // For each other object in location, update its mapref in roster with changed height.
         // TODO: Nice to have briefer indexing without "as usize"
         for h in orig_h+1..self.map[orig_pos].len() as u16 {
-            let other_roster_idx = self.map.locs[orig_pos.x as usize][orig_pos.y as usize][h].refs.curr_roster_idx;
+            let other_roster_idx = self.map[orig_pos][h].refs.curr_roster_idx;
             self.roster[other_roster_idx].h = h;
         }
 
