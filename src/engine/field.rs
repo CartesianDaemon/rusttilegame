@@ -77,7 +77,7 @@ impl Field {
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.
-        self[hero].backpos.prev_pos = self[hero].backpos.curr_pos;
+        self[hero].backpos.prev_pos = self[hero].backpos.pos;
 
         move_mov(self, hero, cmd)?;
 
@@ -86,7 +86,7 @@ impl Field {
             // Going through tmp is necessary to avoid two dynamic borrows at the same time..
             // NOTE: If map is RefCell needs to be done in two steps else runtime panic.
             // NOTE: And obj_at() is also incompatible with RefCell.
-            self[mov].backpos.prev_pos = self[mov].backpos.curr_pos;
+            self[mov].backpos.prev_pos = self[mov].backpos.pos;
 
             move_mov(self, mov, cmd)?;
         }
@@ -122,9 +122,9 @@ impl Field {
         let pos = MapCoord::from_xy(x, y);
         let h = self.map[pos].objs().len() as u16;
         let new_roster_idx = self.roster.add_to_roster_if_mov( MapRef{x, y, h}, &props );
-        let backpos = Backpos {
+        let backpos = Mappos {
             curr_roster_idx: new_roster_idx,
-            curr_pos: pos,
+            pos,
             prev_pos: pos,
         };
         self.map[pos].objs_m().push( Obj{backpos, props} );
@@ -153,10 +153,10 @@ impl Field {
         // Add object to top of stack at new map location.
         self.map[target_pos].objs_m().push(
             Obj {
-                backpos: Backpos {
+                backpos: Mappos {
                     curr_roster_idx: obj.backpos.curr_roster_idx,
-                    curr_pos: target_pos,
-                    prev_pos: obj.backpos.curr_pos,
+                    pos: target_pos,
+                    prev_pos: obj.backpos.pos,
                 },
                props: obj.props,
             }
@@ -180,7 +180,7 @@ impl Field {
     /// Where object would move to based on current direction.
     // TODO: Only valid if "dir" represents actual direction of movement, not just facing.
     pub fn obj_target_pos(&self, roster_idx: RosterIndex) -> MapCoord {
-        self[roster_idx].backpos.curr_pos + self[roster_idx].props.dir
+        self[roster_idx].backpos.pos + self[roster_idx].props.dir
     }
 
     pub fn any_effect(&self, pos: MapCoord, sought_effect: Effect) -> bool {
@@ -235,19 +235,28 @@ impl IndexMut<RosterIndex> for Field {
     }
 }
 
-// TODO: Better name. "Cachedpos"? "Mappos"?
 #[derive(Clone, Debug)]
-pub struct Backpos {
+pub struct Mappos {
     curr_roster_idx: RosterIndex,
-    pub curr_pos: MapCoord,
+    pub pos: MapCoord,
     pub prev_pos: MapCoord,
 }
 
 #[derive(Clone, Debug)]
 pub struct Obj { // TODO: Rename MapObj?
-    // TODO: add "pub fn props()" and "pub fn curr_pos()" and "pub fn prev_pos()" and make members non-pub.
-    pub backpos: Backpos,
+    // TODO: Rename mappos not backpos
+    backpos: Mappos,
     pub props: ObjProperties,
+}
+
+impl Obj {
+    pub fn pos(&self) -> MapCoord {
+        self.backpos.pos
+    }
+
+    pub fn prev_pos(&self) -> MapCoord {
+        self.backpos.prev_pos
+    }
 }
 
 // "Map": Grid of locations. Represents state of current level.

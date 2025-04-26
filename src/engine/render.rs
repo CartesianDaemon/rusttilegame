@@ -152,7 +152,8 @@ impl<'a> RenderLev<'a> {
         // TODO: Move as_ghost to parameter?
     ) {
         let props = &obj.props;
-        let backpos = &obj.backpos;
+        let pos = obj.pos();
+        let prev_pos = obj.prev_pos();
         // TODO: move to calling function?
         if self.as_ghost && props.pass != scripts::Pass::Mov {
             return;
@@ -166,8 +167,8 @@ impl<'a> RenderLev<'a> {
 
         // FYI "let px = base_px + self.sq_w * (1.-pc_size) / 2. + self.sq_w * anim_pc;" makes me really seasick.
 
-        let dx = backpos.curr_pos.x - backpos.prev_pos.x;
-        let dy = backpos.curr_pos.y - backpos.prev_pos.y;
+        let dx = pos.x - prev_pos.x;
+        let dy = pos.y - prev_pos.y;
 
         // Switch to using fixed frame throughout from here?
         let slide_in_frame_units = Some(3);
@@ -182,7 +183,7 @@ impl<'a> RenderLev<'a> {
         let w = self.sq_w * pc_size;
         let h = self.sq_h * pc_size;
 
-        if !ObjProperties::is_any_mov(props.ai) {rsst!(backpos.prev_pos == backpos.curr_pos)}
+        if !ObjProperties::is_any_mov(props.ai) {rsst!(prev_pos == pos)}
 
         let alpha = if self.as_ghost {self.ghost_alpha} else {1.};
 
