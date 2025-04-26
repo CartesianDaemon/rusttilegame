@@ -208,10 +208,10 @@ impl Field {
     /// Ascii representation of map. Test functions check it's as expected.
     #[cfg(test)]
     pub fn as_ascii_rows(&self) -> Vec<String> {
-        (0..self.map.h() as usize).map(|y|
-            (0..self.map.w() as usize).map(|x| {
+        (0..self.map.h() as i16).map(|y|
+            (0..self.map.w() as i16).map(|x| {
                 self.map_key.iter().find_map(|(ch,objs)|
-                    if self.map.locs[y][x].obj_props() == *objs {Some(ch.to_string())} else {None}
+                    if self.map[MapCoord::from_xy(x, y)].obj_props() == *objs {Some(ch.to_string())} else {None}
                 ).unwrap_or("?".to_string())
             }).collect::<Vec<_>>().join("")
         ).collect()
@@ -247,6 +247,8 @@ pub struct Refs {
 struct Map {
     // Stored as a collection of columns, e.g. map.locs[x][y]
     // Must always be rectangular.
+    //
+    // TODO: Expose better index fn on map or locs taking u16 not usize.
     locs: Vec<Vec<Loc>>,
 }
 
