@@ -127,7 +127,7 @@ impl Field {
             pos,
             prev_pos: pos,
         };
-        self.map[pos].objs_m().push( Obj{refs: mappos, props} );
+        self.map[pos].objs_m().push( MapObj{refs: mappos, props} );
     }
 
     /// Move obj to a new location.
@@ -152,7 +152,7 @@ impl Field {
 
         // Add object to top of stack at new map location.
         self.map[target_pos].objs_m().push(
-            Obj {
+            MapObj {
                 refs: Refs {
                     curr_roster_idx: obj.refs.curr_roster_idx,
                     pos: target_pos,
@@ -220,7 +220,7 @@ impl Field {
 }
 
 impl Index<RosterIndex> for Field {
-    type Output = Obj;
+    type Output = MapObj;
 
     fn index(&self, roster_idx: RosterIndex) -> &Self::Output {
         let mapref = self.roster[roster_idx];
@@ -243,12 +243,12 @@ pub struct Refs {
 }
 
 #[derive(Clone, Debug)]
-pub struct Obj { // TODO: Rename MapObj?
+pub struct MapObj { // TODO: Rename MapObj?
     refs: Refs,
     pub props: ObjProperties,
 }
 
-impl Obj {
+impl MapObj {
     pub fn pos(&self) -> MapCoord {
         self.refs.pos
     }
@@ -484,7 +484,7 @@ impl IndexMut<RosterIndex> for Roster {
 // "Location": Everything at a single coordinate in the current room.
 // #[derive(Clone)] // implemented below
 #[derive(Debug, Clone)]
-pub struct Loc(Vec<Obj>);
+pub struct Loc(Vec<MapObj>);
 
 /// Square in map. Almost equivalent to Vec<Obj>
 ///
@@ -516,7 +516,7 @@ impl Loc {
     }
 
     /// Only used by render() when unsure about height?
-    pub fn get(&self, idx: usize) -> Option<&Obj> {
+    pub fn get(&self, idx: usize) -> Option<&MapObj> {
         self.0.get(idx)
     }
 
@@ -525,11 +525,11 @@ impl Loc {
         self.0.len()
     }
 
-    pub fn objs(&self) -> &Vec<Obj> {
+    pub fn objs(&self) -> &Vec<MapObj> {
         &self.0
     }
 
-    pub fn objs_m(&mut self) -> &mut Vec<Obj> {
+    pub fn objs_m(&mut self) -> &mut Vec<MapObj> {
         &mut self.0
     }
 
@@ -540,8 +540,8 @@ impl Loc {
 }
 
 impl IntoIterator for Loc {
-    type Item = <Vec<Obj> as IntoIterator>::Item;
-    type IntoIter = <Vec<Obj> as IntoIterator>::IntoIter;
+    type Item = <Vec<MapObj> as IntoIterator>::Item;
+    type IntoIter = <Vec<MapObj> as IntoIterator>::IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
         self.0.into_iter()
@@ -549,8 +549,8 @@ impl IntoIterator for Loc {
 }
 
 impl<'a> IntoIterator for &'a Loc {
-    type Item = <&'a Vec<Obj> as IntoIterator>::Item;
-    type IntoIter = <&'a Vec<Obj> as IntoIterator>::IntoIter;
+    type Item = <&'a Vec<MapObj> as IntoIterator>::Item;
+    type IntoIter = <&'a Vec<MapObj> as IntoIterator>::IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
         self.0.iter()
@@ -558,7 +558,7 @@ impl<'a> IntoIterator for &'a Loc {
 }
 
 impl Index<usize> for Loc {
-    type Output = Obj;
+    type Output = MapObj;
 
     fn index(&self, h: usize) -> &Self::Output {
         &self.0[h]

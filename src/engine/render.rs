@@ -8,7 +8,7 @@ use crate::scripts;
 
 use super::scene;
 use super::scene::Scene;
-use super::field::Obj;
+use super::field::MapObj;
 use super::obj::ObjProperties;
 use super::map_coords::CoordDelta;
 
@@ -144,7 +144,7 @@ impl<'a> RenderLev<'a> {
         vx: i16,
         vy: i16,
         // Ent to draw
-        obj: &Obj,
+        obj: &MapObj,
         // Proportion of animation from previous state to current (frame)
         anim_pc: f32,
         // Proportion of animation from previous state to current (position)
