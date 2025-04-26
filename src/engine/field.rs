@@ -76,7 +76,7 @@ impl Field {
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.
-        self.backpos_m(Roster::hero_handle()).prev_pos = self.hero_backpos().curr_pos;
+        self[Roster::hero_handle()].backpos.prev_pos = self.hero_backpos().curr_pos;
 
         move_mov(self, Roster::hero_handle(), cmd)?;
 
@@ -85,7 +85,7 @@ impl Field {
             // Going through tmp is necessary to avoid two dynamic borrows at the same time..
             // NOTE: If map is RefCell needs to be done in two steps else runtime panic.
             // NOTE: And obj_at() is also incompatible with RefCell.
-            self.backpos_m(rich_mov).prev_pos = self.obj_pos(rich_mov);
+            self[rich_mov].backpos.prev_pos = self.obj_pos(rich_mov);
 
             move_mov(self, rich_mov, cmd)?;
         }
@@ -210,18 +210,6 @@ impl Field {
         self.map[pos].all_pass(sought_pass)
     }
 
-    //////////////////////////////////////////////
-    /// More obj functions, non-pub helpers
-    ///
-    /// ..?
-
-    // Only used one or two places. Inline if possible.
-    // TODO: We're using "index field by rosterindex" a lot. Implement Index and IndexMut for that?
-    pub fn backpos_m(&mut self, roster_idx: RosterIndex) -> &mut Backpos {
-        let mapref = self.roster[roster_idx];
-        &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].backpos
-    }
-
     //////////////////////////////////////////////////////
     /// Representations of map. Used in logging and debug.
 
@@ -247,6 +235,22 @@ impl Field {
                 ).unwrap_or("?".to_string())
             }).collect::<Vec<_>>().join("")
         ).collect()
+    }
+}
+
+impl Index<RosterIndex> for Field {
+    type Output = Obj;
+
+    fn index(&self, roster_idx: RosterIndex) -> &Self::Output {
+        let mapref = self.roster[roster_idx];
+        &self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize]
+    }
+}
+
+impl IndexMut<RosterIndex> for Field {
+    fn index_mut(&mut self, roster_idx: RosterIndex) -> &mut Self::Output {
+        let mapref = self.roster[roster_idx];
+        &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize]
     }
 }
 
