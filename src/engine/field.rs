@@ -76,7 +76,7 @@ impl Field {
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.
-        self.hero_backpos().prev_pos = self.hero_backpos().curr_pos;
+        self.hero_backpos_m().prev_pos = self.hero_backpos().curr_pos;
 
         move_mov(self, Roster::hero_handle(), cmd)?;
 
@@ -85,7 +85,7 @@ impl Field {
             // Going through tmp is necessary to avoid two dynamic borrows at the same time..
             // NOTE: If map is RefCell needs to be done in two steps else runtime panic.
             // NOTE: And obj_at() is also incompatible with RefCell.
-            self.backpos(rich_mov).prev_pos = self.obj_pos(rich_mov);
+            self.backpos_m(rich_mov).prev_pos = self.obj_pos(rich_mov);
 
             move_mov(self, rich_mov, cmd)?;
         }
@@ -173,9 +173,8 @@ impl Field {
         self.props_at_ref_m(self.roster[roster_idx])
     }
 
-    // Should this be mutable??
-    pub fn backpos(&mut self, roster_idx: RosterIndex) -> &mut Backpos {
-        self.backpos_at_ref_m(self.roster[roster_idx])
+    pub fn backpos(&self, roster_idx: RosterIndex) -> &Backpos {
+        self.backpos_at_ref(self.roster[roster_idx])
     }
 
     pub fn obj_pos(&self, roster_idx: RosterIndex) -> MapCoord {
@@ -187,8 +186,7 @@ impl Field {
         self.objm(Roster::hero_handle())
     }
 
-    // Should this be mutable??
-    pub fn hero_backpos(&mut self) -> &mut Backpos {
+    pub fn hero_backpos(&self) -> &Backpos {
         self.backpos(Roster::hero_handle())
     }
 
@@ -213,6 +211,15 @@ impl Field {
     /// More obj functions, non-pub helpers
     ///
     /// ..?
+
+    // Only used one place. Might be better to inline?
+    pub fn backpos_m(&mut self, roster_idx: RosterIndex) -> &mut Backpos {
+        self.backpos_at_ref_m(self.roster[roster_idx])
+    }
+
+    pub fn hero_backpos_m(&mut self) -> &mut Backpos {
+        self.backpos_m(Roster::hero_handle())
+    }
 
     // TODO: Could have a dummy intermediate class self.ref[mapref]
     fn props_at_ref(&self, mapref: MapRef) -> &ObjProperties {
