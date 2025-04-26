@@ -76,7 +76,7 @@ impl Field {
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.
-        self.hero_backpos_m().prev_pos = self.hero_backpos().curr_pos;
+        self.backpos_m(Roster::hero_handle()).prev_pos = self.hero_backpos().curr_pos;
 
         move_mov(self, Roster::hero_handle(), cmd)?;
 
@@ -140,7 +140,7 @@ impl Field {
 
         // For each other object in location, update its mapref in roster with changed height.
         for h in orig_h+1..self.map[orig_pos].len() as u16 {
-            let other_roster_idx = self.backpos_at_ref(MapRef {x: orig_pos.x, y: orig_pos.y, h}).curr_roster_idx;
+            let other_roster_idx = self.map.locs[orig_pos.x as usize][orig_pos.y as usize][h as usize].backpos.curr_roster_idx;
             self.roster[other_roster_idx].h = h;
         }
 
@@ -166,15 +166,18 @@ impl Field {
     }
 
     pub fn obj(&self, roster_idx: RosterIndex) -> &ObjProperties {
-        self.props_at_ref(self.roster[roster_idx])
+        let mapref = self.roster[roster_idx];
+        &self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].props
     }
 
     pub fn objm(&mut self, roster_idx: RosterIndex) -> &mut ObjProperties {
-        self.props_at_ref_m(self.roster[roster_idx])
+        let mapref = self.roster[roster_idx];
+        &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].props
     }
 
     pub fn backpos(&self, roster_idx: RosterIndex) -> &Backpos {
-        self.backpos_at_ref(self.roster[roster_idx])
+        let mapref = self.roster[roster_idx];
+        &self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].backpos
     }
 
     pub fn obj_pos(&self, roster_idx: RosterIndex) -> MapCoord {
@@ -212,29 +215,10 @@ impl Field {
     ///
     /// ..?
 
-    // Only used one place. Might be better to inline?
+    // Only used one or two places. Inline if possible.
+    // TODO: We're using "index field by rosterindex" a lot. Implement Index and IndexMut for that?
     pub fn backpos_m(&mut self, roster_idx: RosterIndex) -> &mut Backpos {
-        self.backpos_at_ref_m(self.roster[roster_idx])
-    }
-
-    pub fn hero_backpos_m(&mut self) -> &mut Backpos {
-        self.backpos_m(Roster::hero_handle())
-    }
-
-    // TODO: Could have a dummy intermediate class self.ref[mapref]
-    fn props_at_ref(&self, mapref: MapRef) -> &ObjProperties {
-        &self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].props
-    }
-
-    fn props_at_ref_m(&mut self, mapref: MapRef) -> &mut ObjProperties {
-        &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].props
-    }
-
-    fn backpos_at_ref(&self, mapref: MapRef) -> &Backpos {
-        &self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].backpos
-    }
-
-    fn backpos_at_ref_m(&mut self, mapref: MapRef) -> &mut Backpos {
+        let mapref = self.roster[roster_idx];
         &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h as usize].backpos
     }
 
@@ -266,7 +250,7 @@ impl Field {
     }
 }
 
-// TODO: Better name. "Cachedpos"? ..?
+// TODO: Better name. "Cachedpos"? "Mappos"?
 #[derive(Clone, Debug)]
 pub struct Backpos {
     pub curr_roster_idx: RosterIndex,
@@ -286,6 +270,8 @@ pub struct Obj { // TODO: Rename MapObj?
 struct Map {
     // Stored as a collection of columns, e.g. map.locs[x][y]
     // Must always be rectangular.
+    //
+    // TODO: Expose better index fn on map or locs taking u16 not usize.
     locs: Vec<Vec<Loc>>,
 }
 
