@@ -86,7 +86,7 @@ impl Field {
             // Going through tmp is necessary to avoid two dynamic borrows at the same time..
             // NOTE: If map is RefCell needs to be done in two steps else runtime panic.
             // NOTE: And obj_at() is also incompatible with RefCell.
-            self[mov].backpos.prev_pos = self.obj_pos(mov);
+            self[mov].backpos.prev_pos = self[mov].backpos.curr_pos;
 
             move_mov(self, mov, cmd)?;
         }
@@ -167,17 +167,13 @@ impl Field {
         self.roster[roster_idx].h = self.map[target_pos].len() as u16 -1;
     }
 
-    pub fn obj_pos(&self, roster_idx: RosterIndex) -> MapCoord {
-        self.roster[roster_idx].pos()
-    }
-
     pub fn hero(&self) -> RosterIndex {
         Roster::hero()
     }
 
     // TODO: Only valid if "dir" represents actual direction of movement, not just facing.
     pub fn obj_target_pos(&self, roster_idx: RosterIndex) -> MapCoord {
-        self.obj_pos(roster_idx) + self[roster_idx].props.dir
+        self[roster_idx].backpos.curr_pos + self[roster_idx].props.dir
     }
 
     pub fn any_effect(&self, pos: MapCoord, sought_effect: Effect) -> bool {
