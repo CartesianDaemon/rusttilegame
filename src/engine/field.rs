@@ -166,11 +166,6 @@ impl Field {
         self.roster[roster_idx].h = self.map[target_pos].len() as u16 -1;
     }
 
-    // TODO: Now simpler to inline??
-    pub fn obj(&self, roster_idx: RosterIndex) -> &ObjProperties {
-        &self[roster_idx].props
-    }
-
     pub fn objm(&mut self, roster_idx: RosterIndex) -> &mut ObjProperties {
         &mut self[roster_idx].props
     }
@@ -198,7 +193,7 @@ impl Field {
 
     // TODO: Only valid if "dir" represents actual direction of movement, not just facing.
     pub fn obj_target_pos(&self, roster_idx: RosterIndex) -> MapCoord {
-        self.obj_pos(roster_idx) + self.obj(roster_idx).dir
+        self.obj_pos(roster_idx) + self[roster_idx].props.dir
     }
 
     pub fn any_effect(&self, pos: MapCoord, sought_effect: Effect) -> bool {
