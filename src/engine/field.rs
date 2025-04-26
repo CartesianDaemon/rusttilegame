@@ -120,14 +120,14 @@ impl Field {
     pub fn spawn_obj_at(&mut self, x: i16, y:i16, props: ObjProperties)
     {
         let pos = MapCoord::from_xy(x, y);
-        let h = self.map[pos].objs().len() as u16;
+        let h = self.map[pos].objs.len() as u16;
         let new_roster_idx = self.roster.add_to_roster_if_mov( MapRef{x, y, h}, &props );
         let mappos = Refs {
             curr_roster_idx: new_roster_idx,
             pos,
             prev_pos: pos,
         };
-        self.map[pos].objs_m().push( MapObj{refs: mappos, props} );
+        self.map[pos].objs.push( MapObj{refs: mappos, props} );
     }
 
     /// Move obj to a new location.
@@ -138,7 +138,7 @@ impl Field {
         let orig_h = self.roster[roster_idx].h;
 
         // Remove object from previous map location.
-        let obj = self.map[orig_pos].objs_m().remove(orig_h as usize);
+        let obj = self.map[orig_pos].objs.remove(orig_h as usize);
 
         // For each other object in location, update its mapref in roster with changed height.
         for h in orig_h+1..self.map[orig_pos].len() as u16 {
@@ -150,7 +150,7 @@ impl Field {
         // let obj = Obj {prev_pos: mapref.pos(), ..obj};
 
         // Add object to top of stack at new map location.
-        self.map[target_pos].objs_m().push(
+        self.map[target_pos].objs.push(
             MapObj {
                 refs: Refs {
                     curr_roster_idx: obj.refs.curr_roster_idx,
@@ -247,8 +247,6 @@ pub struct Refs {
 struct Map {
     // Stored as a collection of columns, e.g. map.locs[x][y]
     // Must always be rectangular.
-    //
-    // TODO: Expose better index fn on map or locs taking u16 not usize.
     locs: Vec<Vec<Loc>>,
 }
 
@@ -466,30 +464,27 @@ impl IndexMut<RosterIndex> for Roster {
 }
 
 // "Location": Everything at a single coordinate in the current room.
-// #[derive(Clone)] // implemented below
 #[derive(Debug, Clone)]
-pub struct Loc(Vec<MapObj>);
+pub struct Loc {
+    objs: Vec<MapObj>
+}
 
-/// Square in map. Almost equivalent to Vec<Obj>
-///
-/// Should make it Vec<Objs> newtype with push etc and these impl fns
-///
-/// TODO: Check places using .at and see if they do need a list of objs or not.
+/// One square in map. Defined by the stack of objects in that square.
 impl Loc {
     pub fn new() -> Loc {
-        Loc { 0: vec![] }
+        Loc { objs: vec![] }
     }
 
     pub fn any_effect(&self, sought_effect: Effect) -> bool {
-        self.0.iter().any(|x| x.props.effect == sought_effect)
+        self.objs.iter().any(|x| x.props.effect == sought_effect)
     }
 
     pub fn any_pass(&self, sought_pass: Pass) -> bool {
-        self.0.iter().any(|x| x.props.pass == sought_pass)
+        self.objs.iter().any(|x| x.props.pass == sought_pass)
     }
 
     pub fn all_pass(&self, sought_pass: Pass) -> bool {
-        self.0.iter().all(|x| x.props.pass == sought_pass)
+        self.objs.iter().all(|x| x.props.pass == sought_pass)
     }
 
     fn map_fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
@@ -501,26 +496,16 @@ impl Loc {
 
     /// Only used by render() when unsure about height?
     pub fn get(&self, idx: usize) -> Option<&MapObj> {
-        self.0.get(idx)
+        self.objs.get(idx)
     }
 
-    // Reimplementations of list operations. Any better way of avoiding without lots of ".0"?
     pub fn len(&self) -> usize {
-        self.0.len()
-    }
-
-    // TODO: Remove tuple alias type and just have objs as a member?
-    pub fn objs(&self) -> &Vec<MapObj> {
-        &self.0
-    }
-
-    pub fn objs_m(&mut self) -> &mut Vec<MapObj> {
-        &mut self.0
+        self.objs.len()
     }
 
     pub fn obj_props(&self) -> Vec<ObjProperties> {
         // TODO: Avoid clone
-        self.0.iter().map(|o| o.props.clone()).collect()
+        self.objs.iter().map(|o| o.props.clone()).collect()
     }
 }
 
@@ -529,7 +514,7 @@ impl IntoIterator for Loc {
     type IntoIter = <Vec<MapObj> as IntoIterator>::IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.0.into_iter()
+        self.objs.into_iter()
     }
 }
 
@@ -538,7 +523,7 @@ impl<'a> IntoIterator for &'a Loc {
     type IntoIter = <&'a Vec<MapObj> as IntoIterator>::IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.0.iter()
+        self.objs.iter()
     }
 }
 
@@ -546,18 +531,18 @@ impl Index<u16> for Loc {
     type Output = MapObj;
 
     fn index(&self, h: u16) -> &Self::Output {
-        &self.0[h as usize]
+        &self.objs[h as usize]
     }
 }
 
 impl IndexMut<u16> for Loc {
     fn index_mut(&mut self, h: u16) -> &mut Self::Output {
-        &mut self.0[h as usize]
+        &mut self.objs[h as usize]
     }
 }
 
 #[derive(Clone, Debug)]
-pub struct MapObj { // TODO: Rename MapObj?
+pub struct MapObj {
     refs: Refs,
     pub props: ObjProperties,
 }
