@@ -77,7 +77,7 @@ impl Field {
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.
-        self[hero].backpos.prev_pos = self[hero].backpos.pos;
+        self[hero].refs.prev_pos = self[hero].refs.pos;
 
         move_mov(self, hero, cmd)?;
 
@@ -86,7 +86,7 @@ impl Field {
             // Going through tmp is necessary to avoid two dynamic borrows at the same time..
             // NOTE: If map is RefCell needs to be done in two steps else runtime panic.
             // NOTE: And obj_at() is also incompatible with RefCell.
-            self[mov].backpos.prev_pos = self[mov].backpos.pos;
+            self[mov].refs.prev_pos = self[mov].refs.pos;
 
             move_mov(self, mov, cmd)?;
         }
@@ -122,12 +122,12 @@ impl Field {
         let pos = MapCoord::from_xy(x, y);
         let h = self.map[pos].objs().len() as u16;
         let new_roster_idx = self.roster.add_to_roster_if_mov( MapRef{x, y, h}, &props );
-        let backpos = Mappos {
+        let mappos = Refs {
             curr_roster_idx: new_roster_idx,
             pos,
             prev_pos: pos,
         };
-        self.map[pos].objs_m().push( Obj{backpos, props} );
+        self.map[pos].objs_m().push( Obj{refs: mappos, props} );
     }
 
     /// Move obj to a new location.
@@ -143,7 +143,7 @@ impl Field {
         // For each other object in location, update its mapref in roster with changed height.
         // TODO: Nice to have briefer indexing without "as usize"
         for h in orig_h+1..self.map[orig_pos].len() as u16 {
-            let other_roster_idx = self.map.locs[orig_pos.x as usize][orig_pos.y as usize][h as usize].backpos.curr_roster_idx;
+            let other_roster_idx = self.map.locs[orig_pos.x as usize][orig_pos.y as usize][h as usize].refs.curr_roster_idx;
             self.roster[other_roster_idx].h = h;
         }
 
@@ -153,10 +153,10 @@ impl Field {
         // Add object to top of stack at new map location.
         self.map[target_pos].objs_m().push(
             Obj {
-                backpos: Mappos {
-                    curr_roster_idx: obj.backpos.curr_roster_idx,
+                refs: Refs {
+                    curr_roster_idx: obj.refs.curr_roster_idx,
                     pos: target_pos,
-                    prev_pos: obj.backpos.pos,
+                    prev_pos: obj.refs.pos,
                 },
                props: obj.props,
             }
@@ -180,7 +180,7 @@ impl Field {
     /// Where object would move to based on current direction.
     // TODO: Only valid if "dir" represents actual direction of movement, not just facing.
     pub fn obj_target_pos(&self, roster_idx: RosterIndex) -> MapCoord {
-        self[roster_idx].backpos.pos + self[roster_idx].props.dir
+        self[roster_idx].refs.pos + self[roster_idx].props.dir
     }
 
     pub fn any_effect(&self, pos: MapCoord, sought_effect: Effect) -> bool {
@@ -236,7 +236,7 @@ impl IndexMut<RosterIndex> for Field {
 }
 
 #[derive(Clone, Debug)]
-pub struct Mappos {
+pub struct Refs {
     curr_roster_idx: RosterIndex,
     pub pos: MapCoord,
     pub prev_pos: MapCoord,
@@ -244,18 +244,17 @@ pub struct Mappos {
 
 #[derive(Clone, Debug)]
 pub struct Obj { // TODO: Rename MapObj?
-    // TODO: Rename mappos not backpos
-    backpos: Mappos,
+    refs: Refs,
     pub props: ObjProperties,
 }
 
 impl Obj {
     pub fn pos(&self) -> MapCoord {
-        self.backpos.pos
+        self.refs.pos
     }
 
     pub fn prev_pos(&self) -> MapCoord {
-        self.backpos.prev_pos
+        self.refs.prev_pos
     }
 }
 
