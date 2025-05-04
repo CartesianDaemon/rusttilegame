@@ -7,7 +7,6 @@ use super::map_coords::Cmd;
 /// TODO: Nice to simplify interface and move the correct things here and into Play.
 pub struct Input {
     pub last_real_update: f64,
-    last_ghost_update: f64,
 
     // Time between ticks in sec.
     speed: f64,
@@ -21,7 +20,6 @@ impl Input {
         Input {
             speed: 0.3,
             last_real_update: 0.,
-            last_ghost_update: 0.,
             most_recent_cmd: None,
         }
     }
@@ -29,13 +27,12 @@ impl Input {
     pub fn new_begin() -> Input {
         Input {
             last_real_update: get_time(),
-            last_ghost_update: get_time(),
             .. Input::new_blank()
         }
     }
 
     // TODO: Reinstate key injection command for tests?
-    #[cfg(test)] 
+    #[cfg(test)]
     pub fn inject_cmd(self: &mut Input, cmd: Cmd)
     {
         self.most_recent_cmd = Some(cmd);
@@ -86,16 +83,6 @@ impl Input {
         }
     }
 
-    pub fn ready_to_advance_ghost_state(&mut self, anim_pc: &mut f32) -> bool {
-        if get_time() - self.last_ghost_update > self.speed {
-            self.last_ghost_update = get_time();
-            *anim_pc = 0.;
-            true
-        } else {
-            *anim_pc = (( (get_time() - self.last_ghost_update) / self.speed) as f32).min(1.0);
-            false
-        }
-    }
 }
 
 
