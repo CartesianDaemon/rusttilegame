@@ -26,12 +26,6 @@ pub struct Engine<Game: gametrait::GameTrait> {
     /// TODO: Combine anim and slide..?
     anim_real_pc: f32,
     slide_real_pc: f32,
-    anim_ghost_pc: f32,
-
-    /// Ghost state. Used to show where enemies are going to move
-    /// TODO: Encapsulate better, or remove if not using.. Or fold into AnimState.
-    ghost_state: scene::Play,
-    ghost_counter: GhostCounter,
 
     /// Record input from user ready for use.
     input: Input,
@@ -46,34 +40,12 @@ impl<Game: gametrait::GameTrait> Engine<Game> {
         let play = game.load_scene();
         Engine {
             game,
-            ghost_state: play.to_play_or_placeholder(),
             play_state: play,
             anim_real_pc: 0.,
             slide_real_pc: 0.,
-            anim_ghost_pc: 0.,
             input: Input::new_begin(),
             render: Render::new(),
-            ghost_counter: GhostCounter {
-                n_ghost_ticks: 0,
-                config: GhostConfig {
-                    preghost_ticks: 6,
-                    max_ghost_ticks: 6,
-                    tween_ghost_ticks: 0,
-                    min_ghost_pc: 0.6,
-                    max_ghost_pc: 0.9,
-                }
-            }
         }
-    }
-
-    fn init_ghost_state(&mut self) {
-        self.ghost_state = self.play_state.to_play_or_placeholder();
-        self.ghost_counter.n_ghost_ticks = self.ghost_counter.init_n_ticks();
-    }
-
-    fn reinit_ghost_state(&mut self) {
-        self.ghost_state = if let Scene::Play(play) = self.play_state.clone() {play} else { panic!() };
-        self.ghost_counter.n_ghost_ticks = self.ghost_counter.reinit_n_ticks();
     }
 
     /// Collect input. Draw frame. Advance logical Engine state, if tick scheduled.
@@ -82,18 +54,9 @@ impl<Game: gametrait::GameTrait> Engine<Game> {
         self.input.read_input();
 
         if self.play_state.is_continuous() || self.input.ready_to_advance_game_state(&mut self.anim_real_pc, &mut self.slide_real_pc) {
-            match self.play_state.advance(&mut self.input) {
-                SceneContinuation::Continue(_) => (),
-                SceneContinuation::Break(scene_ending) => self.play_state = self.game.load_next_scene(scene_ending),
-            }
-            self.init_ghost_state();
-        } else if self.input.ready_to_advance_ghost_state(&mut self.anim_ghost_pc) {
-            self.ghost_counter.n_ghost_ticks += 1;
-            if self.ghost_counter.ready_to_reinit() {
-                self.reinit_ghost_state();
-            } else if self.ghost_counter.ready_to_advance_ghost_state() {
-                // TODO: Better abstraction
-                self.ghost_state.advance(&mut self.input);
+            let scene_continuation = self.play_state.advance(&mut self.input);
+            if let SceneContinuation::Break(scene_ending) = scene_continuation {
+                self.play_state = self.game.load_next_scene(scene_ending);
             }
         }
 
