@@ -101,9 +101,6 @@ impl<Game: gametrait::GameTrait> Engine<Game> {
             &self.play_state,
             self.slide_real_pc,
             self.anim_real_pc,
-            &self.ghost_state,
-            self.ghost_counter.ghost_opacity(),
-            self.anim_ghost_pc,
         ).await;
     }
 }

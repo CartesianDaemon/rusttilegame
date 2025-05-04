@@ -3,9 +3,6 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 use assrt::rsst;
 
-// For ::Pass?
-use crate::scripts;
-
 use super::scene;
 use super::scene::Scene;
 use super::field::MapObj;
@@ -27,7 +24,7 @@ impl Render {
     }
 
     /// Draw current gameplay to screen.
-    pub async fn draw_frame(&mut self, play_state: &Scene, slide_real_pc: f32, anim_real_pc: f32, ghost_state: &scene::Play, ghost_opacity: f32, anim_ghost_pc: f32) {
+    pub async fn draw_frame(&mut self, play_state: &Scene, slide_real_pc: f32, anim_real_pc: f32) {
         // ENH: Avoid passing in whole Play object.
         match play_state {
             Scene::Play(play_state) => {
@@ -39,17 +36,6 @@ impl Render {
                     for (x, y, loc) in play_state.field.map_locs() {
                         if let Some(ent) = loc.get(h) {
                             render_lev.draw_ent(x - ox, y - oy, ent, anim_real_pc, slide_real_pc).await;
-                        }
-                    }
-                }
-                let draw_ghosts = false;
-                if draw_ghosts
-                {
-                    let mut r = RenderLev::begin_ghost_overlay(render_lev, 1.0 - ghost_opacity);
-                    let (ox, oy) = (0, 0); // TODO: Dedup to RenderLev::function
-                    for (x, y, loc) in ghost_state.field.map_locs() {
-                        for ent in loc {
-                            r.draw_ent(x - ox, y - oy, ent, anim_ghost_pc, anim_ghost_pc).await;
                         }
                     }
                 }
@@ -73,9 +59,6 @@ pub struct RenderLev<'a> {
     // Size of each tile
     sq_w: f32,
     sq_h: f32,
-    as_ghost: bool,
-    /// Transparency for rendering ghost movement
-    ghost_alpha: f32,
     texture_cache: &'a mut TextureCache,
 }
 
@@ -105,23 +88,12 @@ impl<'a> RenderLev<'a> {
             offset_y: (screen_height() - game_size) / 2. + 10.,
             sq_w: (screen_height() - offset_y * 2.) / w as f32,
             sq_h: (screen_height() - offset_y * 2.) / w as f32,
-            as_ghost: false,
-            ghost_alpha: 0.5, // Should be unused
             texture_cache,
         };
 
         r.draw_backdrop();
 
         r
-    }
-
-    // TODO: Is this still needed?
-    pub fn begin_ghost_overlay(orig_renderlev: RenderLev, ghost_alpha: f32) -> RenderLev {
-        RenderLev {
-            as_ghost: true,
-            ghost_alpha,
-            ..orig_renderlev
-        }
     }
 
     fn draw_backdrop(&self)
@@ -149,23 +121,16 @@ impl<'a> RenderLev<'a> {
         anim_pc: f32,
         // Proportion of animation from previous state to current (position)
         slide_pc: f32,
-        // TODO: Move as_ghost to parameter?
     ) {
         let props = &obj.props;
         let pos = obj.pos();
         let prev_pos = obj.prev_pos();
-        // TODO: move to calling function?
-        if self.as_ghost && props.pass != scripts::Pass::Mov {
-            return;
-        }
 
         let base_px = self.offset_x + self.sq_w * vx as f32;
         let base_py = self.offset_y + self.sq_h * vy as f32;
 
-        let pc_size = if self.as_ghost {0.9} else {1.};
-        //let pc_size = if self.as_ghost {0.5 + 0.5*self.ghost_alpha} else {1.};
-
-        // FYI "let px = base_px + self.sq_w * (1.-pc_size) / 2. + self.sq_w * anim_pc;" makes me really seasick.
+        // Used to draw tile smaller than real size. Not used at the moment.
+        let pc_size = 1.;
 
         let dx = pos.x - prev_pos.x;
         let dy = pos.y - prev_pos.y;
@@ -185,7 +150,7 @@ impl<'a> RenderLev<'a> {
 
         if !ObjProperties::is_any_mov(props.ai) {rsst!(prev_pos == pos)}
 
-        let alpha = if self.as_ghost {self.ghost_alpha} else {1.};
+        let alpha = 1.;
 
         if let Some(col) = props.fill {
             draw_rectangle(px, py, w, h, Self::alpha_col(col, alpha));
@@ -195,8 +160,6 @@ impl<'a> RenderLev<'a> {
             draw_rectangle_lines(px, py, w, h, 2., Self::alpha_col(col, alpha));
         }
 
-        // TODO: For tex, disable ghosts or make transparency work.
-        // TODO: Or better, add idle animation in place.
         if props.tex_paths.len() > 0 {
             // TODO: Simplify calc? Prevent anim_pc being 100? Or being 0?
             let tex_frame_idx = (props.tex_paths.len()-1).min((anim_pc * props.tex_paths.len() as f32) as usize);
