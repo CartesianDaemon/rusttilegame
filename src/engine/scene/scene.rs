@@ -3,7 +3,6 @@ use std::ops::ControlFlow;
 
 use super::*;
 use crate::engine::input::Input;
-use crate::engine::field::Field;
 use crate::engine::obj::ObjProperties;
 
 pub enum SceneEnding {
@@ -60,16 +59,6 @@ impl Scene {
         match self {
             Self::Play(play) => &play,
             Self::Splash(_splash) => panic!(),
-        }
-    }
-
-    // Used in game to create ghost map state. Ought to return Option.
-    pub fn to_play_or_placeholder(&self) -> Play {
-        match self {
-            Self::Play(play) => play.clone(),
-            Self::Splash(_splash) => Play {
-                field: Field::empty(16, 16),
-            },
         }
     }
 
