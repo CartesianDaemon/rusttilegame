@@ -25,7 +25,7 @@ mod input;
 #[path = "scene/_mod_scene.rs"] mod scene;
 mod obj;
 
-pub use engine::Engine;
+pub use engine::run;
 
 pub mod scripting {
     pub use super::obj::ObjProperties;

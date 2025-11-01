@@ -9,10 +9,5 @@
 
 #[macroquad::main("Tile Game")]
 async fn main() {
-    let mut engine = engine::Engine::<gamedata::BiobotGame>::new();
-
-    loop {
-        engine.do_frame().await;
-        macroquad::prelude::next_frame().await;
-    }
+    engine::run::<gamedata::BiobotGame>().await;
 }
