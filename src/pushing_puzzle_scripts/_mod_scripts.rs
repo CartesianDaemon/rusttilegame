@@ -4,9 +4,12 @@
 ///
 /// It is written in rust but intended to be easy for modders to edit.
 ///
-/// This is Copyright Jack Vickeridge (CartesianDaemon on github). It is
-/// more like an artistic work than a program, but it is licensed for other
-/// people to use or adapt under the same terms as the game engine (GPLv3).
+/// This is Copyright Jack Vickeridge (CartesianDaemon on github), released
+/// under the same terms as the pushing puzzle game data (CC-like).
+///
+/// TODO: Move some subset of scripts to a tile_engine_demo_scripts
+/// directory, released as open-source like the game engine, to use for
+/// testing, seeding new games, etc.
 
 // TODO: Rename to "base scripts" or "reptonlike scripts"
 

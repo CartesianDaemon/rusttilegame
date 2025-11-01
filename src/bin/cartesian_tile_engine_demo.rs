@@ -4,7 +4,7 @@
 #![allow(unused_braces)]
 
 #[path = "../engine/_mod_engine.rs"] mod engine;
-#[path = "../scripts/_mod_scripts.rs"] mod scripts;
+#[path = "../pushing_puzzle_scripts/_mod_scripts.rs"] mod scripts;
 #[path = "../gamedata/_mod_gamedata.rs"] mod gamedata;
 
 #[macroquad::main("Tile Game")]
