@@ -39,35 +39,31 @@ The `test_wasm/` directory contains a local version of the html used to
 serve the game. It includes some magic javascript from the macroquad
 homepage to get the javascript runtime for sdl working.
 
-It also symlinks the imgs directory so the images are at a sensible path
-relative to the directory the html is served from.
+It also symlinks the imgs directory so the wasm can see the imgs/ directory
+relative to its current directory.
 
 ## Serve web page locally
 
-Install a minimal web server. E.g:
+Most browsers won't serve wasm from .html files from the local file system. It
+ought to work to override that setting. But it is typical to test the wasm in
+a website using a minimal web server. E.g:
 
 ```
+ # Install very simple web server
  cargo install basic-http-server
-```
 
-Serve the web pages from the test_wasm directory. E.g:
-
-```
+# Serve the web pages from the test_wasm directory.
  basic-http-server test_wasm/
 ```
 
-You can see the debug build in a web browser by going to: http://127.0.0.1:4000/
-or http://127.0.0.1:4000/index.html.
-
-You can see the release build by going to: http://127.0.0.1:4000/index_release.html.
+You can then see the debug build in a web browser by going to: http://127.0.0.1:4000/
+or http://127.0.0.1:4000/index.html. You can see the release build by going to:
+http://127.0.0.1:4000/index_release.html.
 
 This works even when running the web browser in WSL and viewing the webpage from
-a browser in Windows!
+a browser in Windows.
 
 ### Notes
-
-It doesn't work if you just open the html in a browser directly from the file
-system, rather than serving if through a web server.
 
 index.html was copied from the example on the macroquad homepage.
 
@@ -77,37 +73,36 @@ recent article. I originally thought this was the cause of problems I had, but t
 turned out to be due to me using executors::block_on() to call texture loading
 functions.
 
-I still need to check if the image assets need to be served from crate root or from
-this directory. [ETA: For the demo version, not the test version?]
+### Misc problems
 
-### Misc problems [Triage this]
-
-* Make sure that "img/" assets directory is in the directory we're serving http from.
-When serving locally I used a symlink.
 * Don't block threads. Wasm uses only one thread (?) and blocks completely (?)
-* Macroquad already does some magic so assets are loaded using the same path they usually would, ie. from source root like "imgs/ferris.png". I am here adding a bit extra so everything can be served from docs dir like github pages expects.
-* TBD: Any other false starts from my notes?
+* Macroquad already does some magic so assets are loaded from the repository [Is that true or is it just current dir of website?]. I am ensure that the imgs/ directory is available in both the local test site and the release site. It seems GitHub pages servers everything in docs/ and nothing else.
 
-TBD: Check if symlink works in github pages.
-TBD: If I'm compiling an existing levset do I want to compile the assets into the exe?
+Maybe: Check if symlink works in github pages.
+Maybe: Can compile the assets into the exe?
 
 # Making a wasm release
 
 ## Building release
 
-Should be able to build release build, then run `build_scripts/release.sh` to copy release and assets to published folder.
+Run `build_scripts/release.sh` to build a wasm release from the latest source, and copy the wasm
+output and image assets to published folder.
 
-Should be able to then run `basic-http-server docs/` and check it works ok.
+You can check it works the same way as the local test site by running:
+
+`basic-http-server docs/`
 
 ## Serving from Github pages
 
-The github repository is configured to serve the html from the 'docs/' directory.
+GitHub automatically publishes the 'docs/' directory as a GitHub Pages site whenever the repository
+is pushed.
 
-I can't remember if github still needs it to be compiled, or if it automatically serves the
-current version from the source tree.
-
-Configured to host from repo root. See `index.html`. Links to `wasm/tilegame.html`. [Out of date?]
-
-With that, can be played from web https://cartesiandaemon.github.io/rusttilegame/wasm/tilegame.html
+It can be played from web https://cartesiandaemon.github.io/rusttilegame/wasm/tilegame.html
 
 And even from mobile web!
+
+Maybe: Update top-level README with more up-to-date readme.
+Maybe: Update test_wasm to have versions for release/debug for all three exes?
+Maybe: Rename test_wasm to "latest_wasm_build".
+Maybe: Make publishing a release more like copying some/all of test_wasm/ wholesale to docs/
+Maybe Maybe: make it easier to build, make sure web server is running, and open html in browser..?
