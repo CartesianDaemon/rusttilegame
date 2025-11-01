@@ -56,9 +56,9 @@ a website using a minimal web server. E.g:
  basic-http-server test_wasm/
 ```
 
-You can then see the debug build in a web browser by going to: http://127.0.0.1:4000/
-or http://127.0.0.1:4000/index.html. You can see the release build by going to:
-http://127.0.0.1:4000/index_release.html.
+You can then see the debug build in a web browser by going to:
+http://127.0.0.1:4000/pushing_debug.html. You can see the release build by going to:
+http://127.0.0.1:4000/pushing_release.html.
 
 This works even when running the web browser in WSL and viewing the webpage from
 a browser in Windows.
