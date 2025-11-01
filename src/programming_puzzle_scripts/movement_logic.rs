@@ -13,9 +13,18 @@ pub fn impassable(field: &Field, pos: MapCoord) -> bool {
 pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuation {
     let hero = field.hero();
     match field[mov].props.ai {
-        AI::Prog => {
+        AI::Hero => {
             // TODO
         },
-    }
+        AI::Stay => {
+            // Do nothing
+        },
+        AI::Bounce => {
+            // ???? TODO: Remove. TODO combine two match branches.
+        },
+        AI::Drift => {
+            // ????
+        },
+        }
     return SceneContinuation::Continue(());
 }

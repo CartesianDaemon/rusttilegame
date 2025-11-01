@@ -16,5 +16,18 @@ pub enum Pass {
 #[derive(Copy, Clone, PartialEq, Debug)]
 #[allow(dead_code)]
 pub enum AI {
-    Prog, // Move according to instruction sequence: F, L, etc.
+    Hero, // Move according to instruction sequence: F, L, etc. TODO: Rename to Prog, fixing errors in engine.
+    Stay, // No movement. E.g. the goal.
+    // Used in tests. Need to move those tests to pushing puzzle dir
+    Bounce,
+    Drift,
+}
+
+// Effect when intersect with hero (as mov or stay)
+// TODO: In these puzzles we'll only need WIN for goal. Enemies eventually but not yet.
+#[derive(Clone, PartialEq, Debug)]
+pub enum Effect {
+    Nothing,
+    Kill,
+    Win,
 }
