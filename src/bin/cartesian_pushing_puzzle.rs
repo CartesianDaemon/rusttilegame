@@ -7,9 +7,9 @@
 
 #[path = "../engine/_mod_engine.rs"] mod engine;
 #[path = "../pushing_puzzle_scripts/_mod_scripts.rs"] mod scripts;
-#[path = "../pushing_puzzle_gamedata/_mod_gamedata.rs"] mod gamedata;
+#[path = "../pushing_puzzle_gamedata/_mod_gamedata.rs"] mod pushing_puzzle_gamedata;
 
 #[macroquad::main("Tile Game")]
 async fn main() {
-    engine::run::<gamedata::BiobotGame>().await;
+    engine::run::<pushing_puzzle_gamedata::BiobotGame>().await;
 }

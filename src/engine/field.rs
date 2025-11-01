@@ -13,6 +13,7 @@ use std::ops::IndexMut;
 
 use culpa::try_fn;
 
+// TODO: Need to avoid using scripts except via GameData template
 use crate::scripts::*;
 
 use super::scene::SceneContinuation;

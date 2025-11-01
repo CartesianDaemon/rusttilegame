@@ -1,5 +1,6 @@
 use super::map_coords::CoordDelta;
 
+// TODO: Need to avoid using scripts except via GameData template
 use crate::scripts::*;
 
 use macroquad::prelude::*;
