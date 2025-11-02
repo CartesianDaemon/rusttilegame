@@ -15,6 +15,7 @@ use culpa::try_fn;
 
 use super::scene::SceneContinuation;
 use super::obj_scripting_properties;
+use super::for_scripting::{BaseScripts, BaseMovementLogic};
 
 use super::map_coords::*;
 
@@ -68,7 +69,7 @@ impl Map {
     //////////////////////////////////////////////
     /// Exposed upward to front end of game engine
 
-    pub fn advance<Scripts: super::for_scripting::BaseScripts>(&mut self, cmd: Cmd) -> SceneContinuation  {
+    pub fn advance<Scripts: BaseScripts>(&mut self, cmd: Cmd) -> SceneContinuation  {
         // TODO: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // TODO: Consider: Maybe display char moving out of sync with enemy.
@@ -78,7 +79,7 @@ impl Map {
         // Should be moved into obj_move*() fn.
         self[hero].refs.prev_pos = self[hero].refs.pos;
 
-        Scripts::move_mov(self, hero, cmd)?;
+        Scripts::MovementLogic::move_mov(self, hero, cmd)?;
 
         for mov in self.roster.all_movs() {
             // Before movement, reset "prev". Will be overwritten if movement happens.
@@ -87,7 +88,7 @@ impl Map {
             // NOTE: And obj_at() is also incompatible with RefCell.
             self[mov].refs.prev_pos = self[mov].refs.pos;
 
-            Scripts::move_mov(self, mov, cmd)?;
+            Scripts::MovementLogic::move_mov(self, mov, cmd)?;
         }
         SceneContinuation::Continue(())
     }

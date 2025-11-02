@@ -26,7 +26,7 @@ pub mod for_scripting {
     pub use super::field::{Map, RosterIndex};
     pub use super::map_coords::*;
     pub use super::scene::{SceneContinuation, SceneEnding};
-    pub use super::core_engine::BaseScripts;
+    pub use super::core_engine::{BaseScripts, BaseMovementLogic};
     pub use crate::engine::obj_scripting_properties::*;
 }
 

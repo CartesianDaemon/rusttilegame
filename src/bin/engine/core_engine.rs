@@ -12,8 +12,11 @@ use super::scene::*;
 use super::field::Map;
 use super::field::RosterIndex;
 use super::for_gamedata::Cmd;
-pub trait BaseScripts {
+pub trait BaseMovementLogic {
     fn move_mov(field: &mut Map, mov: RosterIndex, cmd: Cmd) -> SceneContinuation;
+}
+pub trait BaseScripts {
+    type MovementLogic : BaseMovementLogic;
 }
 
 /// Overall Engine state.
