@@ -27,8 +27,8 @@ impl Play
         }
     }
 
-    pub fn advance(&mut self, input : &mut Input) -> SceneContinuation  {
+    pub fn advance<Scripts: super::super::for_scripting::BaseScripts>(&mut self, input : &mut Input) -> SceneContinuation  {
         let cmd = input.consume_cmd().unwrap_or(Cmd::default_cmd());
-        self.field.advance(cmd)
+        self.field.advance::<Scripts>(cmd)
     }
 }

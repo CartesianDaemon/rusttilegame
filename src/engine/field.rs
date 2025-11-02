@@ -2,6 +2,8 @@
 //
 // Map is a 2d array of Loc. A Loc is a stack of Objs.
 // Field is a Map along with a Roster of moveable objects.
+// These are separate to make borrowing possible.
+// TODO: Better to be MapLocs and MapObjs?
 //
 // But movement logic etc are in Play.
 // These are also used by level data files, even though
@@ -70,7 +72,7 @@ impl Field {
     //////////////////////////////////////////////
     /// Exposed upward to front end of game engine
 
-    pub fn advance(&mut self, cmd: Cmd) -> SceneContinuation  {
+    pub fn advance<Scripts: super::for_scripting::BaseScripts>(&mut self, cmd: Cmd) -> SceneContinuation  {
         // TODO: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // TODO: Consider: Maybe display char moving out of sync with enemy.
@@ -80,7 +82,7 @@ impl Field {
         // Should be moved into obj_move*() fn.
         self[hero].refs.prev_pos = self[hero].refs.pos;
 
-        move_mov(self, hero, cmd)?;
+        Scripts::move_mov(self, hero, cmd)?;
 
         for mov in self.roster.all_movs() {
             // Before movement, reset "prev". Will be overwritten if movement happens.
@@ -89,7 +91,7 @@ impl Field {
             // NOTE: And obj_at() is also incompatible with RefCell.
             self[mov].refs.prev_pos = self[mov].refs.pos;
 
-            move_mov(self, mov, cmd)?;
+            Scripts::move_mov(self, mov, cmd)?;
         }
         SceneContinuation::Continue(())
     }

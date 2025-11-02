@@ -6,12 +6,14 @@ use super::input::Input;
 use super::render::Render;
 use super::scene::*;
 
-use std::marker::PhantomData;
-
 // Trait for scripts which the scripts for each game needs to implement.
 // TODO: Move to separate file??
-pub trait BaseScripts {
-    fn foo();
+// TODO: Clone unneeded if we only template impl not struct
+use super::field::Field;
+use super::field::RosterIndex;
+use super::customgame::Cmd;
+pub trait BaseScripts : Clone {
+    fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuation;
 }
 
 /// Overall Engine state.
@@ -21,7 +23,7 @@ pub trait BaseScripts {
 /// Templated on Game (either a  builtin Game, or a load-from-file Game).
 /// Could instead take a &dyn Game trait object so that it could load a Game object
 /// from a library, but that probably doesn't help that much.
-struct Engine<Game: basegamedata::BaseGameData, Scripts: for_scripting::BaseScripts> {
+struct Engine<Game: basegamedata::BaseGameData> {
     /// Level set currently playing through, e.g. the biobot Engine.
     pub game: Game,
 
@@ -40,35 +42,29 @@ struct Engine<Game: basegamedata::BaseGameData, Scripts: for_scripting::BaseScri
 
     ///
     render: Render,
-
-    // TODO: To allow us to use Scripts as template arg. Maybe make Scripts param of GameData?
-    _phantom: PhantomData::<Scripts>,
 }
 
-impl<Game: basegamedata::BaseGameData, Scripts: for_scripting::BaseScripts> Engine<Game, Scripts> {
-    pub fn new() -> Engine<Game, Scripts> {
-        // TODO: Remove once we use Scripts:: functions elsewhere.
-        Scripts::foo();
+impl<Game: basegamedata::BaseGameData> Engine<Game> {
+    pub fn new() -> Engine<Game> {
         let game = Game::new_game();
         let play = game.load_scene();
-        Engine::<Game, Scripts> {
+        Engine::<Game> {
             game,
             play_state: play,
             anim_real_pc: 0.,
             slide_real_pc: 0.,
             input: Input::new_begin(),
             render: Render::new(),
-            _phantom: PhantomData,
         }
     }
 
     /// Collect input. Draw frame. Advance logical Engine state, if tick scheduled.
-    pub async fn do_frame(&mut self) {
+    pub async fn do_frame<Scripts: super::for_scripting::BaseScripts>(&mut self) {
         /* ENH: Can read_input be combined with wait_for_tick? */
         self.input.read_input();
 
         if self.play_state.is_continuous() || self.input.ready_to_advance_game_state(&mut self.anim_real_pc, &mut self.slide_real_pc) {
-            let scene_continuation = self.play_state.advance(&mut self.input);
+            let scene_continuation = self.play_state.advance::<Scripts>(&mut self.input);
             if let SceneContinuation::Break(scene_ending) = scene_continuation {
                 self.play_state = self.game.load_next_scene(scene_ending);
             }
@@ -84,10 +80,10 @@ impl<Game: basegamedata::BaseGameData, Scripts: for_scripting::BaseScripts> Engi
 
 pub async fn run<Game: basegamedata::BaseGameData, Scripts: for_scripting::BaseScripts>()
 {
-    let mut engine = Engine::<Game, Scripts>::new();
+    let mut engine = Engine::<Game>::new();
 
     loop {
-        engine.do_frame().await;
+        engine.do_frame::<Scripts>().await;
         macroquad::prelude::next_frame().await;
     }
 }

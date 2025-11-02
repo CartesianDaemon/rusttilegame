@@ -2,11 +2,13 @@
 use crate::engine::for_scripting::*;
 use super::obj_types::*;
 
+#[derive(Clone, Debug)]
 pub struct ProgpuzzScripts {
 }
 
 impl BaseScripts for ProgpuzzScripts {
-    fn foo() {
+    fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuation {
+        move_mov(field, mov, cmd)
     }
 }
 

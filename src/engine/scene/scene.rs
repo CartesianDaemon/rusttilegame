@@ -49,9 +49,9 @@ impl Scene {
     }
 
     // Advance game state. Called when clock ticks or when user inputs.
-    pub fn advance(&mut self, input : &mut Input) -> SceneContinuation {
+    pub fn advance<Scripts: super::super::for_scripting::BaseScripts>(&mut self, input : &mut Input) -> SceneContinuation {
         match self {
-            Self::Play(play) => play.advance(input),
+            Self::Play(play) => play.advance::<Scripts>(input),
             Self::Splash(play) => play.advance(input),
         }
     }
