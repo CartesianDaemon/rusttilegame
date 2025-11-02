@@ -173,12 +173,16 @@ impl Field {
     ///
     /// TODO: Would move into fns of Obj if we do that.
 
+    // TODO: Not used by programming puzzle?
+    #[allow(dead_code)]
     pub fn hero(&self) -> RosterIndex {
         Roster::hero()
     }
 
     /// Where object would move to based on current direction.
     // TODO: Only valid if "dir" represents actual direction of movement, not just facing.
+    // TODO: Only used by pushing puzzle, not programming puzzle?
+    #[allow(dead_code)]
     pub fn obj_target_pos(&self, roster_idx: RosterIndex) -> MapCoord {
         self[roster_idx].refs.pos + self[roster_idx].props.dir
     }

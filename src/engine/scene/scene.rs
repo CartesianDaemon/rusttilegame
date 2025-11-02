@@ -5,6 +5,8 @@ use super::*;
 use crate::engine::input::Input;
 use crate::engine::obj::ObjProperties;
 
+// TODO: Move into game-specific info if possible?
+#[allow(dead_code)]
 pub enum SceneEnding {
     SplashNext,
     PlayWin,

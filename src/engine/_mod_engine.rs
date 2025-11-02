@@ -35,6 +35,8 @@ pub mod scripting {
 }
 
 // Public interface for writing a custom game
+// TODO: Some only used by pushing puzzle, not programming puzzle?
+#[allow(unused_imports)]
 pub mod customgame {
     pub use super::obj::ObjProperties;
     pub use super::gametrait::*;
