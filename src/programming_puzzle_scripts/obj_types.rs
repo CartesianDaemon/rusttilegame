@@ -18,7 +18,7 @@ pub enum Pass {
 pub enum AI {
     Hero, // Move according to instruction sequence: F, L, etc. TODO: Rename to Prog, fixing errors in engine.
     Stay, // No movement. E.g. the goal.
-    // Used in tests. Need to move those tests to pushing puzzle dir
+    // TODO: Used in tests. Need to move those tests to pushing puzzle dir
     Bounce,
     Drift,
 }
