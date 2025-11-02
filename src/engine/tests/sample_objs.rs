@@ -3,8 +3,6 @@
 use macroquad::prelude::*;
 
 use crate::engine::for_scripting::*;
-// TODO: Need to specify which scripts to use.
-use crate::scripts::*;
 
 pub fn new_hero_crab() -> ObjProperties {
     ObjProperties {
