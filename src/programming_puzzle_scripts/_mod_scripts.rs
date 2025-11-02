@@ -14,6 +14,9 @@
 mod movement_logic;
 mod obj_types;
 
+// TODO: Imports expected by game engine: move_mov, Pass, AI, Effect.
+// Make Engine or GameData template on a class with a trait exposing those.
+
 // Used in game-specific instantiation.
 pub use obj_types::*;
 
