@@ -4,8 +4,8 @@
 #![allow(unused_braces)]
 
 #[path = "../engine/mod.rs"] mod engine;
-#[path = "../pushpuzz_scripts/_mod_scripts.rs"] mod pushpuzz_scripts;
-#[path = "../pushpuzz_gamedata/_mod_gamedata.rs"] mod pushpuzz_gamedata;
+mod pushpuzz_scripts;
+mod pushpuzz_gamedata;
 
 #[macroquad::main("Tile Game")]
 async fn main() {
