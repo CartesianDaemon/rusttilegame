@@ -33,7 +33,7 @@ pub mod for_scripting {
 // Engine exports needed for writing game data.
 // TODO: Some only used by pushing puzzle, not programming puzzle?
 #[allow(unused_imports)]
-pub mod customgame {
+pub mod for_gamedata {
     pub use super::obj::ObjProperties;
     pub use super::base_gamedata::*;
     pub use super::scene::{Scene, SceneEnding};

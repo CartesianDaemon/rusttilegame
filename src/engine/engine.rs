@@ -11,7 +11,7 @@ use super::scene::*;
 // TODO: Clone unneeded if we only template impl not struct
 use super::field::Map;
 use super::field::RosterIndex;
-use super::customgame::Cmd;
+use super::for_gamedata::Cmd;
 pub trait BaseScripts : Clone {
     fn move_mov(field: &mut Map, mov: RosterIndex, cmd: Cmd) -> SceneContinuation;
 }

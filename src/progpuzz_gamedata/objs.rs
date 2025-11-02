@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::engine::customgame::*;
+use crate::engine::for_gamedata::*;
 // TODO: Need to reference this game's version of scripts
 
 pub fn new_hero_crab() -> ObjProperties {

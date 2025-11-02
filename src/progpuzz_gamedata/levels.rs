@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use super::objs::*;
 
-use crate::engine::customgame::*;
+use crate::engine::for_gamedata::*;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum BiobotSceneId {

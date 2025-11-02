@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::engine::customgame::*;
+use crate::engine::for_gamedata::*;
 
 pub fn new_hero_crab() -> ObjProperties {
     ObjProperties {

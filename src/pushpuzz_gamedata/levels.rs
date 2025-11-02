@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use super::objs::*;
 
-use crate::engine::customgame::*;
+use crate::engine::for_gamedata::*;
 
 // TOOD: Would it be useful to have a levset trait defining the necessary traits,
 // even if it doesn't add any other functionality?
