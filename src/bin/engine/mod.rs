@@ -11,7 +11,7 @@ mod core_engine;
 mod map_coords;
 mod render;
 mod field;
-mod base_gamedata;
+mod gamedata;
 mod input;
 mod scene;
 mod obj;
@@ -26,7 +26,7 @@ pub mod for_scripting {
     pub use super::field::{Map, RosterIndex};
     pub use super::map_coords::*;
     pub use super::scene::{SceneContinuation, SceneEnding};
-    pub use super::core_engine::{BaseScripts, BaseMovementLogic};
+    pub use super::gamedata::{BaseScripts, BaseMovementLogic};
     pub use crate::engine::obj_scripting_properties::*;
 }
 
@@ -35,7 +35,7 @@ pub mod for_scripting {
 #[allow(unused_imports)]
 pub mod for_gamedata {
     pub use super::obj::ObjProperties;
-    pub use super::base_gamedata::*;
+    pub use super::gamedata::*;
     pub use super::scene::{Scene, SceneEnding};
     pub use super::map_coords::*;
     pub use crate::engine::obj_scripting_properties::*;

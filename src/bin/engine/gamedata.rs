@@ -2,8 +2,23 @@
 
 use super::scene::{Scene, SceneEnding};
 
+// Trait for scripts which the scripts for each game needs to implement.
+// TODO: Move to separate file??
+use super::field::Map;
+use super::field::RosterIndex;
+use super::for_gamedata::Cmd;
+use super::scene::SceneContinuation;
+pub trait BaseMovementLogic {
+    fn move_mov(field: &mut Map, mov: RosterIndex, cmd: Cmd) -> SceneContinuation;
+}
+pub trait BaseScripts {
+    type MovementLogic : BaseMovementLogic;
+}
+
 /// Manages game-specific state, e.g. which level to go to next.
 pub trait BaseGamedata {
+    type Scripts : BaseScripts;
+
     fn new_game() -> Self;
 
     fn advance_scene(&mut self, continuation: SceneEnding);

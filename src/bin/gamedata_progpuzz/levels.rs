@@ -16,10 +16,14 @@ pub enum BiobotSceneId {
 
 #[derive(Debug)]
 pub struct ProgpuzzGamedata {
+    // TODO: Move type into mod.rs somehow.
     pub current_sceneid: BiobotSceneId,
 }
 
 impl BaseGamedata for ProgpuzzGamedata {
+    // Try to move GameData into mod.rs and leave Levels as a separate member type.
+    type Scripts = super::super::scripts_progpuzz::ProgpuzzScripts;
+
     fn new_game() -> ProgpuzzGamedata {
         ProgpuzzGamedata { current_sceneid: BiobotSceneId::NewGame }
     }

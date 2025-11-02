@@ -22,6 +22,9 @@ pub struct PushpuzzGamedata {
 }
 
 impl BaseGamedata for PushpuzzGamedata {
+    // Try to move GameData into mod.rs and leave Levels as a separate member type.
+    type Scripts = super::super::scripts_pushpuzz::PushpuzzScripts;
+
     fn new_game() -> PushpuzzGamedata {
         PushpuzzGamedata { current_sceneid: BiobotSceneId::NewGame }
     }
