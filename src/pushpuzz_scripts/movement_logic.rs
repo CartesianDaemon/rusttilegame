@@ -6,7 +6,7 @@ pub struct PushpuzzScripts {
 }
 
 impl BaseScripts for PushpuzzScripts {
-    fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuation {
+    fn move_mov(field: &mut Map, mov: RosterIndex, cmd: Cmd) -> SceneContinuation {
         move_mov(field, mov, cmd)
     }
 }
@@ -14,16 +14,16 @@ impl BaseScripts for PushpuzzScripts {
 impl PushpuzzScripts {
 }
 
-pub fn passable(field: &Field, pos: MapCoord) -> bool {
+pub fn passable(field: &Map, pos: MapCoord) -> bool {
     field.all_pass(pos, Pass::Empty)
 }
 
-pub fn impassable(field: &Field, pos: MapCoord) -> bool {
+pub fn impassable(field: &Map, pos: MapCoord) -> bool {
     !passable(field, pos)
 }
 
 // Would be nice for these to be a function of an enum/trait impls
-pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuation {
+pub fn move_mov(field: &mut Map, mov: RosterIndex, cmd: Cmd) -> SceneContinuation {
     let hero = field.hero();
     match field[mov].props.ai {
         AI::Stay => {
@@ -48,7 +48,7 @@ pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuat
             // TODO: Simplify duplication in field.obj_at(rich_mov.ros_idx) throughout?
 
             // If moving would hit a wall, first reverse direction.
-            // TODO: Consider adding "can_move" function. Field would need movement_logic "passable(obj, tile)" dependency injection.
+            // TODO: Consider adding "can_move" function. Map would need movement_logic "passable(obj, tile)" dependency injection.
             // TODO: Consider adding field.try_move() fn.
             // TODO: Consider adding map_coord *= -1.
             let target_pos = field.obj_target_pos(mov);

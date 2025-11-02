@@ -6,7 +6,7 @@ pub struct ProgpuzzScripts {
 }
 
 impl BaseScripts for ProgpuzzScripts {
-    fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuation {
+    fn move_mov(field: &mut Map, mov: RosterIndex, cmd: Cmd) -> SceneContinuation {
         move_mov(field, mov, cmd)
     }
 }
@@ -14,16 +14,16 @@ impl BaseScripts for ProgpuzzScripts {
 impl ProgpuzzScripts {
 }
 
-pub fn passable(field: &Field, pos: MapCoord) -> bool {
+pub fn passable(field: &Map, pos: MapCoord) -> bool {
     field.all_pass(pos, Pass::Empty)
 }
 
 #[allow(dead_code)]
-pub fn impassable(field: &Field, pos: MapCoord) -> bool {
+pub fn impassable(field: &Map, pos: MapCoord) -> bool {
     !passable(field, pos)
 }
 
-pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuation {
+pub fn move_mov(field: &mut Map, mov: RosterIndex, cmd: Cmd) -> SceneContinuation {
     match field[mov].props.ai {
         AI::Hero => {
             // TODO make sure cmd makes sense as program instruction not key

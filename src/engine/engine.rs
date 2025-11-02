@@ -9,11 +9,11 @@ use super::scene::*;
 // Trait for scripts which the scripts for each game needs to implement.
 // TODO: Move to separate file??
 // TODO: Clone unneeded if we only template impl not struct
-use super::field::Field;
+use super::field::Map;
 use super::field::RosterIndex;
 use super::customgame::Cmd;
 pub trait BaseScripts : Clone {
-    fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuation;
+    fn move_mov(field: &mut Map, mov: RosterIndex, cmd: Cmd) -> SceneContinuation;
 }
 
 /// Overall Engine state.

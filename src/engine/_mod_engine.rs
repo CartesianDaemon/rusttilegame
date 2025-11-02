@@ -32,7 +32,7 @@ pub use engine::run;
 // Engine exports needed for writing game scripts.
 pub mod for_scripting {
     pub use super::obj::ObjProperties;
-    pub use super::field::{Field, RosterIndex};
+    pub use super::field::{Map, RosterIndex};
     pub use super::map_coords::*;
     pub use super::scene::{SceneContinuation, SceneEnding};
     pub use super::engine::BaseScripts;

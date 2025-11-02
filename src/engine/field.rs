@@ -1,7 +1,7 @@
 // Map types.
 //
 // Map is a 2d array of Loc. A Loc is a stack of Objs.
-// Field is a Map along with a Roster of moveable objects.
+// Map is a Map along with a Roster of moveable objects.
 // These are separate to make borrowing possible.
 // TODO: Better to be MapLocs and MapObjs?
 //
@@ -29,18 +29,18 @@ pub struct RosterIndex {
 
 /// Map together with Ros. Those are two separate classes so they can more easily be borrowed separately.
 #[derive(Clone, Debug)]
-pub struct Field {
+pub struct Map {
     map: Grid,
     roster: Roster,
     // Used to represent map as ascii for init and debugging. Not comprehensive.
     map_key: std::collections::HashMap<char, Vec<ObjProperties>>,
 }
 
-impl Field {
+impl Map {
     /////////////////
     /// Initialisers
-    pub fn empty(w: u16, h: u16) -> Field {
-        Field {
+    pub fn empty(w: u16, h: u16) -> Map {
+        Map {
             map: Into::into(Grid::new(w, h)),
             roster: Roster::new(),
             map_key: std::collections::HashMap::new(),
@@ -50,10 +50,10 @@ impl Field {
     pub fn from_map_and_key<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
         map_key: HashMap<char, Vec<ObjProperties>>,
-    ) -> Field {
-        let mut field = Field {
+    ) -> Map {
+        let mut field = Map {
             map_key: map_key.clone(),
-            ..Field::empty(ascii_map[0].len() as u16, HEIGHT as u16)
+            ..Map::empty(ascii_map[0].len() as u16, HEIGHT as u16)
         };
 
         for (y, line) in ascii_map.iter().enumerate() {
@@ -223,7 +223,7 @@ impl Field {
     }
 }
 
-impl Index<RosterIndex> for Field {
+impl Index<RosterIndex> for Map {
     type Output = MapObj;
 
     fn index(&self, roster_idx: RosterIndex) -> &Self::Output {
@@ -232,7 +232,7 @@ impl Index<RosterIndex> for Field {
     }
 }
 
-impl IndexMut<RosterIndex> for Field {
+impl IndexMut<RosterIndex> for Map {
     fn index_mut(&mut self, roster_idx: RosterIndex) -> &mut Self::Output {
         let mapref = self.roster[roster_idx];
         &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h]
@@ -247,7 +247,7 @@ pub struct Refs {
 }
 
 // "Map": Grid of locations. Represents state of current level.
-// NOTE: Could currently be moved back into Field. Not borrowed separately.
+// NOTE: Could currently be moved back into Map. Not borrowed separately.
 #[derive(Clone)]
 struct Grid {
     // Stored as a collection of columns, e.g. map.locs[x][y]
@@ -399,7 +399,7 @@ impl MapRef
 /// Could in theory extend to a component-like system storing overlapping lists of
 /// indexhandles for "objects with this property".
 //
-// NOTE: Could currently be moved back into Field. Not borrowed separately.
+// NOTE: Could currently be moved back into Map. Not borrowed separately.
 #[derive(Clone, Debug)]
 struct Roster {
     pub hero: MapRef,

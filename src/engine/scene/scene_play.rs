@@ -2,7 +2,7 @@ use super::{SceneContinuation};
 
 use std::collections::HashMap;
 
-use crate::engine::field::Field;
+use crate::engine::field::Map;
 use crate::engine::obj::ObjProperties;
 use crate::engine::input::Input;
 use crate::engine::for_scripting::Cmd;
@@ -11,7 +11,7 @@ use crate::engine::for_scripting::Cmd;
 #[derive(Clone, Debug)]
 pub struct Play {
     // Layout of current map.
-    pub field: Field,
+    pub field: Map,
 }
 
 impl Play
@@ -23,7 +23,7 @@ impl Play
         map_key: HashMap<char, Vec<ObjProperties>>,
     ) -> Play {
         Play {
-            field: Field::from_map_and_key(ascii_map, map_key),
+            field: Map::from_map_and_key(ascii_map, map_key),
         }
     }
 
