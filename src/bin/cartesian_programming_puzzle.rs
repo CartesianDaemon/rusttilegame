@@ -4,10 +4,10 @@
 #![allow(unused_braces)]
 
 #[path = "../engine/_mod_engine.rs"] mod engine;
-#[path = "../programming_puzzle_scripts/_mod_scripts.rs"] mod progpuzz_scripts;
-#[path = "../programming_puzzle_gamedata/_mod_gamedata.rs"] mod programming_puzzle_gamedata;
+#[path = "../progpuzz_scripts/_mod_scripts.rs"] mod progpuzz_scripts;
+#[path = "../progpuzz_gamedata/_mod_gamedata.rs"] mod progpuzz_gamedata;
 
 #[macroquad::main("Tile Game")]
 async fn main() {
-    engine::run::<programming_puzzle_gamedata::BiobotGame, progpuzz_scripts::ProgpuzzScripts>().await;
+    engine::run::<progpuzz_gamedata::BiobotGame, progpuzz_scripts::ProgpuzzScripts>().await;
 }
