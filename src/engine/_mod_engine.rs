@@ -27,6 +27,7 @@ mod obj;
 
 pub use engine::run;
 
+// Engine exports needed for writing game scripts.
 pub mod scripting {
     pub use super::obj::ObjProperties;
     pub use super::field::{Field, RosterIndex};
@@ -34,7 +35,7 @@ pub mod scripting {
     pub use super::scene::{SceneContinuation, SceneEnding};
 }
 
-// Public interface for writing a custom game
+// Engine exports needed for writing game data.
 // TODO: Some only used by pushing puzzle, not programming puzzle?
 #[allow(unused_imports)]
 pub mod customgame {
