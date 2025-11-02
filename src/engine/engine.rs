@@ -23,7 +23,7 @@ pub trait BaseScripts : Clone {
 /// Templated on Game (either a  builtin Game, or a load-from-file Game).
 /// Could instead take a &dyn Game trait object so that it could load a Game object
 /// from a library, but that probably doesn't help that much.
-struct Engine<Game: basegamedata::BaseGamedata> {
+struct Engine<Game: base_gamedata::BaseGamedata> {
     /// Level set currently playing through, e.g. the biobot Engine.
     pub game: Game,
 
@@ -44,7 +44,7 @@ struct Engine<Game: basegamedata::BaseGamedata> {
     render: Render,
 }
 
-impl<Game: basegamedata::BaseGamedata> Engine<Game> {
+impl<Game: base_gamedata::BaseGamedata> Engine<Game> {
     pub fn new() -> Engine<Game> {
         let game = Game::new_game();
         let play = game.load_scene();
@@ -78,7 +78,7 @@ impl<Game: basegamedata::BaseGamedata> Engine<Game> {
     }
 }
 
-pub async fn run<Game: basegamedata::BaseGamedata, Scripts: for_scripting::BaseScripts>()
+pub async fn run<Game: base_gamedata::BaseGamedata, Scripts: for_scripting::BaseScripts>()
 {
     let mut engine = Engine::<Game>::new();
 
