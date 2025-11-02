@@ -4,17 +4,8 @@
 /// licensed for other people to use under LGPL3 or later terms. (TBD:
 /// Clarify details, allow pepole to ship combined binary with their
 /// own copyrighted gamedata.)
-
-// TODO: Try to tidy up so:
-//          Engine is templated on gamedata. No reference to scripts.
-//          Everything else can import (some part of?) engine.
-//          Gamedata imports one or more scripts modules.
-//          Engine tests might import scripts as helpers.
-// TODO: Try to tidy up what types/functions each module exports.
-// TODO: Remove warning on redundant braces in use statements.
-// TODO: Give permanent names to biobot game and engine.
-//
-// TODO: Remove "emphasized items" for changed code?
+///
+/// Maybe: Move engine into a lib.
 
 mod engine;
 mod map_coords;

@@ -1,13 +1,11 @@
 // Map types.
 //
-// Map is a 2d array of Loc. A Loc is a stack of Objs.
-// Map is a Map along with a Roster of moveable objects.
-// These are separate to make borrowing possible.
-// TODO: Better to be MapLocs and MapObjs?
+// Map contains a grid of locations, and a roster of moveable objects.
+// Refactoring keeps pulling those into separate member classes so they
+// can be borrowed separately, then recombining them to be more concise.
 //
-// But movement logic etc are in Play.
-// These are also used by level data files, even though
-// they don't need any of the indexing.
+// Movement logic etc are in Play.
+// The Grid/Map are also exported to level data files.
 
 use std::collections::HashMap;
 use std::ops::Index;
@@ -27,7 +25,7 @@ pub struct RosterIndex {
     ros_idx: u16,
 }
 
-/// Map together with Ros. Those are two separate classes so they can more easily be borrowed separately.
+/// Grid together with Ros. Those are two separate classes so they can more easily be borrowed separately.
 #[derive(Clone, Debug)]
 pub struct Map {
     map: Grid,
