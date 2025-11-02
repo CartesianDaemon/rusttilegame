@@ -13,5 +13,10 @@
 
 mod movement_logic;
 
-// Called by game engine
-pub use movement_logic::PushpuzzScripts;
+use crate::engine::for_scripting::*;
+
+pub struct PushpuzzScripts;
+
+impl BaseScripts for PushpuzzScripts {
+    type MovementLogic = movement_logic::PushpuzzMovementLogic;
+}

@@ -9,5 +9,10 @@
 
 mod movement_logic;
 
-// Called by game engine
-pub use movement_logic::ProgpuzzScripts;
+use crate::engine::for_scripting::*;
+
+pub struct ProgpuzzScripts;
+
+impl BaseScripts for ProgpuzzScripts {
+    type MovementLogic = movement_logic::ProgpuzzMovementLogic;
+}

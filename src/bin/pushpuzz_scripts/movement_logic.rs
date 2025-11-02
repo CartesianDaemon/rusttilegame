@@ -1,16 +1,6 @@
 // TODO: Add these types to a Script struct?
 use crate::engine::for_scripting::*;
 
-pub struct PushpuzzScripts {
-}
-
-impl BaseScripts for PushpuzzScripts {
-    type MovementLogic = PushpuzzMovementLogic;
-}
-
-impl PushpuzzScripts {
-}
-
 pub fn passable(field: &Map, pos: MapCoord) -> bool {
     field.all_pass(pos, Pass::Empty)
 }
