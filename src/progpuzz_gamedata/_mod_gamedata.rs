@@ -21,4 +21,4 @@
 mod levels;
 mod objs;
 
-pub use levels::BiobotGame;
+pub use levels::ProgpuzzGamedata;

@@ -17,13 +17,13 @@ pub enum BiobotSceneId {
 }
 
 #[derive(Debug)]
-pub struct BiobotGame {
+pub struct PushpuzzGamedata {
     pub current_sceneid: BiobotSceneId,
 }
 
-impl BaseGameData for BiobotGame {
-    fn new_game() -> BiobotGame {
-        BiobotGame { current_sceneid: BiobotSceneId::NewGame }
+impl BaseGamedata for PushpuzzGamedata {
+    fn new_game() -> PushpuzzGamedata {
+        PushpuzzGamedata { current_sceneid: BiobotSceneId::NewGame }
     }
 
     fn advance_scene(&mut self, continuation: SceneEnding) {

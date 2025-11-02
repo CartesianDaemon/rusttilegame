@@ -14,7 +14,7 @@
 mod movement_logic;
 
 // TODO: Imports expected by game engine: Pass, AI, Effect.
-// Make Engine or GameData template on a class with a trait exposing those.
+// Make Engine or Gamedata template on a class with a trait exposing those.
 
 // Called by game engine
 pub use movement_logic::*;

@@ -9,5 +9,5 @@
 
 #[macroquad::main("Tile Game")]
 async fn main() {
-    engine::run::<pushpuzz_gamedata::BiobotGame, pushpuzz_scripts::PushpuzzScripts>().await;
+    engine::run::<pushpuzz_gamedata::PushpuzzGamedata, pushpuzz_scripts::PushpuzzScripts>().await;
 }

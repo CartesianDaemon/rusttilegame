@@ -1,7 +1,7 @@
 use super::map_coords::CoordDelta;
 use super::obj_scripting_properties;
 
-// TODO: Need to avoid using scripts except via GameData template
+// TODO: Need to avoid using scripts except via Gamedata template
 //use crate::scripts::*;
 
 use macroquad::prelude::*;
