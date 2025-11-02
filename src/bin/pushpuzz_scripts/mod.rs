@@ -11,9 +11,7 @@
 /// directory, released as open-source like the game engine, to use for
 /// testing, seeding new games, etc.
 
-// TODO: Rename to "base scripts" or "reptonlike scripts"
-
 mod movement_logic;
 
 // Called by game engine
-pub use movement_logic::*;
+pub use movement_logic::PushpuzzScripts;

@@ -12,7 +12,7 @@ use super::scene::*;
 use super::field::Map;
 use super::field::RosterIndex;
 use super::for_gamedata::Cmd;
-pub trait BaseScripts : Clone {
+pub trait BaseScripts {
     fn move_mov(field: &mut Map, mov: RosterIndex, cmd: Cmd) -> SceneContinuation;
 }
 
