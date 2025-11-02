@@ -14,10 +14,6 @@
 // TODO: Rename to "base scripts" or "reptonlike scripts"
 
 mod movement_logic;
-mod obj_types;
-
-// Used in game-specific instantiation.
-pub use obj_types::*;
 
 // Called by game engine
 pub use movement_logic::*;

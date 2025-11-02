@@ -64,6 +64,7 @@ mod basic_tests {
     fn basic_bounce() {
         let mut play_state = get_lev(1);
         let mut input = Input::new_blank();
+        // TODO: Need to specialise advance with Scripts.
         input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#   >        @ @");
         input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#    >       @ @");
         input.inject_cmd(Cmd::Stay); play_state.advance(&mut input); assert_eq!(&play_state.as_ascii_rows()[2], "#     >      @ @");

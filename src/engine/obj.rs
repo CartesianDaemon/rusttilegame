@@ -2,7 +2,7 @@ use super::map_coords::CoordDelta;
 use super::obj_scripting_properties;
 
 // TODO: Need to avoid using scripts except via GameData template
-use crate::scripts::*;
+//use crate::scripts::*;
 
 use macroquad::prelude::*;
 
@@ -35,7 +35,7 @@ pub struct ObjProperties {
     pub pass: obj_scripting_properties::Pass,
 
     // Movement control logic for enemies
-    pub ai: AI,
+    pub ai: obj_scripting_properties::AI,
 
     // Internal status for ents which have a current movement direction.
     pub dir: CoordDelta,
@@ -57,7 +57,7 @@ impl ObjProperties {
             text_col: None,
 
             pass: obj_scripting_properties::Pass::Empty,
-            ai: AI::Stay, // STUB: Could use this as a better placeholder flag
+            ai: obj_scripting_properties::AI::Stay, // STUB: Could use this as a better placeholder flag
             effect: obj_scripting_properties::Effect::Nothing,
 
             dir: CoordDelta::from_xy(0, 0),
@@ -126,21 +126,22 @@ impl ObjProperties {
     // FUNCTIONS REFERRING TO SPECIFIC PROPERTIES
     // STUB: Could be combined if properties are made more generic.
 
-    pub fn is_hero(ai: AI) -> bool {
-        ai == AI::Hero
+    // Todo: Replace with more meaningful "is_hero" fn in scripts. Or obj_properties??
+    pub fn is_hero(ai: obj_scripting_properties::AI) -> bool {
+        ai == obj_scripting_properties::AI::Hero
     }
 
     // Indicate Obj which can move in their own logic, and need to be added to roster.
-    pub fn is_mob(ai: AI) -> bool {
+    pub fn is_mob(ai: obj_scripting_properties::AI) -> bool {
         Self::is_any_mov(ai) && ! Self::is_hero(ai)
     }
 
     // Mob or Hero
-    pub fn is_any_mov(ai: AI) -> bool {
-        ai != AI::Stay
+    pub fn is_any_mov(ai: obj_scripting_properties::AI) -> bool {
+        ai != obj_scripting_properties::AI::Stay
     }
 
-    fn comparable_fields(&self) -> (&String, &CoordDelta, &AI, &obj_scripting_properties::Pass) {
+    fn comparable_fields(&self) -> (&String, &CoordDelta, &obj_scripting_properties::AI, &obj_scripting_properties::Pass) {
         (&self.name, &self.dir, &self.ai, &self.pass)
     }
 }

@@ -12,13 +12,9 @@
 /// testing, seeding new games, etc.
 
 mod movement_logic;
-mod obj_types;
 
 // TODO: Imports expected by game engine: Pass, AI, Effect.
 // Make Engine or GameData template on a class with a trait exposing those.
-
-// Used in game-specific instantiation.
-pub use obj_types::*;
 
 // Called by game engine
 pub use movement_logic::*;

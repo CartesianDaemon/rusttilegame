@@ -1,6 +1,5 @@
 // TODO: Add these types to a Script struct?
 use crate::engine::for_scripting::*;
-use super::obj_types::*;
 
 #[derive(Clone, Debug)]
 pub struct ProgpuzzScripts {
@@ -48,6 +47,9 @@ pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuat
             // ???? TODO: Remove. TODO combine two match branches.
         },
         AI::Drift => {
+            // ????
+        },
+        AI::Scuttle => {
             // ????
         },
         }
