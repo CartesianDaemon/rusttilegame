@@ -25,7 +25,13 @@ mod input;
 #[path = "scene/_mod_scene.rs"] mod scene;
 mod obj;
 
+// Used in main() function
 pub use engine::run;
+
+// Trait for scripts which the scripts for each game needs to implement.
+pub trait BaseScripts {
+    //
+}
 
 // Engine exports needed for writing game scripts.
 pub mod for_scripting {
