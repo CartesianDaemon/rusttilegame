@@ -30,7 +30,7 @@ pub struct RosterIndex {
 /// Map together with Ros. Those are two separate classes so they can more easily be borrowed separately.
 #[derive(Clone, Debug)]
 pub struct Field {
-    map: Map,
+    map: Grid,
     roster: Roster,
     // Used to represent map as ascii for init and debugging. Not comprehensive.
     map_key: std::collections::HashMap<char, Vec<ObjProperties>>,
@@ -41,7 +41,7 @@ impl Field {
     /// Initialisers
     pub fn empty(w: u16, h: u16) -> Field {
         Field {
-            map: Into::into(Map::new(w, h)),
+            map: Into::into(Grid::new(w, h)),
             roster: Roster::new(),
             map_key: std::collections::HashMap::new(),
         }
@@ -249,15 +249,15 @@ pub struct Refs {
 // "Map": Grid of locations. Represents state of current level.
 // NOTE: Could currently be moved back into Field. Not borrowed separately.
 #[derive(Clone)]
-struct Map {
+struct Grid {
     // Stored as a collection of columns, e.g. map.locs[x][y]
     // Must always be rectangular.
     locs: Vec<Vec<Loc>>,
 }
 
-impl Map {
-    pub fn new(w: u16, h: u16) -> Map {
-        Map {
+impl Grid {
+    pub fn new(w: u16, h: u16) -> Grid {
+        Grid {
             locs: vec!(vec!(Loc::new(); h.into()); w.into()),
         }
     }
@@ -281,7 +281,7 @@ impl Map {
     }
 }
 
-impl Index<MapCoord> for Map {
+impl Index<MapCoord> for Grid {
     type Output = Loc;
 
     fn index(&self, pos: MapCoord) -> &Self::Output {
@@ -289,13 +289,13 @@ impl Index<MapCoord> for Map {
     }
 }
 
-impl IndexMut<MapCoord> for Map {
+impl IndexMut<MapCoord> for Grid {
     fn index_mut(&mut self, pos: MapCoord) -> &mut Self::Output {
         &mut self.locs[pos.x as usize][pos.y as usize]
     }
 }
 
-impl std::fmt::Debug for Map {
+impl std::fmt::Debug for Grid {
     #[try_fn]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         write!(f, "Map[")?;
@@ -326,7 +326,7 @@ pub struct LocIterator<'a> {
     x: i16,
     y: i16,
     // Pointer back to original collection
-    map: &'a Map,
+    map: &'a Grid,
 }
 
 impl Iterator for CoordIterator {
