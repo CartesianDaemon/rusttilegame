@@ -3,7 +3,7 @@
 
 #![allow(unused_braces)]
 
-#[path = "../engine/_mod_engine.rs"] mod engine;
+#[path = "../engine/mod.rs"] mod engine;
 #[path = "../progpuzz_scripts/_mod_scripts.rs"] mod progpuzz_scripts;
 #[path = "../progpuzz_gamedata/_mod_gamedata.rs"] mod progpuzz_gamedata;
 

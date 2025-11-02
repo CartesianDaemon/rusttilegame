@@ -13,7 +13,7 @@ mod render;
 mod field;
 mod base_gamedata;
 mod input;
-#[path = "scene/_mod_scene.rs"] mod scene;
+mod scene;
 mod obj;
 mod obj_scripting_properties;
 
