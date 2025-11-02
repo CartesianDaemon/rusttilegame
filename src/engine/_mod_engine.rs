@@ -20,7 +20,7 @@ mod engine;
 mod map_coords;
 mod render;
 mod field;
-mod gametrait;
+mod basegamedata;
 mod input;
 #[path = "scene/_mod_scene.rs"] mod scene;
 mod obj;
@@ -46,7 +46,7 @@ pub mod for_scripting {
 #[allow(unused_imports)]
 pub mod customgame {
     pub use super::obj::ObjProperties;
-    pub use super::gametrait::*;
+    pub use super::basegamedata::*;
     pub use super::scene::{Scene, SceneEnding};
     pub use super::map_coords::*;
 }

@@ -9,7 +9,7 @@ use std::collections::HashMap;
 use assrt::*;
 use macroquad::prelude::*;
 
-use crate::engine::gametrait::*; // For new_xxxx() fns
+use crate::engine::basegamedata::*; // For new_xxxx() fns
 use crate::engine::scene::Scene;
 use crate::engine::map_coords::*;
 
