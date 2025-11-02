@@ -24,6 +24,7 @@ mod basegamedata;
 mod input;
 #[path = "scene/_mod_scene.rs"] mod scene;
 mod obj;
+mod obj_scripting_properties;
 
 // Used in main() function
 pub use engine::run;
@@ -35,6 +36,7 @@ pub mod for_scripting {
     pub use super::map_coords::*;
     pub use super::scene::{SceneContinuation, SceneEnding};
     pub use super::engine::BaseScripts;
+    pub use crate::engine::obj_scripting_properties::*;
 }
 
 // Engine exports needed for writing game data.
@@ -45,6 +47,7 @@ pub mod customgame {
     pub use super::basegamedata::*;
     pub use super::scene::{Scene, SceneEnding};
     pub use super::map_coords::*;
+    pub use crate::engine::obj_scripting_properties::*;
 }
 
 #[path = "tests/_mod_tests.rs"] mod engine_tests;

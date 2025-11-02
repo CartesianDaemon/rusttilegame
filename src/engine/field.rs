@@ -15,10 +15,8 @@ use std::ops::IndexMut;
 
 use culpa::try_fn;
 
-// TODO: Need to avoid using scripts except via GameData template
-use crate::scripts::*;
-
 use super::scene::SceneContinuation;
+use super::obj_scripting_properties;
 
 use super::map_coords::*;
 
@@ -189,11 +187,11 @@ impl Field {
         self[roster_idx].refs.pos + self[roster_idx].props.dir
     }
 
-    pub fn any_effect(&self, pos: MapCoord, sought_effect: Effect) -> bool {
+    pub fn any_effect(&self, pos: MapCoord, sought_effect: obj_scripting_properties::Effect) -> bool {
         self.map[pos].any_effect(sought_effect)
     }
 
-    pub fn all_pass(&self, pos: MapCoord, sought_pass: Pass) -> bool {
+    pub fn all_pass(&self, pos: MapCoord, sought_pass: obj_scripting_properties::Pass) -> bool {
         self.map[pos].all_pass(sought_pass)
     }
 
@@ -482,15 +480,15 @@ impl Loc {
         Loc { objs: vec![] }
     }
 
-    pub fn any_effect(&self, sought_effect: Effect) -> bool {
+    pub fn any_effect(&self, sought_effect: obj_scripting_properties::Effect) -> bool {
         self.objs.iter().any(|x| x.props.effect == sought_effect)
     }
 
-    pub fn any_pass(&self, sought_pass: Pass) -> bool {
+    pub fn any_pass(&self, sought_pass: obj_scripting_properties::Pass) -> bool {
         self.objs.iter().any(|x| x.props.pass == sought_pass)
     }
 
-    pub fn all_pass(&self, sought_pass: Pass) -> bool {
+    pub fn all_pass(&self, sought_pass: obj_scripting_properties::Pass) -> bool {
         self.objs.iter().all(|x| x.props.pass == sought_pass)
     }
 

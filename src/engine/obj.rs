@@ -1,4 +1,5 @@
 use super::map_coords::CoordDelta;
+use super::obj_scripting_properties;
 
 // TODO: Need to avoid using scripts except via GameData template
 use crate::scripts::*;
@@ -31,7 +32,7 @@ pub struct ObjProperties {
     // Ent properties and behaviour, used by Game logic.
 
     // Solidity, e.g. wall, floor
-    pub pass: Pass,
+    pub pass: obj_scripting_properties::Pass,
 
     // Movement control logic for enemies
     pub ai: AI,
@@ -40,7 +41,7 @@ pub struct ObjProperties {
     pub dir: CoordDelta,
 
     // Effect of intersecting hero
-    pub effect: Effect,
+    pub effect: obj_scripting_properties::Effect,
 }
 
 impl ObjProperties {
@@ -55,9 +56,9 @@ impl ObjProperties {
             text: None,
             text_col: None,
 
-            pass: Pass::Empty,
+            pass: obj_scripting_properties::Pass::Empty,
             ai: AI::Stay, // STUB: Could use this as a better placeholder flag
-            effect: Effect::Nothing,
+            effect: obj_scripting_properties::Effect::Nothing,
 
             dir: CoordDelta::from_xy(0, 0),
         }
@@ -139,7 +140,7 @@ impl ObjProperties {
         ai != AI::Stay
     }
 
-    fn comparable_fields(&self) -> (&String, &CoordDelta, &AI, &Pass) {
+    fn comparable_fields(&self) -> (&String, &CoordDelta, &AI, &obj_scripting_properties::Pass) {
         (&self.name, &self.dir, &self.ai, &self.pass)
     }
 }
