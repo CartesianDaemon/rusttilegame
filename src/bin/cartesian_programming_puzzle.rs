@@ -11,5 +11,5 @@
 
 #[macroquad::main("Tile Game")]
 async fn main() {
-    engine::run::<programming_puzzle_gamedata::BiobotGame>().await;
+    engine::run::<programming_puzzle_gamedata::BiobotGame, scripts::ProgpuzzScripts>().await;
 }

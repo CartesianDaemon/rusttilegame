@@ -2,6 +2,17 @@
 use crate::engine::for_scripting::*;
 use super::obj_types::*;
 
+pub struct PushpuzzScripts {
+}
+
+impl BaseScripts for PushpuzzScripts {
+    fn foo() {
+    }
+}
+
+impl PushpuzzScripts {
+}
+
 pub fn passable(field: &Field, pos: MapCoord) -> bool {
     field.all_pass(pos, Pass::Empty)
 }

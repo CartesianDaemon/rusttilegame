@@ -28,17 +28,13 @@ mod obj;
 // Used in main() function
 pub use engine::run;
 
-// Trait for scripts which the scripts for each game needs to implement.
-pub trait BaseScripts {
-    //
-}
-
 // Engine exports needed for writing game scripts.
 pub mod for_scripting {
     pub use super::obj::ObjProperties;
     pub use super::field::{Field, RosterIndex};
     pub use super::map_coords::*;
     pub use super::scene::{SceneContinuation, SceneEnding};
+    pub use super::engine::BaseScripts;
 }
 
 // Engine exports needed for writing game data.

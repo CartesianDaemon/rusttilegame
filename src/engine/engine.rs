@@ -6,6 +6,14 @@ use super::input::Input;
 use super::render::Render;
 use super::scene::*;
 
+use std::marker::PhantomData;
+
+// Trait for scripts which the scripts for each game needs to implement.
+// TODO: Move to separate file??
+pub trait BaseScripts {
+    fn foo();
+}
+
 /// Overall Engine state.
 ///
 /// Including set of levels in current Engine, and state of current level being played.
@@ -13,7 +21,7 @@ use super::scene::*;
 /// Templated on Game (either a  builtin Game, or a load-from-file Game).
 /// Could instead take a &dyn Game trait object so that it could load a Game object
 /// from a library, but that probably doesn't help that much.
-struct Engine<Game: basegamedata::BaseGameData> {
+struct Engine<Game: basegamedata::BaseGameData, Scripts: for_scripting::BaseScripts> {
     /// Level set currently playing through, e.g. the biobot Engine.
     pub game: Game,
 
@@ -32,19 +40,25 @@ struct Engine<Game: basegamedata::BaseGameData> {
 
     ///
     render: Render,
+
+    // TODO: To allow us to use Scripts as template arg. Maybe make Scripts param of GameData?
+    _phantom: PhantomData::<Scripts>,
 }
 
-impl<Game: basegamedata::BaseGameData> Engine<Game> {
-    pub fn new() -> Engine<Game> {
+impl<Game: basegamedata::BaseGameData, Scripts: for_scripting::BaseScripts> Engine<Game, Scripts> {
+    pub fn new() -> Engine<Game, Scripts> {
+        // TODO: Remove once we use Scripts:: functions elsewhere.
+        Scripts::foo();
         let game = Game::new_game();
         let play = game.load_scene();
-        Engine {
+        Engine::<Game, Scripts> {
             game,
             play_state: play,
             anim_real_pc: 0.,
             slide_real_pc: 0.,
             input: Input::new_begin(),
             render: Render::new(),
+            _phantom: PhantomData,
         }
     }
 
@@ -68,9 +82,9 @@ impl<Game: basegamedata::BaseGameData> Engine<Game> {
     }
 }
 
-pub async fn run<Game: basegamedata::BaseGameData>()
+pub async fn run<Game: basegamedata::BaseGameData, Scripts: for_scripting::BaseScripts>()
 {
-    let mut engine = Engine::<Game>::new();
+    let mut engine = Engine::<Game, Scripts>::new();
 
     loop {
         engine.do_frame().await;

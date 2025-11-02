@@ -2,6 +2,17 @@
 use crate::engine::for_scripting::*;
 use super::obj_types::*;
 
+pub struct ProgpuzzScripts {
+}
+
+impl BaseScripts for ProgpuzzScripts {
+    fn foo() {
+    }
+}
+
+impl ProgpuzzScripts {
+}
+
 pub fn passable(field: &Field, pos: MapCoord) -> bool {
     field.all_pass(pos, Pass::Empty)
 }
