@@ -4,10 +4,10 @@
 #![allow(unused_braces)]
 
 mod engine;
-mod progpuzz_scripts;
-mod progpuzz_gamedata;
+mod scripts_progpuzz;
+mod gamedata_progpuzz;
 
 #[macroquad::main("Tile Game")]
 async fn main() {
-    engine::run::<progpuzz_gamedata::ProgpuzzGamedata, progpuzz_scripts::ProgpuzzScripts>().await;
+    engine::run::<gamedata_progpuzz::ProgpuzzGamedata, scripts_progpuzz::ProgpuzzScripts>().await;
 }
