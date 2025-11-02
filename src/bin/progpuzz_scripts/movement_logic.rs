@@ -20,8 +20,7 @@ pub fn impassable(field: &Map, pos: MapCoord) -> bool {
     !passable(field, pos)
 }
 
-pub struct ProgpuzzMovementLogic {
-}
+pub struct ProgpuzzMovementLogic;
 
 impl BaseMovementLogic for ProgpuzzMovementLogic
 {
