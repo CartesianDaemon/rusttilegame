@@ -7,7 +7,7 @@
 ///
 /// Maybe: Move engine into a lib.
 
-mod engine;
+mod core_engine;
 mod map_coords;
 mod render;
 mod field;
@@ -18,7 +18,7 @@ mod obj;
 mod obj_scripting_properties;
 
 // Used in main() function
-pub use engine::run;
+pub use core_engine::run;
 
 // Engine exports needed for writing game scripts.
 pub mod for_scripting {
@@ -26,7 +26,7 @@ pub mod for_scripting {
     pub use super::field::{Map, RosterIndex};
     pub use super::map_coords::*;
     pub use super::scene::{SceneContinuation, SceneEnding};
-    pub use super::engine::BaseScripts;
+    pub use super::core_engine::BaseScripts;
     pub use crate::engine::obj_scripting_properties::*;
 }
 
