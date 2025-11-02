@@ -41,4 +41,4 @@ pub mod for_gamedata {
     pub use crate::engine::obj_scripting_properties::*;
 }
 
-#[path = "tests/_mod_tests.rs"] mod engine_tests;
+mod engine_tests;
