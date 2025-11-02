@@ -21,7 +21,7 @@ pub struct BiobotGame {
     pub current_sceneid: BiobotSceneId,
 }
 
-impl GameTrait for BiobotGame {
+impl BaseGameData for BiobotGame {
     fn new_game() -> BiobotGame {
         BiobotGame { current_sceneid: BiobotSceneId::NewGame }
     }

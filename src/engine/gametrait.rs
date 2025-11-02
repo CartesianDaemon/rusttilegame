@@ -3,7 +3,7 @@
 use super::scene::{Scene, SceneEnding};
 
 /// Manages game-specific state, e.g. which level to go to next.
-pub trait GameTrait {
+pub trait BaseGameData {
     fn new_game() -> Self;
 
     fn advance_scene(&mut self, continuation: SceneEnding);

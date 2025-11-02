@@ -13,7 +13,7 @@ use super::scene::*;
 /// Templated on Game (either a  builtin Game, or a load-from-file Game).
 /// Could instead take a &dyn Game trait object so that it could load a Game object
 /// from a library, but that probably doesn't help that much.
-struct Engine<Game: gametrait::GameTrait> {
+struct Engine<Game: gametrait::BaseGameData> {
     /// Level set currently playing through, e.g. the biobot Engine.
     pub game: Game,
 
@@ -34,7 +34,7 @@ struct Engine<Game: gametrait::GameTrait> {
     render: Render,
 }
 
-impl<Game: gametrait::GameTrait> Engine<Game> {
+impl<Game: gametrait::BaseGameData> Engine<Game> {
     pub fn new() -> Engine<Game> {
         let game = Game::new_game();
         let play = game.load_scene();
@@ -68,7 +68,7 @@ impl<Game: gametrait::GameTrait> Engine<Game> {
     }
 }
 
-pub async fn run<Game: gametrait::GameTrait>()
+pub async fn run<Game: gametrait::BaseGameData>()
 {
     let mut engine = Engine::<Game>::new();
 
