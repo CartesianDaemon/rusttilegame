@@ -10,6 +10,7 @@ pub fn impassable(field: &Field, pos: MapCoord) -> bool {
     !passable(field, pos)
 }
 
+// Would be nice for these to be a function of an enum/trait impls
 pub fn move_mov(field: &mut Field, mov: RosterIndex, cmd: Cmd) -> SceneContinuation {
     let hero = field.hero();
     match field[mov].props.ai {

@@ -1,3 +1,7 @@
+// IDEAS: Enum with a trait each variant impls.
+// IDEAS: Macro for specifying "_mod_dirname_.rs" instead of mod.rs.
+// IDEAS: Angel objects for objects "in" map.
+
 #![feature(coroutines, coroutine_trait, iter_from_coroutine)]
 #![feature(try_trait_v2)]
 
