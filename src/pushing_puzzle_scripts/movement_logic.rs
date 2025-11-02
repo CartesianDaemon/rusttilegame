@@ -1,5 +1,5 @@
 // TODO: Add these types to a Script struct?
-use crate::engine::scripting::*;
+use crate::engine::for_scripting::*;
 use super::obj_types::*;
 
 pub fn passable(field: &Field, pos: MapCoord) -> bool {

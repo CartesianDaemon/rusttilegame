@@ -28,7 +28,7 @@ mod obj;
 pub use engine::run;
 
 // Engine exports needed for writing game scripts.
-pub mod scripting {
+pub mod for_scripting {
     pub use super::obj::ObjProperties;
     pub use super::field::{Field, RosterIndex};
     pub use super::map_coords::*;

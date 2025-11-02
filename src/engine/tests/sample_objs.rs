@@ -2,7 +2,7 @@
 
 use macroquad::prelude::*;
 
-use crate::engine::scripting::*;
+use crate::engine::for_scripting::*;
 // TODO: Need to specify which scripts to use.
 use crate::scripts::*;
 

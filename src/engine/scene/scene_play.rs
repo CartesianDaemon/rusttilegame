@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use crate::engine::field::Field;
 use crate::engine::obj::ObjProperties;
 use crate::engine::input::Input;
-use crate::engine::scripting::Cmd;
+use crate::engine::for_scripting::Cmd;
 
 /// Interactive map, the actual gameplay part of the game.
 #[derive(Clone, Debug)]
