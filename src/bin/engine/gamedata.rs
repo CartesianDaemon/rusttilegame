@@ -18,6 +18,7 @@ pub trait BaseScripts {
 /// Manages game-specific state, e.g. which level to go to next.
 pub trait BaseGamedata {
     type Scripts : BaseScripts;
+    type XAI;
 
     fn new() -> Self;
 

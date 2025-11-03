@@ -20,6 +20,7 @@
 
 mod levels;
 mod objs;
+mod obj_properties;
 
 use crate::engine::for_gamedata::*;
 
@@ -30,6 +31,7 @@ pub struct PushpuzzGamedata {
 
 impl BaseGamedata for PushpuzzGamedata {
     type Scripts = super::scripts_pushpuzz::PushpuzzScripts;
+    type XAI = obj_properties::XAI;
 
     fn new() -> Self {
         PushpuzzGamedata {
