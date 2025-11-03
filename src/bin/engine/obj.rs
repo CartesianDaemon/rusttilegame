@@ -18,6 +18,7 @@ pub struct ObjProperties {
     // Only used by Render. Worth moving into a separate struct shared between Map and Render?
     // If we replace Texture with path and initialise texture only in Render, we should break
     // dependency on macroquad runtime code.
+
     pub border: Option<Color>,
     pub fill: Option<Color>,
 
@@ -29,7 +30,7 @@ pub struct ObjProperties {
     pub text: Option<String>,
     pub text_col: Option<Color>,
 
-    // Ent properties and behaviour, used by Game logic.
+    // Ent properties and behaviour, used by Game logic and scripting
 
     // Solidity, e.g. wall, floor
     pub pass: obj_scripting_properties::Pass,
