@@ -7,9 +7,9 @@ use super::obj_scripting_properties;
 use macroquad::prelude::*;
 
 /// Anything tile-sized and drawable including floor, wall, object, being.
-/// TODO: Could have a separate "Object in map" or "active object" representation in map?
+/// Containing name, visuals, scripting properties, etc but not coords in map.
+/// Everything that would compare equal for two identical objects at different places.
 #[derive(Clone, Debug)]
-//#[allow(dead_code)]
 pub struct ObjProperties {
     /// String representation of object, used internally for debug fmt etc.
     pub name: String,

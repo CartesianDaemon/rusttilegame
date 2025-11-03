@@ -238,6 +238,7 @@ impl IndexMut<RosterIndex> for Map {
     }
 }
 
+/// Ref back from object to current coords in map
 #[derive(Clone, Debug)]
 pub struct Refs {
     curr_roster_idx: RosterIndex,
@@ -245,8 +246,8 @@ pub struct Refs {
     pub prev_pos: MapCoord,
 }
 
-// "Map": Grid of locations. Represents state of current level.
-// NOTE: Could currently be moved back into Map. Not borrowed separately.
+/// "Map": Grid of locations. Represents state of current level.
+/// NOTE: Could currently be moved back into Map. Not borrowed separately.
 #[derive(Clone)]
 struct Grid {
     // Stored as a collection of columns, e.g. map.locs[x][y]
@@ -545,6 +546,7 @@ impl IndexMut<u16> for Loc {
     }
 }
 
+/// Specific object in map (Including current coords as well as ObjProperties)
 #[derive(Clone, Debug)]
 pub struct MapObj {
     refs: Refs,
