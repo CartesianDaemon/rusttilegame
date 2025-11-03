@@ -15,20 +15,16 @@ pub enum BiobotSceneId {
 }
 
 #[derive(Debug)]
-pub struct ProgpuzzGamedata {
-    // TODO: Move type into mod.rs somehow.
+pub struct ProgpuzzLevset {
     pub current_sceneid: BiobotSceneId,
 }
 
-impl BaseGamedata for ProgpuzzGamedata {
-    // Try to move GameData into mod.rs and leave Levels as a separate member type.
-    type Scripts = super::super::scripts_progpuzz::ProgpuzzScripts;
-
-    fn new_game() -> ProgpuzzGamedata {
-        ProgpuzzGamedata { current_sceneid: BiobotSceneId::NewGame }
+impl ProgpuzzLevset {
+    pub fn new() -> ProgpuzzLevset {
+        ProgpuzzLevset { current_sceneid: BiobotSceneId::NewGame }
     }
 
-    fn advance_scene(&mut self, continuation: SceneEnding) {
+    pub fn advance_scene(&mut self, continuation: SceneEnding) {
         self.current_sceneid = match (self.current_sceneid, continuation) {
             (BiobotSceneId::NewGame, SceneEnding::SplashNext) => BiobotSceneId::LevIntro(1),
             (BiobotSceneId::LevIntro(levnum), SceneEnding::SplashNext) => BiobotSceneId::LevPlay(levnum),
@@ -43,7 +39,7 @@ impl BaseGamedata for ProgpuzzGamedata {
         };
     }
 
-    fn load_scene(&self) -> Scene {
+    pub fn load_scene(&self) -> Scene {
         let aquarium1_key = HashMap::from([
             // TODO: Combine with obj.char types?
             (' ', vec![ new_floor() ]),

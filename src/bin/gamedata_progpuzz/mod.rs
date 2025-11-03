@@ -21,4 +21,27 @@
 mod levels;
 mod objs;
 
-pub use levels::ProgpuzzGamedata;
+use crate::engine::for_gamedata::*;
+
+#[derive(Debug)]
+pub struct ProgpuzzGamedata {
+    levset: levels::ProgpuzzLevset,
+}
+
+impl BaseGamedata for ProgpuzzGamedata {
+    type Scripts = super::scripts_progpuzz::ProgpuzzScripts;
+
+    fn new() -> Self {
+        ProgpuzzGamedata {
+            levset: levels::ProgpuzzLevset::new()
+        }
+    }
+
+    fn advance_scene(&mut self, continuation: SceneEnding) {
+        self.levset.advance_scene(continuation)
+    }
+
+    fn load_scene(&self) -> Scene {
+        self.levset.load_scene()
+    }
+}
