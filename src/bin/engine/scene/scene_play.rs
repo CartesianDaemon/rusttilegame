@@ -3,7 +3,7 @@ use super::{SceneContinuation};
 use std::collections::HashMap;
 
 use crate::engine::map::Map;
-use crate::engine::obj::ObjProperties;
+use crate::engine::obj::FreeObj;
 use crate::engine::input::Input;
 use crate::engine::for_scripting::Cmd;
 
@@ -20,7 +20,7 @@ impl Play
     // TODO: Use lifetime or Rc on map_key instead of clone()?
     pub fn from_ascii<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
-        map_key: HashMap<char, Vec<ObjProperties>>,
+        map_key: HashMap<char, Vec<FreeObj>>,
     ) -> Play {
         Play {
             field: Map::from_map_and_key(ascii_map, map_key),

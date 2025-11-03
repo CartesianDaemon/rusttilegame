@@ -19,7 +19,7 @@ use super::for_scripting::{BaseScripts, BaseMovementLogic};
 
 use super::map_coords::*;
 
-use super::obj::ObjProperties;
+use super::obj::{FreeObj, LogicalProps, VisualProps};
 
 #[derive(Copy, Clone, PartialEq, Debug)] // , Add, Mul
 pub struct RosterIndex {
@@ -32,7 +32,7 @@ pub struct Map {
     map: Grid,
     roster: Roster,
     // Used to represent map as ascii for init and debugging. Not comprehensive.
-    map_key: std::collections::HashMap<char, Vec<ObjProperties>>,
+    map_key: std::collections::HashMap<char, Vec<FreeObj>>,
 }
 
 impl Map {
@@ -48,7 +48,7 @@ impl Map {
 
     pub fn from_map_and_key<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
-        map_key: HashMap<char, Vec<ObjProperties>>,
+        map_key: HashMap<char, Vec<FreeObj>>,
     ) -> Map {
         let mut field = Map {
             map_key: map_key.clone(),
@@ -117,17 +117,22 @@ impl Map {
     /// TODO: Actually, add some interface there to avoid &mut Backref
 
     /// Spawn new object.
-    pub fn spawn_obj_at(&mut self, x: i16, y:i16, props: ObjProperties)
+    pub fn spawn_obj_at(&mut self, x: i16, y:i16, template_obj: FreeObj)
     {
         let pos = MapCoord::from_xy(x, y);
         let h = self.map[pos].objs.len() as u16;
-        let new_roster_idx = self.roster.add_to_roster_if_mov( MapRef{x, y, h}, &props );
+        let new_roster_idx = self.roster.add_to_roster_if_mov( MapRef{x, y, h}, &template_obj );
         let mappos = Refs {
             curr_roster_idx: new_roster_idx,
             pos,
             prev_pos: pos,
         };
-        self.map[pos].objs.push( MapObj{refs: mappos, props} );
+        let obj = MapObj{
+            refs: mappos,
+            logical_props: template_obj.logical_props,
+            visual_props: template_obj.visual_props,
+        };
+        self.map[pos].objs.push(obj);
     }
 
     /// Move obj to a new location.
@@ -157,7 +162,7 @@ impl Map {
                     pos: target_pos,
                     prev_pos: obj.refs.pos,
                 },
-               props: obj.props,
+                ..obj
             }
         );
 
@@ -183,7 +188,7 @@ impl Map {
     // TODO: Only used by pushing puzzle, not programming puzzle?
     #[allow(dead_code)]
     pub fn obj_target_pos(&self, roster_idx: RosterIndex) -> MapCoord {
-        self[roster_idx].refs.pos + self[roster_idx].props.dir
+        self[roster_idx].refs.pos + self[roster_idx].logical_props.dir
     }
 
     pub fn any_effect(&self, pos: MapCoord, sought_effect: obj_scripting_properties::Effect) -> bool {
@@ -428,11 +433,11 @@ impl Roster {
         (0..self.movs.len() as u16).into_iter().map(|ros_idx| RosterIndex { ros_idx } ).collect()
     }
 
-    fn add_to_roster_if_mov(&mut self, mapref: MapRef, props: &ObjProperties) -> RosterIndex {
-        if ObjProperties::is_hero(props.ai) {
-        self.hero = mapref;
+    fn add_to_roster_if_mov(&mut self, mapref: MapRef, props: &FreeObj) -> RosterIndex {
+        if LogicalProps::is_hero(props.logical_props.ai) {
+            self.hero = mapref;
             Self::hero()
-        } else if ObjProperties::is_mob(props.ai) {
+        } else if LogicalProps::is_mob(props.logical_props.ai) {
             self.movs.push(mapref);
             RosterIndex { ros_idx: self.movs.len() as u16 - 1 }
         } else {
@@ -481,20 +486,20 @@ impl Loc {
     }
 
     pub fn any_effect(&self, sought_effect: obj_scripting_properties::Effect) -> bool {
-        self.objs.iter().any(|x| x.props.effect == sought_effect)
+        self.objs.iter().any(|x| x.logical_props.effect == sought_effect)
     }
 
     pub fn any_pass(&self, sought_pass: obj_scripting_properties::Pass) -> bool {
-        self.objs.iter().any(|x| x.props.pass == sought_pass)
+        self.objs.iter().any(|x| x.logical_props.pass == sought_pass)
     }
 
     pub fn all_pass(&self, sought_pass: obj_scripting_properties::Pass) -> bool {
-        self.objs.iter().all(|x| x.props.pass == sought_pass)
+        self.objs.iter().all(|x| x.logical_props.pass == sought_pass)
     }
 
     fn map_fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         for ent in self {
-            write!(f, "{},", ent.props.name)?;
+            write!(f, "{},", ent.logical_props.name)?;
         }
         write!(f, ";")
     }
@@ -508,9 +513,11 @@ impl Loc {
         self.objs.len()
     }
 
-    pub fn obj_props(&self) -> Vec<ObjProperties> {
+    pub fn obj_props(&self) -> Vec<FreeObj> {
         // TODO: Avoid clone
-        self.objs.iter().map(|o| o.props.clone()).collect()
+        self.objs.iter().map(|obj|
+            FreeObj{logical_props:obj.logical_props.clone(), visual_props:obj.visual_props.clone()}
+        ).collect()
     }
 }
 
@@ -546,11 +553,12 @@ impl IndexMut<u16> for Loc {
     }
 }
 
-/// Specific object in map (Including current coords as well as ObjProperties)
+/// Specific object in map (Including current coords as well as LogicalProps, VisualProps)
 #[derive(Clone, Debug)]
 pub struct MapObj {
     refs: Refs,
-    pub props: ObjProperties,
+    pub logical_props: LogicalProps,
+    pub visual_props: VisualProps,
 }
 
 impl MapObj {

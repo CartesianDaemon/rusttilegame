@@ -15,7 +15,7 @@ pub struct ProgpuzzMovementLogic;
 impl BaseMovementLogic for ProgpuzzMovementLogic
 {
     fn move_mov(field: &mut Map, mov: RosterIndex, cmd: Cmd) -> SceneContinuation {
-        match field[mov].props.ai {
+        match field[mov].logical_props.ai {
             AI::Hero => {
                 // TODO make sure cmd makes sense as program instruction not key
                 if cmd != Cmd::Stay {

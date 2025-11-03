@@ -22,7 +22,7 @@ pub use core_engine::run;
 
 // Engine exports needed for writing game scripts.
 pub mod for_scripting {
-    pub use super::obj::ObjProperties;
+    pub use super::obj::*;
     pub use super::map::{Map, RosterIndex};
     pub use super::map_coords::*;
     pub use super::scene::{SceneContinuation, SceneEnding};
@@ -34,7 +34,7 @@ pub mod for_scripting {
 // TODO: Some only used by pushing puzzle, not programming puzzle?
 #[allow(unused_imports)]
 pub mod for_gamedata {
-    pub use super::obj::ObjProperties;
+    pub use super::obj::*;
     pub use super::gamedata::*;
     pub use super::scene::{Scene, SceneEnding};
     pub use super::map_coords::*;

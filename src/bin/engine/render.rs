@@ -3,10 +3,12 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 use assrt::rsst;
 
+use crate::engine::obj::LogicalProps;
+
 use super::scene;
 use super::scene::Scene;
 use super::map::MapObj;
-use super::obj::ObjProperties;
+//use super::obj::VisualProps;
 use super::map_coords::CoordDelta;
 
 type TextureCache = HashMap<String, Texture2D>;
@@ -122,7 +124,8 @@ impl<'a> RenderLev<'a> {
         // Proportion of animation from previous state to current (position)
         slide_pc: f32,
     ) {
-        let props = &obj.props;
+        let visual_props = &obj.visual_props;
+        let logical_props = &obj.logical_props;
         let pos = obj.pos();
         let prev_pos = obj.prev_pos();
 
@@ -148,22 +151,22 @@ impl<'a> RenderLev<'a> {
         let w = self.sq_w * pc_size;
         let h = self.sq_h * pc_size;
 
-        if !ObjProperties::is_any_mov(props.ai) {rsst!(prev_pos == pos)}
+        if !LogicalProps::is_any_mov(logical_props.ai) {rsst!(prev_pos == pos)}
 
         let alpha = 1.;
 
-        if let Some(col) = props.fill {
+        if let Some(col) = visual_props.fill {
             draw_rectangle(px, py, w, h, Self::alpha_col(col, alpha));
         }
 
-        if let Some(col) = props.border {
+        if let Some(col) = visual_props.border {
             draw_rectangle_lines(px, py, w, h, 2., Self::alpha_col(col, alpha));
         }
 
-        if props.tex_paths.len() > 0 {
+        if visual_props.tex_paths.len() > 0 {
             // TODO: Simplify calc? Prevent anim_pc being 100? Or being 0?
-            let tex_frame_idx = (props.tex_paths.len()-1).min((anim_pc * props.tex_paths.len() as f32) as usize);
-            let tex_path = &props.tex_paths[tex_frame_idx];
+            let tex_frame_idx = (visual_props.tex_paths.len()-1).min((anim_pc * visual_props.tex_paths.len() as f32) as usize);
+            let tex_path = &visual_props.tex_paths[tex_frame_idx];
 
             let tex_data: &Texture2D = if let Some(tex_data) = self.texture_cache.get(tex_path) {
                 tex_data
@@ -172,7 +175,7 @@ impl<'a> RenderLev<'a> {
                 self.texture_cache.get(tex_path).unwrap()
             };
 
-            let rotation = match props.dir {
+            let rotation = match logical_props.dir {
                 CoordDelta{dx:0, dy:-1} => std::f32::consts::PI / 2.,
                 CoordDelta{dx:1, dy: 0} => std::f32::consts::PI,
                 CoordDelta{dx:0, dy: 1} => std::f32::consts::PI * 1.5,
@@ -180,11 +183,11 @@ impl<'a> RenderLev<'a> {
             };
             draw_texture_ex(
                 &tex_data,
-                px - w * (props.tex_scale-1.0) / 2.,
-                py - h * (props.tex_scale-1.0) / 2.,
+                px - w * (visual_props.tex_scale-1.0) / 2.,
+                py - h * (visual_props.tex_scale-1.0) / 2.,
                 WHITE,
                 DrawTextureParams {
-                    dest_size: Some(vec2(w * props.tex_scale, h * props.tex_scale)),
+                    dest_size: Some(vec2(w * visual_props.tex_scale, h * visual_props.tex_scale)),
                     rotation,
                     ..Default::default()
                     // TODO: alpha
@@ -192,8 +195,8 @@ impl<'a> RenderLev<'a> {
             );
         }
 
-        if let Some(text) = props.text.clone() {
-            let text_col = Self::alpha_col(props.text_col.unwrap_or(DARKGRAY), alpha);
+        if let Some(text) = visual_props.text.clone() {
+            let text_col = Self::alpha_col(visual_props.text_col.unwrap_or(DARKGRAY), alpha);
             draw_text(&text, (px + w*0.1).floor(), (py + h*0.6).floor(), 15., text_col);
         }
     }

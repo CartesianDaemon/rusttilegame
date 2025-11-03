@@ -15,7 +15,7 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
     // Would be nice for these to be a function of an enum/trait impls
     fn move_mov(field: &mut Map, mov: RosterIndex, cmd: Cmd) -> SceneContinuation {
         let hero = field.hero();
-        match field[mov].props.ai {
+        match field[mov].logical_props.ai {
             AI::Stay => {
                 // Do nothing
             },
@@ -43,19 +43,19 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
                 // TODO: Consider adding map_coord *= -1.
                 let target_pos = field.obj_target_pos(mov);
                 if impassable(field, target_pos) {
-                    field[mov].props.dir.reverse();
+                    field[mov].logical_props.dir.reverse();
                 }
 
                 // Move. Provided next space is passable. If both sides are impassable, don't move.
                 // TODO: Consider adding field.obj_try_move() function?
-                let target_pos = field[mov].pos() + field[mov].props.dir;
+                let target_pos = field[mov].pos() + field[mov].logical_props.dir;
                 if passable(field, target_pos) {
                     field.move_obj_to(mov, target_pos);
                 }
 
                 // Hero dies if mov moves onto hero
                 // TODO: Check at end of function? Or as part of obj?
-                if field[mov].props.effect == Effect::Kill && field[mov].pos() == field[hero].pos() {
+                if field[mov].logical_props.effect == Effect::Kill && field[mov].pos() == field[hero].pos() {
                     return SceneContinuation::Break(SceneEnding::PlayDie);
                 }
             },
@@ -66,17 +66,17 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
 
                 // If hitting wall, reverse direction.
                 if impassable(field, field.obj_target_pos(mov)) {
-                    field[mov].props.dir.reverse();
+                    field[mov].logical_props.dir.reverse();
 
                     // And if hero "visible" forward or sideways, move one sideways towards them, if passable.
                     // TODO: Check for obstacles to vision.
                     let hero_dir = field[mov].pos().dir_to(field[hero].pos());
-                    if field[mov].props.dir.dx == 0 {
-                        if hero_dir.dy != -field[mov].props.dir.dy {
+                    if field[mov].logical_props.dir.dx == 0 {
+                        if hero_dir.dy != -field[mov].logical_props.dir.dy {
                             drift_dir = CoordDelta::from_xy(hero_dir.dx, 0);
                         }
-                    } else if field[mov].props.dir.dy == 0 {
-                        if hero_dir.dx != -field[mov].props.dir.dx {
+                    } else if field[mov].logical_props.dir.dy == 0 {
+                        if hero_dir.dx != -field[mov].logical_props.dir.dx {
                             drift_dir = CoordDelta::from_xy(0, hero_dir.dy);
                         }
                     } else {
@@ -86,13 +86,13 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
 
                 // Move. Provided next space is passable. If both sides are impassable, don't move.
                 // TODO: Animation for turning? At least avoiding wall?
-                let delta = field[mov].props.dir + drift_dir;
+                let delta = field[mov].logical_props.dir + drift_dir;
                 if passable(field, field[mov].pos() + delta) {
                     field.move_obj_to(mov, field[mov].pos() + delta);
                 }
 
                 // Hero dies if mov moves onto hero
-                if field[mov].props.effect == Effect::Kill && field[mov].pos() == field[hero].pos() {
+                if field[mov].logical_props.effect == Effect::Kill && field[mov].pos() == field[hero].pos() {
                     return SceneContinuation::Break(SceneEnding::PlayDie);
                 }
             },
@@ -105,7 +105,7 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
                     let x_longer_than_y = match hero_delta.dx.abs() - hero_delta.dy.abs() {
                         num if num > 0 => true,
                         num if num < 0 => false,
-                        _ => field[mov].props.dir.dy.abs() < field[mov].props.dir.dy.abs(),
+                        _ => field[mov].logical_props.dir.dy.abs() < field[mov].logical_props.dir.dy.abs(),
                     };
                     // dlongcoord is the orthogonal direction most towards the hero. dshortcoord is the other best.
                     let (dlongcoord, dshortcoord) = if x_longer_than_y {
@@ -121,17 +121,17 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
                     if let Some(dir) = try_dirs.iter().find(|dir|
                         passable(field, field[mov].pos() + **dir)
                     ) {
-                        field[mov].props.dir = *dir;
+                        field[mov].logical_props.dir = *dir;
                     }
                 }
 
                 // Move. Provided next space is passable. If all sides were impassable, don't move.
                 if passable(field, field.obj_target_pos(mov)) {
-                    field.move_obj_to(mov, field[mov].pos() + field[mov].props.dir);
+                    field.move_obj_to(mov, field[mov].pos() + field[mov].logical_props.dir);
                 }
 
                 // Hero dies if bot moves onto hero
-                if field[mov].props.effect == Effect::Kill && field[mov].pos() == field[hero].pos() {
+                if field[mov].logical_props.effect == Effect::Kill && field[mov].pos() == field[hero].pos() {
                     return SceneContinuation::Break(SceneEnding::PlayDie);
                 }
             },

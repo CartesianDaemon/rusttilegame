@@ -11,7 +11,16 @@ pub struct FreeObj {
     pub visual_props: VisualProps,
 }
 
+/// Somewhat fuzzy match used for determining ascii representation.
+/// Ideally would have a different name not PartialEq.
+impl PartialEq for FreeObj {
+    fn eq(&self, other:&Self) -> bool {
+        self.logical_props == other.logical_props
+    }
+}
+
 /// Logical properties of object, used for game logic and scripting.
+/// Some of this could be moved into Gamedata? With base trait for required props?
 #[derive(Clone, Debug, PartialEq)]
 pub struct LogicalProps {
     /// String representation of object, used internally for debug fmt etc.
@@ -24,6 +33,7 @@ pub struct LogicalProps {
     pub ai: obj_scripting_properties::AI,
 
     // Internal status for ents which have a current movement direction.
+    // Also used for display
     pub dir: CoordDelta,
 
     // Effect of intersecting hero
@@ -43,10 +53,12 @@ pub struct VisualProps {
 
     pub text: Option<String>,
     pub text_col: Option<Color>,
+
+    // logical_props::dir also used for display
 }
 
 impl LogicalProps {
-    fn defaults() -> Self {
+    pub fn defaults() -> Self {
         Self {
             name: "????".to_string(),
 
@@ -78,7 +90,7 @@ impl LogicalProps {
 }
 
 impl VisualProps {
-    fn defaults() -> Self {
+    pub fn defaults() -> Self {
         Self {
             border: None,
             fill: None,

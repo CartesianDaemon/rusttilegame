@@ -3,7 +3,7 @@ use std::ops::ControlFlow;
 
 use super::*;
 use crate::engine::input::Input;
-use crate::engine::obj::ObjProperties;
+use crate::engine::obj::FreeObj;
 
 // TODO: Move into game-specific info if possible?
 #[allow(dead_code)]
@@ -35,7 +35,7 @@ impl Scene {
 
     pub fn from_play_ascii_map<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
-        map_key: HashMap<char, Vec<ObjProperties>>,
+        map_key: HashMap<char, Vec<FreeObj>>,
     ) -> Scene {
         Scene::Play(Play::from_ascii(ascii_map, map_key))
     }
