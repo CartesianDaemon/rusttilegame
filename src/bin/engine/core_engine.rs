@@ -13,7 +13,7 @@ use super::scene::*;
 /// Templated on Game (either a  builtin Game, or a load-from-file Game).
 /// Could instead take a &dyn Game trait object so that it could load a Game object
 /// from a library, but that probably doesn't help that much.
-struct Engine<Gamedata: gamedata::BaseGamedata> {
+struct Engine<Gamedata> {
     /// Level set currently playing through, e.g. the biobot Engine.
     pub gamedata: Gamedata,
 
