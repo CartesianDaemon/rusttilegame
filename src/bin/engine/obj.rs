@@ -24,7 +24,7 @@ impl PartialEq for FreeObj {
 /// Logical properties of object, used for game logic and scripting.
 /// Some of this could be moved into Gamedata? With base trait for required props?
 #[derive(Clone, Debug, PartialEq)]
-pub struct LogicalProps<AI : obj_scripting_properties::BaseAI> {
+pub struct LogicalProps<AI> {
     /// String representation of object, used internally for debug fmt etc.
     pub name: String,
 

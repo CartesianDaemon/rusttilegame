@@ -11,6 +11,8 @@ pub enum Pass {
 }
 
 pub trait BaseAI {
+    /// Used to create default LogicalProps.
+    /// Might not be needed if more logic moves into Gamedata.
     fn default() -> Self;
 }
 
