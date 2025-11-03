@@ -19,7 +19,7 @@ pub trait BaseScripts {
 pub trait BaseGamedata {
     type Scripts : BaseScripts;
 
-    fn new_game() -> Self;
+    fn new() -> Self;
 
     fn advance_scene(&mut self, continuation: SceneEnding);
 

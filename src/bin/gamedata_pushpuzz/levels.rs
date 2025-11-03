@@ -17,19 +17,16 @@ pub enum BiobotSceneId {
 }
 
 #[derive(Debug)]
-pub struct PushpuzzGamedata {
+pub struct PushpuzzLevset {
     pub current_sceneid: BiobotSceneId,
 }
 
-impl BaseGamedata for PushpuzzGamedata {
-    // Try to move GameData into mod.rs and leave Levels as a separate member type.
-    type Scripts = super::super::scripts_pushpuzz::PushpuzzScripts;
-
-    fn new_game() -> PushpuzzGamedata {
-        PushpuzzGamedata { current_sceneid: BiobotSceneId::NewGame }
+impl PushpuzzLevset {
+    pub fn new() -> PushpuzzLevset {
+        PushpuzzLevset { current_sceneid: BiobotSceneId::NewGame }
     }
 
-    fn advance_scene(&mut self, continuation: SceneEnding) {
+    pub fn advance_scene(&mut self, continuation: SceneEnding) {
         self.current_sceneid = match (self.current_sceneid, continuation) {
             (BiobotSceneId::NewGame, SceneEnding::SplashNext) => BiobotSceneId::LevIntro(1),
             (BiobotSceneId::LevIntro(levnum), SceneEnding::SplashNext) => BiobotSceneId::LevPlay(levnum),
@@ -44,7 +41,7 @@ impl BaseGamedata for PushpuzzGamedata {
         };
     }
 
-    fn load_scene(&self) -> Scene {
+    pub fn load_scene(&self) -> Scene {
         let aquarium1_key = HashMap::from([
             // TODO: Combine with obj.char types?
             (' ', vec![ new_floor() ]),

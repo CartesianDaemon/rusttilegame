@@ -36,10 +36,10 @@ struct Engine<Gamedata: gamedata::BaseGamedata> {
 
 impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
     pub fn new() -> Engine<Gamedata> {
-        let game = Gamedata::new_game();
-        let play = game.load_scene();
+        let gamedata = Gamedata::new();
+        let play = gamedata.load_scene();
         Engine::<Gamedata> {
-            gamedata: game,
+            gamedata: gamedata,
             play_state: play,
             anim_real_pc: 0.,
             slide_real_pc: 0.,
