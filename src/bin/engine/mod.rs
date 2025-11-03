@@ -15,14 +15,13 @@ mod gamedata;
 mod input;
 mod scene;
 mod obj;
-mod obj_scripting_properties;
+pub mod obj_scripting_properties; // pub only needed temporarily??
 
 // Used in main() function
 pub use core_engine::run;
 
 // Engine exports needed for writing game scripts.
 pub mod for_scripting {
-    pub use super::obj::*;
     pub use super::map::{Map, RosterIndex};
     pub use super::map_coords::*;
     pub use super::scene::{SceneContinuation, SceneEnding};
@@ -38,6 +37,7 @@ pub mod for_gamedata {
     pub use super::gamedata::*;
     pub use super::scene::{Scene, SceneEnding};
     pub use super::map_coords::*;
+    pub use crate::engine::obj_scripting_properties;
     pub use crate::engine::obj_scripting_properties::*;
 }
 

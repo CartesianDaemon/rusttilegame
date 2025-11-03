@@ -5,11 +5,11 @@ use crate::engine::for_gamedata::*;
 
 pub fn new_hero_crab() -> FreeObj {
     FreeObj {
-        logical_props: LogicalProps {
+        logical_props: LogicalProps::<obj_scripting_properties::AI> {
             name:"Hero".to_string(),
             pass: Pass::Mov,
             ai: AI::Hero,
-            .. LogicalProps::defaults()
+            .. LogicalProps::<obj_scripting_properties::AI>::defaults()
         },
         visual_props: VisualProps::new_text_fill("HERO".to_string(), Some(GOLD), Some(BLACK))
     }
@@ -17,9 +17,9 @@ pub fn new_hero_crab() -> FreeObj {
 
 pub fn new_floor() -> FreeObj {
     FreeObj {
-        logical_props: LogicalProps {
+        logical_props: LogicalProps::<obj_scripting_properties::AI> {
             name: "Floor".to_string(),
-            .. LogicalProps::defaults()
+            .. LogicalProps::<obj_scripting_properties::AI>::defaults()
         },
         visual_props: VisualProps::new_col_outline(WHITE, LIGHTGRAY)
     }
@@ -27,10 +27,10 @@ pub fn new_floor() -> FreeObj {
 
 pub fn new_wall() -> FreeObj {
     FreeObj {
-        logical_props: LogicalProps {
+        logical_props: LogicalProps::<obj_scripting_properties::AI> {
             name: "Wall".to_string(),
             pass: Pass::Solid,
-            .. LogicalProps::defaults()
+            .. LogicalProps::<obj_scripting_properties::AI>::defaults()
         },
         visual_props: VisualProps::new_col(DARKGRAY)
     }

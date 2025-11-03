@@ -1,3 +1,5 @@
+use crate::engine::for_gamedata::BaseAI;
+
 use super::map_coords::CoordDelta;
 use super::obj_scripting_properties;
 
@@ -7,7 +9,7 @@ use macroquad::prelude::*;
 /// Representing an object not placed in the map. May not be used.
 #[derive(Clone, Debug)]
 pub struct FreeObj {
-    pub logical_props: LogicalProps,
+    pub logical_props: LogicalProps::<obj_scripting_properties::AI>,
     pub visual_props: VisualProps,
 }
 
@@ -22,7 +24,7 @@ impl PartialEq for FreeObj {
 /// Logical properties of object, used for game logic and scripting.
 /// Some of this could be moved into Gamedata? With base trait for required props?
 #[derive(Clone, Debug, PartialEq)]
-pub struct LogicalProps {
+pub struct LogicalProps<AI : obj_scripting_properties::BaseAI> {
     /// String representation of object, used internally for debug fmt etc.
     pub name: String,
 
@@ -30,7 +32,7 @@ pub struct LogicalProps {
     pub pass: obj_scripting_properties::Pass,
 
     // Movement control logic for enemies
-    pub ai: obj_scripting_properties::AI,
+    pub ai: AI,
 
     // Internal status for ents which have a current movement direction.
     // Also used for display
@@ -40,30 +42,13 @@ pub struct LogicalProps {
     pub effect: obj_scripting_properties::Effect,
 }
 
-/// Visual display properties. Only used by Render.
-#[derive(Clone, Debug)]
-pub struct VisualProps {
-    pub border: Option<Color>,
-    pub fill: Option<Color>,
-
-    // For now, tex is animated all the time including stationary.
-    // TODO: Consider AnimState which specifies which ones should be.
-    pub tex_paths: Vec<String>,
-    pub tex_scale: f32,
-
-    pub text: Option<String>,
-    pub text_col: Option<Color>,
-
-    // logical_props::dir also used for display
-}
-
-impl LogicalProps {
+impl<AI: BaseAI> LogicalProps<AI> {
     pub fn defaults() -> Self {
         Self {
             name: "????".to_string(),
 
             pass: obj_scripting_properties::Pass::Empty,
-            ai: obj_scripting_properties::AI::Stay, // STUB: Could use this as a better placeholder flag
+            ai: AI::default(),
             effect: obj_scripting_properties::Effect::Nothing,
 
             dir: CoordDelta::from_xy(0, 0),
@@ -87,6 +72,23 @@ impl LogicalProps {
     pub fn is_any_mov(ai: obj_scripting_properties::AI) -> bool {
         ai != obj_scripting_properties::AI::Stay
     }
+}
+
+/// Visual display properties. Only used by Render.
+#[derive(Clone, Debug)]
+pub struct VisualProps {
+    pub border: Option<Color>,
+    pub fill: Option<Color>,
+
+    // For now, tex is animated all the time including stationary.
+    // TODO: Consider AnimState which specifies which ones should be.
+    pub tex_paths: Vec<String>,
+    pub tex_scale: f32,
+
+    pub text: Option<String>,
+    pub text_col: Option<Color>,
+
+    // logical_props::dir also used for display
 }
 
 impl VisualProps {

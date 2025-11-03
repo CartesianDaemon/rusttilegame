@@ -10,6 +10,10 @@ pub enum Pass {
     // INSERT: Obj, // Something which can be moved or maybe coexisted with, e.g. furniture
 }
 
+pub trait BaseAI {
+    fn default() -> Self;
+}
+
 // Types of movement-control logic ents can use
 // ObjProperties struct data depends on this, but no engine functions do.
 // TODO: Want to move the types back to game-specific scripting obj_properties.rs.
@@ -24,6 +28,12 @@ pub enum AI {
     Bounce, // Move in direction, reverse direction at walls.
     Drift, // Move in direction, reverse direction at walls, move diagonally towards hero at reversal.
     Scuttle, // Move in direction, when hit wall change to move orthogonally towards hero.
+}
+
+impl BaseAI for AI {
+    fn default() -> AI {
+        Self::Stay
+    }
 }
 
 // Effect when intersect with hero (as mov or stay)

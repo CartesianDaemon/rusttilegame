@@ -2,15 +2,15 @@
 
 use macroquad::prelude::*;
 
-use crate::engine::for_scripting::*;
+use crate::engine::for_gamedata::*;
 
 pub fn new_hero_crab() -> FreeObj {
     FreeObj {
-        logical_props: LogicalProps {
+        logical_props: LogicalProps::<obj_scripting_properties::AI> {
             name:"Hero".to_string(),
             pass: Pass::Mov,
             ai: AI::Hero,
-            .. LogicalProps::defaults()
+            .. LogicalProps::<obj_scripting_properties::AI>::defaults()
         },
         visual_props: VisualProps::new_text_fill("HERO".to_string(), Some(GOLD), Some(BLACK))
     }
@@ -18,13 +18,13 @@ pub fn new_hero_crab() -> FreeObj {
 
 pub fn new_fish(dir: CoordDelta) -> FreeObj {
     FreeObj {
-        logical_props: LogicalProps {
+        logical_props: LogicalProps::<obj_scripting_properties::AI> {
             name: "Fish".to_string(),
             pass: Pass::Mov,
             ai: AI::Bounce,
             dir: dir,
             effect: Effect::Kill,
-            .. LogicalProps::defaults()
+            .. LogicalProps::<obj_scripting_properties::AI>::defaults()
         },
         visual_props: VisualProps {
             tex_scale: 1.7,
@@ -35,13 +35,13 @@ pub fn new_fish(dir: CoordDelta) -> FreeObj {
 
 pub fn new_gawpie(dir: CoordDelta) -> FreeObj {
     FreeObj {
-        logical_props: LogicalProps {
+        logical_props: LogicalProps::<obj_scripting_properties::AI> {
             name: "Gawpie".to_string(),
             pass: Pass::Mov,
             ai: AI::Drift,
             dir: dir,
             effect: Effect::Kill,
-            .. LogicalProps::defaults()
+            .. LogicalProps::<obj_scripting_properties::AI>::defaults()
         },
         visual_props: VisualProps {
             tex_scale: 1.7,
@@ -52,9 +52,9 @@ pub fn new_gawpie(dir: CoordDelta) -> FreeObj {
 
 pub fn new_floor() -> FreeObj {
     FreeObj {
-        logical_props: LogicalProps {
+        logical_props: LogicalProps::<obj_scripting_properties::AI> {
             name: "Floor".to_string(),
-            .. LogicalProps::defaults()
+            .. LogicalProps::<obj_scripting_properties::AI>::defaults()
         },
         visual_props: VisualProps::new_col_outline(WHITE, LIGHTGRAY)
     }
@@ -62,10 +62,10 @@ pub fn new_floor() -> FreeObj {
 
 pub fn new_wall() -> FreeObj {
     FreeObj {
-        logical_props: LogicalProps {
+        logical_props: LogicalProps::<obj_scripting_properties::AI> {
             name: "Wall".to_string(),
             pass: Pass::Solid,
-            .. LogicalProps::defaults()
+            .. LogicalProps::<obj_scripting_properties::AI>::defaults()
         },
         visual_props: VisualProps::new_col(DARKGRAY)
     }
@@ -73,9 +73,9 @@ pub fn new_wall() -> FreeObj {
 
 pub fn new_door_open() -> FreeObj {
     FreeObj {
-            logical_props: LogicalProps {
+            logical_props: LogicalProps::<obj_scripting_properties::AI> {
             name: "OpenDoor".to_string(),
-            .. LogicalProps::defaults()
+            .. LogicalProps::<obj_scripting_properties::AI>::defaults()
         },
         visual_props: VisualProps::new_col(LIGHTGRAY)
     }
@@ -83,10 +83,10 @@ pub fn new_door_open() -> FreeObj {
 
 pub fn new_door_closed() -> FreeObj {
     FreeObj {
-            logical_props: LogicalProps {
+            logical_props: LogicalProps::<obj_scripting_properties::AI> {
             name: "ClosedDoor".to_string(),
             pass: Pass::Solid,
-            .. LogicalProps::defaults()
+            .. LogicalProps::<obj_scripting_properties::AI>::defaults()
         },
         visual_props: VisualProps::new_col_outline(DARKGRAY, LIGHTGRAY)
     }
@@ -94,10 +94,10 @@ pub fn new_door_closed() -> FreeObj {
 
 pub fn new_door_win() -> FreeObj {
     FreeObj {
-        logical_props: LogicalProps {
+        logical_props: LogicalProps::<obj_scripting_properties::AI> {
             name: "Goal".to_string(),
             effect: Effect::Win,
-            .. LogicalProps::defaults()
+            .. LogicalProps::<obj_scripting_properties::AI>::defaults()
         },
         visual_props: VisualProps{
             border: Some(LIGHTGRAY),

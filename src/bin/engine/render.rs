@@ -10,6 +10,7 @@ use super::scene::Scene;
 use super::map::MapObj;
 //use super::obj::VisualProps;
 use super::map_coords::CoordDelta;
+use super::obj_scripting_properties;
 
 type TextureCache = HashMap<String, Texture2D>;
 
@@ -151,7 +152,7 @@ impl<'a> RenderLev<'a> {
         let w = self.sq_w * pc_size;
         let h = self.sq_h * pc_size;
 
-        if !LogicalProps::is_any_mov(logical_props.ai) {rsst!(prev_pos == pos)}
+        if !LogicalProps::<obj_scripting_properties::AI>::is_any_mov(logical_props.ai) {rsst!(prev_pos == pos)}
 
         let alpha = 1.;
 
