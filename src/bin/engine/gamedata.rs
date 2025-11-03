@@ -4,8 +4,8 @@ use super::scene::{Scene, SceneEnding};
 
 // Trait for scripts which the scripts for each game needs to implement.
 // TODO: Move to separate file??
-use super::field::Map;
-use super::field::RosterIndex;
+use super::map::Map;
+use super::map::RosterIndex;
 use super::for_gamedata::Cmd;
 use super::scene::SceneContinuation;
 pub trait BaseMovementLogic {

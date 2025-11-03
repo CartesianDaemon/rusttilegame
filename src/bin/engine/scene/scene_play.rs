@@ -2,7 +2,7 @@ use super::{SceneContinuation};
 
 use std::collections::HashMap;
 
-use crate::engine::field::Map;
+use crate::engine::map::Map;
 use crate::engine::obj::ObjProperties;
 use crate::engine::input::Input;
 use crate::engine::for_scripting::Cmd;

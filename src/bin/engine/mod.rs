@@ -10,7 +10,7 @@
 mod core_engine;
 mod map_coords;
 mod render;
-mod field;
+mod map;
 mod gamedata;
 mod input;
 mod scene;
@@ -23,7 +23,7 @@ pub use core_engine::run;
 // Engine exports needed for writing game scripts.
 pub mod for_scripting {
     pub use super::obj::ObjProperties;
-    pub use super::field::{Map, RosterIndex};
+    pub use super::map::{Map, RosterIndex};
     pub use super::map_coords::*;
     pub use super::scene::{SceneContinuation, SceneEnding};
     pub use super::gamedata::{BaseScripts, BaseMovementLogic};

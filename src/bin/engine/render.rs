@@ -5,7 +5,7 @@ use assrt::rsst;
 
 use super::scene;
 use super::scene::Scene;
-use super::field::MapObj;
+use super::map::MapObj;
 use super::obj::ObjProperties;
 use super::map_coords::CoordDelta;
 
