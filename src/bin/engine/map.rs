@@ -29,7 +29,7 @@ pub struct RosterIndex {
 /// Grid together with Ros. Those are two separate classes so they can more easily be borrowed separately.
 #[derive(Clone, Debug)]
 pub struct Map {
-    map: Grid,
+    map: Grid<obj_scripting_properties::DefaultObjScriptProps>,
     roster: Roster,
     // Used to represent map as ascii for init and debugging. Not comprehensive.
     map_key: std::collections::HashMap<char, Vec<FreeObj<super::obj_scripting_properties::DefaultObjScriptProps>>>,
@@ -102,7 +102,7 @@ impl Map {
     }
 
     // TODO: Any better way to expose this for iterating?
-    pub fn map_locs(&self) -> LocIterator {
+    pub fn map_locs(&self) -> LocIterator<obj_scripting_properties::DefaultObjScriptProps> {
         self.map.locs()
     }
 
@@ -254,15 +254,15 @@ pub struct Refs {
 /// "Map": Grid of locations. Represents state of current level.
 /// NOTE: Could currently be moved back into Map. Not borrowed separately.
 #[derive(Clone)]
-struct Grid {
+struct Grid<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> {
     // Stored as a collection of columns, e.g. map.locs[x][y]
     // Must always be rectangular.
-    locs: Vec<Vec<Loc<obj_scripting_properties::DefaultObjScriptProps>>>,
+    locs: Vec<Vec<Loc<ObjScriptProps>>>,
 }
 
-impl Grid {
-    pub fn new(w: u16, h: u16) -> Grid {
-        Grid {
+impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Grid<ObjScriptProps> {
+    pub fn new(w: u16, h: u16) -> Self {
+        Self {
             locs: vec!(vec!(Loc::new(); h.into()); w.into()),
         }
     }
@@ -275,7 +275,7 @@ impl Grid {
         self.locs[0].len() as u16
     }
 
-    pub fn locs(&self) -> LocIterator {
+    pub fn locs(&self) -> LocIterator<ObjScriptProps> {
         LocIterator {
             w: self.w(),
             h: self.h(),
@@ -286,21 +286,21 @@ impl Grid {
     }
 }
 
-impl Index<MapCoord> for Grid {
-    type Output = Loc<obj_scripting_properties::DefaultObjScriptProps>;
+impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Index<MapCoord> for Grid<ObjScriptProps> {
+    type Output = Loc<ObjScriptProps>;
 
     fn index(&self, pos: MapCoord) -> &Self::Output {
         &self.locs[pos.x as usize][pos.y as usize]
     }
 }
 
-impl IndexMut<MapCoord> for Grid {
+impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> IndexMut<MapCoord> for Grid<ObjScriptProps> {
     fn index_mut(&mut self, pos: MapCoord) -> &mut Self::Output {
         &mut self.locs[pos.x as usize][pos.y as usize]
     }
 }
 
-impl std::fmt::Debug for Grid {
+impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> std::fmt::Debug for Grid<ObjScriptProps> {
     #[try_fn]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         write!(f, "Map[")?;
@@ -323,7 +323,7 @@ pub struct CoordIterator {
     y: i16,
 }
 
-pub struct LocIterator<'a> {
+pub struct LocIterator<'a, ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> {
     // Original dimensions to iterate up to
     w: u16,
     h: u16,
@@ -331,7 +331,7 @@ pub struct LocIterator<'a> {
     x: i16,
     y: i16,
     // Pointer back to original collection
-    map: &'a Grid,
+    map: &'a Grid<ObjScriptProps>,
 }
 
 impl Iterator for CoordIterator {
@@ -355,8 +355,8 @@ impl Iterator for CoordIterator {
     }
 }
 
-impl<'a> Iterator for LocIterator<'a> {
-    type Item = (i16, i16, &'a Loc<obj_scripting_properties::DefaultObjScriptProps>);
+impl<'a, ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Iterator for LocIterator<'a, ObjScriptProps> {
+    type Item = (i16, i16, &'a Loc<ObjScriptProps>);
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.y < (self.h-1) as i16 {
