@@ -1,4 +1,4 @@
-use super::{SceneContinuation};
+use super::{PaneContinuation};
 
 use std::collections::HashMap;
 
@@ -27,7 +27,7 @@ impl Play
         }
     }
 
-    pub fn advance<Scripts: super::super::for_scripting::BaseScripts>(&mut self, input : &mut Input) -> SceneContinuation  {
+    pub fn advance<Scripts: super::super::for_scripting::BaseScripts>(&mut self, input : &mut Input) -> PaneContinuation  {
         let cmd = input.consume_cmd().unwrap_or(Cmd::default_cmd());
         self.field.advance::<Scripts>(cmd)
     }

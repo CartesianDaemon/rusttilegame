@@ -39,11 +39,11 @@ impl BaseGamedata for ProgpuzzGamedata {
         }
     }
 
-    fn advance_scene(&mut self, continuation: SceneEnding) {
-        self.levset.advance_scene(continuation)
+    fn advance_pane(&mut self, continuation: PaneEnding) {
+        self.levset.advance_pane(continuation)
     }
 
-    fn load_scene(&self) -> Scene {
-        self.levset.load_scene()
+    fn load_pane(&self) -> Pane {
+        self.levset.load_pane()
     }
 }

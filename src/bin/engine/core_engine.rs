@@ -1,10 +1,10 @@
 use super::*;
 
 // TODO: Remove submodule names?
-use super::scene::Scene;
+use super::pane::Pane;
 use super::input::Input;
 use super::render::Render;
-use super::scene::*;
+use super::pane::*;
 
 /// Overall Engine state.
 ///
@@ -18,7 +18,7 @@ struct Engine<Gamedata> {
     pub gamedata: Gamedata,
 
     /// Current state of gameplay, current level, mostly map etc.
-    play_state: Scene,
+    play_state: Pane,
 
     /// Smoothly from 0 to 1 transition from previous state to current state
     /// TODO: Move into play?
@@ -37,7 +37,7 @@ struct Engine<Gamedata> {
 impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
     pub fn new() -> Engine<Gamedata> {
         let gamedata = Gamedata::new();
-        let play = gamedata.load_scene();
+        let play = gamedata.load_pane();
         Engine::<Gamedata> {
             gamedata: gamedata,
             play_state: play,
@@ -54,9 +54,9 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
         self.input.read_input();
 
         if self.play_state.is_continuous() || self.input.ready_to_advance_game_state(&mut self.anim_real_pc, &mut self.slide_real_pc) {
-            let scene_continuation = self.play_state.advance::<Gamedata::Scripts>(&mut self.input);
-            if let SceneContinuation::Break(scene_ending) = scene_continuation {
-                self.play_state = self.gamedata.load_next_scene(scene_ending);
+            let pane_continuation = self.play_state.advance::<Gamedata::Scripts>(&mut self.input);
+            if let PaneContinuation::Break(pane_ending) = pane_continuation {
+                self.play_state = self.gamedata.load_next_pane(pane_ending);
             }
         }
 

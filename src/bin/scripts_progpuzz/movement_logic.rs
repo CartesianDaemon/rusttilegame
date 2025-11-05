@@ -14,7 +14,7 @@ pub struct ProgpuzzMovementLogic;
 
 impl BaseMovementLogic for ProgpuzzMovementLogic
 {
-    fn move_mov(field: &mut Map, mov: RosterIndex, cmd: Cmd) -> SceneContinuation {
+    fn move_mov(field: &mut Map, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
         match field[mov].logical_props.ai {
             AI::Hero => {
                 // TODO make sure cmd makes sense as program instruction not key
@@ -26,9 +26,9 @@ impl BaseMovementLogic for ProgpuzzMovementLogic
                 }
                 // Check for goal
                 return if field.any_effect(field[mov].pos(), Effect::Win) {
-                    SceneContinuation::Break(SceneEnding::PlayWin)
+                    PaneContinuation::Break(PaneEnding::PlayWin)
                 } else {
-                    SceneContinuation::Continue(())
+                    PaneContinuation::Continue(())
                 }
             },
             AI::Stay => {
@@ -44,6 +44,6 @@ impl BaseMovementLogic for ProgpuzzMovementLogic
                 // ????
             },
             }
-        return SceneContinuation::Continue(());
+        return PaneContinuation::Continue(());
     }
 }

@@ -5,8 +5,8 @@ use assrt::rsst;
 
 use crate::engine::obj::LogicalProps;
 
-use super::scene;
-use super::scene::Scene;
+use super::pane;
+use super::pane::Pane;
 use super::map::MapObj;
 //use super::obj::VisualProps;
 use super::map_coords::CoordDelta;
@@ -27,10 +27,10 @@ impl Render {
     }
 
     /// Draw current gameplay to screen.
-    pub async fn draw_frame(&mut self, play_state: &Scene, slide_real_pc: f32, anim_real_pc: f32) {
+    pub async fn draw_frame(&mut self, play_state: &Pane, slide_real_pc: f32, anim_real_pc: f32) {
         // ENH: Avoid passing in whole Play object.
         match play_state {
-            Scene::Play(play_state) => {
+            Pane::Play(play_state) => {
                 let mut render_lev = RenderLev::begin(&mut self.texture_cache, play_state.field.map_w(), play_state.field.map_h());
                 // Coords of first visible tile. Currently always 0,0.
                 let (ox, oy) = (0, 0);
@@ -43,7 +43,7 @@ impl Render {
                     }
                 }
             }
-            Scene::Splash(play_state) => {
+            Pane::Splash(play_state) => {
                 let _r = RenderSplash::begin(&play_state);
             }
         }
@@ -210,7 +210,7 @@ pub struct RenderSplash {
 
 impl RenderSplash
 {
-    pub fn begin(splash: &scene::Splash) -> RenderSplash {
+    pub fn begin(splash: &pane::Splash) -> RenderSplash {
         clear_background(WHITE);
 
         let text = &splash.splash_text;

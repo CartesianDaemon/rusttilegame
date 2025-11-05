@@ -13,7 +13,7 @@ mod render;
 mod map;
 mod gamedata;
 mod input;
-mod scene;
+mod pane;
 mod obj;
 pub mod obj_scripting_properties; // pub only needed temporarily??
 
@@ -24,7 +24,7 @@ pub use core_engine::run;
 pub mod for_scripting {
     pub use super::map::{Map, RosterIndex};
     pub use super::map_coords::*;
-    pub use super::scene::{SceneContinuation, SceneEnding};
+    pub use super::pane::{PaneContinuation, PaneEnding};
     pub use super::gamedata::{BaseScripts, BaseMovementLogic};
     pub use crate::engine::obj_scripting_properties::*;
 }
@@ -35,7 +35,7 @@ pub mod for_scripting {
 pub mod for_gamedata {
     pub use super::obj::*;
     pub use super::gamedata::*;
-    pub use super::scene::{Scene, SceneEnding};
+    pub use super::pane::{Pane, PaneEnding};
     pub use super::map_coords::*;
     pub use crate::engine::obj_scripting_properties;
     pub use crate::engine::obj_scripting_properties::*;

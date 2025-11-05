@@ -7,40 +7,40 @@ use crate::engine::obj::FreeObj;
 
 // TODO: Move into game-specific info if possible?
 #[allow(dead_code)]
-pub enum SceneEnding {
+pub enum PaneEnding {
     SplashNext,
     PlayWin,
     PlayDie,
 }
 
-pub type SceneContinuation = ControlFlow<SceneEnding, ()>;
+pub type PaneContinuation = ControlFlow<PaneEnding, ()>;
 
 /// One unit of gameplay: one map layout, one splash screen, etc.
 ///
-/// Would be nice to have base trait for scene types. Look for helper crate?
+/// Would be nice to have base trait for pane types. Look for helper crate?
 #[derive(Clone, Debug)]
-pub enum Scene {
+pub enum Pane {
     Play(Play),
     Splash(Splash),
 }
 
-impl Scene {
-    pub fn from_splash_string(txt: String) -> Scene {
-        Scene::Splash(Splash::from_string(txt))
+impl Pane {
+    pub fn from_splash_string(txt: String) -> Pane {
+        Pane::Splash(Splash::from_string(txt))
     }
 
-    pub fn from_splash_dialogue(entries: Vec<&str>) -> Scene {
-        Scene::Splash(Splash::from_dialogue(entries))
+    pub fn from_splash_dialogue(entries: Vec<&str>) -> Pane {
+        Pane::Splash(Splash::from_dialogue(entries))
     }
 
     pub fn from_play_ascii_map<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
         map_key: HashMap<char, Vec<FreeObj>>,
-    ) -> Scene {
-        Scene::Play(Play::from_ascii(ascii_map, map_key))
+    ) -> Pane {
+        Pane::Play(Play::from_ascii(ascii_map, map_key))
     }
 
-    // Does current scene act on user input immediately (not governed by a game tick)?
+    // Does current pane act on user input immediately (not governed by a game tick)?
     pub fn is_continuous(&self) -> bool {
         match self {
             Self::Splash(_) => true,
@@ -49,7 +49,7 @@ impl Scene {
     }
 
     // Advance game state. Called when clock ticks or when user inputs.
-    pub fn advance<Scripts: super::super::for_scripting::BaseScripts>(&mut self, input : &mut Input) -> SceneContinuation {
+    pub fn advance<Scripts: super::super::for_scripting::BaseScripts>(&mut self, input : &mut Input) -> PaneContinuation {
         match self {
             Self::Play(play) => play.advance::<Scripts>(input),
             Self::Splash(play) => play.advance(input),

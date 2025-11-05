@@ -10,7 +10,7 @@ use assrt::*;
 use macroquad::prelude::*;
 
 use crate::engine::gamedata::*; // For new_xxxx() fns
-use crate::engine::scene::Scene;
+use crate::engine::pane::Pane;
 use crate::engine::map_coords::*;
 
 #[cfg(test)]
@@ -19,7 +19,7 @@ mod basic_tests {
 
     use super::*;
 
-    fn get_lev(n: i32) -> Scene {
+    fn get_lev(n: i32) -> Pane {
         let test_key = HashMap::from([
             (' ', vec![ new_floor() ]),
             ('#', vec![ new_floor(), new_wall() ]),
@@ -34,7 +34,7 @@ mod basic_tests {
         ]);
 
         match n {
-            1=> Scene::from_play_ascii_map(&[
+            1=> Pane::from_play_ascii_map(&[
                 "#####_########_#",
                 "#            # #",
                 "#  >         @ @",
@@ -44,7 +44,7 @@ mod basic_tests {
                 "##############@#",
             ], test_key
             ),
-            2=> Scene::from_play_ascii_map(&[
+            2=> Pane::from_play_ascii_map(&[
                 "#g  #",
                 "#   #",
                 "h   #",

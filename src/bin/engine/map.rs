@@ -13,7 +13,7 @@ use std::ops::IndexMut;
 
 use culpa::try_fn;
 
-use super::scene::SceneContinuation;
+use super::pane::PaneContinuation;
 use super::obj_scripting_properties;
 use super::for_scripting::{BaseScripts, BaseMovementLogic};
 
@@ -69,7 +69,7 @@ impl Map {
     //////////////////////////////////////////////
     /// Exposed upward to front end of game engine
 
-    pub fn advance<Scripts: BaseScripts>(&mut self, cmd: Cmd) -> SceneContinuation  {
+    pub fn advance<Scripts: BaseScripts>(&mut self, cmd: Cmd) -> PaneContinuation  {
         // TODO: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // TODO: Consider: Maybe display char moving out of sync with enemy.
@@ -90,7 +90,7 @@ impl Map {
 
             Scripts::MovementLogic::move_mov(self, mov, cmd)?;
         }
-        SceneContinuation::Continue(())
+        PaneContinuation::Continue(())
     }
 
     pub fn map_w(&self) -> u16 {

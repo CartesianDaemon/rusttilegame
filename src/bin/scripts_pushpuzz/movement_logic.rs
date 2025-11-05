@@ -13,7 +13,7 @@ pub struct PushpuzzMovementLogic;
 
 impl BaseMovementLogic for PushpuzzMovementLogic {
     // Would be nice for these to be a function of an enum/trait impls
-    fn move_mov(field: &mut Map, mov: RosterIndex, cmd: Cmd) -> SceneContinuation {
+    fn move_mov(field: &mut Map, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
         let hero = field.hero();
         match field[mov].logical_props.ai {
             AI::Stay => {
@@ -28,9 +28,9 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
                 }
                 // TODO: Avoid needing to re-get the hero handle, make move function consume or update the rich_mov handle.
                 return if field.any_effect(field[mov].pos(), Effect::Win) {
-                    SceneContinuation::Break(SceneEnding::PlayWin)
+                    PaneContinuation::Break(PaneEnding::PlayWin)
                 } else {
-                    SceneContinuation::Continue(())
+                    PaneContinuation::Continue(())
                 }
                 // TODO: Also check if hero died? Usually superfluous if we don't allow moving into death.
             }
@@ -56,7 +56,7 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
                 // Hero dies if mov moves onto hero
                 // TODO: Check at end of function? Or as part of obj?
                 if field[mov].logical_props.effect == Effect::Kill && field[mov].pos() == field[hero].pos() {
-                    return SceneContinuation::Break(SceneEnding::PlayDie);
+                    return PaneContinuation::Break(PaneEnding::PlayDie);
                 }
             },
             AI::Drift => {
@@ -93,7 +93,7 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
 
                 // Hero dies if mov moves onto hero
                 if field[mov].logical_props.effect == Effect::Kill && field[mov].pos() == field[hero].pos() {
-                    return SceneContinuation::Break(SceneEnding::PlayDie);
+                    return PaneContinuation::Break(PaneEnding::PlayDie);
                 }
             },
             AI::Scuttle => {
@@ -132,10 +132,10 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
 
                 // Hero dies if bot moves onto hero
                 if field[mov].logical_props.effect == Effect::Kill && field[mov].pos() == field[hero].pos() {
-                    return SceneContinuation::Break(SceneEnding::PlayDie);
+                    return PaneContinuation::Break(PaneEnding::PlayDie);
                 }
             },
         }
-        return SceneContinuation::Continue(());
+        return PaneContinuation::Continue(());
     }
 }

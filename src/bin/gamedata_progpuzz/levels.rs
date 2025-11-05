@@ -5,7 +5,7 @@ use super::objs::*;
 use crate::engine::for_gamedata::*;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
-pub enum BiobotSceneId {
+pub enum BiobotPaneId {
     NewGame,
     LevIntro(u16),
     LevPlay(u16),
@@ -16,30 +16,30 @@ pub enum BiobotSceneId {
 
 #[derive(Debug)]
 pub struct ProgpuzzLevset {
-    pub current_sceneid: BiobotSceneId,
+    pub current_paneid: BiobotPaneId,
 }
 
 impl ProgpuzzLevset {
     pub fn new() -> ProgpuzzLevset {
-        ProgpuzzLevset { current_sceneid: BiobotSceneId::NewGame }
+        ProgpuzzLevset { current_paneid: BiobotPaneId::NewGame }
     }
 
-    pub fn advance_scene(&mut self, continuation: SceneEnding) {
-        self.current_sceneid = match (self.current_sceneid, continuation) {
-            (BiobotSceneId::NewGame, SceneEnding::SplashNext) => BiobotSceneId::LevIntro(1),
-            (BiobotSceneId::LevIntro(levnum), SceneEnding::SplashNext) => BiobotSceneId::LevPlay(levnum),
-            (BiobotSceneId::LevPlay(levnum), SceneEnding::PlayWin) => BiobotSceneId::LevOutro(levnum),
-            (BiobotSceneId::LevPlay(levnum), SceneEnding::PlayDie) => BiobotSceneId::LevRetry(levnum),
-            (BiobotSceneId::LevRetry(levnum), SceneEnding::SplashNext) => BiobotSceneId::LevPlay(levnum),
+    pub fn advance_pane(&mut self, continuation: PaneEnding) {
+        self.current_paneid = match (self.current_paneid, continuation) {
+            (BiobotPaneId::NewGame, PaneEnding::SplashNext) => BiobotPaneId::LevIntro(1),
+            (BiobotPaneId::LevIntro(levnum), PaneEnding::SplashNext) => BiobotPaneId::LevPlay(levnum),
+            (BiobotPaneId::LevPlay(levnum), PaneEnding::PlayWin) => BiobotPaneId::LevOutro(levnum),
+            (BiobotPaneId::LevPlay(levnum), PaneEnding::PlayDie) => BiobotPaneId::LevRetry(levnum),
+            (BiobotPaneId::LevRetry(levnum), PaneEnding::SplashNext) => BiobotPaneId::LevPlay(levnum),
             // TODO: Get max levnum from list of levels?
-            (BiobotSceneId::LevOutro(2), SceneEnding::SplashNext) => BiobotSceneId::Win,
-            (BiobotSceneId::LevOutro(levnum), SceneEnding::SplashNext) => BiobotSceneId::LevOutro(levnum+1),
-            (BiobotSceneId::Win, SceneEnding::SplashNext) => BiobotSceneId::NewGame,
+            (BiobotPaneId::LevOutro(2), PaneEnding::SplashNext) => BiobotPaneId::Win,
+            (BiobotPaneId::LevOutro(levnum), PaneEnding::SplashNext) => BiobotPaneId::LevOutro(levnum+1),
+            (BiobotPaneId::Win, PaneEnding::SplashNext) => BiobotPaneId::NewGame,
             _ => panic!()
         };
     }
 
-    pub fn load_scene(&self) -> Scene {
+    pub fn load_pane(&self) -> Pane {
         let aquarium1_key = HashMap::from([
             // TODO: Combine with obj.char types?
             (' ', vec![ new_floor() ]),
@@ -49,19 +49,19 @@ impl ProgpuzzLevset {
             */
         ]);
 
-        match self.current_sceneid {
+        match self.current_paneid {
             // TODO: Can we use idx++ instead of specifying each level number? Not immediately?
-            BiobotSceneId::NewGame => Scene::from_splash_dialogue(
+            BiobotPaneId::NewGame => Pane::from_splash_dialogue(
                 //"Click or press [enter] to start.".to_string(),
                 vec![
                     "Welcome to programming bot game!",
                 ]
             ),
 
-            BiobotSceneId::LevIntro(1) => {
-                Scene::from_splash_string("Welcome to level 1!".to_string())
+            BiobotPaneId::LevIntro(1) => {
+                Pane::from_splash_string("Welcome to level 1!".to_string())
             },
-            BiobotSceneId::LevPlay(1) => Scene::from_play_ascii_map(&[
+            BiobotPaneId::LevPlay(1) => Pane::from_play_ascii_map(&[
                 "################",
                 "#              #",
                 "#              #",
@@ -79,20 +79,20 @@ impl ProgpuzzLevset {
                 "#              #",
                 "################",
             ], aquarium1_key),
-            BiobotSceneId::LevOutro(1) => {
-                Scene::from_splash_string("Well done!! Goodbye from level 1".to_string())
+            BiobotPaneId::LevOutro(1) => {
+                Pane::from_splash_string("Well done!! Goodbye from level 1".to_string())
             },
 
-            BiobotSceneId::LevRetry(_levno) => {
-                Scene::from_splash_string("Press [enter] to restart.".to_string())
+            BiobotPaneId::LevRetry(_levno) => {
+                Pane::from_splash_string("Press [enter] to restart.".to_string())
             },
-            BiobotSceneId::Win => {
-                Scene::from_splash_string("Congratulations. You've completed all the levels. Press [enter] to play through again".to_string())
+            BiobotPaneId::Win => {
+                Pane::from_splash_string("Congratulations. You've completed all the levels. Press [enter] to play through again".to_string())
             },
 
-            BiobotSceneId::LevIntro(_) => panic!("Loading LevIntro for level that can't be found."),
-            BiobotSceneId::LevPlay(_) => panic!("Loading LevPlay for level that can't be found."),
-            BiobotSceneId::LevOutro(_) => panic!("Loading LevOutro for level that can't be found."),
+            BiobotPaneId::LevIntro(_) => panic!("Loading LevIntro for level that can't be found."),
+            BiobotPaneId::LevPlay(_) => panic!("Loading LevPlay for level that can't be found."),
+            BiobotPaneId::LevOutro(_) => panic!("Loading LevOutro for level that can't be found."),
         }
     }
 }
