@@ -257,7 +257,7 @@ pub struct Refs {
 struct Grid {
     // Stored as a collection of columns, e.g. map.locs[x][y]
     // Must always be rectangular.
-    locs: Vec<Vec<Loc>>,
+    locs: Vec<Vec<Loc<obj_scripting_properties::DefaultObjScriptProps>>>,
 }
 
 impl Grid {
@@ -287,7 +287,7 @@ impl Grid {
 }
 
 impl Index<MapCoord> for Grid {
-    type Output = Loc;
+    type Output = Loc<obj_scripting_properties::DefaultObjScriptProps>;
 
     fn index(&self, pos: MapCoord) -> &Self::Output {
         &self.locs[pos.x as usize][pos.y as usize]
@@ -356,7 +356,7 @@ impl Iterator for CoordIterator {
 }
 
 impl<'a> Iterator for LocIterator<'a> {
-    type Item = (i16, i16, &'a Loc);
+    type Item = (i16, i16, &'a Loc<obj_scripting_properties::DefaultObjScriptProps>);
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.y < (self.h-1) as i16 {
@@ -475,13 +475,13 @@ impl IndexMut<RosterIndex> for Roster {
 
 // "Location": Everything at a single coordinate in the current room.
 #[derive(Debug, Clone)]
-pub struct Loc {
-    objs: Vec<MapObj>
+pub struct Loc<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> {
+    objs: Vec<OrigMapObj<ObjScriptProps>>
 }
 
 /// One square in map. Defined by the stack of objects in that square.
-impl Loc {
-    pub fn new() -> Loc {
+impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Loc<ObjScriptProps> {
+    pub fn new() -> Self {
         Loc { objs: vec![] }
     }
 
@@ -505,7 +505,7 @@ impl Loc {
     }
 
     /// Only used by render() when unsure about height?
-    pub fn get(&self, idx: usize) -> Option<&MapObj> {
+    pub fn get(&self, idx: usize) -> Option<&OrigMapObj<ObjScriptProps>> {
         self.objs.get(idx)
     }
 
@@ -513,7 +513,7 @@ impl Loc {
         self.objs.len()
     }
 
-    pub fn obj_props(&self) -> Vec<FreeObj<super::obj_scripting_properties::DefaultObjScriptProps>> {
+    pub fn obj_props(&self) -> Vec<FreeObj<ObjScriptProps>> {
         // TODO: Avoid clone
         self.objs.iter().map(|obj|
             FreeObj{logical_props:obj.logical_props.clone(), visual_props:obj.visual_props.clone()}
@@ -521,33 +521,33 @@ impl Loc {
     }
 }
 
-impl IntoIterator for Loc {
-    type Item = <Vec<MapObj> as IntoIterator>::Item;
-    type IntoIter = <Vec<MapObj> as IntoIterator>::IntoIter;
+impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> IntoIterator for Loc<ObjScriptProps>  {
+    type Item = <Vec<OrigMapObj<ObjScriptProps>> as IntoIterator>::Item;
+    type IntoIter = <Vec<OrigMapObj<ObjScriptProps>> as IntoIterator>::IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
         self.objs.into_iter()
     }
 }
 
-impl<'a> IntoIterator for &'a Loc {
-    type Item = <&'a Vec<MapObj> as IntoIterator>::Item;
-    type IntoIter = <&'a Vec<MapObj> as IntoIterator>::IntoIter;
+impl<'a, ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> IntoIterator for &'a Loc<ObjScriptProps> {
+    type Item = <&'a Vec<OrigMapObj<ObjScriptProps>> as IntoIterator>::Item;
+    type IntoIter = <&'a Vec<OrigMapObj<ObjScriptProps>> as IntoIterator>::IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
         self.objs.iter()
     }
 }
 
-impl Index<u16> for Loc {
-    type Output = MapObj;
+impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Index<u16> for Loc<ObjScriptProps> {
+    type Output = OrigMapObj<ObjScriptProps>;
 
     fn index(&self, h: u16) -> &Self::Output {
         &self.objs[h as usize]
     }
 }
 
-impl IndexMut<u16> for Loc {
+impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> IndexMut<u16> for Loc<ObjScriptProps> {
     fn index_mut(&mut self, h: u16) -> &mut Self::Output {
         &mut self.objs[h as usize]
     }
