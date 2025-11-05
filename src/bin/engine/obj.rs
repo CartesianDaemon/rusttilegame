@@ -1,20 +1,20 @@
 use super::map_coords::CoordDelta;
 use super::obj_scripting_properties;
-use super::obj_scripting_properties::{BaseObjScriptProps, DefaultObjScriptProps, BaseAI};
+use super::obj_scripting_properties::{BaseObjScriptProps, BaseAI};
 
 use macroquad::prelude::*;
 
 /// An Obj is anything tile-sized and drawable: floor, wall, object, being.
 /// Representing an object not placed in the map. May not be used.
 #[derive(Clone, Debug)]
-pub struct FreeObj {
-    pub logical_props: LogicalProps::<DefaultObjScriptProps>,
+pub struct FreeObj<ObjScriptProps: BaseObjScriptProps> {
+    pub logical_props: LogicalProps::<ObjScriptProps>,
     pub visual_props: VisualProps,
 }
 
 /// Somewhat fuzzy match used for determining ascii representation.
 /// Ideally would have a different name not PartialEq.
-impl PartialEq for FreeObj {
+impl<ObjScriptProps: BaseObjScriptProps> PartialEq for FreeObj<ObjScriptProps> {
     fn eq(&self, other:&Self) -> bool {
         self.logical_props == other.logical_props
     }

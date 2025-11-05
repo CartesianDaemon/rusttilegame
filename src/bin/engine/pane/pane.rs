@@ -35,7 +35,7 @@ impl Pane {
 
     pub fn from_play_ascii_map<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
-        map_key: HashMap<char, Vec<FreeObj>>,
+        map_key: HashMap<char, Vec<FreeObj<super::super::obj_scripting_properties::DefaultObjScriptProps>>>,
     ) -> Pane {
         Pane::Play(Play::from_ascii(ascii_map, map_key))
     }

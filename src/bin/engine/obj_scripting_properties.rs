@@ -2,7 +2,7 @@
 // NB: Would be nice to subsume into one ObjScriptProps struct. Defined in
 // specialised game data, a member of LogicalProps.
 
-pub trait BaseObjScriptProps : Clone {
+pub trait BaseObjScriptProps : Clone + std::fmt::Debug + PartialEq {
     type AI : BaseAI;
 }
 
@@ -24,7 +24,7 @@ pub enum Pass {
     // INSERT: Obj, // Something which can be moved or maybe coexisted with, e.g. furniture
 }
 
-pub trait BaseAI : Copy + PartialEq {
+pub trait BaseAI : Copy + PartialEq + std::fmt::Debug {
     /// Used to create default LogicalProps.
     /// Might not be needed if more logic moves into Gamedata.
     fn default() -> Self;

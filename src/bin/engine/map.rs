@@ -32,7 +32,7 @@ pub struct Map {
     map: Grid,
     roster: Roster,
     // Used to represent map as ascii for init and debugging. Not comprehensive.
-    map_key: std::collections::HashMap<char, Vec<FreeObj>>,
+    map_key: std::collections::HashMap<char, Vec<FreeObj<super::obj_scripting_properties::DefaultObjScriptProps>>>,
 }
 
 impl Map {
@@ -48,7 +48,7 @@ impl Map {
 
     pub fn from_map_and_key<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
-        map_key: HashMap<char, Vec<FreeObj>>,
+        map_key: HashMap<char, Vec<FreeObj<super::obj_scripting_properties::DefaultObjScriptProps>>>,
     ) -> Map {
         let mut field = Map {
             map_key: map_key.clone(),
@@ -117,7 +117,7 @@ impl Map {
     /// TODO: Actually, add some interface there to avoid &mut Backref
 
     /// Spawn new object.
-    pub fn spawn_obj_at(&mut self, x: i16, y:i16, template_obj: FreeObj)
+    pub fn spawn_obj_at(&mut self, x: i16, y:i16, template_obj: FreeObj<super::obj_scripting_properties::DefaultObjScriptProps>)
     {
         let pos = MapCoord::from_xy(x, y);
         let h = self.map[pos].objs.len() as u16;
@@ -433,7 +433,7 @@ impl Roster {
         (0..self.movs.len() as u16).into_iter().map(|ros_idx| RosterIndex { ros_idx } ).collect()
     }
 
-    fn add_to_roster_if_mov(&mut self, mapref: MapRef, props: &FreeObj) -> RosterIndex {
+    fn add_to_roster_if_mov(&mut self, mapref: MapRef, props: &FreeObj<super::obj_scripting_properties::DefaultObjScriptProps>) -> RosterIndex {
         if LogicalProps::<obj_scripting_properties::DefaultObjScriptProps>::is_hero(props.logical_props.ai) {
             self.hero = mapref;
             Self::hero()
@@ -513,7 +513,7 @@ impl Loc {
         self.objs.len()
     }
 
-    pub fn obj_props(&self) -> Vec<FreeObj> {
+    pub fn obj_props(&self) -> Vec<FreeObj<super::obj_scripting_properties::DefaultObjScriptProps>> {
         // TODO: Avoid clone
         self.objs.iter().map(|obj|
             FreeObj{logical_props:obj.logical_props.clone(), visual_props:obj.visual_props.clone()}

@@ -4,7 +4,7 @@ use macroquad::prelude::*;
 
 use crate::engine::for_gamedata::*;
 
-pub fn new_hero_crab() -> FreeObj {
+pub fn new_hero_crab() -> FreeObj<super::super::obj_scripting_properties::DefaultObjScriptProps> {
     FreeObj {
         logical_props: LogicalProps::<obj_scripting_properties::DefaultObjScriptProps> {
             name:"Hero".to_string(),
@@ -16,7 +16,7 @@ pub fn new_hero_crab() -> FreeObj {
     }
 }
 
-pub fn new_fish(dir: CoordDelta) -> FreeObj {
+pub fn new_fish(dir: CoordDelta) -> FreeObj<super::super::obj_scripting_properties::DefaultObjScriptProps> {
     FreeObj {
         logical_props: LogicalProps::<obj_scripting_properties::DefaultObjScriptProps> {
             name: "Fish".to_string(),
@@ -33,7 +33,7 @@ pub fn new_fish(dir: CoordDelta) -> FreeObj {
     }
 }
 
-pub fn new_gawpie(dir: CoordDelta) -> FreeObj {
+pub fn new_gawpie(dir: CoordDelta) -> FreeObj<super::super::obj_scripting_properties::DefaultObjScriptProps> {
     FreeObj {
         logical_props: LogicalProps::<obj_scripting_properties::DefaultObjScriptProps> {
             name: "Gawpie".to_string(),
@@ -50,7 +50,7 @@ pub fn new_gawpie(dir: CoordDelta) -> FreeObj {
     }
 }
 
-pub fn new_floor() -> FreeObj {
+pub fn new_floor() -> FreeObj<super::super::obj_scripting_properties::DefaultObjScriptProps> {
     FreeObj {
         logical_props: LogicalProps::<obj_scripting_properties::DefaultObjScriptProps> {
             name: "Floor".to_string(),
@@ -60,7 +60,7 @@ pub fn new_floor() -> FreeObj {
     }
 }
 
-pub fn new_wall() -> FreeObj {
+pub fn new_wall() -> FreeObj<super::super::obj_scripting_properties::DefaultObjScriptProps> {
     FreeObj {
         logical_props: LogicalProps::<obj_scripting_properties::DefaultObjScriptProps> {
             name: "Wall".to_string(),
@@ -71,7 +71,7 @@ pub fn new_wall() -> FreeObj {
     }
 }
 
-pub fn new_door_open() -> FreeObj {
+pub fn new_door_open() -> FreeObj<super::super::obj_scripting_properties::DefaultObjScriptProps> {
     FreeObj {
             logical_props: LogicalProps::<obj_scripting_properties::DefaultObjScriptProps> {
             name: "OpenDoor".to_string(),
@@ -81,7 +81,7 @@ pub fn new_door_open() -> FreeObj {
     }
 }
 
-pub fn new_door_closed() -> FreeObj {
+pub fn new_door_closed() -> FreeObj<super::super::obj_scripting_properties::DefaultObjScriptProps> {
     FreeObj {
             logical_props: LogicalProps::<obj_scripting_properties::DefaultObjScriptProps> {
             name: "ClosedDoor".to_string(),
@@ -92,7 +92,7 @@ pub fn new_door_closed() -> FreeObj {
     }
 }
 
-pub fn new_door_win() -> FreeObj {
+pub fn new_door_win() -> FreeObj<super::super::obj_scripting_properties::DefaultObjScriptProps> {
     FreeObj {
         logical_props: LogicalProps::<obj_scripting_properties::DefaultObjScriptProps> {
             name: "Goal".to_string(),

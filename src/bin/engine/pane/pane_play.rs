@@ -20,7 +20,7 @@ impl Play
     // TODO: Use lifetime or Rc on map_key instead of clone()?
     pub fn from_ascii<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
-        map_key: HashMap<char, Vec<FreeObj>>,
+        map_key: HashMap<char, Vec<FreeObj<super::super::obj_scripting_properties::DefaultObjScriptProps>>>,
     ) -> Play {
         Play {
             field: Map::from_map_and_key(ascii_map, map_key),
