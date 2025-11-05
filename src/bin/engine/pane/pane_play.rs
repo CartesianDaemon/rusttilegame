@@ -2,7 +2,7 @@ use super::{PaneContinuation};
 
 use std::collections::HashMap;
 
-use crate::engine::map::Map;
+use crate::engine::map::DefaultMap as Map;
 use crate::engine::obj::FreeObj;
 use crate::engine::input::Input;
 use crate::engine::for_scripting::Cmd;

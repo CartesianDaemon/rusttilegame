@@ -13,6 +13,8 @@ use std::ops::IndexMut;
 
 use culpa::try_fn;
 
+// use crate::engine::obj;
+
 use super::pane::PaneContinuation;
 use super::obj_scripting_properties;
 use super::for_scripting::{BaseScripts, BaseMovementLogic};
@@ -26,33 +28,35 @@ pub struct RosterIndex {
     ros_idx: u16,
 }
 
+pub type DefaultMap = Map<obj_scripting_properties::DefaultObjScriptProps>;
+
 /// Grid together with Ros. Those are two separate classes so they can more easily be borrowed separately.
 #[derive(Clone, Debug)]
-pub struct Map {
-    map: Grid<obj_scripting_properties::DefaultObjScriptProps>,
-    roster: Roster,
+pub struct Map<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> {
+    map: Grid<ObjScriptProps>,
+    roster: Roster<ObjScriptProps>,
     // Used to represent map as ascii for init and debugging. Not comprehensive.
-    map_key: std::collections::HashMap<char, Vec<FreeObj<super::obj_scripting_properties::DefaultObjScriptProps>>>,
+    map_key: std::collections::HashMap<char, Vec<FreeObj<ObjScriptProps>>>,
 }
 
-impl Map {
+impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Map<ObjScriptProps> {
     /////////////////
     /// Initialisers
-    pub fn empty(w: u16, h: u16) -> Map {
-        Map {
+    pub fn empty(w: u16, h: u16) -> Self {
+        Self {
             map: Into::into(Grid::new(w, h)),
-            roster: Roster::new(),
+            roster: Roster::<ObjScriptProps>::new(),
             map_key: std::collections::HashMap::new(),
         }
     }
 
     pub fn from_map_and_key<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
-        map_key: HashMap<char, Vec<FreeObj<super::obj_scripting_properties::DefaultObjScriptProps>>>,
-    ) -> Map {
-        let mut field = Map {
+        map_key: HashMap<char, Vec<FreeObj<ObjScriptProps>>>,
+    ) -> Self {
+        let mut field = Self {
             map_key: map_key.clone(),
-            ..Map::empty(ascii_map[0].len() as u16, HEIGHT as u16)
+            ..Self::empty(ascii_map[0].len() as u16, HEIGHT as u16)
         };
 
         for (y, line) in ascii_map.iter().enumerate() {
@@ -73,7 +77,7 @@ impl Map {
         // TODO: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // TODO: Consider: Maybe display char moving out of sync with enemy.
-        let hero = Roster::hero();
+        let hero = Roster::<ObjScriptProps>::hero();
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.
@@ -102,7 +106,7 @@ impl Map {
     }
 
     // TODO: Any better way to expose this for iterating?
-    pub fn map_locs(&self) -> LocIterator<obj_scripting_properties::DefaultObjScriptProps> {
+    pub fn map_locs(&self) -> LocIterator<ObjScriptProps> {
         self.map.locs()
     }
 
@@ -117,7 +121,7 @@ impl Map {
     /// TODO: Actually, add some interface there to avoid &mut Backref
 
     /// Spawn new object.
-    pub fn spawn_obj_at(&mut self, x: i16, y:i16, template_obj: FreeObj<super::obj_scripting_properties::DefaultObjScriptProps>)
+    pub fn spawn_obj_at(&mut self, x: i16, y:i16, template_obj: FreeObj<ObjScriptProps>)
     {
         let pos = MapCoord::from_xy(x, y);
         let h = self.map[pos].objs.len() as u16;
@@ -127,7 +131,7 @@ impl Map {
             pos,
             prev_pos: pos,
         };
-        let obj = MapObj{
+        let obj = MapObj::<ObjScriptProps>{
             refs: mappos,
             logical_props: template_obj.logical_props,
             visual_props: template_obj.visual_props,
@@ -180,7 +184,7 @@ impl Map {
     // TODO: Not used by programming puzzle?
     #[allow(dead_code)]
     pub fn hero(&self) -> RosterIndex {
-        Roster::hero()
+        Roster::<ObjScriptProps>::hero()
     }
 
     /// Where object would move to based on current direction.
@@ -227,8 +231,8 @@ impl Map {
     }
 }
 
-impl Index<RosterIndex> for Map {
-    type Output = MapObj;
+impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Index<RosterIndex> for Map<ObjScriptProps> {
+    type Output = MapObj<ObjScriptProps>;
 
     fn index(&self, roster_idx: RosterIndex) -> &Self::Output {
         let mapref = self.roster[roster_idx];
@@ -236,7 +240,7 @@ impl Index<RosterIndex> for Map {
     }
 }
 
-impl IndexMut<RosterIndex> for Map {
+impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> IndexMut<RosterIndex> for Map<ObjScriptProps> {
     fn index_mut(&mut self, roster_idx: RosterIndex) -> &mut Self::Output {
         let mapref = self.roster[roster_idx];
         &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h]
@@ -406,15 +410,15 @@ impl MapRef
 //
 // NOTE: Could currently be moved back into Map. Not borrowed separately.
 #[derive(Clone, Debug)]
-struct Roster {
+struct Roster<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> {
     pub hero: MapRef,
 
     movs: Vec<MapRef>,
 }
 
-impl Roster {
-    pub fn new() -> Roster {
-        Roster {
+impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Roster<ObjScriptProps> {
+    pub fn new() -> Self {
+        Self {
             hero: MapRef{x:0, y:0, h:1}, // Overwritten immediate, but can we avoid placeholder?
             movs: vec![],
         }
@@ -433,11 +437,11 @@ impl Roster {
         (0..self.movs.len() as u16).into_iter().map(|ros_idx| RosterIndex { ros_idx } ).collect()
     }
 
-    fn add_to_roster_if_mov(&mut self, mapref: MapRef, props: &FreeObj<super::obj_scripting_properties::DefaultObjScriptProps>) -> RosterIndex {
-        if LogicalProps::<obj_scripting_properties::DefaultObjScriptProps>::is_hero(props.logical_props.ai) {
+    fn add_to_roster_if_mov(&mut self, mapref: MapRef, props: &FreeObj<ObjScriptProps>) -> RosterIndex {
+        if LogicalProps::<ObjScriptProps>::is_hero(props.logical_props.ai) {
             self.hero = mapref;
             Self::hero()
-        } else if LogicalProps::<obj_scripting_properties::DefaultObjScriptProps>::is_mob(props.logical_props.ai) {
+        } else if LogicalProps::<ObjScriptProps>::is_mob(props.logical_props.ai) {
             self.movs.push(mapref);
             RosterIndex { ros_idx: self.movs.len() as u16 - 1 }
         } else {
@@ -446,7 +450,7 @@ impl Roster {
     }
 }
 
-impl Index<RosterIndex> for Roster {
+impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Index<RosterIndex> for Roster<ObjScriptProps> {
     type Output = MapRef;
 
     fn index(&self, hdl: RosterIndex) -> &Self::Output {
@@ -460,7 +464,7 @@ impl Index<RosterIndex> for Roster {
     }
 }
 
-impl IndexMut<RosterIndex> for Roster {
+impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> IndexMut<RosterIndex> for Roster<ObjScriptProps> {
     fn index_mut(&mut self, hdl: RosterIndex) -> &mut Self::Output {
         let idx = hdl.ros_idx as usize;
         match idx {
@@ -476,7 +480,7 @@ impl IndexMut<RosterIndex> for Roster {
 // "Location": Everything at a single coordinate in the current room.
 #[derive(Debug, Clone)]
 pub struct Loc<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> {
-    objs: Vec<OrigMapObj<ObjScriptProps>>
+    objs: Vec<MapObj<ObjScriptProps>>
 }
 
 /// One square in map. Defined by the stack of objects in that square.
@@ -505,7 +509,7 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Loc<ObjScript
     }
 
     /// Only used by render() when unsure about height?
-    pub fn get(&self, idx: usize) -> Option<&OrigMapObj<ObjScriptProps>> {
+    pub fn get(&self, idx: usize) -> Option<&MapObj<ObjScriptProps>> {
         self.objs.get(idx)
     }
 
@@ -522,8 +526,8 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Loc<ObjScript
 }
 
 impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> IntoIterator for Loc<ObjScriptProps>  {
-    type Item = <Vec<OrigMapObj<ObjScriptProps>> as IntoIterator>::Item;
-    type IntoIter = <Vec<OrigMapObj<ObjScriptProps>> as IntoIterator>::IntoIter;
+    type Item = <Vec<MapObj<ObjScriptProps>> as IntoIterator>::Item;
+    type IntoIter = <Vec<MapObj<ObjScriptProps>> as IntoIterator>::IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
         self.objs.into_iter()
@@ -531,8 +535,8 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> IntoIterator 
 }
 
 impl<'a, ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> IntoIterator for &'a Loc<ObjScriptProps> {
-    type Item = <&'a Vec<OrigMapObj<ObjScriptProps>> as IntoIterator>::Item;
-    type IntoIter = <&'a Vec<OrigMapObj<ObjScriptProps>> as IntoIterator>::IntoIter;
+    type Item = <&'a Vec<MapObj<ObjScriptProps>> as IntoIterator>::Item;
+    type IntoIter = <&'a Vec<MapObj<ObjScriptProps>> as IntoIterator>::IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
         self.objs.iter()
@@ -540,7 +544,7 @@ impl<'a, ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> IntoItera
 }
 
 impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Index<u16> for Loc<ObjScriptProps> {
-    type Output = OrigMapObj<ObjScriptProps>;
+    type Output = MapObj<ObjScriptProps>;
 
     fn index(&self, h: u16) -> &Self::Output {
         &self.objs[h as usize]
@@ -553,17 +557,15 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> IndexMut<u16>
     }
 }
 
-pub type MapObj = OrigMapObj<obj_scripting_properties::DefaultObjScriptProps>;
-
 /// Specific object in map (Including current coords as well as LogicalProps::<obj_scripting_properties::DefaultObjScriptProps>, VisualProps)
 #[derive(Clone, Debug)]
-pub struct OrigMapObj<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> {
+pub struct MapObj<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> {
     refs: Refs,
     pub logical_props: LogicalProps::<ObjScriptProps>,
     pub visual_props: VisualProps,
 }
 
-impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> OrigMapObj<ObjScriptProps> {
+impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> MapObj<ObjScriptProps> {
     pub fn pos(&self) -> MapCoord {
         self.refs.pos
     }

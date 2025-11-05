@@ -119,7 +119,7 @@ impl<'a> RenderLev<'a> {
         vx: i16,
         vy: i16,
         // Ent to draw
-        obj: &MapObj,
+        obj: &MapObj<obj_scripting_properties::DefaultObjScriptProps>,
         // Proportion of animation from previous state to current (frame)
         anim_pc: f32,
         // Proportion of animation from previous state to current (position)

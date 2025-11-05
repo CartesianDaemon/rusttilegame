@@ -22,7 +22,7 @@ pub use core_engine::run;
 
 // Engine exports needed for writing game scripts.
 pub mod for_scripting {
-    pub use super::map::{Map, RosterIndex};
+    pub use super::map::{DefaultMap as Map, RosterIndex};
     pub use super::map_coords::*;
     pub use super::pane::{PaneContinuation, PaneEnding};
     pub use super::gamedata::{BaseScripts, BaseMovementLogic};

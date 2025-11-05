@@ -1,10 +1,12 @@
+//use crate::engine::obj_scripting_properties;
+
 /// Trait for interface needed for Games implemented in the Engine
 
 use super::pane::{Pane, PaneEnding};
 
 // Trait for scripts which the scripts for each game needs to implement.
 // TODO: Move to separate file??
-use super::map::Map;
+use super::map::DefaultMap as Map;
 use super::map::RosterIndex;
 use super::for_gamedata::Cmd;
 use super::pane::PaneContinuation;
