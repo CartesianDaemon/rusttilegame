@@ -1,6 +1,19 @@
 // Properties of objects related to scripting.
 // May move from Engine::obj_scripting_properties:: to to Scripts::
 
+pub trait BaseObjScriptProps : Clone {
+    type AI : BaseAI;
+}
+
+#[derive(Clone, PartialEq, Debug)]
+pub struct DefaultObjScriptProps {
+}
+
+impl BaseObjScriptProps for DefaultObjScriptProps {
+    type AI = AI;
+
+}
+
 // Passable. Whether other movs can move through an ent or not.
 #[derive(Clone, PartialEq, Debug)]
 pub enum Pass {

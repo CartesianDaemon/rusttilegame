@@ -1,7 +1,6 @@
-use crate::engine::for_gamedata::BaseAI;
-
 use super::map_coords::CoordDelta;
 use super::obj_scripting_properties;
+use super::obj_scripting_properties::{BaseObjScriptProps, DefaultObjScriptProps};
 
 use macroquad::prelude::*;
 
@@ -9,7 +8,7 @@ use macroquad::prelude::*;
 /// Representing an object not placed in the map. May not be used.
 #[derive(Clone, Debug)]
 pub struct FreeObj {
-    pub logical_props: LogicalProps::<obj_scripting_properties::AI>,
+    pub logical_props: LogicalProps::<DefaultObjScriptProps>,
     pub visual_props: VisualProps,
 }
 
@@ -24,7 +23,7 @@ impl PartialEq for FreeObj {
 /// Logical properties of object, used for game logic and scripting.
 /// Some of this could be moved into Gamedata? With base trait for required props?
 #[derive(Clone, Debug, PartialEq)]
-pub struct LogicalProps<AI> {
+pub struct LogicalProps<ObjScriptProps: BaseObjScriptProps> {
     /// String representation of object, used internally for debug fmt etc.
     pub name: String,
 
@@ -32,7 +31,7 @@ pub struct LogicalProps<AI> {
     pub pass: obj_scripting_properties::Pass,
 
     // Movement control logic for enemies
-    pub ai: AI,
+    pub ai: ObjScriptProps::AI,
 
     // Internal status for ents which have a current movement direction.
     // Also used for display
@@ -42,13 +41,13 @@ pub struct LogicalProps<AI> {
     pub effect: obj_scripting_properties::Effect,
 }
 
-impl<AI: BaseAI> LogicalProps<AI> {
+impl<ObjScriptProps: BaseObjScriptProps> LogicalProps<ObjScriptProps> {
     pub fn defaults() -> Self {
         Self {
             name: "????".to_string(),
 
             pass: obj_scripting_properties::Pass::Empty,
-            ai: AI::default(),
+            ai: ObjScriptProps::AI::default(),
             effect: obj_scripting_properties::Effect::Nothing,
 
             dir: CoordDelta::from_xy(0, 0),
