@@ -31,7 +31,7 @@ pub struct ProgpuzzGamedata {
 
 impl BaseGamedata for ProgpuzzGamedata {
     type Scripts = super::scripts_progpuzz::ProgpuzzScripts;
-    type XAI = obj_properties::XAI;
+    //type XAI = obj_properties::XAI;
 
     fn new() -> Self {
         ProgpuzzGamedata {
