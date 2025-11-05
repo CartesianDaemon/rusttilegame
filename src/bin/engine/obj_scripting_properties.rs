@@ -23,10 +23,12 @@ pub enum Pass {
     // INSERT: Obj, // Something which can be moved or maybe coexisted with, e.g. furniture
 }
 
-pub trait BaseAI {
+pub trait BaseAI : Copy + PartialEq {
     /// Used to create default LogicalProps.
     /// Might not be needed if more logic moves into Gamedata.
     fn default() -> Self;
+    fn is_hero(ai: Self) -> bool;
+    fn is_any_mov(ai: Self) -> bool;
 }
 
 // Types of movement-control logic ents can use
@@ -48,6 +50,12 @@ pub enum AI {
 impl BaseAI for AI {
     fn default() -> AI {
         Self::Stay
+    }
+    fn is_hero(ai: Self) -> bool {
+        ai == Self::Hero
+    }
+    fn is_any_mov(ai: Self) -> bool {
+        ai != Self::Stay
     }
 }
 

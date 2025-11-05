@@ -434,10 +434,10 @@ impl Roster {
     }
 
     fn add_to_roster_if_mov(&mut self, mapref: MapRef, props: &FreeObj) -> RosterIndex {
-        if LogicalProps::<obj_scripting_properties::AI>::is_hero(props.logical_props.ai) {
+        if LogicalProps::<obj_scripting_properties::DefaultObjScriptProps>::is_hero(props.logical_props.ai) {
             self.hero = mapref;
             Self::hero()
-        } else if LogicalProps::<obj_scripting_properties::AI>::is_mob(props.logical_props.ai) {
+        } else if LogicalProps::<obj_scripting_properties::DefaultObjScriptProps>::is_mob(props.logical_props.ai) {
             self.movs.push(mapref);
             RosterIndex { ros_idx: self.movs.len() as u16 - 1 }
         } else {
@@ -553,11 +553,11 @@ impl IndexMut<u16> for Loc {
     }
 }
 
-/// Specific object in map (Including current coords as well as LogicalProps::<obj_scripting_properties::AI>, VisualProps)
+/// Specific object in map (Including current coords as well as LogicalProps::<obj_scripting_properties::DefaultObjScriptProps>, VisualProps)
 #[derive(Clone, Debug)]
 pub struct MapObj {
     refs: Refs,
-    pub logical_props: LogicalProps::<obj_scripting_properties::AI>,
+    pub logical_props: LogicalProps::<obj_scripting_properties::DefaultObjScriptProps>,
     pub visual_props: VisualProps,
 }
 

@@ -1,6 +1,6 @@
 use super::map_coords::CoordDelta;
 use super::obj_scripting_properties;
-use super::obj_scripting_properties::{BaseObjScriptProps, DefaultObjScriptProps};
+use super::obj_scripting_properties::{BaseObjScriptProps, DefaultObjScriptProps, BaseAI};
 
 use macroquad::prelude::*;
 
@@ -55,21 +55,22 @@ impl<ObjScriptProps: BaseObjScriptProps> LogicalProps<ObjScriptProps> {
     }
 
     // FUNCTIONS REFERRING TO SPECIFIC PROPERTIES
+    // NB: Could replace with ObjScriptProps::is_hero(ObjScriptProps)
     // NB: Could be combined if properties are made more generic.
 
     // Todo: Replace with more meaningful "is_hero" fn in scripts. Or obj_properties??
-    pub fn is_hero(ai: obj_scripting_properties::AI) -> bool {
-        ai == obj_scripting_properties::AI::Hero
+    pub fn is_hero(ai: ObjScriptProps::AI) -> bool {
+        ObjScriptProps::AI::is_hero(ai)
     }
 
     // Indicate Obj which can move in their own logic, and need to be added to roster.
-    pub fn is_mob(ai: obj_scripting_properties::AI) -> bool {
+    pub fn is_mob(ai: ObjScriptProps::AI) -> bool {
         Self::is_any_mov(ai) && ! Self::is_hero(ai)
     }
 
     // Mob or Hero
-    pub fn is_any_mov(ai: obj_scripting_properties::AI) -> bool {
-        ai != obj_scripting_properties::AI::Stay
+    pub fn is_any_mov(ai: ObjScriptProps::AI) -> bool {
+        ObjScriptProps::AI::is_any_mov(ai)
     }
 }
 
