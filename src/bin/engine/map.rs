@@ -553,15 +553,17 @@ impl IndexMut<u16> for Loc {
     }
 }
 
+pub type MapObj = OrigMapObj<obj_scripting_properties::DefaultObjScriptProps>;
+
 /// Specific object in map (Including current coords as well as LogicalProps::<obj_scripting_properties::DefaultObjScriptProps>, VisualProps)
 #[derive(Clone, Debug)]
-pub struct MapObj {
+pub struct OrigMapObj<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> {
     refs: Refs,
-    pub logical_props: LogicalProps::<obj_scripting_properties::DefaultObjScriptProps>,
+    pub logical_props: LogicalProps::<ObjScriptProps>,
     pub visual_props: VisualProps,
 }
 
-impl MapObj {
+impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> OrigMapObj<ObjScriptProps> {
     pub fn pos(&self) -> MapCoord {
         self.refs.pos
     }
