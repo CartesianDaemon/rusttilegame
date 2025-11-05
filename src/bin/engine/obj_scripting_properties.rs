@@ -1,5 +1,6 @@
 // Properties of objects related to scripting.
-// May move from Engine::obj_scripting_properties:: to to Scripts::
+// NB: Would be nice to subsume into one ObjScriptProps struct. Defined in
+// specialised game data, a member of LogicalProps.
 
 pub trait BaseObjScriptProps : Clone {
     type AI : BaseAI;
