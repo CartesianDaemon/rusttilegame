@@ -6,6 +6,7 @@ use crate::engine::for_gamedata::{BaseCustomProps, BaseAI};
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct SimpleCustomProps {
+    ai: AI,
 }
 
 // TODO: Have separate "properties". Move "AI" into MovementLogic entirely??
