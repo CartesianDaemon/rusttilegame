@@ -9,7 +9,9 @@ pub fn new_hero_crab() -> FreeObj<SimpleCustomProps> {
         logical_props: LogicalProps::<SimpleCustomProps> {
             name:"Hero".to_string(),
             pass: Pass::Mov,
-            ai: SimpleAI::Hero,
+            custom_props: SimpleCustomProps {
+                ai: SimpleAI::Hero,
+            },
             .. LogicalProps::<SimpleCustomProps>::defaults()
         },
         visual_props: VisualProps::new_text_fill("HERO".to_string(), Some(GOLD), Some(BLACK))
@@ -21,7 +23,9 @@ pub fn new_fish(dir: CoordDelta) -> FreeObj<super::SimpleCustomProps> {
         logical_props: LogicalProps::<SimpleCustomProps> {
             name: "Fish".to_string(),
             pass: Pass::Mov,
-            ai: SimpleAI::Bounce,
+            custom_props: SimpleCustomProps {
+                ai: SimpleAI::Bounce,
+            },
             dir: dir,
             effect: Effect::Kill,
             .. LogicalProps::<SimpleCustomProps>::defaults()
@@ -38,7 +42,9 @@ pub fn new_gawpie(dir: CoordDelta) -> FreeObj<super::SimpleCustomProps> {
         logical_props: LogicalProps::<SimpleCustomProps> {
             name: "Gawpie".to_string(),
             pass: Pass::Mov,
-            ai: SimpleAI::Drift,
+            custom_props: SimpleCustomProps {
+                ai: SimpleAI::Drift,
+            },
             dir: dir,
             effect: Effect::Kill,
             .. LogicalProps::<SimpleCustomProps>::defaults()
