@@ -12,6 +12,8 @@ pub fn impassable(field: &Map, pos: MapCoord) -> bool {
 pub struct PushpuzzMovementLogic;
 
 impl BaseMovementLogic for PushpuzzMovementLogic {
+    type ObjScriptProps = super::super::gamedata_pushpuzz::PushpuzzObjScriptProps;
+
     // Would be nice for these to be a function of an enum/trait impls
     fn move_mov(field: &mut Map, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
         let hero = field.hero();

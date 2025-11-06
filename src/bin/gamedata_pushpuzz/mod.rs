@@ -29,7 +29,7 @@ pub struct PushpuzzGamedata {
     levset: levels::PushpuzzLevset,
 }
 
-type PushpuzzObjScriptProps = obj_scripting_properties::DefaultObjScriptProps;
+pub type PushpuzzObjScriptProps = obj_scripting_properties::DefaultObjScriptProps;
 
 impl BaseGamedata for PushpuzzGamedata {
     type Scripts = super::scripts_pushpuzz::PushpuzzScripts;

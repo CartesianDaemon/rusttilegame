@@ -8,14 +8,16 @@ use super::pane::{Pane, PaneEnding};
 
 // Trait for scripts which the scripts for each game needs to implement.
 // TODO: Move to separate file??
-use super::map::DefaultMap as Map;
+use super::map::Map;
 use super::map::RosterIndex;
 use super::for_gamedata::Cmd;
 use super::pane::PaneContinuation;
 pub trait BaseMovementLogic {
-    fn move_mov(field: &mut Map, mov: RosterIndex, cmd: Cmd) -> PaneContinuation;
+    type ObjScriptProps : BaseObjScriptProps;
+    fn move_mov(field: &mut Map<Self::ObjScriptProps>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation;
 }
 pub trait BaseScripts {
+    // TODO: Make combined Scripts+ObjProps object to template map on?
     type MovementLogic : BaseMovementLogic;
 }
 

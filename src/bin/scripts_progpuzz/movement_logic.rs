@@ -14,6 +14,8 @@ pub struct ProgpuzzMovementLogic;
 
 impl BaseMovementLogic for ProgpuzzMovementLogic
 {
+    type ObjScriptProps = super::super::gamedata_progpuzz::ProgpuzzObjScriptProps;
+
     fn move_mov(field: &mut Map, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
         match field[mov].logical_props.ai {
             AI::Hero => {
