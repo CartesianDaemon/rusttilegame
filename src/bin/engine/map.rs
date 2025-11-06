@@ -28,8 +28,6 @@ pub struct RosterIndex {
     ros_idx: u16,
 }
 
-pub type DefaultMap = Map<obj_scripting_properties::DefaultObjScriptProps>;
-
 /// Grid together with Ros. Those are two separate classes so they can more easily be borrowed separately.
 #[derive(Clone, Debug)]
 pub struct Map<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> {

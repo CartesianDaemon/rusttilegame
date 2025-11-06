@@ -1,6 +1,8 @@
 // TODO: Add these types to a Script struct?
 use crate::engine::for_scripting::*;
 
+type Map = crate::engine::for_scripting::Map<super::super::gamedata_pushpuzz::PushpuzzObjScriptProps>;
+
 pub fn passable(field: &Map, pos: MapCoord) -> bool {
     field.all_pass(pos, Pass::Empty)
 }
