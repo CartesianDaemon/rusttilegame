@@ -29,9 +29,11 @@ pub struct PushpuzzGamedata {
     levset: levels::PushpuzzLevset,
 }
 
+type PushpuzzObjScriptProps = obj_scripting_properties::DefaultObjScriptProps;
+
 impl BaseGamedata for PushpuzzGamedata {
     type Scripts = super::scripts_pushpuzz::PushpuzzScripts;
-    // type XAI = obj_properties::XAI;
+    type ObjScriptProps = PushpuzzObjScriptProps;
 
     fn new() -> Self {
         PushpuzzGamedata {
@@ -43,7 +45,7 @@ impl BaseGamedata for PushpuzzGamedata {
         self.levset.advance_pane(continuation)
     }
 
-    fn load_pane(&self) -> Pane {
+    fn load_pane(&self) -> Pane<PushpuzzObjScriptProps> {
         self.levset.load_pane()
     }
 }

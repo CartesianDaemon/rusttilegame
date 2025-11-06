@@ -31,6 +31,7 @@ pub mod for_scripting {
 
 // Engine exports needed for writing game data.
 // TODO: Some only used by pushing puzzle, not programming puzzle?
+// TODO: For some types, put types in GameData already parameterised by appropritate custom types?
 #[allow(unused_imports)]
 pub mod for_gamedata {
     pub use super::obj::*;

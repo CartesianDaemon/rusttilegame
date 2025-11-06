@@ -39,7 +39,7 @@ impl ProgpuzzLevset {
         };
     }
 
-    pub fn load_pane(&self) -> Pane {
+    pub fn load_pane(&self) -> Pane<super::ProgpuzzObjScriptProps> {
         let aquarium1_key = HashMap::from([
             // TODO: Combine with obj.char types?
             (' ', vec![ new_floor() ]),
