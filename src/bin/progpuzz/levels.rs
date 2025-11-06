@@ -44,7 +44,7 @@ impl ProgpuzzLevset {
             // TODO: Combine with obj.char types?
             (' ', vec![ new_floor() ]),
             ('#', vec![ new_floor(), new_wall() ]),
-            ('^', vec![ new_floor(), new_hero_crab() ]),
+            ('^', vec![ new_floor(), new_progbot() ]),
             /*
             */
         ]);
@@ -61,7 +61,7 @@ impl ProgpuzzLevset {
             BiobotPaneId::LevIntro(1) => {
                 Pane::from_splash_string("Welcome to level 1!".to_string())
             },
-            BiobotPaneId::LevPlay(1) => Pane::from_play_ascii_map(&[
+            BiobotPaneId::LevPlay(1) => Pane::<super::ProgpuzzMovementLogic>::from_play_ascii_map(&[
                 "################",
                 "#              #",
                 "#              #",
