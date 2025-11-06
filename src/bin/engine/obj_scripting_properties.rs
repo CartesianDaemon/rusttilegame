@@ -2,6 +2,7 @@
 // NB: Would be nice to subsume into one ObjScriptProps struct. Defined in
 // specialised game data, a member of LogicalProps.
 
+/// TODO: Rename CustomProps?
 pub trait BaseObjScriptProps : Clone + std::fmt::Debug + PartialEq {
     type AI : BaseAI;
 }

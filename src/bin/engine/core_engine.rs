@@ -1,3 +1,5 @@
+use crate::engine::gamedata::BaseGamedata;
+
 use super::*;
 
 // TODO: Remove submodule names?
@@ -13,12 +15,12 @@ use super::pane::*;
 /// Templated on Game (either a  builtin Game, or a load-from-file Game).
 /// Could instead take a &dyn Game trait object so that it could load a Game object
 /// from a library, but that probably doesn't help that much.
-struct Engine<Gamedata> {
+struct Engine<Gamedata: BaseGamedata> {
     /// Level set currently playing through, e.g. the biobot Engine.
     pub gamedata: Gamedata,
 
     /// Current state of gameplay, current level, mostly map etc.
-    play_state: Pane,
+    play_state: Pane<Gamedata::ObjScriptProps>,
 
     /// Smoothly from 0 to 1 transition from previous state to current state
     /// TODO: Move into play?

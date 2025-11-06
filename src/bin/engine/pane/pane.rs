@@ -6,6 +6,7 @@ use crate::engine::input::Input;
 use crate::engine::obj::FreeObj;
 
 // TODO: Move into game-specific info if possible?
+// TODO: Rename PaneConclusion??
 #[allow(dead_code)]
 pub enum PaneEnding {
     SplashNext,
@@ -19,24 +20,24 @@ pub type PaneContinuation = ControlFlow<PaneEnding, ()>;
 ///
 /// Would be nice to have base trait for pane types. Look for helper crate?
 #[derive(Clone, Debug)]
-pub enum Pane {
-    Play(Play),
+pub enum Pane<ObjScriptProps: super::super::obj_scripting_properties::BaseObjScriptProps> {
+    Play(Play<ObjScriptProps>),
     Splash(Splash),
 }
 
-impl Pane {
-    pub fn from_splash_string(txt: String) -> Pane {
+impl<ObjScriptProps: super::super::obj_scripting_properties::BaseObjScriptProps> Pane<ObjScriptProps> {
+    pub fn from_splash_string(txt: String) -> Self {
         Pane::Splash(Splash::from_string(txt))
     }
 
-    pub fn from_splash_dialogue(entries: Vec<&str>) -> Pane {
+    pub fn from_splash_dialogue(entries: Vec<&str>) -> Self {
         Pane::Splash(Splash::from_dialogue(entries))
     }
 
     pub fn from_play_ascii_map<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
-        map_key: HashMap<char, Vec<FreeObj<super::super::obj_scripting_properties::DefaultObjScriptProps>>>,
-    ) -> Pane {
+        map_key: HashMap<char, Vec<FreeObj<ObjScriptProps>>>,
+    ) -> Self {
         Pane::Play(Play::from_ascii(ascii_map, map_key))
     }
 
@@ -57,7 +58,7 @@ impl Pane {
     }
 
     #[cfg(test)]
-    pub fn as_play(&self) -> &Play {
+    pub fn as_play(&self) -> &Play<ObjScriptProps> {
         match self {
             Self::Play(play) => &play,
             Self::Splash(_splash) => panic!(),

@@ -2,27 +2,29 @@ use super::{PaneContinuation};
 
 use std::collections::HashMap;
 
-use crate::engine::map::DefaultMap as Map;
+use crate::engine::map::Map;
 use crate::engine::obj::FreeObj;
 use crate::engine::input::Input;
 use crate::engine::for_scripting::Cmd;
 
 /// Interactive map, the actual gameplay part of the game.
 #[derive(Clone, Debug)]
-pub struct Play {
+pub struct Play<ObjScriptProps: super::super::obj_scripting_properties::BaseObjScriptProps> {
     // Layout of current map.
-    pub field: Map,
+    // TODO: Rename field to map
+    pub field: Map<ObjScriptProps>,
 }
 
-impl Play
+impl<ObjScriptProps: super::super::obj_scripting_properties::BaseObjScriptProps> Play<ObjScriptProps>
 {
     // TODO: Do we need a function or would having levset_biobots use Play {...} be better?
     // TODO: Use lifetime or Rc on map_key instead of clone()?
+    // TODO: Could Map be merged into this class?
     pub fn from_ascii<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
-        map_key: HashMap<char, Vec<FreeObj<super::super::obj_scripting_properties::DefaultObjScriptProps>>>,
-    ) -> Play {
-        Play {
+        map_key: HashMap<char, Vec<FreeObj<ObjScriptProps>>>,
+    ) -> Self {
+        Self {
             field: Map::from_map_and_key(ascii_map, map_key),
         }
     }

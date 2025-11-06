@@ -1,5 +1,7 @@
 //use crate::engine::obj_scripting_properties;
 
+use crate::engine::for_gamedata::BaseObjScriptProps;
+
 /// Trait for interface needed for Games implemented in the Engine
 
 use super::pane::{Pane, PaneEnding};
@@ -19,6 +21,7 @@ pub trait BaseScripts {
 
 /// Manages game-specific state, e.g. which level to go to next.
 pub trait BaseGamedata {
+    type ObjScriptProps : BaseObjScriptProps;
     type Scripts : BaseScripts;
     //type XAI;
 
@@ -26,9 +29,9 @@ pub trait BaseGamedata {
 
     fn advance_pane(&mut self, continuation: PaneEnding);
 
-    fn load_pane(&self) -> Pane;
+    fn load_pane(&self) -> Pane<Self::ObjScriptProps>;
 
-    fn load_next_pane(&mut self, continuation: PaneEnding) -> Pane {
+    fn load_next_pane(&mut self, continuation: PaneEnding) -> Pane<Self::ObjScriptProps> {
         self.advance_pane(continuation);
         self.load_pane()
     }
