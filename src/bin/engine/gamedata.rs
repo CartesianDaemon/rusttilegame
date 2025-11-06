@@ -14,6 +14,8 @@ pub trait BaseAI : Copy + PartialEq + std::fmt::Debug {
 
 pub trait BaseCustomProps : Clone + std::fmt::Debug + PartialEq {
     type AI : BaseAI;
+
+    fn default() -> Self;
 }
 
 use super::map::Map;

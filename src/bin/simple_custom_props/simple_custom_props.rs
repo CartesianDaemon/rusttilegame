@@ -13,6 +13,11 @@ pub struct SimpleCustomProps {
 impl BaseCustomProps for SimpleCustomProps {
     type AI = SimpleAI;
 
+    fn default() -> Self {
+        Self {
+            ai: Self::AI::default(),
+        }
+    }
 }
 
 // Passable. Whether other movs can move through an ent or not.

@@ -27,15 +27,18 @@ pub struct LogicalProps<CustomProps: BaseCustomProps> {
     /// String representation of object, used internally for debug fmt etc.
     pub name: String,
 
-    // Solidity, e.g. wall, floor
-    pub pass: simple_custom_props::Pass,
+    // Internal status for ents which have a current movement direction.
+    // Also used for display
+    pub dir: CoordDelta,
+
+    // TODO: Subsume most fields in here
+    pub custom_props: CustomProps,
 
     // Movement control logic for enemies
     pub ai: CustomProps::AI,
 
-    // Internal status for ents which have a current movement direction.
-    // Also used for display
-    pub dir: CoordDelta,
+    // Solidity, e.g. wall, floor
+    pub pass: simple_custom_props::Pass,
 
     // Effect of intersecting hero
     pub effect: simple_custom_props::Effect,
@@ -46,11 +49,14 @@ impl<CustomProps: BaseCustomProps> LogicalProps<CustomProps> {
         Self {
             name: "????".to_string(),
 
+            dir: CoordDelta::from_xy(0, 0),
+
+            custom_props: CustomProps::default(),
+
             pass: simple_custom_props::Pass::Empty,
             ai: CustomProps::AI::default(),
             effect: simple_custom_props::Effect::Nothing,
 
-            dir: CoordDelta::from_xy(0, 0),
         }
     }
 
