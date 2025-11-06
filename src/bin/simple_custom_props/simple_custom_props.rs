@@ -4,9 +4,9 @@
 
 use crate::engine::for_gamedata::{BaseCustomProps, BaseAI};
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct SimpleCustomProps {
-    ai: SimpleAI,
+    pub ai: SimpleAI,
 }
 
 // TODO: Have separate "properties". Move "AI" into MovementLogic entirely??
@@ -17,6 +17,13 @@ impl BaseCustomProps for SimpleCustomProps {
         Self {
             ai: Self::AI::default(),
         }
+    }
+
+    fn is_hero(props: Self) -> bool {
+        props.ai == Self::AI::Hero
+    }
+    fn is_any_mov(props: Self) -> bool {
+        props.ai != Self::AI::Stay
     }
 }
 
@@ -48,12 +55,6 @@ pub enum SimpleAI {
 impl BaseAI for SimpleAI {
     fn default() -> SimpleAI {
         Self::Stay
-    }
-    fn is_hero(ai: Self) -> bool {
-        ai == Self::Hero
-    }
-    fn is_any_mov(ai: Self) -> bool {
-        ai != Self::Stay
     }
 }
 
