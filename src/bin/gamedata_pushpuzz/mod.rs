@@ -20,7 +20,6 @@
 
 mod levels;
 mod objs;
-mod obj_properties;
 
 use crate::engine::for_gamedata::*;
 
@@ -29,7 +28,7 @@ pub struct PushpuzzGamedata {
     levset: levels::PushpuzzLevset,
 }
 
-pub type PushpuzzCustomProps = obj_scripting_properties::DefaultCustomProps;
+pub type PushpuzzCustomProps = obj_scripting_properties::SimpleCustomProps;
 
 impl BaseGamedata for PushpuzzGamedata {
     type MovementLogic = super::scripts_pushpuzz::PushpuzzMovementLogic;

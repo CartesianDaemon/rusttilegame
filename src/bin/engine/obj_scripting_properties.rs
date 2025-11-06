@@ -8,10 +8,10 @@ pub trait BaseCustomProps : Clone + std::fmt::Debug + PartialEq {
 }
 
 #[derive(Clone, PartialEq, Debug)]
-pub struct DefaultCustomProps {
+pub struct SimpleCustomProps {
 }
 
-impl BaseCustomProps for DefaultCustomProps {
+impl BaseCustomProps for SimpleCustomProps {
     type AI = AI;
 
 }
