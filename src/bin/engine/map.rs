@@ -34,7 +34,7 @@ pub type DefaultMap = Map<obj_scripting_properties::DefaultObjScriptProps>;
 #[derive(Clone, Debug)]
 pub struct Map<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> {
     map: Grid<ObjScriptProps>,
-    roster: Roster<ObjScriptProps>,
+    roster: Roster,
     // Used to represent map as ascii for init and debugging. Not comprehensive.
     map_key: std::collections::HashMap<char, Vec<FreeObj<ObjScriptProps>>>,
 }
@@ -45,7 +45,7 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Map<ObjScript
     pub fn empty(w: u16, h: u16) -> Self {
         Self {
             map: Into::into(Grid::new(w, h)),
-            roster: Roster::<ObjScriptProps>::new(),
+            roster: Roster::new(),
             map_key: std::collections::HashMap::new(),
         }
     }
@@ -77,7 +77,7 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Map<ObjScript
         // TODO: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // TODO: Consider: Maybe display char moving out of sync with enemy.
-        let hero = Roster::<ObjScriptProps>::hero();
+        let hero = Roster::hero();
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.
@@ -184,7 +184,7 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Map<ObjScript
     // TODO: Not used by programming puzzle?
     #[allow(dead_code)]
     pub fn hero(&self) -> RosterIndex {
-        Roster::<ObjScriptProps>::hero()
+        Roster::hero()
     }
 
     /// Where object would move to based on current direction.
@@ -410,13 +410,13 @@ impl MapRef
 //
 // NOTE: Could currently be moved back into Map. Not borrowed separately.
 #[derive(Clone, Debug)]
-struct Roster<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> {
+struct Roster {
     pub hero: MapRef,
 
     movs: Vec<MapRef>,
 }
 
-impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Roster<ObjScriptProps> {
+impl Roster {
     pub fn new() -> Self {
         Self {
             hero: MapRef{x:0, y:0, h:1}, // Overwritten immediate, but can we avoid placeholder?
@@ -437,7 +437,7 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Roster<ObjScr
         (0..self.movs.len() as u16).into_iter().map(|ros_idx| RosterIndex { ros_idx } ).collect()
     }
 
-    fn add_to_roster_if_mov(&mut self, mapref: MapRef, props: &FreeObj<ObjScriptProps>) -> RosterIndex {
+    fn add_to_roster_if_mov<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps>(&mut self, mapref: MapRef, props: &FreeObj<ObjScriptProps>) -> RosterIndex {
         if LogicalProps::<ObjScriptProps>::is_hero(props.logical_props.ai) {
             self.hero = mapref;
             Self::hero()
@@ -450,7 +450,7 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Roster<ObjScr
     }
 }
 
-impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Index<RosterIndex> for Roster<ObjScriptProps> {
+impl Index<RosterIndex> for Roster {
     type Output = MapRef;
 
     fn index(&self, hdl: RosterIndex) -> &Self::Output {
@@ -464,7 +464,7 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Index<RosterI
     }
 }
 
-impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> IndexMut<RosterIndex> for Roster<ObjScriptProps> {
+impl IndexMut<RosterIndex> for Roster {
     fn index_mut(&mut self, hdl: RosterIndex) -> &mut Self::Output {
         let idx = hdl.ros_idx as usize;
         match idx {
