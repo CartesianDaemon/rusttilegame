@@ -29,7 +29,6 @@ pub struct ProgpuzzGamedata {
     levset: levels::ProgpuzzLevset,
 }
 
-// Need to move into scripts?
 pub type ProgpuzzCustomProps = obj_scripting_properties::DefaultCustomProps;
 
 impl BaseGamedata for ProgpuzzGamedata {

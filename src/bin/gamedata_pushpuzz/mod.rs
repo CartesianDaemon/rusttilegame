@@ -32,7 +32,7 @@ pub struct PushpuzzGamedata {
 pub type PushpuzzCustomProps = obj_scripting_properties::DefaultCustomProps;
 
 impl BaseGamedata for PushpuzzGamedata {
-    type MovementLogic = super::scripts_pushpuzz::PushpuzzScripts;
+    type MovementLogic = super::scripts_pushpuzz::PushpuzzMovementLogic;
     type CustomProps = PushpuzzCustomProps;
 
     fn new() -> Self {
@@ -45,7 +45,7 @@ impl BaseGamedata for PushpuzzGamedata {
         self.levset.advance_pane(continuation)
     }
 
-    fn load_pane(&self) -> Pane<PushpuzzCustomProps> {
+    fn load_pane(&self) -> Pane<Self::MovementLogic> {
         self.levset.load_pane()
     }
 }

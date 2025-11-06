@@ -13,10 +13,4 @@
 
 mod movement_logic;
 
-use crate::engine::for_scripting::*;
-
-pub struct PushpuzzScripts;
-
-impl BaseScripts for PushpuzzScripts {
-    type MovementLogic = movement_logic::PushpuzzMovementLogic;
-}
+pub use movement_logic::PushpuzzMovementLogic;
