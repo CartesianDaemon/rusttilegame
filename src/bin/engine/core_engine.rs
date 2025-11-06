@@ -20,7 +20,7 @@ struct Engine<Gamedata: BaseGamedata> {
     pub gamedata: Gamedata,
 
     /// Current state of gameplay, current level, mostly map etc.
-    play_state: Pane<<Gamedata::Scripts as BaseScripts>::MovementLogic>,
+    play_state: Pane<Gamedata::MovementLogic>,
 
     /// Smoothly from 0 to 1 transition from previous state to current state
     /// TODO: Move into play?
@@ -56,7 +56,7 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
         self.input.read_input();
 
         if self.play_state.is_continuous() || self.input.ready_to_advance_game_state(&mut self.anim_real_pc, &mut self.slide_real_pc) {
-            let pane_continuation = self.play_state.advance::<Gamedata::Scripts>(&mut self.input);
+            let pane_continuation = self.play_state.advance(&mut self.input);
             if let PaneContinuation::Break(pane_ending) = pane_continuation {
                 self.play_state = self.gamedata.load_next_pane(pane_ending);
             }

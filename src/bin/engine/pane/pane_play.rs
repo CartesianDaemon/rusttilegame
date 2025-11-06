@@ -29,7 +29,7 @@ impl<MovementLogic: super::super::for_scripting::BaseMovementLogic> Play<Movemen
         }
     }
 
-    pub fn advance<Scripts: super::super::for_scripting::BaseScripts>(&mut self, input : &mut Input) -> PaneContinuation  {
+    pub fn advance(&mut self, input : &mut Input) -> PaneContinuation  {
         let cmd = input.consume_cmd().unwrap_or(Cmd::default_cmd());
         self.field.advance(cmd)
     }

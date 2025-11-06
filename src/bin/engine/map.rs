@@ -17,7 +17,7 @@ use culpa::try_fn;
 
 use super::pane::PaneContinuation;
 use super::obj_scripting_properties;
-use super::for_scripting::{BaseScripts, BaseMovementLogic};
+use super::for_scripting::BaseMovementLogic;
 
 use super::map_coords::*;
 

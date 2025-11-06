@@ -50,9 +50,9 @@ impl<MovementLogic: super::super::for_scripting::BaseMovementLogic> Pane<Movemen
     }
 
     // Advance game state. Called when clock ticks or when user inputs.
-    pub fn advance<Scripts: super::super::for_scripting::BaseScripts>(&mut self, input : &mut Input) -> PaneContinuation {
+    pub fn advance(&mut self, input : &mut Input) -> PaneContinuation {
         match self {
-            Self::Play(play) => play.advance::<Scripts>(input),
+            Self::Play(play) => play.advance::<MovementLogic>(input),
             Self::Splash(play) => play.advance(input),
         }
     }

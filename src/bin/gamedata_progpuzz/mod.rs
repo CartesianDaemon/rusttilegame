@@ -33,7 +33,7 @@ pub struct ProgpuzzGamedata {
 pub type ProgpuzzCustomProps = obj_scripting_properties::DefaultCustomProps;
 
 impl BaseGamedata for ProgpuzzGamedata {
-    type Scripts = super::scripts_progpuzz::ProgpuzzScripts;
+    type MovementLogic = super::scripts_progpuzz::ProgpuzzScripts;
     type CustomProps = ProgpuzzCustomProps;
 
     fn new() -> Self {

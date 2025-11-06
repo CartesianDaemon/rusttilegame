@@ -27,7 +27,9 @@ impl Render {
     }
 
     /// Draw current gameplay to screen.
-    pub async fn draw_frame<CustomProps: obj_scripting_properties::BaseCustomProps>(&mut self, play_state: &Pane<CustomProps>, slide_real_pc: f32, anim_real_pc: f32) {
+    pub async fn draw_frame<MovementLogic: crate::engine::for_gamedata::BaseMovementLogic>(
+        &mut self, play_state: &Pane<MovementLogic>, slide_real_pc: f32, anim_real_pc: f32
+    ) {
         // ENH: Avoid passing in whole Play object.
         match play_state {
             Pane::Play(play_state) => {
