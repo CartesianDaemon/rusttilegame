@@ -33,7 +33,7 @@ pub struct ProgpuzzGamedata {
 pub type ProgpuzzCustomProps = obj_scripting_properties::DefaultCustomProps;
 
 impl BaseGamedata for ProgpuzzGamedata {
-    type MovementLogic = super::scripts_progpuzz::ProgpuzzScripts;
+    type MovementLogic = super::scripts_progpuzz::ProgpuzzMovementLogic;
     type CustomProps = ProgpuzzCustomProps;
 
     fn new() -> Self {
@@ -46,7 +46,7 @@ impl BaseGamedata for ProgpuzzGamedata {
         self.levset.advance_pane(continuation)
     }
 
-    fn load_pane(&self) -> Pane::<Self::CustomProps> {
+    fn load_pane(&self) -> Pane::<Self::MovementLogic> {
         self.levset.load_pane()
     }
 }

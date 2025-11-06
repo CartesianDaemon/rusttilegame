@@ -9,10 +9,4 @@
 
 mod movement_logic;
 
-use crate::engine::for_scripting::*;
-
-pub struct ProgpuzzScripts;
-
-impl BaseScripts for ProgpuzzScripts {
-    type MovementLogic = movement_logic::ProgpuzzMovementLogic;
-}
+pub use movement_logic::ProgpuzzMovementLogic;
