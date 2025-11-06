@@ -1,14 +1,12 @@
 // TODO: Add these types to BaseScripts struct??
 use crate::engine::for_scripting::*;
 
-type Map = crate::engine::for_scripting::Map<super::super::gamedata_progpuzz::ProgpuzzCustomProps>;
-
-pub fn passable(field: &Map, pos: MapCoord) -> bool {
+pub fn passable<MovementLogic: BaseMovementLogic>(field: &Map<MovementLogic>, pos: MapCoord) -> bool {
     field.all_pass(pos, Pass::Empty)
 }
 
 #[allow(dead_code)]
-pub fn impassable(field: &Map, pos: MapCoord) -> bool {
+pub fn impassable<MovementLogic: BaseMovementLogic>(field: &Map<MovementLogic>, pos: MapCoord) -> bool {
     !passable(field, pos)
 }
 
