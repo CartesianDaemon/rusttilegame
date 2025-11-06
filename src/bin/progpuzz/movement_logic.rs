@@ -24,21 +24,18 @@ impl BaseCustomProps for ProgpuzzCustomProps {
     }
 
     fn is_hero(props: Self) -> bool {
-        props.ai == ProgpuzzAI::Hero
+        props.ai == ProgpuzzAI::Prog
     }
     fn is_any_mov(props: Self) -> bool {
         props.ai != ProgpuzzAI::Stay
     }
 }
 
-// Types of movement-control logic ents can use
-// TODO: Make a copy for each game specialisatoin with different types.
 #[derive(Copy, Clone, PartialEq, Debug)]
 #[allow(dead_code)]
 pub enum ProgpuzzAI {
-    Stay, // No self movement. Not added to Roster's list of movs.
-    Hero, // Controlled by keys. Assume only one hero, added to Roster's hero entry.
-    // Everything else may spontaneously move or need to be enumerated, ie needs to be added to roster.
+    Stay, // No self movement. Engine doesn't track specially.
+    Prog, // Controlled by program assembled by player.
 }
 
 pub struct ProgpuzzMovementLogic;
@@ -49,7 +46,7 @@ impl BaseMovementLogic for ProgpuzzMovementLogic
 
     fn move_mov(map: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
         match map[mov].logical_props.custom_props.ai {
-            ProgpuzzAI::Hero => {
+            ProgpuzzAI::Prog => {
                 // TODO make sure cmd makes sense as program instruction not key
                 if cmd != Cmd::Stay {
                     let target_pos = map[mov].pos() + cmd.as_dir();
