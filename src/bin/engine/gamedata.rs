@@ -4,16 +4,13 @@
 
 use super::pane::{Pane, PaneEnding};
 
-pub trait BaseAI : Copy + PartialEq + std::fmt::Debug {
-    /// Used to create default LogicalProps.
-    /// Might not be needed if more logic moves into Gamedata.
-    /// TODO: Can remove now??
-    fn default() -> Self;
-}
-
+// TODO: Don't need to for the first two games, but can move Pass and
+// Effect in here. Or better, make a SimpleObjectInteractions type
+// which isn't required but different MovementLogic customisations can
+// use.
+// TODO: Could merge CustomProps into MovementLogic, as CustomLogic.
+// Defn would be mostly props. Impl would be mostly logic.
 pub trait BaseCustomProps : Clone + Copy + std::fmt::Debug + PartialEq {
-    type AI : BaseAI;
-
     fn default() -> Self;
 
     fn is_hero(props: Self) -> bool;
@@ -33,7 +30,6 @@ pub trait BaseMovementLogic : Sized {
 pub trait BaseGamedata {
     type CustomProps : BaseCustomProps;
     type MovementLogic : BaseMovementLogic;
-    //type XAI;
 
     fn new() -> Self;
 

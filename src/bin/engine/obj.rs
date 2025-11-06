@@ -31,13 +31,15 @@ pub struct LogicalProps<CustomProps: BaseCustomProps> {
     // Also used for display
     pub dir: CoordDelta,
 
-    // TODO: Subsume most fields in here
+    // Custom properties used by movement logic.
     pub custom_props: CustomProps,
 
     // Solidity, e.g. wall, floor
+    // TODO: Eventually merge into custom_props.
     pub pass: simple_custom_props::Pass,
 
     // Effect of intersecting hero
+    // TODO: Eventually merge into custom_props.
     pub effect: simple_custom_props::Effect,
 }
 

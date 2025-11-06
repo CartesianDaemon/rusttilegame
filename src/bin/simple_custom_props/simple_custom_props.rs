@@ -1,29 +1,24 @@
-// Properties of objects related to scripting.
-// NB: Would be nice to subsume into one CustomProps struct. Defined in
-// specialised game data, a member of LogicalProps.
+// Types used by common implementations of CustomProps.
 
-use crate::engine::for_gamedata::{BaseCustomProps, BaseAI};
+use crate::engine::for_gamedata::BaseCustomProps;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct SimpleCustomProps {
     pub ai: SimpleAI,
 }
 
-// TODO: Have separate "properties". Move "AI" into MovementLogic entirely??
 impl BaseCustomProps for SimpleCustomProps {
-    type AI = SimpleAI;
-
     fn default() -> Self {
         Self {
-            ai: Self::AI::default(),
+            ai: SimpleAI::Stay,
         }
     }
 
     fn is_hero(props: Self) -> bool {
-        props.ai == Self::AI::Hero
+        props.ai == SimpleAI::Hero
     }
     fn is_any_mov(props: Self) -> bool {
-        props.ai != Self::AI::Stay
+        props.ai != SimpleAI::Stay
     }
 }
 
@@ -37,10 +32,7 @@ pub enum Pass {
 }
 
 // Types of movement-control logic ents can use
-// ObjProperties struct data depends on this, but no engine functions do.
-// TODO: Want to move the types back to game-specific scripting obj_properties.rs.
-// Should be easy. But need to template ObjProperties on that. And what special cases for
-// is_hero, is_mob, etc defined in engine.
+// TODO: Make a copy for each game specialisatoin with different types.
 #[derive(Copy, Clone, PartialEq, Debug)]
 #[allow(dead_code)]
 pub enum SimpleAI {
@@ -50,12 +42,6 @@ pub enum SimpleAI {
     Bounce, // Move in direction, reverse direction at walls.
     Drift, // Move in direction, reverse direction at walls, move diagonally towards hero at reversal.
     Scuttle, // Move in direction, when hit wall change to move orthogonally towards hero.
-}
-
-impl BaseAI for SimpleAI {
-    fn default() -> SimpleAI {
-        Self::Stay
-    }
 }
 
 // Effect when intersect with hero (as mov or stay)
