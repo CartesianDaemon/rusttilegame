@@ -13,6 +13,8 @@ pub trait BaseAI : Copy + PartialEq + std::fmt::Debug {
 }
 
 pub trait BaseCustomProps : Clone + std::fmt::Debug + PartialEq {
+    type AI : BaseAI;
+
     fn default() -> Self;
 }
 
@@ -20,9 +22,8 @@ use super::map::Map;
 use super::map::RosterIndex;
 use super::for_gamedata::Cmd;
 use super::pane::PaneContinuation;
-pub trait BaseMovementLogic : Sized + PartialEq {
+pub trait BaseMovementLogic : Sized {
     type CustomProps : BaseCustomProps;
-    type AI : BaseAI;
     fn move_mov(map: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation;
 }
 
