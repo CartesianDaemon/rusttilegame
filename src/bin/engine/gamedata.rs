@@ -1,4 +1,4 @@
-//use crate::engine::obj_scripting_properties;
+//use crate::engine::simple_custom_props;
 
 use crate::engine::for_gamedata::BaseCustomProps;
 

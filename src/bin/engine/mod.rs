@@ -15,7 +15,7 @@ mod gamedata;
 mod input;
 mod pane;
 mod obj;
-pub mod obj_scripting_properties; // pub only needed temporarily??
+pub mod simple_custom_props; // pub only needed temporarily??
 
 // Used in main() function
 pub use core_engine::run;
@@ -26,7 +26,7 @@ pub mod for_scripting {
     pub use super::map_coords::*;
     pub use super::pane::{PaneContinuation, PaneEnding};
     pub use super::gamedata::BaseMovementLogic;
-    pub use crate::engine::obj_scripting_properties::*;
+    pub use crate::engine::simple_custom_props::*;
 }
 
 // Engine exports needed for writing game data.
@@ -38,8 +38,8 @@ pub mod for_gamedata {
     pub use super::gamedata::*;
     pub use super::pane::{Pane, PaneEnding};
     pub use super::map_coords::*;
-    pub use crate::engine::obj_scripting_properties;
-    pub use crate::engine::obj_scripting_properties::*;
+    pub use crate::engine::simple_custom_props;
+    pub use crate::engine::simple_custom_props::*;
 }
 
 mod engine_tests;

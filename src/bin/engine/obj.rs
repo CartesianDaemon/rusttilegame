@@ -1,6 +1,6 @@
 use super::map_coords::CoordDelta;
-use super::obj_scripting_properties;
-use super::obj_scripting_properties::{BaseCustomProps, BaseAI};
+use super::simple_custom_props;
+use super::simple_custom_props::{BaseCustomProps, BaseAI};
 
 use macroquad::prelude::*;
 
@@ -28,7 +28,7 @@ pub struct LogicalProps<CustomProps: BaseCustomProps> {
     pub name: String,
 
     // Solidity, e.g. wall, floor
-    pub pass: obj_scripting_properties::Pass,
+    pub pass: simple_custom_props::Pass,
 
     // Movement control logic for enemies
     pub ai: CustomProps::AI,
@@ -38,7 +38,7 @@ pub struct LogicalProps<CustomProps: BaseCustomProps> {
     pub dir: CoordDelta,
 
     // Effect of intersecting hero
-    pub effect: obj_scripting_properties::Effect,
+    pub effect: simple_custom_props::Effect,
 }
 
 impl<CustomProps: BaseCustomProps> LogicalProps<CustomProps> {
@@ -46,9 +46,9 @@ impl<CustomProps: BaseCustomProps> LogicalProps<CustomProps> {
         Self {
             name: "????".to_string(),
 
-            pass: obj_scripting_properties::Pass::Empty,
+            pass: simple_custom_props::Pass::Empty,
             ai: CustomProps::AI::default(),
-            effect: obj_scripting_properties::Effect::Nothing,
+            effect: simple_custom_props::Effect::Nothing,
 
             dir: CoordDelta::from_xy(0, 0),
         }

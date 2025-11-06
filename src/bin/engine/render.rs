@@ -10,7 +10,7 @@ use super::pane::Pane;
 use super::map::MapObj;
 //use super::obj::VisualProps;
 use super::map_coords::CoordDelta;
-use super::obj_scripting_properties;
+use super::simple_custom_props;
 
 type TextureCache = HashMap<String, Texture2D>;
 
@@ -115,7 +115,7 @@ impl<'a> RenderLev<'a> {
 
     // Draw ent's texture/colour to the screen at specified tile coords.
     // Works out pixel coords given pixel size of play area in RenderLev.
-    pub async fn draw_ent<CustomProps: obj_scripting_properties::BaseCustomProps>(
+    pub async fn draw_ent<CustomProps: simple_custom_props::BaseCustomProps>(
         self: &mut RenderLev<'a>,
         // View coords in map. Relative to first visible tile (currently always the same).
         vx: i16,

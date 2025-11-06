@@ -31,7 +31,7 @@ pub struct ProgpuzzGamedata {
     levset: levels::ProgpuzzLevset,
 }
 
-pub type ProgpuzzCustomProps = obj_scripting_properties::SimpleCustomProps;
+pub type ProgpuzzCustomProps = simple_custom_props::SimpleCustomProps;
 
 impl BaseGamedata for ProgpuzzGamedata {
     type MovementLogic = super::progpuzz::ProgpuzzMovementLogic;

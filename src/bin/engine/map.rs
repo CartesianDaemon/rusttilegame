@@ -16,7 +16,7 @@ use culpa::try_fn;
 // use crate::engine::obj;
 
 use super::pane::PaneContinuation;
-use super::obj_scripting_properties;
+use super::simple_custom_props;
 use super::for_scripting::BaseMovementLogic;
 
 use super::map_coords::*;
@@ -193,11 +193,11 @@ impl<MovementLogic: BaseMovementLogic> Map<MovementLogic> {
         self[roster_idx].refs.pos + self[roster_idx].logical_props.dir
     }
 
-    pub fn any_effect(&self, pos: MapCoord, sought_effect: obj_scripting_properties::Effect) -> bool {
+    pub fn any_effect(&self, pos: MapCoord, sought_effect: simple_custom_props::Effect) -> bool {
         self.map[pos].any_effect(sought_effect)
     }
 
-    pub fn all_pass(&self, pos: MapCoord, sought_pass: obj_scripting_properties::Pass) -> bool {
+    pub fn all_pass(&self, pos: MapCoord, sought_pass: simple_custom_props::Pass) -> bool {
         self.map[pos].all_pass(sought_pass)
     }
 
@@ -435,7 +435,7 @@ impl Roster {
         (0..self.movs.len() as u16).into_iter().map(|ros_idx| RosterIndex { ros_idx } ).collect()
     }
 
-    fn add_to_roster_if_mov<CustomProps: obj_scripting_properties::BaseCustomProps>(&mut self, mapref: MapRef, props: &FreeObj<CustomProps>) -> RosterIndex {
+    fn add_to_roster_if_mov<CustomProps: simple_custom_props::BaseCustomProps>(&mut self, mapref: MapRef, props: &FreeObj<CustomProps>) -> RosterIndex {
         if LogicalProps::<CustomProps>::is_hero(props.logical_props.ai) {
             self.hero = mapref;
             Self::hero()
@@ -477,25 +477,25 @@ impl IndexMut<RosterIndex> for Roster {
 
 // "Location": Everything at a single coordinate in the current room.
 #[derive(Debug, Clone)]
-pub struct Loc<CustomProps: obj_scripting_properties::BaseCustomProps> {
+pub struct Loc<CustomProps: simple_custom_props::BaseCustomProps> {
     objs: Vec<MapObj<CustomProps>>
 }
 
 /// One square in map. Defined by the stack of objects in that square.
-impl<CustomProps: obj_scripting_properties::BaseCustomProps> Loc<CustomProps> {
+impl<CustomProps: simple_custom_props::BaseCustomProps> Loc<CustomProps> {
     pub fn new() -> Self {
         Loc { objs: vec![] }
     }
 
-    pub fn any_effect(&self, sought_effect: obj_scripting_properties::Effect) -> bool {
+    pub fn any_effect(&self, sought_effect: simple_custom_props::Effect) -> bool {
         self.objs.iter().any(|x| x.logical_props.effect == sought_effect)
     }
 
-    pub fn any_pass(&self, sought_pass: obj_scripting_properties::Pass) -> bool {
+    pub fn any_pass(&self, sought_pass: simple_custom_props::Pass) -> bool {
         self.objs.iter().any(|x| x.logical_props.pass == sought_pass)
     }
 
-    pub fn all_pass(&self, sought_pass: obj_scripting_properties::Pass) -> bool {
+    pub fn all_pass(&self, sought_pass: simple_custom_props::Pass) -> bool {
         self.objs.iter().all(|x| x.logical_props.pass == sought_pass)
     }
 
@@ -523,7 +523,7 @@ impl<CustomProps: obj_scripting_properties::BaseCustomProps> Loc<CustomProps> {
     }
 }
 
-impl<CustomProps: obj_scripting_properties::BaseCustomProps> IntoIterator for Loc<CustomProps>  {
+impl<CustomProps: simple_custom_props::BaseCustomProps> IntoIterator for Loc<CustomProps>  {
     type Item = <Vec<MapObj<CustomProps>> as IntoIterator>::Item;
     type IntoIter = <Vec<MapObj<CustomProps>> as IntoIterator>::IntoIter;
 
@@ -532,7 +532,7 @@ impl<CustomProps: obj_scripting_properties::BaseCustomProps> IntoIterator for Lo
     }
 }
 
-impl<'a, CustomProps: obj_scripting_properties::BaseCustomProps> IntoIterator for &'a Loc<CustomProps> {
+impl<'a, CustomProps: simple_custom_props::BaseCustomProps> IntoIterator for &'a Loc<CustomProps> {
     type Item = <&'a Vec<MapObj<CustomProps>> as IntoIterator>::Item;
     type IntoIter = <&'a Vec<MapObj<CustomProps>> as IntoIterator>::IntoIter;
 
@@ -541,7 +541,7 @@ impl<'a, CustomProps: obj_scripting_properties::BaseCustomProps> IntoIterator fo
     }
 }
 
-impl<CustomProps: obj_scripting_properties::BaseCustomProps> Index<u16> for Loc<CustomProps> {
+impl<CustomProps: simple_custom_props::BaseCustomProps> Index<u16> for Loc<CustomProps> {
     type Output = MapObj<CustomProps>;
 
     fn index(&self, h: u16) -> &Self::Output {
@@ -549,21 +549,21 @@ impl<CustomProps: obj_scripting_properties::BaseCustomProps> Index<u16> for Loc<
     }
 }
 
-impl<CustomProps: obj_scripting_properties::BaseCustomProps> IndexMut<u16> for Loc<CustomProps> {
+impl<CustomProps: simple_custom_props::BaseCustomProps> IndexMut<u16> for Loc<CustomProps> {
     fn index_mut(&mut self, h: u16) -> &mut Self::Output {
         &mut self.objs[h as usize]
     }
 }
 
-/// Specific object in map (Including current coords as well as LogicalProps::<obj_scripting_properties::DefaultCustomProps>, VisualProps)
+/// Specific object in map (Including current coords as well as LogicalProps::<simple_custom_props::DefaultCustomProps>, VisualProps)
 #[derive(Clone, Debug)]
-pub struct MapObj<CustomProps: obj_scripting_properties::BaseCustomProps> {
+pub struct MapObj<CustomProps: simple_custom_props::BaseCustomProps> {
     refs: Refs,
     pub logical_props: LogicalProps::<CustomProps>,
     pub visual_props: VisualProps,
 }
 
-impl<CustomProps: obj_scripting_properties::BaseCustomProps> MapObj<CustomProps> {
+impl<CustomProps: simple_custom_props::BaseCustomProps> MapObj<CustomProps> {
     pub fn pos(&self) -> MapCoord {
         self.refs.pos
     }

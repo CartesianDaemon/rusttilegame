@@ -32,7 +32,7 @@ pub struct PushpuzzGamedata {
     levset: levels::PushpuzzLevset,
 }
 
-pub type PushpuzzCustomProps = obj_scripting_properties::SimpleCustomProps;
+pub type PushpuzzCustomProps = simple_custom_props::SimpleCustomProps;
 
 impl BaseGamedata for PushpuzzGamedata {
     type MovementLogic = super::pushpuzz::PushpuzzMovementLogic;
