@@ -11,6 +11,7 @@ pub trait BaseCustomProps : Clone + std::fmt::Debug + PartialEq {
 pub struct SimpleCustomProps {
 }
 
+// TODO: Have separate "properties". Move "AI" into MovementLogic entirely??
 impl BaseCustomProps for SimpleCustomProps {
     type AI = AI;
 
