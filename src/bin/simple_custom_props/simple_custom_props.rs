@@ -6,12 +6,12 @@ use crate::engine::for_gamedata::{BaseCustomProps, BaseAI};
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct SimpleCustomProps {
-    ai: AI,
+    ai: SimpleAI,
 }
 
 // TODO: Have separate "properties". Move "AI" into MovementLogic entirely??
 impl BaseCustomProps for SimpleCustomProps {
-    type AI = AI;
+    type AI = SimpleAI;
 
 }
 
@@ -31,7 +31,7 @@ pub enum Pass {
 // is_hero, is_mob, etc defined in engine.
 #[derive(Copy, Clone, PartialEq, Debug)]
 #[allow(dead_code)]
-pub enum AI {
+pub enum SimpleAI {
     Stay, // No self movement. Not added to Roster's list of movs.
     Hero, // Controlled by keys. Assume only one hero, added to Roster's hero entry.
     // Everything else may spontaneously move or need to be enumerated, ie needs to be added to roster.
@@ -40,8 +40,8 @@ pub enum AI {
     Scuttle, // Move in direction, when hit wall change to move orthogonally towards hero.
 }
 
-impl BaseAI for AI {
-    fn default() -> AI {
+impl BaseAI for SimpleAI {
+    fn default() -> SimpleAI {
         Self::Stay
     }
     fn is_hero(ai: Self) -> bool {

@@ -18,7 +18,7 @@ impl BaseMovementLogic for ProgpuzzMovementLogic
 
     fn move_mov(field: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
         match field[mov].logical_props.ai {
-            AI::Hero => {
+            SimpleAI::Hero => {
                 // TODO make sure cmd makes sense as program instruction not key
                 if cmd != Cmd::Stay {
                     let target_pos = field[mov].pos() + cmd.as_dir();
@@ -33,16 +33,16 @@ impl BaseMovementLogic for ProgpuzzMovementLogic
                     PaneContinuation::Continue(())
                 }
             },
-            AI::Stay => {
+            SimpleAI::Stay => {
                 // Do nothing
             },
-            AI::Bounce => {
+            SimpleAI::Bounce => {
                 // ???? TODO: Remove. TODO combine two match branches.
             },
-            AI::Drift => {
+            SimpleAI::Drift => {
                 // ????
             },
-            AI::Scuttle => {
+            SimpleAI::Scuttle => {
                 // ????
             },
             }

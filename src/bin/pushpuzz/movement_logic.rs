@@ -19,10 +19,10 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
     fn move_mov(field: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
         let hero = field.hero();
         match field[mov].logical_props.ai {
-            AI::Stay => {
+            SimpleAI::Stay => {
                 // Do nothing
             },
-            AI::Hero => {
+            SimpleAI::Hero => {
                 if cmd != Cmd::Stay {
                     let target_pos = field[mov].pos() + cmd.as_dir();
                     if passable(field, target_pos) {
@@ -37,7 +37,7 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
                 }
                 // TODO: Also check if hero died? Usually superfluous if we don't allow moving into death.
             }
-            AI::Bounce => {
+            SimpleAI::Bounce => {
                 // TODO: Simplify duplication in field.obj_at(rich_mov.ros_idx) throughout?
 
                 // If moving would hit a wall, first reverse direction.
@@ -62,7 +62,7 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
                     return PaneContinuation::Break(PaneEnding::PlayDie);
                 }
             },
-            AI::Drift => {
+            SimpleAI::Drift => {
                 // TODO: Deal with collisions between movs
 
                 let mut drift_dir = CoordDelta::from_xy(0, 0);
@@ -83,7 +83,7 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
                             drift_dir = CoordDelta::from_xy(0, hero_dir.dy);
                         }
                     } else {
-                        panic!("AI::Drift only implemented for orthogal movement");
+                        panic!("SimpleAI::Drift only implemented for orthogal movement");
                     }
                 }
 
@@ -99,7 +99,7 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
                     return PaneContinuation::Break(PaneEnding::PlayDie);
                 }
             },
-            AI::Scuttle => {
+            SimpleAI::Scuttle => {
                 // If hitting wall, choose new direction.
                 if impassable(field, field.obj_target_pos(mov)) {
                     let hero_dir = field[mov].pos().dir_to(field[hero].pos());

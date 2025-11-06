@@ -10,7 +10,7 @@ pub fn new_hero_crab() -> FreeObj<super::SimpleCustomProps> {
         logical_props: LogicalProps::<SimpleCustomProps> {
             name:"Hero".to_string(),
             pass: Pass::Mov,
-            ai: AI::Hero,
+            ai: SimpleAI::Hero,
             .. LogicalProps::<SimpleCustomProps>::defaults()
         },
         visual_props: VisualProps::new_text_fill("HERO".to_string(), Some(GOLD), Some(BLACK))
