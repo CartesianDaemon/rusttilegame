@@ -1,20 +1,20 @@
 use super::map_coords::CoordDelta;
 use super::super::simple_custom_props;
-use super::for_gamedata::{BaseCustomProps, BaseAI};
+use super::for_gamedata::{BaseMovementLogic, BaseAI, BaseCustomProps};
 
 use macroquad::prelude::*;
 
 /// An Obj is anything tile-sized and drawable: floor, wall, object, being.
 /// Representing an object not placed in the map. May not be used.
 #[derive(Clone, Debug)]
-pub struct FreeObj<CustomProps: BaseCustomProps> {
-    pub logical_props: LogicalProps::<CustomProps>,
+pub struct FreeObj<MovementLogic: BaseMovementLogic> {
+    pub logical_props: LogicalProps::<MovementLogic>,
     pub visual_props: VisualProps,
 }
 
 /// Somewhat fuzzy match used for determining ascii representation.
 /// Ideally would have a different name not PartialEq.
-impl<CustomProps: BaseCustomProps> PartialEq for FreeObj<CustomProps> {
+impl<MovementLogic: BaseMovementLogic> PartialEq for FreeObj<MovementLogic> {
     fn eq(&self, other:&Self) -> bool {
         self.logical_props == other.logical_props
     }
@@ -23,7 +23,7 @@ impl<CustomProps: BaseCustomProps> PartialEq for FreeObj<CustomProps> {
 /// Logical properties of object, used for game logic and scripting.
 /// Some of this could be moved into Gamedata? With base trait for required props?
 #[derive(Clone, Debug, PartialEq)]
-pub struct LogicalProps<CustomProps: BaseCustomProps> {
+pub struct LogicalProps<MovementLogic: BaseMovementLogic> {
     /// String representation of object, used internally for debug fmt etc.
     pub name: String,
 
@@ -32,10 +32,10 @@ pub struct LogicalProps<CustomProps: BaseCustomProps> {
     pub dir: CoordDelta,
 
     // TODO: Subsume most fields in here
-    pub custom_props: CustomProps,
+    pub custom_props: MovementLogic::CustomProps,
 
     // Movement control logic for enemies
-    pub ai: CustomProps::AI,
+    pub ai: MovementLogic::AI,
 
     // Solidity, e.g. wall, floor
     pub pass: simple_custom_props::Pass,
@@ -44,39 +44,39 @@ pub struct LogicalProps<CustomProps: BaseCustomProps> {
     pub effect: simple_custom_props::Effect,
 }
 
-impl<CustomProps: BaseCustomProps> LogicalProps<CustomProps> {
+impl<MovementLogic: BaseMovementLogic> LogicalProps<MovementLogic> {
     pub fn defaults() -> Self {
         Self {
             name: "????".to_string(),
 
             dir: CoordDelta::from_xy(0, 0),
 
-            custom_props: CustomProps::default(),
+            custom_props: MovementLogic::CustomProps::default(),
 
             pass: simple_custom_props::Pass::Empty,
-            ai: CustomProps::AI::default(),
+            ai: MovementLogic::AI::default(),
             effect: simple_custom_props::Effect::Nothing,
 
         }
     }
 
     // FUNCTIONS REFERRING TO SPECIFIC PROPERTIES
-    // NB: Could replace with CustomProps::is_hero(CustomProps)
+    // NB: Could replace with MovementLogic::is_hero(MovementLogic)
     // NB: Could be combined if properties are made more generic.
 
     // Todo: Replace with more meaningful "is_hero" fn in scripts. Or obj_properties??
-    pub fn is_hero(ai: CustomProps::AI) -> bool {
-        CustomProps::AI::is_hero(ai)
+    pub fn is_hero(ai: MovementLogic::AI) -> bool {
+        MovementLogic::AI::is_hero(ai)
     }
 
     // Indicate Obj which can move in their own logic, and need to be added to roster.
-    pub fn is_mob(ai: CustomProps::AI) -> bool {
+    pub fn is_mob(ai: MovementLogic::AI) -> bool {
         Self::is_any_mov(ai) && ! Self::is_hero(ai)
     }
 
     // Mob or Hero
-    pub fn is_any_mov(ai: CustomProps::AI) -> bool {
-        CustomProps::AI::is_any_mov(ai)
+    pub fn is_any_mov(ai: MovementLogic::AI) -> bool {
+        MovementLogic::AI::is_any_mov(ai)
     }
 }
 

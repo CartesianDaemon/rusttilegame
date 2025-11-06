@@ -10,11 +10,13 @@ pub fn impassable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, po
     !passable(map, pos)
 }
 
+#[derive(PartialEq)]
 pub struct ProgpuzzMovementLogic;
 
 impl BaseMovementLogic for ProgpuzzMovementLogic
 {
     type CustomProps = super::super::simple_custom_props::SimpleCustomProps;
+    type AI = SimpleAI;
 
     fn move_mov(map: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
         match map[mov].logical_props.ai {
