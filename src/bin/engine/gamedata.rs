@@ -10,6 +10,7 @@ use super::pane::{Pane, PaneEnding};
 // use.
 // TODO: Could merge CustomProps into MovementLogic, as CustomLogic.
 // Defn would be mostly props. Impl would be mostly logic.
+// Is that where fns like "all(Passable)" live?
 pub trait BaseCustomProps : Clone + Copy + std::fmt::Debug + PartialEq {
     fn default() -> Self;
 

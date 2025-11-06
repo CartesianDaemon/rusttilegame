@@ -1,5 +1,6 @@
 // TODO: Add these types to BaseScripts struct??
 use crate::engine::for_scripting::*;
+use crate::engine::for_gamedata::*;
 
 pub fn passable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, pos: MapCoord) -> bool {
     map.all_pass(pos, Pass::Empty)
@@ -8,6 +9,39 @@ pub fn passable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, pos:
 #[allow(dead_code)]
 pub fn impassable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, pos: MapCoord) -> bool {
     !passable(map, pos)
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub struct ProgpuzzCustomProps {
+    pub ai: ProgpuzzAI,
+}
+
+impl BaseCustomProps for ProgpuzzCustomProps {
+    fn default() -> Self {
+        Self {
+            ai: ProgpuzzAI::Stay,
+        }
+    }
+
+    fn is_hero(props: Self) -> bool {
+        props.ai == ProgpuzzAI::Hero
+    }
+    fn is_any_mov(props: Self) -> bool {
+        props.ai != ProgpuzzAI::Stay
+    }
+}
+
+// Types of movement-control logic ents can use
+// TODO: Make a copy for each game specialisatoin with different types.
+#[derive(Copy, Clone, PartialEq, Debug)]
+#[allow(dead_code)]
+pub enum ProgpuzzAI {
+    Stay, // No self movement. Not added to Roster's list of movs.
+    Hero, // Controlled by keys. Assume only one hero, added to Roster's hero entry.
+    // Everything else may spontaneously move or need to be enumerated, ie needs to be added to roster.
+    Bounce, // Move in direction, reverse direction at walls.
+    Drift, // Move in direction, reverse direction at walls, move diagonally towards hero at reversal.
+    Scuttle, // Move in direction, when hit wall change to move orthogonally towards hero.
 }
 
 pub struct ProgpuzzMovementLogic;
