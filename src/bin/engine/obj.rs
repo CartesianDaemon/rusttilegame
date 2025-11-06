@@ -1,20 +1,20 @@
 use super::map_coords::CoordDelta;
 use super::obj_scripting_properties;
-use super::obj_scripting_properties::{BaseObjScriptProps, BaseAI};
+use super::obj_scripting_properties::{BaseCustomProps, BaseAI};
 
 use macroquad::prelude::*;
 
 /// An Obj is anything tile-sized and drawable: floor, wall, object, being.
 /// Representing an object not placed in the map. May not be used.
 #[derive(Clone, Debug)]
-pub struct FreeObj<ObjScriptProps: BaseObjScriptProps> {
-    pub logical_props: LogicalProps::<ObjScriptProps>,
+pub struct FreeObj<CustomProps: BaseCustomProps> {
+    pub logical_props: LogicalProps::<CustomProps>,
     pub visual_props: VisualProps,
 }
 
 /// Somewhat fuzzy match used for determining ascii representation.
 /// Ideally would have a different name not PartialEq.
-impl<ObjScriptProps: BaseObjScriptProps> PartialEq for FreeObj<ObjScriptProps> {
+impl<CustomProps: BaseCustomProps> PartialEq for FreeObj<CustomProps> {
     fn eq(&self, other:&Self) -> bool {
         self.logical_props == other.logical_props
     }
@@ -23,7 +23,7 @@ impl<ObjScriptProps: BaseObjScriptProps> PartialEq for FreeObj<ObjScriptProps> {
 /// Logical properties of object, used for game logic and scripting.
 /// Some of this could be moved into Gamedata? With base trait for required props?
 #[derive(Clone, Debug, PartialEq)]
-pub struct LogicalProps<ObjScriptProps: BaseObjScriptProps> {
+pub struct LogicalProps<CustomProps: BaseCustomProps> {
     /// String representation of object, used internally for debug fmt etc.
     pub name: String,
 
@@ -31,7 +31,7 @@ pub struct LogicalProps<ObjScriptProps: BaseObjScriptProps> {
     pub pass: obj_scripting_properties::Pass,
 
     // Movement control logic for enemies
-    pub ai: ObjScriptProps::AI,
+    pub ai: CustomProps::AI,
 
     // Internal status for ents which have a current movement direction.
     // Also used for display
@@ -41,13 +41,13 @@ pub struct LogicalProps<ObjScriptProps: BaseObjScriptProps> {
     pub effect: obj_scripting_properties::Effect,
 }
 
-impl<ObjScriptProps: BaseObjScriptProps> LogicalProps<ObjScriptProps> {
+impl<CustomProps: BaseCustomProps> LogicalProps<CustomProps> {
     pub fn defaults() -> Self {
         Self {
             name: "????".to_string(),
 
             pass: obj_scripting_properties::Pass::Empty,
-            ai: ObjScriptProps::AI::default(),
+            ai: CustomProps::AI::default(),
             effect: obj_scripting_properties::Effect::Nothing,
 
             dir: CoordDelta::from_xy(0, 0),
@@ -55,22 +55,22 @@ impl<ObjScriptProps: BaseObjScriptProps> LogicalProps<ObjScriptProps> {
     }
 
     // FUNCTIONS REFERRING TO SPECIFIC PROPERTIES
-    // NB: Could replace with ObjScriptProps::is_hero(ObjScriptProps)
+    // NB: Could replace with CustomProps::is_hero(CustomProps)
     // NB: Could be combined if properties are made more generic.
 
     // Todo: Replace with more meaningful "is_hero" fn in scripts. Or obj_properties??
-    pub fn is_hero(ai: ObjScriptProps::AI) -> bool {
-        ObjScriptProps::AI::is_hero(ai)
+    pub fn is_hero(ai: CustomProps::AI) -> bool {
+        CustomProps::AI::is_hero(ai)
     }
 
     // Indicate Obj which can move in their own logic, and need to be added to roster.
-    pub fn is_mob(ai: ObjScriptProps::AI) -> bool {
+    pub fn is_mob(ai: CustomProps::AI) -> bool {
         Self::is_any_mov(ai) && ! Self::is_hero(ai)
     }
 
     // Mob or Hero
-    pub fn is_any_mov(ai: ObjScriptProps::AI) -> bool {
-        ObjScriptProps::AI::is_any_mov(ai)
+    pub fn is_any_mov(ai: CustomProps::AI) -> bool {
+        CustomProps::AI::is_any_mov(ai)
     }
 }
 

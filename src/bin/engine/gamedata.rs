@@ -1,6 +1,6 @@
 //use crate::engine::obj_scripting_properties;
 
-use crate::engine::for_gamedata::BaseObjScriptProps;
+use crate::engine::for_gamedata::BaseCustomProps;
 
 /// Trait for interface needed for Games implemented in the Engine
 
@@ -13,8 +13,8 @@ use super::map::RosterIndex;
 use super::for_gamedata::Cmd;
 use super::pane::PaneContinuation;
 pub trait BaseMovementLogic {
-    type ObjScriptProps : BaseObjScriptProps;
-    fn move_mov(field: &mut Map<Self::ObjScriptProps>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation;
+    type CustomProps : BaseCustomProps;
+    fn move_mov(field: &mut Map<Self::CustomProps>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation;
 }
 pub trait BaseScripts {
     // TODO: Make combined Scripts+ObjProps object to template map on?
@@ -23,7 +23,7 @@ pub trait BaseScripts {
 
 /// Manages game-specific state, e.g. which level to go to next.
 pub trait BaseGamedata {
-    type ObjScriptProps : BaseObjScriptProps;
+    type CustomProps : BaseCustomProps;
     type Scripts : BaseScripts;
     //type XAI;
 
@@ -31,9 +31,9 @@ pub trait BaseGamedata {
 
     fn advance_pane(&mut self, continuation: PaneEnding);
 
-    fn load_pane(&self) -> Pane<Self::ObjScriptProps>;
+    fn load_pane(&self) -> Pane<Self::CustomProps>;
 
-    fn load_next_pane(&mut self, continuation: PaneEnding) -> Pane<Self::ObjScriptProps> {
+    fn load_next_pane(&mut self, continuation: PaneEnding) -> Pane<Self::CustomProps> {
         self.advance_pane(continuation);
         self.load_pane()
     }

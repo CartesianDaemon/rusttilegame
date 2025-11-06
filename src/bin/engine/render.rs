@@ -27,7 +27,7 @@ impl Render {
     }
 
     /// Draw current gameplay to screen.
-    pub async fn draw_frame<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps>(&mut self, play_state: &Pane<ObjScriptProps>, slide_real_pc: f32, anim_real_pc: f32) {
+    pub async fn draw_frame<CustomProps: obj_scripting_properties::BaseCustomProps>(&mut self, play_state: &Pane<CustomProps>, slide_real_pc: f32, anim_real_pc: f32) {
         // ENH: Avoid passing in whole Play object.
         match play_state {
             Pane::Play(play_state) => {
@@ -113,13 +113,13 @@ impl<'a> RenderLev<'a> {
 
     // Draw ent's texture/colour to the screen at specified tile coords.
     // Works out pixel coords given pixel size of play area in RenderLev.
-    pub async fn draw_ent<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps>(
+    pub async fn draw_ent<CustomProps: obj_scripting_properties::BaseCustomProps>(
         self: &mut RenderLev<'a>,
         // View coords in map. Relative to first visible tile (currently always the same).
         vx: i16,
         vy: i16,
         // Ent to draw
-        obj: &MapObj<ObjScriptProps>,
+        obj: &MapObj<CustomProps>,
         // Proportion of animation from previous state to current (frame)
         anim_pc: f32,
         // Proportion of animation from previous state to current (position)
@@ -152,7 +152,7 @@ impl<'a> RenderLev<'a> {
         let w = self.sq_w * pc_size;
         let h = self.sq_h * pc_size;
 
-        if !LogicalProps::<ObjScriptProps>::is_any_mov(logical_props.ai) {rsst!(prev_pos == pos)}
+        if !LogicalProps::<CustomProps>::is_any_mov(logical_props.ai) {rsst!(prev_pos == pos)}
 
         let alpha = 1.;
 

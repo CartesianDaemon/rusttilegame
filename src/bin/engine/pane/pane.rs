@@ -20,12 +20,12 @@ pub type PaneContinuation = ControlFlow<PaneEnding, ()>;
 ///
 /// Would be nice to have base trait for pane types. Look for helper crate?
 #[derive(Clone, Debug)]
-pub enum Pane<ObjScriptProps: super::super::obj_scripting_properties::BaseObjScriptProps> {
-    Play(Play<ObjScriptProps>),
+pub enum Pane<CustomProps: super::super::obj_scripting_properties::BaseCustomProps> {
+    Play(Play<CustomProps>),
     Splash(Splash),
 }
 
-impl<ObjScriptProps: super::super::obj_scripting_properties::BaseObjScriptProps> Pane<ObjScriptProps> {
+impl<CustomProps: super::super::obj_scripting_properties::BaseCustomProps> Pane<CustomProps> {
     pub fn from_splash_string(txt: String) -> Self {
         Pane::Splash(Splash::from_string(txt))
     }
@@ -36,7 +36,7 @@ impl<ObjScriptProps: super::super::obj_scripting_properties::BaseObjScriptProps>
 
     pub fn from_play_ascii_map<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
-        map_key: HashMap<char, Vec<FreeObj<ObjScriptProps>>>,
+        map_key: HashMap<char, Vec<FreeObj<CustomProps>>>,
     ) -> Self {
         Pane::Play(Play::from_ascii(ascii_map, map_key))
     }
@@ -58,7 +58,7 @@ impl<ObjScriptProps: super::super::obj_scripting_properties::BaseObjScriptProps>
     }
 
     #[cfg(test)]
-    pub fn as_play(&self) -> &Play<ObjScriptProps> {
+    pub fn as_play(&self) -> &Play<CustomProps> {
         match self {
             Self::Play(play) => &play,
             Self::Splash(_splash) => panic!(),

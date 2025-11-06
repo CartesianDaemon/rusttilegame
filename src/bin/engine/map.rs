@@ -30,14 +30,14 @@ pub struct RosterIndex {
 
 /// Grid together with Ros. Those are two separate classes so they can more easily be borrowed separately.
 #[derive(Clone, Debug)]
-pub struct Map<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> {
-    map: Grid<ObjScriptProps>,
+pub struct Map<CustomProps: obj_scripting_properties::BaseCustomProps> {
+    map: Grid<CustomProps>,
     roster: Roster,
     // Used to represent map as ascii for init and debugging. Not comprehensive.
-    map_key: std::collections::HashMap<char, Vec<FreeObj<ObjScriptProps>>>,
+    map_key: std::collections::HashMap<char, Vec<FreeObj<CustomProps>>>,
 }
 
-impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Map<ObjScriptProps> {
+impl<CustomProps: obj_scripting_properties::BaseCustomProps> Map<CustomProps> {
     /////////////////
     /// Initialisers
     pub fn empty(w: u16, h: u16) -> Self {
@@ -50,7 +50,7 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Map<ObjScript
 
     pub fn from_map_and_key<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
-        map_key: HashMap<char, Vec<FreeObj<ObjScriptProps>>>,
+        map_key: HashMap<char, Vec<FreeObj<CustomProps>>>,
     ) -> Self {
         let mut field = Self {
             map_key: map_key.clone(),
@@ -104,7 +104,7 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Map<ObjScript
     }
 
     // TODO: Any better way to expose this for iterating?
-    pub fn map_locs(&self) -> LocIterator<ObjScriptProps> {
+    pub fn map_locs(&self) -> LocIterator<CustomProps> {
         self.map.locs()
     }
 
@@ -119,7 +119,7 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Map<ObjScript
     /// TODO: Actually, add some interface there to avoid &mut Backref
 
     /// Spawn new object.
-    pub fn spawn_obj_at(&mut self, x: i16, y:i16, template_obj: FreeObj<ObjScriptProps>)
+    pub fn spawn_obj_at(&mut self, x: i16, y:i16, template_obj: FreeObj<CustomProps>)
     {
         let pos = MapCoord::from_xy(x, y);
         let h = self.map[pos].objs.len() as u16;
@@ -129,7 +129,7 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Map<ObjScript
             pos,
             prev_pos: pos,
         };
-        let obj = MapObj::<ObjScriptProps>{
+        let obj = MapObj::<CustomProps>{
             refs: mappos,
             logical_props: template_obj.logical_props,
             visual_props: template_obj.visual_props,
@@ -229,8 +229,8 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Map<ObjScript
     }
 }
 
-impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Index<RosterIndex> for Map<ObjScriptProps> {
-    type Output = MapObj<ObjScriptProps>;
+impl<CustomProps: obj_scripting_properties::BaseCustomProps> Index<RosterIndex> for Map<CustomProps> {
+    type Output = MapObj<CustomProps>;
 
     fn index(&self, roster_idx: RosterIndex) -> &Self::Output {
         let mapref = self.roster[roster_idx];
@@ -238,7 +238,7 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Index<RosterI
     }
 }
 
-impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> IndexMut<RosterIndex> for Map<ObjScriptProps> {
+impl<CustomProps: obj_scripting_properties::BaseCustomProps> IndexMut<RosterIndex> for Map<CustomProps> {
     fn index_mut(&mut self, roster_idx: RosterIndex) -> &mut Self::Output {
         let mapref = self.roster[roster_idx];
         &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h]
@@ -256,13 +256,13 @@ pub struct Refs {
 /// "Map": Grid of locations. Represents state of current level.
 /// NOTE: Could currently be moved back into Map. Not borrowed separately.
 #[derive(Clone)]
-struct Grid<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> {
+struct Grid<CustomProps: obj_scripting_properties::BaseCustomProps> {
     // Stored as a collection of columns, e.g. map.locs[x][y]
     // Must always be rectangular.
-    locs: Vec<Vec<Loc<ObjScriptProps>>>,
+    locs: Vec<Vec<Loc<CustomProps>>>,
 }
 
-impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Grid<ObjScriptProps> {
+impl<CustomProps: obj_scripting_properties::BaseCustomProps> Grid<CustomProps> {
     pub fn new(w: u16, h: u16) -> Self {
         Self {
             locs: vec!(vec!(Loc::new(); h.into()); w.into()),
@@ -277,7 +277,7 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Grid<ObjScrip
         self.locs[0].len() as u16
     }
 
-    pub fn locs(&self) -> LocIterator<ObjScriptProps> {
+    pub fn locs(&self) -> LocIterator<CustomProps> {
         LocIterator {
             w: self.w(),
             h: self.h(),
@@ -288,21 +288,21 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Grid<ObjScrip
     }
 }
 
-impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Index<MapCoord> for Grid<ObjScriptProps> {
-    type Output = Loc<ObjScriptProps>;
+impl<CustomProps: obj_scripting_properties::BaseCustomProps> Index<MapCoord> for Grid<CustomProps> {
+    type Output = Loc<CustomProps>;
 
     fn index(&self, pos: MapCoord) -> &Self::Output {
         &self.locs[pos.x as usize][pos.y as usize]
     }
 }
 
-impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> IndexMut<MapCoord> for Grid<ObjScriptProps> {
+impl<CustomProps: obj_scripting_properties::BaseCustomProps> IndexMut<MapCoord> for Grid<CustomProps> {
     fn index_mut(&mut self, pos: MapCoord) -> &mut Self::Output {
         &mut self.locs[pos.x as usize][pos.y as usize]
     }
 }
 
-impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> std::fmt::Debug for Grid<ObjScriptProps> {
+impl<CustomProps: obj_scripting_properties::BaseCustomProps> std::fmt::Debug for Grid<CustomProps> {
     #[try_fn]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         write!(f, "Map[")?;
@@ -325,7 +325,7 @@ pub struct CoordIterator {
     y: i16,
 }
 
-pub struct LocIterator<'a, ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> {
+pub struct LocIterator<'a, CustomProps: obj_scripting_properties::BaseCustomProps> {
     // Original dimensions to iterate up to
     w: u16,
     h: u16,
@@ -333,7 +333,7 @@ pub struct LocIterator<'a, ObjScriptProps: obj_scripting_properties::BaseObjScri
     x: i16,
     y: i16,
     // Pointer back to original collection
-    map: &'a Grid<ObjScriptProps>,
+    map: &'a Grid<CustomProps>,
 }
 
 impl Iterator for CoordIterator {
@@ -357,8 +357,8 @@ impl Iterator for CoordIterator {
     }
 }
 
-impl<'a, ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Iterator for LocIterator<'a, ObjScriptProps> {
-    type Item = (i16, i16, &'a Loc<ObjScriptProps>);
+impl<'a, CustomProps: obj_scripting_properties::BaseCustomProps> Iterator for LocIterator<'a, CustomProps> {
+    type Item = (i16, i16, &'a Loc<CustomProps>);
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.y < (self.h-1) as i16 {
@@ -435,11 +435,11 @@ impl Roster {
         (0..self.movs.len() as u16).into_iter().map(|ros_idx| RosterIndex { ros_idx } ).collect()
     }
 
-    fn add_to_roster_if_mov<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps>(&mut self, mapref: MapRef, props: &FreeObj<ObjScriptProps>) -> RosterIndex {
-        if LogicalProps::<ObjScriptProps>::is_hero(props.logical_props.ai) {
+    fn add_to_roster_if_mov<CustomProps: obj_scripting_properties::BaseCustomProps>(&mut self, mapref: MapRef, props: &FreeObj<CustomProps>) -> RosterIndex {
+        if LogicalProps::<CustomProps>::is_hero(props.logical_props.ai) {
             self.hero = mapref;
             Self::hero()
-        } else if LogicalProps::<ObjScriptProps>::is_mob(props.logical_props.ai) {
+        } else if LogicalProps::<CustomProps>::is_mob(props.logical_props.ai) {
             self.movs.push(mapref);
             RosterIndex { ros_idx: self.movs.len() as u16 - 1 }
         } else {
@@ -477,12 +477,12 @@ impl IndexMut<RosterIndex> for Roster {
 
 // "Location": Everything at a single coordinate in the current room.
 #[derive(Debug, Clone)]
-pub struct Loc<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> {
-    objs: Vec<MapObj<ObjScriptProps>>
+pub struct Loc<CustomProps: obj_scripting_properties::BaseCustomProps> {
+    objs: Vec<MapObj<CustomProps>>
 }
 
 /// One square in map. Defined by the stack of objects in that square.
-impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Loc<ObjScriptProps> {
+impl<CustomProps: obj_scripting_properties::BaseCustomProps> Loc<CustomProps> {
     pub fn new() -> Self {
         Loc { objs: vec![] }
     }
@@ -507,7 +507,7 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Loc<ObjScript
     }
 
     /// Only used by render() when unsure about height?
-    pub fn get(&self, idx: usize) -> Option<&MapObj<ObjScriptProps>> {
+    pub fn get(&self, idx: usize) -> Option<&MapObj<CustomProps>> {
         self.objs.get(idx)
     }
 
@@ -515,7 +515,7 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Loc<ObjScript
         self.objs.len()
     }
 
-    pub fn obj_props(&self) -> Vec<FreeObj<ObjScriptProps>> {
+    pub fn obj_props(&self) -> Vec<FreeObj<CustomProps>> {
         // TODO: Avoid clone
         self.objs.iter().map(|obj|
             FreeObj{logical_props:obj.logical_props.clone(), visual_props:obj.visual_props.clone()}
@@ -523,47 +523,47 @@ impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Loc<ObjScript
     }
 }
 
-impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> IntoIterator for Loc<ObjScriptProps>  {
-    type Item = <Vec<MapObj<ObjScriptProps>> as IntoIterator>::Item;
-    type IntoIter = <Vec<MapObj<ObjScriptProps>> as IntoIterator>::IntoIter;
+impl<CustomProps: obj_scripting_properties::BaseCustomProps> IntoIterator for Loc<CustomProps>  {
+    type Item = <Vec<MapObj<CustomProps>> as IntoIterator>::Item;
+    type IntoIter = <Vec<MapObj<CustomProps>> as IntoIterator>::IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
         self.objs.into_iter()
     }
 }
 
-impl<'a, ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> IntoIterator for &'a Loc<ObjScriptProps> {
-    type Item = <&'a Vec<MapObj<ObjScriptProps>> as IntoIterator>::Item;
-    type IntoIter = <&'a Vec<MapObj<ObjScriptProps>> as IntoIterator>::IntoIter;
+impl<'a, CustomProps: obj_scripting_properties::BaseCustomProps> IntoIterator for &'a Loc<CustomProps> {
+    type Item = <&'a Vec<MapObj<CustomProps>> as IntoIterator>::Item;
+    type IntoIter = <&'a Vec<MapObj<CustomProps>> as IntoIterator>::IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
         self.objs.iter()
     }
 }
 
-impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> Index<u16> for Loc<ObjScriptProps> {
-    type Output = MapObj<ObjScriptProps>;
+impl<CustomProps: obj_scripting_properties::BaseCustomProps> Index<u16> for Loc<CustomProps> {
+    type Output = MapObj<CustomProps>;
 
     fn index(&self, h: u16) -> &Self::Output {
         &self.objs[h as usize]
     }
 }
 
-impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> IndexMut<u16> for Loc<ObjScriptProps> {
+impl<CustomProps: obj_scripting_properties::BaseCustomProps> IndexMut<u16> for Loc<CustomProps> {
     fn index_mut(&mut self, h: u16) -> &mut Self::Output {
         &mut self.objs[h as usize]
     }
 }
 
-/// Specific object in map (Including current coords as well as LogicalProps::<obj_scripting_properties::DefaultObjScriptProps>, VisualProps)
+/// Specific object in map (Including current coords as well as LogicalProps::<obj_scripting_properties::DefaultCustomProps>, VisualProps)
 #[derive(Clone, Debug)]
-pub struct MapObj<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> {
+pub struct MapObj<CustomProps: obj_scripting_properties::BaseCustomProps> {
     refs: Refs,
-    pub logical_props: LogicalProps::<ObjScriptProps>,
+    pub logical_props: LogicalProps::<CustomProps>,
     pub visual_props: VisualProps,
 }
 
-impl<ObjScriptProps: obj_scripting_properties::BaseObjScriptProps> MapObj<ObjScriptProps> {
+impl<CustomProps: obj_scripting_properties::BaseCustomProps> MapObj<CustomProps> {
     pub fn pos(&self) -> MapCoord {
         self.refs.pos
     }

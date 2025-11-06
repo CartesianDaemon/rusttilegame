@@ -1,7 +1,7 @@
 // TODO: Add these types to a Script struct?
 use crate::engine::for_scripting::*;
 
-type Map = crate::engine::for_scripting::Map<super::super::gamedata_pushpuzz::PushpuzzObjScriptProps>;
+type Map = crate::engine::for_scripting::Map<super::super::gamedata_pushpuzz::PushpuzzCustomProps>;
 
 pub fn passable(field: &Map, pos: MapCoord) -> bool {
     field.all_pass(pos, Pass::Empty)
@@ -14,7 +14,7 @@ pub fn impassable(field: &Map, pos: MapCoord) -> bool {
 pub struct PushpuzzMovementLogic;
 
 impl BaseMovementLogic for PushpuzzMovementLogic {
-    type ObjScriptProps = super::super::gamedata_pushpuzz::PushpuzzObjScriptProps;
+    type CustomProps = super::super::gamedata_pushpuzz::PushpuzzCustomProps;
 
     // Would be nice for these to be a function of an enum/trait impls
     fn move_mov(field: &mut Map, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {

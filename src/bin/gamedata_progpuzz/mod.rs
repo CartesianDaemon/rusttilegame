@@ -30,11 +30,11 @@ pub struct ProgpuzzGamedata {
 }
 
 // Need to move into scripts?
-pub type ProgpuzzObjScriptProps = obj_scripting_properties::DefaultObjScriptProps;
+pub type ProgpuzzCustomProps = obj_scripting_properties::DefaultCustomProps;
 
 impl BaseGamedata for ProgpuzzGamedata {
     type Scripts = super::scripts_progpuzz::ProgpuzzScripts;
-    type ObjScriptProps = ProgpuzzObjScriptProps;
+    type CustomProps = ProgpuzzCustomProps;
 
     fn new() -> Self {
         ProgpuzzGamedata {
@@ -46,7 +46,7 @@ impl BaseGamedata for ProgpuzzGamedata {
         self.levset.advance_pane(continuation)
     }
 
-    fn load_pane(&self) -> Pane::<Self::ObjScriptProps> {
+    fn load_pane(&self) -> Pane::<Self::CustomProps> {
         self.levset.load_pane()
     }
 }

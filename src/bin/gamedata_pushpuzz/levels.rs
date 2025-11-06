@@ -41,7 +41,7 @@ impl PushpuzzLevset {
         };
     }
 
-    pub fn load_pane(&self) -> Pane<super::PushpuzzObjScriptProps> {
+    pub fn load_pane(&self) -> Pane<super::PushpuzzCustomProps> {
         let aquarium1_key = HashMap::from([
             // TODO: Combine with obj.char types?
             (' ', vec![ new_floor() ]),

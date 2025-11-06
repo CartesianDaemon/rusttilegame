@@ -1,17 +1,17 @@
 // Properties of objects related to scripting.
-// NB: Would be nice to subsume into one ObjScriptProps struct. Defined in
+// NB: Would be nice to subsume into one CustomProps struct. Defined in
 // specialised game data, a member of LogicalProps.
 
 /// TODO: Rename CustomProps?
-pub trait BaseObjScriptProps : Clone + std::fmt::Debug + PartialEq {
+pub trait BaseCustomProps : Clone + std::fmt::Debug + PartialEq {
     type AI : BaseAI;
 }
 
 #[derive(Clone, PartialEq, Debug)]
-pub struct DefaultObjScriptProps {
+pub struct DefaultCustomProps {
 }
 
-impl BaseObjScriptProps for DefaultObjScriptProps {
+impl BaseCustomProps for DefaultCustomProps {
     type AI = AI;
 
 }

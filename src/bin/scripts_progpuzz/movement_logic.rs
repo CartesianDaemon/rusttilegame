@@ -1,7 +1,7 @@
 // TODO: Add these types to BaseScripts struct??
 use crate::engine::for_scripting::*;
 
-type Map = crate::engine::for_scripting::Map<super::super::gamedata_progpuzz::ProgpuzzObjScriptProps>;
+type Map = crate::engine::for_scripting::Map<super::super::gamedata_progpuzz::ProgpuzzCustomProps>;
 
 pub fn passable(field: &Map, pos: MapCoord) -> bool {
     field.all_pass(pos, Pass::Empty)
@@ -16,7 +16,7 @@ pub struct ProgpuzzMovementLogic;
 
 impl BaseMovementLogic for ProgpuzzMovementLogic
 {
-    type ObjScriptProps = super::super::gamedata_progpuzz::ProgpuzzObjScriptProps;
+    type CustomProps = super::super::gamedata_progpuzz::ProgpuzzCustomProps;
 
     fn move_mov(field: &mut Map, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
         match field[mov].logical_props.ai {
