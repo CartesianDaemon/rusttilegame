@@ -20,6 +20,9 @@
 
 mod levels;
 mod objs;
+mod movement_logic;
+
+pub use movement_logic::ProgpuzzMovementLogic;
 
 use crate::engine::for_gamedata::*;
 
@@ -31,7 +34,7 @@ pub struct ProgpuzzGamedata {
 pub type ProgpuzzCustomProps = obj_scripting_properties::SimpleCustomProps;
 
 impl BaseGamedata for ProgpuzzGamedata {
-    type MovementLogic = super::scripts_progpuzz::ProgpuzzMovementLogic;
+    type MovementLogic = super::progpuzz::ProgpuzzMovementLogic;
     type CustomProps = ProgpuzzCustomProps;
 
     fn new() -> Self {

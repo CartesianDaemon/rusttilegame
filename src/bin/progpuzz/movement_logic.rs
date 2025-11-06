@@ -14,7 +14,7 @@ pub struct ProgpuzzMovementLogic;
 
 impl BaseMovementLogic for ProgpuzzMovementLogic
 {
-    type CustomProps = super::super::gamedata_progpuzz::ProgpuzzCustomProps;
+    type CustomProps = super::super::progpuzz::ProgpuzzCustomProps;
 
     fn move_mov(field: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
         match field[mov].logical_props.ai {
