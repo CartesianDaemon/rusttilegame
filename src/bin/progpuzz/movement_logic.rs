@@ -39,20 +39,17 @@ pub enum ProgpuzzAI {
     Stay, // No self movement. Not added to Roster's list of movs.
     Hero, // Controlled by keys. Assume only one hero, added to Roster's hero entry.
     // Everything else may spontaneously move or need to be enumerated, ie needs to be added to roster.
-    Bounce, // Move in direction, reverse direction at walls.
-    Drift, // Move in direction, reverse direction at walls, move diagonally towards hero at reversal.
-    Scuttle, // Move in direction, when hit wall change to move orthogonally towards hero.
 }
 
 pub struct ProgpuzzMovementLogic;
 
 impl BaseMovementLogic for ProgpuzzMovementLogic
 {
-    type CustomProps = super::super::simple_custom_props::SimpleCustomProps;
+    type CustomProps = ProgpuzzCustomProps;
 
     fn move_mov(map: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
         match map[mov].logical_props.custom_props.ai {
-            SimpleAI::Hero => {
+            ProgpuzzAI::Hero => {
                 // TODO make sure cmd makes sense as program instruction not key
                 if cmd != Cmd::Stay {
                     let target_pos = map[mov].pos() + cmd.as_dir();
@@ -67,17 +64,8 @@ impl BaseMovementLogic for ProgpuzzMovementLogic
                     PaneContinuation::Continue(())
                 }
             },
-            SimpleAI::Stay => {
+            ProgpuzzAI::Stay => {
                 // Do nothing
-            },
-            SimpleAI::Bounce => {
-                // ???? TODO: Remove. TODO combine two match branches.
-            },
-            SimpleAI::Drift => {
-                // ????
-            },
-            SimpleAI::Scuttle => {
-                // ????
             },
             }
         return PaneContinuation::Continue(());
