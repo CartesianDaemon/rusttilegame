@@ -1,6 +1,6 @@
 use super::map_coords::CoordDelta;
 use super::super::simple_custom_props;
-use super::for_gamedata::BaseCustomProps;
+use super::for_gamedata::{BaseCustomProps, BaseAI};
 
 use macroquad::prelude::*;
 
@@ -34,6 +34,9 @@ pub struct LogicalProps<CustomProps: BaseCustomProps> {
     // TODO: Subsume most fields in here
     pub custom_props: CustomProps,
 
+    // Movement control logic for enemies
+    pub ai: CustomProps::AI,
+
     // Solidity, e.g. wall, floor
     pub pass: simple_custom_props::Pass,
 
@@ -51,6 +54,7 @@ impl<CustomProps: BaseCustomProps> LogicalProps<CustomProps> {
             custom_props: CustomProps::default(),
 
             pass: simple_custom_props::Pass::Empty,
+            ai: CustomProps::AI::default(),
             effect: simple_custom_props::Effect::Nothing,
 
         }
@@ -61,18 +65,18 @@ impl<CustomProps: BaseCustomProps> LogicalProps<CustomProps> {
     // NB: Could be combined if properties are made more generic.
 
     // Todo: Replace with more meaningful "is_hero" fn in scripts. Or obj_properties??
-    pub fn is_hero(props: CustomProps) -> bool {
-        CustomProps::is_hero(props)
+    pub fn is_hero(ai: CustomProps::AI) -> bool {
+        CustomProps::AI::is_hero(ai)
     }
 
     // Indicate Obj which can move in their own logic, and need to be added to roster.
-    pub fn is_mob(props: CustomProps) -> bool {
-        Self::is_any_mov(props) && ! Self::is_hero(props)
+    pub fn is_mob(ai: CustomProps::AI) -> bool {
+        Self::is_any_mov(ai) && ! Self::is_hero(ai)
     }
 
     // Mob or Hero
-    pub fn is_any_mov(props: CustomProps) -> bool {
-        CustomProps::is_any_mov(props)
+    pub fn is_any_mov(ai: CustomProps::AI) -> bool {
+        CustomProps::AI::is_any_mov(ai)
     }
 }
 

@@ -152,7 +152,7 @@ impl<'a> RenderLev<'a> {
         let w = self.sq_w * pc_size;
         let h = self.sq_h * pc_size;
 
-        if !LogicalProps::<CustomProps>::is_any_mov(logical_props.custom_props) {rsst!(prev_pos == pos)}
+        if !LogicalProps::<CustomProps>::is_any_mov(logical_props.ai) {rsst!(prev_pos == pos)}
 
         let alpha = 1.;
 

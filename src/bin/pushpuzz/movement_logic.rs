@@ -18,7 +18,7 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
     // Would be nice for these to be a function of an enum/trait impls
     fn move_mov(map: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
         let hero = map.hero();
-        match map[mov].logical_props.custom_props.ai {
+        match map[mov].logical_props.ai {
             SimpleAI::Stay => {
                 // Do nothing
             },

@@ -7,17 +7,15 @@ use super::pane::{Pane, PaneEnding};
 pub trait BaseAI : Copy + PartialEq + std::fmt::Debug {
     /// Used to create default LogicalProps.
     /// Might not be needed if more logic moves into Gamedata.
-    /// TODO: Can remove now??
     fn default() -> Self;
+    fn is_hero(ai: Self) -> bool;
+    fn is_any_mov(ai: Self) -> bool;
 }
 
-pub trait BaseCustomProps : Clone + Copy + std::fmt::Debug + PartialEq {
+pub trait BaseCustomProps : Clone + std::fmt::Debug + PartialEq {
     type AI : BaseAI;
 
     fn default() -> Self;
-
-    fn is_hero(props: Self) -> bool;
-    fn is_any_mov(props: Self) -> bool;
 }
 
 use super::map::Map;

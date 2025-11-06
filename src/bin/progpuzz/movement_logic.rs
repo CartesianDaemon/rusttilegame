@@ -17,7 +17,7 @@ impl BaseMovementLogic for ProgpuzzMovementLogic
     type CustomProps = super::super::simple_custom_props::SimpleCustomProps;
 
     fn move_mov(map: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
-        match map[mov].logical_props.custom_props.ai {
+        match map[mov].logical_props.ai {
             SimpleAI::Hero => {
                 // TODO make sure cmd makes sense as program instruction not key
                 if cmd != Cmd::Stay {
