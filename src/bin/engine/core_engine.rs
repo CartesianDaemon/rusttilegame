@@ -20,7 +20,7 @@ struct Engine<Gamedata: BaseGamedata> {
     pub gamedata: Gamedata,
 
     /// Current state of gameplay, current level, mostly map etc.
-    play_state: Pane<Gamedata::CustomProps>,
+    play_state: Pane<<Gamedata::Scripts as BaseScripts>::MovementLogic>,
 
     /// Smoothly from 0 to 1 transition from previous state to current state
     /// TODO: Move into play?

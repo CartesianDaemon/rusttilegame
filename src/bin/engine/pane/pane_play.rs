@@ -9,20 +9,20 @@ use crate::engine::for_scripting::Cmd;
 
 /// Interactive map, the actual gameplay part of the game.
 #[derive(Clone, Debug)]
-pub struct Play<CustomProps: super::super::obj_scripting_properties::BaseCustomProps> {
+pub struct Play<MovementLogic: super::super::for_scripting::BaseMovementLogic> {
     // Layout of current map.
     // TODO: Rename field to map
-    pub field: Map<CustomProps>,
+    pub field: Map<MovementLogic>,
 }
 
-impl<CustomProps: super::super::obj_scripting_properties::BaseCustomProps> Play<CustomProps>
+impl<MovementLogic: super::super::for_scripting::BaseMovementLogic> Play<MovementLogic>
 {
     // TODO: Do we need a function or would having levset_biobots use Play {...} be better?
     // TODO: Use lifetime or Rc on map_key instead of clone()?
     // TODO: Could Map be merged into this class?
     pub fn from_ascii<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
-        map_key: HashMap<char, Vec<FreeObj<CustomProps>>>,
+        map_key: HashMap<char, Vec<FreeObj<MovementLogic::CustomProps>>>,
     ) -> Self {
         Self {
             field: Map::from_map_and_key(ascii_map, map_key),
@@ -31,6 +31,6 @@ impl<CustomProps: super::super::obj_scripting_properties::BaseCustomProps> Play<
 
     pub fn advance<Scripts: super::super::for_scripting::BaseScripts>(&mut self, input : &mut Input) -> PaneContinuation  {
         let cmd = input.consume_cmd().unwrap_or(Cmd::default_cmd());
-        self.field.advance::<Scripts>(cmd)
+        self.field.advance(cmd)
     }
 }

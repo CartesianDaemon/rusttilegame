@@ -12,12 +12,13 @@ use super::map::Map;
 use super::map::RosterIndex;
 use super::for_gamedata::Cmd;
 use super::pane::PaneContinuation;
-pub trait BaseMovementLogic {
+pub trait BaseMovementLogic : Sized {
     type CustomProps : BaseCustomProps;
-    fn move_mov(field: &mut Map<Self::CustomProps>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation;
+    fn move_mov(field: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation;
 }
 pub trait BaseScripts {
     // TODO: Make combined Scripts+ObjProps object to template map on?
+    // TODO: Combine MovementLogic into Scripts?
     type MovementLogic : BaseMovementLogic;
 }
 
@@ -31,7 +32,7 @@ pub trait BaseGamedata {
 
     fn advance_pane(&mut self, continuation: PaneEnding);
 
-    fn load_pane(&self) -> Pane<Self::CustomProps>;
+    fn load_pane(&self) -> Pane<Self::Scripts::MovementLogic>;
 
     fn load_next_pane(&mut self, continuation: PaneEnding) -> Pane<Self::CustomProps> {
         self.advance_pane(continuation);
