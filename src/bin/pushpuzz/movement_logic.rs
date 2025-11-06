@@ -13,7 +13,7 @@ pub fn impassable<MovementLogic: BaseMovementLogic>(field: &Map<MovementLogic>, 
 pub struct PushpuzzMovementLogic;
 
 impl BaseMovementLogic for PushpuzzMovementLogic {
-    type CustomProps = super::super::pushpuzz::PushpuzzCustomProps;
+    type CustomProps = super::super::simple_custom_props::SimpleCustomProps;
 
     // Would be nice for these to be a function of an enum/trait impls
     fn move_mov(field: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {

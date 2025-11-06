@@ -1,6 +1,6 @@
 use super::map_coords::CoordDelta;
-use super::simple_custom_props;
-use super::simple_custom_props::{BaseCustomProps, BaseAI};
+use super::super::simple_custom_props;
+use super::for_gamedata::{BaseCustomProps, BaseAI};
 
 use macroquad::prelude::*;
 

@@ -4,6 +4,7 @@
 #![allow(unused_braces)]
 
 mod engine;
+mod simple_custom_props;
 mod progpuzz;
 
 #[macroquad::main("Tile Game")]

@@ -31,11 +31,9 @@ pub struct ProgpuzzGamedata {
     levset: levels::ProgpuzzLevset,
 }
 
-pub type ProgpuzzCustomProps = simple_custom_props::SimpleCustomProps;
-
 impl BaseGamedata for ProgpuzzGamedata {
     type MovementLogic = super::progpuzz::ProgpuzzMovementLogic;
-    type CustomProps = ProgpuzzCustomProps;
+    type CustomProps = super::simple_custom_props::SimpleCustomProps;
 
     fn new() -> Self {
         ProgpuzzGamedata {

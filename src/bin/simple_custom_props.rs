@@ -2,10 +2,7 @@
 // NB: Would be nice to subsume into one CustomProps struct. Defined in
 // specialised game data, a member of LogicalProps.
 
-/// TODO: Rename CustomProps?
-pub trait BaseCustomProps : Clone + std::fmt::Debug + PartialEq {
-    type AI : BaseAI;
-}
+use crate::engine::for_gamedata::{BaseCustomProps, BaseAI};
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct SimpleCustomProps {
@@ -24,14 +21,6 @@ pub enum Pass {
     Solid, // Block movement, e.g. wall.
     Mov, // Something which can move itself, e.g. hero, enemy
     // INSERT: Obj, // Something which can be moved or maybe coexisted with, e.g. furniture
-}
-
-pub trait BaseAI : Copy + PartialEq + std::fmt::Debug {
-    /// Used to create default LogicalProps.
-    /// Might not be needed if more logic moves into Gamedata.
-    fn default() -> Self;
-    fn is_hero(ai: Self) -> bool;
-    fn is_any_mov(ai: Self) -> bool;
 }
 
 // Types of movement-control logic ents can use

@@ -16,7 +16,7 @@ use culpa::try_fn;
 // use crate::engine::obj;
 
 use super::pane::PaneContinuation;
-use super::simple_custom_props;
+use super::super::simple_custom_props;
 use super::for_scripting::BaseMovementLogic;
 
 use super::map_coords::*;
@@ -435,7 +435,7 @@ impl Roster {
         (0..self.movs.len() as u16).into_iter().map(|ros_idx| RosterIndex { ros_idx } ).collect()
     }
 
-    fn add_to_roster_if_mov<CustomProps: simple_custom_props::BaseCustomProps>(&mut self, mapref: MapRef, props: &FreeObj<CustomProps>) -> RosterIndex {
+    fn add_to_roster_if_mov<CustomProps: super::for_gamedata::BaseCustomProps>(&mut self, mapref: MapRef, props: &FreeObj<CustomProps>) -> RosterIndex {
         if LogicalProps::<CustomProps>::is_hero(props.logical_props.ai) {
             self.hero = mapref;
             Self::hero()
@@ -477,12 +477,12 @@ impl IndexMut<RosterIndex> for Roster {
 
 // "Location": Everything at a single coordinate in the current room.
 #[derive(Debug, Clone)]
-pub struct Loc<CustomProps: simple_custom_props::BaseCustomProps> {
+pub struct Loc<CustomProps: super::for_gamedata::BaseCustomProps> {
     objs: Vec<MapObj<CustomProps>>
 }
 
 /// One square in map. Defined by the stack of objects in that square.
-impl<CustomProps: simple_custom_props::BaseCustomProps> Loc<CustomProps> {
+impl<CustomProps: super::for_gamedata::BaseCustomProps> Loc<CustomProps> {
     pub fn new() -> Self {
         Loc { objs: vec![] }
     }
@@ -523,7 +523,7 @@ impl<CustomProps: simple_custom_props::BaseCustomProps> Loc<CustomProps> {
     }
 }
 
-impl<CustomProps: simple_custom_props::BaseCustomProps> IntoIterator for Loc<CustomProps>  {
+impl<CustomProps: super::for_gamedata::BaseCustomProps> IntoIterator for Loc<CustomProps>  {
     type Item = <Vec<MapObj<CustomProps>> as IntoIterator>::Item;
     type IntoIter = <Vec<MapObj<CustomProps>> as IntoIterator>::IntoIter;
 
@@ -532,7 +532,7 @@ impl<CustomProps: simple_custom_props::BaseCustomProps> IntoIterator for Loc<Cus
     }
 }
 
-impl<'a, CustomProps: simple_custom_props::BaseCustomProps> IntoIterator for &'a Loc<CustomProps> {
+impl<'a, CustomProps: super::for_gamedata::BaseCustomProps> IntoIterator for &'a Loc<CustomProps> {
     type Item = <&'a Vec<MapObj<CustomProps>> as IntoIterator>::Item;
     type IntoIter = <&'a Vec<MapObj<CustomProps>> as IntoIterator>::IntoIter;
 
@@ -541,7 +541,7 @@ impl<'a, CustomProps: simple_custom_props::BaseCustomProps> IntoIterator for &'a
     }
 }
 
-impl<CustomProps: simple_custom_props::BaseCustomProps> Index<u16> for Loc<CustomProps> {
+impl<CustomProps: super::for_gamedata::BaseCustomProps> Index<u16> for Loc<CustomProps> {
     type Output = MapObj<CustomProps>;
 
     fn index(&self, h: u16) -> &Self::Output {
@@ -549,7 +549,7 @@ impl<CustomProps: simple_custom_props::BaseCustomProps> Index<u16> for Loc<Custo
     }
 }
 
-impl<CustomProps: simple_custom_props::BaseCustomProps> IndexMut<u16> for Loc<CustomProps> {
+impl<CustomProps: super::for_gamedata::BaseCustomProps> IndexMut<u16> for Loc<CustomProps> {
     fn index_mut(&mut self, h: u16) -> &mut Self::Output {
         &mut self.objs[h as usize]
     }
@@ -557,13 +557,13 @@ impl<CustomProps: simple_custom_props::BaseCustomProps> IndexMut<u16> for Loc<Cu
 
 /// Specific object in map (Including current coords as well as LogicalProps::<simple_custom_props::DefaultCustomProps>, VisualProps)
 #[derive(Clone, Debug)]
-pub struct MapObj<CustomProps: simple_custom_props::BaseCustomProps> {
+pub struct MapObj<CustomProps: super::for_gamedata::BaseCustomProps> {
     refs: Refs,
     pub logical_props: LogicalProps::<CustomProps>,
     pub visual_props: VisualProps,
 }
 
-impl<CustomProps: simple_custom_props::BaseCustomProps> MapObj<CustomProps> {
+impl<CustomProps: super::for_gamedata::BaseCustomProps> MapObj<CustomProps> {
     pub fn pos(&self) -> MapCoord {
         self.refs.pos
     }

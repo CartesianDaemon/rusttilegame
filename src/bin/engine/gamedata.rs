@@ -1,13 +1,21 @@
 //use crate::engine::simple_custom_props;
 
-use crate::engine::for_gamedata::BaseCustomProps;
-
 /// Trait for interface needed for Games implemented in the Engine
 
 use super::pane::{Pane, PaneEnding};
 
-// Trait for scripts which the scripts for each game needs to implement.
-// TODO: Move to separate file??
+pub trait BaseAI : Copy + PartialEq + std::fmt::Debug {
+    /// Used to create default LogicalProps.
+    /// Might not be needed if more logic moves into Gamedata.
+    fn default() -> Self;
+    fn is_hero(ai: Self) -> bool;
+    fn is_any_mov(ai: Self) -> bool;
+}
+
+pub trait BaseCustomProps : Clone + std::fmt::Debug + PartialEq {
+    type AI : BaseAI;
+}
+
 use super::map::Map;
 use super::map::RosterIndex;
 use super::for_gamedata::Cmd;
