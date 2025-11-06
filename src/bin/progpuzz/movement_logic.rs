@@ -1,13 +1,13 @@
 // TODO: Add these types to BaseScripts struct??
 use crate::engine::for_scripting::*;
 
-pub fn passable<MovementLogic: BaseMovementLogic>(field: &Map<MovementLogic>, pos: MapCoord) -> bool {
-    field.all_pass(pos, Pass::Empty)
+pub fn passable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, pos: MapCoord) -> bool {
+    map.all_pass(pos, Pass::Empty)
 }
 
 #[allow(dead_code)]
-pub fn impassable<MovementLogic: BaseMovementLogic>(field: &Map<MovementLogic>, pos: MapCoord) -> bool {
-    !passable(field, pos)
+pub fn impassable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, pos: MapCoord) -> bool {
+    !passable(map, pos)
 }
 
 pub struct ProgpuzzMovementLogic;
@@ -16,18 +16,18 @@ impl BaseMovementLogic for ProgpuzzMovementLogic
 {
     type CustomProps = super::super::simple_custom_props::SimpleCustomProps;
 
-    fn move_mov(field: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
-        match field[mov].logical_props.ai {
+    fn move_mov(map: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
+        match map[mov].logical_props.ai {
             SimpleAI::Hero => {
                 // TODO make sure cmd makes sense as program instruction not key
                 if cmd != Cmd::Stay {
-                    let target_pos = field[mov].pos() + cmd.as_dir();
-                    if passable(field, target_pos) {
-                        field.move_obj_to(mov, target_pos);
+                    let target_pos = map[mov].pos() + cmd.as_dir();
+                    if passable(map, target_pos) {
+                        map.move_obj_to(mov, target_pos);
                     }
                 }
                 // Check for goal
-                return if field.any_effect(field[mov].pos(), Effect::Win) {
+                return if map.any_effect(map[mov].pos(), Effect::Win) {
                     PaneContinuation::Break(PaneEnding::PlayWin)
                 } else {
                     PaneContinuation::Continue(())

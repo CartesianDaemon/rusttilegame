@@ -11,8 +11,8 @@ use crate::engine::for_scripting::Cmd;
 #[derive(Clone, Debug)]
 pub struct Play<MovementLogic: super::super::for_scripting::BaseMovementLogic> {
     // Layout of current map.
-    // TODO: Rename field to map
-    pub field: Map<MovementLogic>,
+    // TODO: Rename map to map
+    pub map: Map<MovementLogic>,
 }
 
 impl<MovementLogic: super::super::for_scripting::BaseMovementLogic> Play<MovementLogic>
@@ -25,12 +25,12 @@ impl<MovementLogic: super::super::for_scripting::BaseMovementLogic> Play<Movemen
         map_key: HashMap<char, Vec<FreeObj<MovementLogic::CustomProps>>>,
     ) -> Self {
         Self {
-            field: Map::from_map_and_key(ascii_map, map_key),
+            map: Map::from_map_and_key(ascii_map, map_key),
         }
     }
 
     pub fn advance(&mut self, input : &mut Input) -> PaneContinuation  {
         let cmd = input.consume_cmd().unwrap_or(Cmd::default_cmd());
-        self.field.advance(cmd)
+        self.map.advance(cmd)
     }
 }

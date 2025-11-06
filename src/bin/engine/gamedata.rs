@@ -24,7 +24,7 @@ use super::for_gamedata::Cmd;
 use super::pane::PaneContinuation;
 pub trait BaseMovementLogic : Sized {
     type CustomProps : BaseCustomProps;
-    fn move_mov(field: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation;
+    fn move_mov(map: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation;
 }
 
 /// Manages game-specific state, e.g. which level to go to next.

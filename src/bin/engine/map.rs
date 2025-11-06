@@ -52,7 +52,7 @@ impl<MovementLogic: BaseMovementLogic> Map<MovementLogic> {
         ascii_map: &[&str; HEIGHT],
         map_key: HashMap<char, Vec<FreeObj<MovementLogic::CustomProps>>>,
     ) -> Self {
-        let mut field = Self {
+        let mut map = Self {
             map_key: map_key.clone(),
             ..Self::empty(ascii_map[0].len() as u16, HEIGHT as u16)
         };
@@ -60,12 +60,12 @@ impl<MovementLogic: BaseMovementLogic> Map<MovementLogic> {
         for (y, line) in ascii_map.iter().enumerate() {
             for (x, ch) in line.chars().enumerate() {
                 for ent in map_key.get(&ch).unwrap() {
-                    field.spawn_obj_at(x as i16, y as i16, ent.clone());
+                    map.spawn_obj_at(x as i16, y as i16, ent.clone());
                 }
             }
         }
 
-        field
+        map
     }
 
     //////////////////////////////////////////////
@@ -115,7 +115,7 @@ impl<MovementLogic: BaseMovementLogic> Map<MovementLogic> {
     /// functions update coords in roster, roster_idx, prev_pos, curr_pos to maintain
     /// consistency.
     ///
-    /// Objects can be changed but not moved by field[] references.
+    /// Objects can be changed but not moved by map[] references.
     /// TODO: Actually, add some interface there to avoid &mut Backref
 
     /// Spawn new object.
