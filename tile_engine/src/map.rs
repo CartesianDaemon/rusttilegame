@@ -485,10 +485,6 @@ impl<CustomProps: super::for_gamedata::BaseCustomProps> Loc<CustomProps> {
         self.objs.iter().any(|x| x.logical_props.effect == sought_effect)
     }
 
-    pub fn any_pass(&self, sought_pass: simple_custom_props::Pass) -> bool {
-        self.objs.iter().any(|x| x.logical_props.pass == sought_pass)
-    }
-
     pub fn all_pass(&self, sought_pass: simple_custom_props::Pass) -> bool {
         self.objs.iter().all(|x| x.logical_props.pass == sought_pass)
     }
