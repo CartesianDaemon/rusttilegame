@@ -53,9 +53,9 @@ fn basic_move() {
 
     let mut curr_pane_state = get_lev(1);
     let mut input = Input::new_blank();
-    input.inject_cmd(Cmd::Stay);  let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#   ^        #", ); // Start running, no other effect
-    input.inject_cmd(Cmd::Stay);  let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[3], "#   ^        #", ); // F
-    input.inject_cmd(Cmd::Stay);  let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#   ^  w     #", ); // F
-    input.inject_cmd(Cmd::Stay);  let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#   >  w     #", ); // R
-    input.inject_cmd(Cmd::Stay);  let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#    > w     #", ); // F
+    input.inject_cmd(Cmd::Stay);  let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#   ^        #", "\n{}", curr_pane_state.as_ascii_rows().join("\n")); // Start running, no other effect
+    input.inject_cmd(Cmd::Stay);  let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[3], "#   ^        #", "\n{}", curr_pane_state.as_ascii_rows().join("\n")); // F
+    input.inject_cmd(Cmd::Stay);  let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#   ^  w     #", "\n{}", curr_pane_state.as_ascii_rows().join("\n")); // F
+    input.inject_cmd(Cmd::Stay);  let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#   >  w     #", "\n{}", curr_pane_state.as_ascii_rows().join("\n")); // R
+    input.inject_cmd(Cmd::Stay);  let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#    > w     #", "\n{}", curr_pane_state.as_ascii_rows().join("\n")); // F
 }
