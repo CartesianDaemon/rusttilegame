@@ -63,7 +63,9 @@ impl ProgpuzzLevset {
                     "################",
                 ], aquarium1_key),
                 Code::from_ascii(
-                    HashMap::new()
+                    // NB: Consider crate macro to initialise vec
+                    // NB: Consider my iteration macro here and elsewhere I collect'ed.
+                    [("F".to_string(), 1)].into_iter().collect()
                 )
             )),
             BiobotPaneId::Win => {
