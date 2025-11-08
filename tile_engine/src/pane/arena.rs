@@ -9,6 +9,7 @@ use crate::input::Input;
 use crate::for_gamedata::Cmd;
 
 /// Interactive map, the actual gameplay part of the game.
+/// Breadcrumb: Could merge Map into here.
 #[derive(Clone, Debug)]
 pub struct Arena<MovementLogic: super::super::for_gamedata::BaseMovementLogic> {
     // Layout of current map.

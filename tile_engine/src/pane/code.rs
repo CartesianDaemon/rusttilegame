@@ -68,7 +68,9 @@ impl Code {
             supplies: supplies.iter().map(|(txt,count)|
                 (txt_to_instr(&txt),Supply::new(*count))
             ).collect(),
-            prog: Prog::default(),
+            prog: Prog {
+                instrs: vec![Instr::F, Instr::F, Instr::R, Instr::F],
+            },
         }
     }
 }
