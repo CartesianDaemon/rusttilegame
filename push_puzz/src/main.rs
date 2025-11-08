@@ -2,6 +2,7 @@
 // Try using lib crate + two binary crates in a workspace?
 
 mod pushpuzz;
+#[cfg(test)]
 mod engine_tests;
 
 #[macroquad::main("Tile Game")]

@@ -1,8 +1,6 @@
 use crate::gamedata::BaseGamedata;
 
-use super::*;
-
-// TODO: Remove submodule names?
+use super::gamedata;
 use super::pane::Pane;
 use super::input::Input;
 use super::render::Render;

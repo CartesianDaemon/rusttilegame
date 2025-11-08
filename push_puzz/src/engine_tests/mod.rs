@@ -1,5 +1,3 @@
-#![allow(unused)] // TODO
-
 // Maybe: Move some simple tests back into engine.
 
 mod sample_objs;
@@ -12,7 +10,6 @@ use macroquad::prelude::*;
 
 use tile_engine::for_gamedata::*;
 use tile_engine::for_testing::*;
-use tile_engine::input::*;
 
 #[cfg(test)]
 mod basic_tests {
@@ -55,7 +52,7 @@ mod basic_tests {
 
     #[test]
     fn basic_init() {
-        let mut curr_pane_state = get_lev(1);
+        let curr_pane_state = get_lev(1);
         assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#  >         @ @");
     }
 
@@ -63,28 +60,28 @@ mod basic_tests {
     fn basic_bounce() {
         let mut curr_pane_state = get_lev(1);
         let mut input = Input::new_blank();
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#   >        @ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#    >       @ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#     >      @ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#      >     @ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#       >    @ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#        >   @ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#         >  @ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#          > @ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#           >@ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#          < @ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#         <  @ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#        <   @ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#       <    @ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#      <     @ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#     <      @ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#    <       @ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#   <        @ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#  <         @ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "# <          @ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#<           @ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "# >          @ @");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#  >         @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#   >        @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#    >       @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#     >      @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#      >     @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#       >    @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#        >   @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#         >  @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#          > @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#           >@ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#          < @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#         <  @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#        <   @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#       <    @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#      <     @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#     <      @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#    <       @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#   <        @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#  <         @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "# <          @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#<           @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "# >          @ @");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#  >         @ @");
     }
 
     #[test]
@@ -92,30 +89,30 @@ mod basic_tests {
         // TODO: Test rotated version of map somehow
         let mut curr_pane_state = get_lev(2);
         let mut input = Input::new_blank();
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[0], "# g #"); assert_eq!(&curr_pane_state.as_ascii_rows()[1], "#   #");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[0], "#  g#"); assert_eq!(&curr_pane_state.as_ascii_rows()[1], "#   #");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[0], "#   #"); assert_eq!(&curr_pane_state.as_ascii_rows()[1], "# G #");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[0], "#   #"); assert_eq!(&curr_pane_state.as_ascii_rows()[1], "#G  #");
-        input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[0], "#   #"); assert_eq!(&curr_pane_state.as_ascii_rows()[1], "# g #");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[0], "# g #"); assert_eq!(&curr_pane_state.as_ascii_rows()[1], "#   #");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[0], "#  g#"); assert_eq!(&curr_pane_state.as_ascii_rows()[1], "#   #");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[0], "#   #"); assert_eq!(&curr_pane_state.as_ascii_rows()[1], "# G #");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[0], "#   #"); assert_eq!(&curr_pane_state.as_ascii_rows()[1], "#G  #");
+        input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[0], "#   #"); assert_eq!(&curr_pane_state.as_ascii_rows()[1], "# g #");
     }
 
     #[test]
     fn basic_move() {
         let mut curr_pane_state = get_lev(1);
         let mut input = Input::new_blank();
-        input.inject_cmd(Cmd::Stay);  curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#       h    # #");
-        input.inject_cmd(Cmd::Stay);  curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#       h    # #");
-        input.inject_cmd(Cmd::Right); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#        h   # #");
-        input.inject_cmd(Cmd::Right); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#         h  # #");
-        input.inject_cmd(Cmd::Left);  curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#        h   # #");
-        input.inject_cmd(Cmd::Left);  curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#       h    # #");
-        input.inject_cmd(Cmd::Right); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#        h   # #");
-        input.inject_cmd(Cmd::Stay);  curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#        h   # #");
-        input.inject_cmd(Cmd::Right); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#         h  # #");
-        input.inject_cmd(Cmd::Right); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#          h # #");
-        input.inject_cmd(Cmd::Right); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#           h# #");
-        input.inject_cmd(Cmd::Right); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#           h# #");
-        input.inject_cmd(Cmd::Left);  curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#          h # #");
+        input.inject_cmd(Cmd::Stay);  let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#       h    # #");
+        input.inject_cmd(Cmd::Stay);  let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#       h    # #");
+        input.inject_cmd(Cmd::Right); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#        h   # #");
+        input.inject_cmd(Cmd::Right); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#         h  # #");
+        input.inject_cmd(Cmd::Left);  let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#        h   # #");
+        input.inject_cmd(Cmd::Left);  let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#       h    # #");
+        input.inject_cmd(Cmd::Right); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#        h   # #");
+        input.inject_cmd(Cmd::Stay);  let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#        h   # #");
+        input.inject_cmd(Cmd::Right); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#         h  # #");
+        input.inject_cmd(Cmd::Right); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#          h # #");
+        input.inject_cmd(Cmd::Right); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#           h# #");
+        input.inject_cmd(Cmd::Right); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#           h# #");
+        input.inject_cmd(Cmd::Left);  let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#          h # #");
     }
 
     // TODO: Test win
@@ -129,6 +126,6 @@ mod basic_tests {
         let mut input = Input::new_blank();
         println!("Orig>> {orig_curr_pane_state:?}");
         println!("Clone>> {curr_pane_state:?}");
-        input.inject_cmd(Cmd::Right); curr_pane_state.advance(&mut input);
+        input.inject_cmd(Cmd::Right); let _ = curr_pane_state.advance(&mut input);
     }
 }

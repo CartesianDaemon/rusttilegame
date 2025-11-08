@@ -13,8 +13,6 @@ use std::ops::IndexMut;
 
 use culpa::try_fn;
 
-// use crate::obj;
-
 use super::pane::PaneContinuation;
 use super::simple_custom_props;
 use super::for_scripting::BaseMovementLogic;
@@ -154,7 +152,6 @@ impl<MovementLogic: BaseMovementLogic> Map<MovementLogic> {
         }
 
         // TODO: Put in assert that put_obj_in_map_and_return_updated_mapref updates prev_pos as expected.
-        // let obj = Obj {prev_pos: mapref.pos(), ..obj};
 
         // Add object to top of stack at new map location.
         self.map[target_pos].objs.push(
