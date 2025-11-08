@@ -66,11 +66,6 @@ impl<CustomProps: BaseCustomProps> LogicalProps<CustomProps> {
     pub fn is_mob(props: &CustomProps) -> bool {
         props.is_any_mov() && ! props.is_hero()
     }
-
-    // Mob or Hero
-    pub fn is_any_mov(props: CustomProps) -> bool {
-        props.is_any_mov()
-    }
 }
 
 /// Visual display properties. Only used by Render.
