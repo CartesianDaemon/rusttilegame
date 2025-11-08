@@ -22,7 +22,7 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
                     }
                 }
                 // TODO: Avoid needing to re-get the hero handle, make move function consume or update the rich_mov handle.
-                return if map.any_effect(map[mov].pos(), Effect::Win) {
+                return if map.any_has_effect(map[mov].pos(), Effect::Win) {
                     PaneContinuation::Break(PaneConclusion::ArenaWin)
                 } else {
                     PaneContinuation::Continue(())

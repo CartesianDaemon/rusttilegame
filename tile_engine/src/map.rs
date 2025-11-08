@@ -187,7 +187,8 @@ impl<MovementLogic: BaseMovementLogic> Map<MovementLogic> {
         self[roster_idx].refs.pos + self[roster_idx].logical_props.dir
     }
 
-    pub fn any_effect(&self, pos: MapCoord, sought_effect: simple_custom_props::Effect) -> bool {
+    // NB: Should remove engine dependency on simple_custom_props
+    pub fn any_has_effect(&self, pos: MapCoord, sought_effect: simple_custom_props::Effect) -> bool {
         self.map[pos].any_effect(sought_effect)
     }
 

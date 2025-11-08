@@ -86,7 +86,7 @@ impl BaseMovementLogic for ProgpuzzMovementLogic
                 map[mov].logical_props.custom_props.ip +=1;
 
                 // Conclude pane successfully if hero finds with goal.
-                if map.any_effect(map[mov].pos(), Effect::Win) {
+                if map.any_has_effect(map[mov].pos(), Effect::Win) {
                     return PaneContinuation::Break(PaneConclusion::ArenaWin)
                 }
 
