@@ -11,6 +11,7 @@ use macroquad::prelude::*;
 use tile_engine::for_gamedata::*;
 use tile_engine::for_testing::*;
 
+// TODO: Remove mod, move cfg(test) annotation up to where main.rs includes this file.
 #[cfg(test)]
 mod basic_tests {
     use super::*;

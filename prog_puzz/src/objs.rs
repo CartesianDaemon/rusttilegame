@@ -5,11 +5,11 @@ use super::movement_logic::ProgpuzzAI;
 
 type CustomProps = super::ProgpuzzCustomProps;
 
-pub fn new_progbot() -> FreeObj<CustomProps> {
+pub fn new_progbot(dir: CoordDelta) -> FreeObj<CustomProps> {
     FreeObj {
         logical_props: LogicalProps::<CustomProps> {
-            name:"Hero".to_string(),
-            dir: CoordDelta::from_xy(0, -1),
+            name:"Progbot".to_string(),
+            dir: dir,
             pass: Pass::Mov,
             custom_props: CustomProps::new(ProgpuzzAI::Prog),
             ..LogicalProps::<CustomProps>::defaults()
@@ -36,5 +36,19 @@ pub fn new_wall() -> FreeObj<CustomProps> {
             .. LogicalProps::<CustomProps>::defaults()
         },
         visual_props: VisualProps::new_col(DARKGRAY)
+    }
+}
+
+pub fn new_door_win() -> FreeObj<CustomProps> {
+    FreeObj {
+        logical_props: LogicalProps::<CustomProps> {
+            name: "Goal".to_string(),
+            effect: Effect::Win,
+            .. LogicalProps::<CustomProps>::defaults()
+        },
+        visual_props: VisualProps{
+            border: Some(LIGHTGRAY),
+            ..VisualProps::new_text_fill("EXIT".to_string(), Some(GOLD), Some(WHITE))
+        }
     }
 }

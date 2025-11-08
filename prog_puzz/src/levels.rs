@@ -31,11 +31,15 @@ impl ProgpuzzLevset {
     }
 
     pub fn load_pane(&self) -> Pane<super::ProgpuzzMovementLogic> {
-        let aquarium1_key = HashMap::from([
-            // NB: Could it be combined with obj.char types?
+        let progpuzz_key = HashMap::from([
+            // NB: Better to move this into obj? Combined with obj.char types?
             (' ', vec![ new_floor() ]),
             ('#', vec![ new_floor(), new_wall() ]),
-            ('^', vec![ new_floor(), new_progbot() ]),
+            ('^', vec![ new_floor(), new_progbot(CoordDelta::from_xy(0, -1)) ]),
+            ('>', vec![ new_floor(), new_progbot(CoordDelta::from_xy(1, 0)) ]),
+            ('v', vec![ new_floor(), new_progbot(CoordDelta::from_xy(0, -1)) ]),
+            ('<', vec![ new_floor(), new_progbot(CoordDelta::from_xy(-1, 0)) ]),
+            ('w', vec![ new_door_win() ]),
             /*
             */
         ]);
@@ -51,17 +55,17 @@ impl ProgpuzzLevset {
                     "#              #",
                     "#              #",
                     "#              #",
+                    "#       w      #",
                     "#              #",
                     "#              #",
-                    "#              #",
-                    "#              #",
+                    "#     ^        #",
                     "#              #",
                     "#              #",
                     "#              #",
                     "#              #",
                     "#              #",
                     "################",
-                ], aquarium1_key),
+                ], progpuzz_key),
                 Code::from_ascii(
                     // NB: Consider crate macro to initialise vec
                     // NB: Consider my iteration macro here and elsewhere I collect'ed.

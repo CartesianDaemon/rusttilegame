@@ -22,6 +22,9 @@ mod levels;
 mod objs;
 mod movement_logic;
 
+#[cfg(test)]
+mod prog_puzz_tests;
+
 use movement_logic::{ProgpuzzMovementLogic, ProgpuzzCustomProps};
 
 use tile_engine::for_gamedata::*;

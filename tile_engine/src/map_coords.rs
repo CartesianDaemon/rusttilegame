@@ -47,6 +47,7 @@ impl Add<CoordDelta> for MapCoord {
     }
 }
 
+// NB: Need separate "Facing" type which can easily be converted to a CoordDelta.
 #[derive(Add, Copy, Clone, PartialEq, Debug, Neg)] // , Add, Mul
 pub struct CoordDelta {
     pub dx: i16,

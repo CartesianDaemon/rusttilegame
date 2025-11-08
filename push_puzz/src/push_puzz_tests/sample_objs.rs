@@ -1,4 +1,5 @@
-// TODO: Move many of these tests into demo or into pushing puzzle??
+// TODO: Move a few simple objs back into engine for examples and tests.
+// Remove this file and have pushpuzz tests use pushpuzz objs directly.
 
 use macroquad::prelude::*;
 
