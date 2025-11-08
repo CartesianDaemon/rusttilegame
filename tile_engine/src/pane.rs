@@ -73,7 +73,7 @@ impl<MovementLogic: super::for_gamedata::BaseMovementLogic> Pane<MovementLogic> 
         }
     }
 
-    pub fn as_play(&self) -> &Arena<MovementLogic> {
+    pub fn as_arena(&self) -> &Arena<MovementLogic> {
         match self {
             Self::Arena(arena) => &arena,
             Self::Splash(_splash) => panic!(),
@@ -83,6 +83,6 @@ impl<MovementLogic: super::for_gamedata::BaseMovementLogic> Pane<MovementLogic> 
 
     // Used for debugging. Ideally would avoid .as_play().
     pub fn as_ascii_rows(&self)-> Vec<String>  {
-        self.as_play().map.as_ascii_rows()
+        self.as_arena().map.as_ascii_rows()
     }
 }
