@@ -1,7 +1,7 @@
-// TODO: Add these types to BaseScripts struct??
 use crate::engine::for_scripting::*;
 use crate::engine::for_gamedata::*;
 
+// NB Breadcrumb: Move these fns to a struct in simple props.
 pub fn passable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, pos: MapCoord) -> bool {
     map.all_pass(pos, Pass::Empty)
 }
@@ -19,7 +19,7 @@ pub struct ProgpuzzCustomProps {
     pub prog: Prog,
     // Next instruction to execute as index into vec.
     // Later will need handle into branching object.
-    pub ip: u16,
+    pub ip: usize,
 }
 
 impl ProgpuzzCustomProps {
@@ -62,21 +62,44 @@ impl BaseMovementLogic for ProgpuzzMovementLogic
     type CustomProps = ProgpuzzCustomProps;
 
     fn move_mov(map: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
-        match map[mov].logical_props.custom_props.ai {
+        let props = &map[mov].logical_props.custom_props;
+        match props.ai {
             ProgpuzzAI::Prog => {
-                // NB: For now mostly ignoring cmd. Need to revisit.
-                if cmd != Cmd::Stay {
-                    let target_pos = map[mov].pos() + cmd.as_dir();
-                    if passable(map, target_pos) {
-                        map.move_obj_to(mov, target_pos);
-                    }
+                // NB: For now mostly ignoring input cmd. Need to revisit.
+                match props.prog.instrs.get(props.ip) {
+                    // Conclude pane with failure if we reach the end of the program.
+                    None => return PaneContinuation::Break(PaneConclusion::ArenaDie),
+
+                    // Move forward
+                    Some(Instr::F) => {
+                        // NB Breadcrumb: Move to an attempt_action fn in simple_props.
+                        let target_pos = map[mov].pos() + cmd.as_dir();
+                        if passable(map, target_pos) {
+                            map.move_obj_to(mov, target_pos);
+                        }
+                    },
+                    // Rotate L
+                    Some(Instr::L) => {
+                    },
+                    // Rotate R
+                    Some(Instr::R) => {
+                    },
+                    // Loop through contained instructions. NB: Placeholder.
+                    Some(Instr::Loop(_)) => {
+                        unimplemented!();
+                    },
                 }
-                // Check for goal
-                return if map.any_effect(map[mov].pos(), Effect::Win) {
-                    PaneContinuation::Break(PaneConclusion::ArenaWin)
-                } else {
-                    PaneContinuation::Continue(())
+
+                // Advance to next instr for next time.
+                map[mov].logical_props.custom_props.ip +=1;
+
+                // Conclude pane successfully if hero finds with goal.
+                if map.any_effect(map[mov].pos(), Effect::Win) {
+                    return PaneContinuation::Break(PaneConclusion::ArenaWin)
                 }
+
+                // Continue pane without concluding.
+                return PaneContinuation::Continue(());
             },
             ProgpuzzAI::Stay => {
                 // Do nothing

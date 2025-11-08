@@ -10,6 +10,7 @@ pub fn new_progbot() -> FreeObj<CustomProps> {
     FreeObj {
         logical_props: LogicalProps::<CustomProps> {
             name:"Hero".to_string(),
+            dir: CoordDelta::from_xy(0, -1),
             pass: Pass::Mov,
             custom_props: CustomProps::new(ProgpuzzAI::Prog),
             ..LogicalProps::<CustomProps>::defaults()

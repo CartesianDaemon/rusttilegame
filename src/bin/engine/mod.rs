@@ -20,11 +20,12 @@ mod obj;
 pub use core_engine::run;
 
 // Engine exports needed for writing game scripts.
+// NB breadcrumb: Merge with gamedata. May or may not become sub-module.
 pub mod for_scripting {
     pub use super::map::{Map, RosterIndex};
     pub use super::map_coords::*;
     pub use super::pane::{PaneContinuation, PaneConclusion};
-    pub use super::pane::Prog;
+    pub use super::pane::{Prog, Instr};
     pub use super::gamedata::BaseMovementLogic;
     pub use super::super::simple_custom_props::*;
 }

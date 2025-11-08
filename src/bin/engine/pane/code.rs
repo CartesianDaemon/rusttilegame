@@ -26,10 +26,11 @@ fn instr_to_txt(instr: &Instr) -> String {
 // NB: Could be combined with putative AttemptedAction defined for Cmd.
 // Breadcrumb: Could implement to_txt and txt_to in terms of common trait.
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
-enum Instr {
+pub enum Instr {
     F,
     L,
     R,
+    // NB: We're going to need to box this before we instantiate it anywhere, right?
     Loop(Vec<Instr>),
 }
 
@@ -51,7 +52,7 @@ impl Supply {
 // Breadcrumb: Derive for implementing default value?
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Prog {
-    elems: Vec<Instr>,
+    pub instrs: Vec<Instr>,
 }
 
 #[derive(Clone, Debug)]
