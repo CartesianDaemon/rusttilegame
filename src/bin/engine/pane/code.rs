@@ -27,7 +27,7 @@ fn instr_to_txt(instr: &Instr) -> String {
 // "Rotate L/R", returned by a fn on Instr variants and similarly by
 // keys in pushpuzz. And interpreted further by an attempt_action fn
 // in simple_custom_props which examines passability etc.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
 enum Instr {
     F,
     L,
@@ -39,6 +39,15 @@ enum Instr {
 struct Supply {
     orig_count: u16,
     curr_count: u16,
+}
+
+impl Supply {
+    fn new(orig_count: u16) -> Self {
+        Self {
+            orig_count: orig_count,
+            curr_count: orig_count,
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -54,12 +63,14 @@ pub struct Code {
 }
 
 impl Code {
-    // `fn from_ascii(txt: String) -> Code {
-    // `    Code {
-    // `        resources: vec![],
-    // `        prog: Flowchart { elems: vec![] },
-    // `    }
-    // `}
+    fn from_ascii(supplies: HashMap<String, u16>) -> Code {
+        Code {
+            supplies: supplies.iter().map(|(txt,count)|
+                (txt_to_instr(&txt),Supply::new(*count))
+            ).collect(),
+            prog: Flowchart { elems: vec![] },
+        }
+    }
 }
 
 impl BasePane for Code
