@@ -25,7 +25,7 @@ mod movement_logic;
 
 pub use movement_logic::PushpuzzMovementLogic;
 
-use crate::for_gamedata::*;
+use tile_engine::for_gamedata::*;
 
 #[derive(Debug)]
 pub struct PushpuzzGamedata {
@@ -33,8 +33,8 @@ pub struct PushpuzzGamedata {
 }
 
 impl BaseGamedata for PushpuzzGamedata {
-    type MovementLogic = super::pushpuzz::PushpuzzMovementLogic;
-    type CustomProps = super::simple_custom_props::SimpleCustomProps;
+    type MovementLogic = PushpuzzMovementLogic;
+    type CustomProps = tile_engine::simple_custom_props::SimpleCustomProps;
 
     fn new() -> Self {
         PushpuzzGamedata {

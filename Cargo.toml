@@ -2,6 +2,6 @@
 name = "tilegame"
 version = "1.0.2"
 edition = "2024"
-members = ["tile_engine", "prog_puzz"] # "push_puzz",
+members = ["tile_engine", "push_puzz", "prog_puzz"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

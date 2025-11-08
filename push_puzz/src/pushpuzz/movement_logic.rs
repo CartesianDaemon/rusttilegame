@@ -1,5 +1,5 @@
 // TODO: Add these types to a Script struct?
-use crate::for_scripting::*;
+use tile_engine::for_scripting::*;
 
 pub fn passable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, pos: MapCoord) -> bool {
     map.all_pass(pos, Pass::Empty)
@@ -13,7 +13,7 @@ pub fn impassable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, po
 pub struct PushpuzzMovementLogic;
 
 impl BaseMovementLogic for PushpuzzMovementLogic {
-    type CustomProps = super::super::simple_custom_props::SimpleCustomProps;
+    type CustomProps = tile_engine::simple_custom_props::SimpleCustomProps;
 
     // Would be nice for these to be a function of an enum/trait impls
     fn move_mov(map: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {

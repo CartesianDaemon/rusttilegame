@@ -6,11 +6,9 @@
 
 #![allow(unused_braces)]
 
-mod engine;
-mod simple_custom_props;
 mod pushpuzz;
 
 #[macroquad::main("Tile Game")]
 async fn main() {
-    run::<pushpuzz::PushpuzzGamedata>().await;
+    tile_engine::run::<pushpuzz::PushpuzzGamedata>().await;
 }

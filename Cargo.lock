@@ -412,6 +412,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "prog_puzz"
+version = "1.0.2"
+dependencies = [
+ "macroquad",
+ "tile_engine",
+]
+
+[[package]]
 name = "push_puzz"
 version = "1.0.2"
 dependencies = [

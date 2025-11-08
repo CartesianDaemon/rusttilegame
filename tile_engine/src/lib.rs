@@ -8,7 +8,7 @@
 /// Maybe: Move engine into a lib.
 
 mod core_engine;
-mod simple_custom_props;
+pub mod simple_custom_props;
 mod map_coords;
 mod render;
 mod map;
