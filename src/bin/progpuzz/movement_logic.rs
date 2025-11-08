@@ -11,6 +11,8 @@ pub fn impassable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, po
     !passable(map, pos)
 }
 
+// NB: Custom props could be enum we need different data for different object types.
+// Would need to figure out which types can have which AIs.
 #[derive(Clone, PartialEq, Debug)]
 pub struct ProgpuzzCustomProps {
     pub ai: ProgpuzzAI,
@@ -62,7 +64,7 @@ impl BaseMovementLogic for ProgpuzzMovementLogic
     fn move_mov(map: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
         match map[mov].logical_props.custom_props.ai {
             ProgpuzzAI::Prog => {
-                // TODO make sure cmd makes sense as program instruction not key
+                // NB: For now mostly ignoring cmd. Need to revisit.
                 if cmd != Cmd::Stay {
                     let target_pos = map[mov].pos() + cmd.as_dir();
                     if passable(map, target_pos) {

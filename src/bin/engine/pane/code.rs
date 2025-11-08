@@ -23,10 +23,7 @@ fn instr_to_txt(instr: &Instr) -> String {
     }.to_string()
 }
 
-// Todo: Could introduce AttemptAction with things like "move 1" and
-// "Rotate L/R", returned by a fn on Instr variants and similarly by
-// keys in pushpuzz. And interpreted further by an attempt_action fn
-// in simple_custom_props which examines passability etc.
+// NB: Could be combined with putative AttemptedAction defined for Cmd.
 // Breadcrumb: Could implement to_txt and txt_to in terms of common trait.
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
 enum Instr {

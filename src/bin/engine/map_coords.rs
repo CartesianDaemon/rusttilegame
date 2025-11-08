@@ -68,7 +68,12 @@ impl CoordDelta {
     }
 }
 
-// Move to different file? In input?
+// Translation of Key or Mouse into attempted movement of hero.
+// NB: Not quite right currently as Progpuzz Arena bot should accept something
+// like Cmd from executing program. Only pushpuzz hero gets it from user?
+// NB: Could turn into AttemptAction struct in simple_logic, which is
+// used by most game movement logic but doesn't have to be? Along with an
+// attempt_action fn which handles passability etc.
 #[derive(PartialEq, Copy, Clone)]
 pub enum Cmd {
     Stay,
