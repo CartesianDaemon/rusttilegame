@@ -1,4 +1,4 @@
-use super::{PaneContinuation, PaneConclusion};
+use super::PaneContinuation;
 use crate::engine::input::Input;
 use super::BasePane;
 
@@ -14,7 +14,7 @@ fn txt_to_instr(txt: &str) -> Instr {
     }
 }
 
-fn instr_to_txt(instr: &Instr) -> String {
+fn _instr_to_txt(instr: &Instr) -> String {
     match instr {
         Instr::F => "F",
         Instr::L => "L",
@@ -63,7 +63,7 @@ pub struct Code {
 }
 
 impl Code {
-    pub fn from_ascii(supplies: HashMap<String, u16>) -> Code {
+    pub fn from_ascii(supplies: HashMap<&str, u16>) -> Code {
         Code {
             supplies: supplies.iter().map(|(txt,count)|
                 (txt_to_instr(&txt),Supply::new(*count))
