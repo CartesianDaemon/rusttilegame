@@ -7,5 +7,5 @@ edition = "2024"
 macroquad = "=0.4.7"
 futures = "0.3.30"
 derive_more = "0.99"
-assrt = {git = "https://github.com/CartesianDaemon/assrt.git", branch = "v0.2"} # Can also use {path = "../../assrt"}
+assrt = {git = "https://github.com/CartesianDaemon/assrt.git", branch = "v0.2"}
 culpa = "1.0.2"

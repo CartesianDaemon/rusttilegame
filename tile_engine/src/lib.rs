@@ -7,6 +7,9 @@
 ///
 /// Maybe: Move engine into a lib.
 
+// TODO Breadcrumb: Need to check that imgs still work ok after moving everything into crates.
+// TODO: Need to move assets into each game folder?
+
 mod core_engine;
 pub mod simple_custom_props;
 mod map_coords;

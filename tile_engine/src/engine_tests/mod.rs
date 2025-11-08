@@ -1,5 +1,8 @@
 #![allow(unused)] // TODO
 
+// TODO Breadcrumb: Need to put some simple tests here?
+// Move tests of specific AI behaviour into pushpuzz.
+
 mod sample_objs;
 
 use sample_objs::*;
@@ -19,7 +22,7 @@ mod basic_tests {
 
     use super::*;
 
-    fn get_lev(n: i32) -> Pane<crate::pushpuzz::ProgpuzzMovementLogic> {
+    fn get_lev(n: i32) -> Pane<push_puzz::ProgpuzzMovementLogic> {
         let test_key = HashMap::from([
             (' ', vec![ new_floor() ]),
             ('#', vec![ new_floor(), new_wall() ]),
