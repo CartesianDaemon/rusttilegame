@@ -32,8 +32,7 @@ pub enum Pass {
 }
 
 // Types of movement-control logic ents can use
-// TODO: Move into Pushpuzz
-// TODO: Make a cut-down version for example game and testing.
+// TODO: Move into Pushpuzz. Make a cut-down SimpleAI for example game and testing.
 #[derive(Copy, Clone, PartialEq, Debug)]
 #[allow(dead_code)]
 pub enum SimpleAI {

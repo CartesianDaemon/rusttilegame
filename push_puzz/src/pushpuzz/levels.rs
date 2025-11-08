@@ -26,15 +26,15 @@ impl PushpuzzLevset {
 
     pub fn advance_pane(&mut self, continuation: PaneConclusion) {
         self.current_paneid = match (self.current_paneid, continuation) {
-            (PushpuzzPaneId::NewGame, PaneConclusion::SplashNext) => PushpuzzPaneId::LevIntro(1),
-            (PushpuzzPaneId::LevIntro(levnum), PaneConclusion::SplashNext) => PushpuzzPaneId::LevArena(levnum),
+            (PushpuzzPaneId::NewGame, PaneConclusion::SplashContinue) => PushpuzzPaneId::LevIntro(1),
+            (PushpuzzPaneId::LevIntro(levnum), PaneConclusion::SplashContinue) => PushpuzzPaneId::LevArena(levnum),
             (PushpuzzPaneId::LevArena(levnum), PaneConclusion::ArenaWin) => PushpuzzPaneId::LevOutro(levnum),
             (PushpuzzPaneId::LevArena(levnum), PaneConclusion::ArenaDie) => PushpuzzPaneId::LevRetry(levnum),
-            (PushpuzzPaneId::LevRetry(levnum), PaneConclusion::SplashNext) => PushpuzzPaneId::LevArena(levnum),
+            (PushpuzzPaneId::LevRetry(levnum), PaneConclusion::SplashContinue) => PushpuzzPaneId::LevArena(levnum),
             // TODO: Get max levnum from list of levels?
-            (PushpuzzPaneId::LevOutro(2), PaneConclusion::SplashNext) => PushpuzzPaneId::Win,
-            (PushpuzzPaneId::LevOutro(levnum), PaneConclusion::SplashNext) => PushpuzzPaneId::LevOutro(levnum+1),
-            (PushpuzzPaneId::Win, PaneConclusion::SplashNext) => PushpuzzPaneId::NewGame,
+            (PushpuzzPaneId::LevOutro(2), PaneConclusion::SplashContinue) => PushpuzzPaneId::Win,
+            (PushpuzzPaneId::LevOutro(levnum), PaneConclusion::SplashContinue) => PushpuzzPaneId::LevOutro(levnum+1),
+            (PushpuzzPaneId::Win, PaneConclusion::SplashContinue) => PushpuzzPaneId::NewGame,
             _ => panic!()
         };
     }

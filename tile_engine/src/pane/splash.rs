@@ -46,7 +46,7 @@ impl BasePane for Splash {
         input.last_real_update = get_time();
 
         match key {
-            Some(_) => PaneContinuation::Break(PaneConclusion::SplashNext),
+            Some(_) => PaneContinuation::Break(PaneConclusion::SplashContinue),
             None => PaneContinuation::Continue(()),
         }
     }

@@ -9,7 +9,7 @@ use crate::obj::FreeObj;
 // TODO: Move into game-specific info if possible?
 #[allow(dead_code)]
 pub enum PaneConclusion {
-    SplashNext, // TODO: Rename Continue?
+    SplashContinue,
     ArenaWin,
     ArenaDie,
 }

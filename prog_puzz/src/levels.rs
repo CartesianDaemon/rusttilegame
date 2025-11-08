@@ -25,7 +25,7 @@ impl ProgpuzzLevset {
             // TODO: Get max levnum from list of levels?
             (ProgpuzzPaneId::LevSplit(1), PaneConclusion::ArenaWin) => ProgpuzzPaneId::Win,
             (ProgpuzzPaneId::LevSplit(levnum), PaneConclusion::ArenaWin) => ProgpuzzPaneId::LevSplit(levnum+1),
-            (ProgpuzzPaneId::Win, PaneConclusion::SplashNext) => Self::new().current_paneid,
+            (ProgpuzzPaneId::Win, PaneConclusion::SplashContinue) => Self::new().current_paneid,
             _ => panic!()
         };
     }
