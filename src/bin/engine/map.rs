@@ -439,7 +439,7 @@ impl Roster {
         if props.logical_props.custom_props.is_hero() {
             self.hero = mapref;
             Self::hero()
-        } else if LogicalProps::<CustomProps>::is_mob(&props.logical_props.custom_props) {
+        } else if props.logical_props.custom_props.is_any_mov() {
             self.movs.push(mapref);
             RosterIndex { ros_idx: self.movs.len() as u16 - 1 }
         } else {

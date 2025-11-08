@@ -14,8 +14,12 @@ use super::pane::{Pane, PaneConclusion};
 pub trait BaseCustomProps : Clone + std::fmt::Debug + PartialEq {
     fn default() -> Self;
 
-    fn is_hero(self: &Self) -> bool;
+    /// Identifies objects which the engine needs to have move themselves.
     fn is_any_mov(self: &Self) -> bool;
+
+    /// Identifies objects which move half a step ahead of other movs.
+    /// Currently engine assumes only one hero exists.
+    fn is_hero(self: &Self) -> bool;
 }
 
 use super::map::Map;

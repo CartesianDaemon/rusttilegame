@@ -57,15 +57,6 @@ impl<CustomProps: BaseCustomProps> LogicalProps<CustomProps> {
 
         }
     }
-
-    // FUNCTIONS REFERRING TO SPECIFIC PROPERTIES
-    // NB: Could replace with CustomProps::is_hero(CustomProps)
-    // NB: Could be combined if properties are made more generic.
-
-    // Indicate Obj which can move in their own logic, and need to be added to roster.
-    pub fn is_mob(props: &CustomProps) -> bool {
-        props.is_any_mov() && ! props.is_hero()
-    }
 }
 
 /// Visual display properties. Only used by Render.
