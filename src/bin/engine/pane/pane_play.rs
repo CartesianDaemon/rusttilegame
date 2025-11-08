@@ -1,4 +1,5 @@
 use super::{PaneContinuation};
+use super::PaneBase;
 
 use std::collections::HashMap;
 
@@ -15,6 +16,14 @@ pub struct Arena<MovementLogic: super::super::for_scripting::BaseMovementLogic> 
     pub map: Map<MovementLogic>,
 }
 
+impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> PaneBase for Arena<MovementLogic>
+{
+    fn advance(&mut self, input : &mut Input) -> PaneContinuation  {
+        let cmd = input.consume_cmd().unwrap_or(Cmd::default_cmd());
+        self.map.advance(cmd)
+    }
+}
+
 impl<MovementLogic: super::super::for_scripting::BaseMovementLogic> Arena<MovementLogic>
 {
     // TODO: Do we need a function or would having levset_biobots use Arena {...} be better?
@@ -27,10 +36,5 @@ impl<MovementLogic: super::super::for_scripting::BaseMovementLogic> Arena<Moveme
         Self {
             map: Map::from_map_and_key(ascii_map, map_key),
         }
-    }
-
-    pub fn advance(&mut self, input : &mut Input) -> PaneContinuation  {
-        let cmd = input.consume_cmd().unwrap_or(Cmd::default_cmd());
-        self.map.advance(cmd)
     }
 }

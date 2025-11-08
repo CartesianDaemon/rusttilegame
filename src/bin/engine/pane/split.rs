@@ -8,6 +8,15 @@ pub struct Code {
     // Palette of available instructions, array of assembled instructions, etc.
 }
 
+impl PaneBase for Code
+{
+    fn advance(&mut self, _input: &mut Input) -> PaneContinuation {
+        // TODO
+
+        return PaneContinuation::Continue(());
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Split<MovementLogic : super::super::for_gamedata::BaseMovementLogic> {
     pub arena: Arena<MovementLogic>,
