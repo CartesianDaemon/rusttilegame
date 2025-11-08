@@ -10,6 +10,7 @@ pub fn impassable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, po
     !passable(map, pos)
 }
 
+#[derive(Clone, Debug)]
 pub struct PushpuzzMovementLogic;
 
 impl BaseMovementLogic for PushpuzzMovementLogic {
