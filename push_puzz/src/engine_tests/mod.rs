@@ -1,7 +1,6 @@
 #![allow(unused)] // TODO
 
-// TODO Breadcrumb: Need to put some simple tests here?
-// Move tests of specific AI behaviour into pushpuzz.
+// Maybe: Move some simple tests back into engine.
 
 mod sample_objs;
 
@@ -9,7 +8,6 @@ use sample_objs::*;
 
 use std::collections::HashMap;
 
-//use assrt::*;
 use macroquad::prelude::*;
 
 use tile_engine::for_gamedata::*;

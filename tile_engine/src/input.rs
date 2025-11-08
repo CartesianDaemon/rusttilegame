@@ -31,7 +31,7 @@ impl Input {
         }
     }
 
-    // #[cfg(test)]
+    // Used for testing.
     pub fn inject_cmd(self: &mut Input, cmd: Cmd)
     {
         self.most_recent_cmd = Some(cmd);
