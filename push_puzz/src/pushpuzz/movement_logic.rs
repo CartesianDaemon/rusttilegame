@@ -8,7 +8,7 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
     type CustomProps = tile_engine::simple_custom_props::SimpleCustomProps;
 
     // Would be nice for these to be a function of an enum/trait impls
-    fn move_mov(map: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
+    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
         let hero = map.hero();
         match map[mov].logical_props.custom_props.ai {
             SimpleAI::Stay => {
@@ -33,7 +33,7 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
                 // TODO: Simplify duplication in map.obj_at(rich_mov.ros_idx) throughout?
 
                 // If moving would hit a wall, first reverse direction.
-                // TODO: Consider adding "can_move" function. Map would need movement_logic "passable(obj, tile)" dependency injection.
+                // TODO: Consider adding "can_move" function. Arena would need movement_logic "passable(obj, tile)" dependency injection.
                 // TODO: Consider adding map.try_move() fn.
                 // TODO: Consider adding map_coord *= -1.
                 let target_pos = map.obj_target_pos(mov);

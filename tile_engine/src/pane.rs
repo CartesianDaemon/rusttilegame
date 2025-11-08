@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::ops::ControlFlow;
 
-pub use crate::pane_arena::Arena;
+pub use crate::map::Arena;
 pub use crate::pane_code::*;
 pub use crate::pane_splash::*;
 pub use crate::pane_split::*;
@@ -83,6 +83,6 @@ impl<MovementLogic: super::for_gamedata::BaseMovementLogic> Pane<MovementLogic> 
 
     // Used for debugging. Ideally would avoid .as_play().
     pub fn as_ascii_rows(&self)-> Vec<String>  {
-        self.as_arena().map.as_ascii_rows()
+        self.as_arena().as_ascii_rows()
     }
 }

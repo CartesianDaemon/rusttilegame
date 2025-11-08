@@ -2,7 +2,7 @@
 
 /// Trait for interface needed for Games implemented in the Engine
 
-use super::pane::{Pane, PaneConclusion};
+use super::pane::{Pane, Arena, PaneConclusion};
 
 // TODO: Don't need to for the first two games, but can move Pass and
 // Effect in here. Or better, make a SimpleObjectInteractions type
@@ -22,13 +22,12 @@ pub trait BaseCustomProps : Clone + std::fmt::Debug + PartialEq {
     fn is_hero(self: &Self) -> bool;
 }
 
-use super::map::Map;
 use super::map::RosterIndex;
 use crate::for_gamedata::Cmd;
 use super::pane::PaneContinuation;
 pub trait BaseMovementLogic : Sized {
     type CustomProps : BaseCustomProps;
-    fn move_mov(map: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation;
+    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation;
 }
 
 /// Manages game-specific state, e.g. which level to go to next.

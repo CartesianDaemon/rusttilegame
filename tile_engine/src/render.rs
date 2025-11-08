@@ -28,12 +28,12 @@ impl Render {
         // ENH: Avoid passing in whole Arena object.
         match curr_pane_state {
             Pane::Arena(curr_pane_state) => {
-                let mut render_lev = RenderLev::begin(&mut self.texture_cache, curr_pane_state.map.map_w(), curr_pane_state.map.map_h());
+                let mut render_lev = RenderLev::begin(&mut self.texture_cache, curr_pane_state.map_w(), curr_pane_state.map_h());
                 // Coords of first visible tile. Currently always 0,0.
                 let (ox, oy) = (0, 0);
                 let max_h = 5;
                 for h in 0..max_h {
-                    for (x, y, loc) in curr_pane_state.map.map_locs() {
+                    for (x, y, loc) in curr_pane_state.map_locs() {
                         if let Some(ent) = loc.get(h) {
                             render_lev.draw_ent(x - ox, y - oy, ent, anim_real_pc, slide_real_pc).await;
                         }

@@ -13,9 +13,10 @@ use std::ops::IndexMut;
 
 use culpa::try_fn;
 
-use super::pane::PaneContinuation;
+use super::pane::{BasePane, PaneContinuation};
 use super::simple_custom_props;
 use super::for_gamedata::BaseMovementLogic;
+use crate::input::Input;
 
 use super::map_coords::*;
 
@@ -28,14 +29,54 @@ pub struct RosterIndex {
 
 /// Grid together with Ros. Those are two separate classes so they can more easily be borrowed separately.
 #[derive(Clone, Debug)]
-pub struct Map<MovementLogic: BaseMovementLogic> {
+pub struct Arena<MovementLogic: super::for_gamedata::BaseMovementLogic> {
     map: Grid<MovementLogic>,
     roster: Roster,
     // Used to represent map as ascii for init and debugging. Not comprehensive.
     map_key: std::collections::HashMap<char, Vec<FreeObj<MovementLogic::CustomProps>>>,
 }
 
-impl<MovementLogic: BaseMovementLogic> Map<MovementLogic> {
+impl<MovementLogic : super::for_gamedata::BaseMovementLogic> BasePane for Arena<MovementLogic>
+{
+    fn advance(&mut self, input : &mut Input) -> PaneContinuation  {
+        let cmd = input.consume_cmd().unwrap_or(Cmd::default());
+        // TODO: Decide order of char, enemy. Before or after not quite right. Or need
+        // to handle char moving onto enemy.
+        // TODO: Consider: Maybe display char moving out of sync with enemy.
+        let hero = Roster::hero();
+
+        // Before movement, reset "prev". Will be overwritten if movement happens.
+        // Should be moved into obj_move*() fn.
+        self[hero].refs.prev_pos = self[hero].refs.pos;
+
+        MovementLogic::move_mov(self, hero, cmd)?;
+
+        for mov in self.roster.all_movs() {
+            // Before movement, reset "prev". Will be overwritten if movement happens.
+            // Going through tmp is necessary to avoid two dynamic borrows at the same time..
+            // NOTE: If map is RefCell needs to be done in two steps else runtime panic.
+            // NOTE: And obj_at() is also incompatible with RefCell.
+            self[mov].refs.prev_pos = self[mov].refs.pos;
+
+            MovementLogic::move_mov(self, mov, cmd)?;
+        }
+        PaneContinuation::Continue(())
+    }
+
+    fn need_sync_to_ticks(&self) -> bool {
+        true
+    }
+}
+
+impl<MovementLogic: BaseMovementLogic> Arena<MovementLogic> {
+    // TODO: Remove again, redundant.
+    pub fn from_ascii<const HEIGHT: usize>(
+        ascii_map: &[&str; HEIGHT],
+        map_key: HashMap<char, Vec<FreeObj<MovementLogic::CustomProps>>>,
+    ) -> Self {
+        Self::from_map_and_key(ascii_map, map_key)
+    }
+
     /////////////////
     /// Initialisers
     pub fn empty(w: u16, h: u16) -> Self {
@@ -68,30 +109,6 @@ impl<MovementLogic: BaseMovementLogic> Map<MovementLogic> {
 
     //////////////////////////////////////////////
     /// Exposed upward to front end of game engine
-
-    pub fn advance(&mut self, cmd: Cmd) -> PaneContinuation  {
-        // TODO: Decide order of char, enemy. Before or after not quite right. Or need
-        // to handle char moving onto enemy.
-        // TODO: Consider: Maybe display char moving out of sync with enemy.
-        let hero = Roster::hero();
-
-        // Before movement, reset "prev". Will be overwritten if movement happens.
-        // Should be moved into obj_move*() fn.
-        self[hero].refs.prev_pos = self[hero].refs.pos;
-
-        MovementLogic::move_mov(self, hero, cmd)?;
-
-        for mov in self.roster.all_movs() {
-            // Before movement, reset "prev". Will be overwritten if movement happens.
-            // Going through tmp is necessary to avoid two dynamic borrows at the same time..
-            // NOTE: If map is RefCell needs to be done in two steps else runtime panic.
-            // NOTE: And obj_at() is also incompatible with RefCell.
-            self[mov].refs.prev_pos = self[mov].refs.pos;
-
-            MovementLogic::move_mov(self, mov, cmd)?;
-        }
-        PaneContinuation::Continue(())
-    }
 
     pub fn map_w(&self) -> u16 {
         self.map.w()
@@ -223,7 +240,7 @@ impl<MovementLogic: BaseMovementLogic> Map<MovementLogic> {
     }
 }
 
-impl<MovementLogic: BaseMovementLogic> Index<RosterIndex> for Map<MovementLogic> {
+impl<MovementLogic: BaseMovementLogic> Index<RosterIndex> for Arena<MovementLogic> {
     type Output = MapObj<MovementLogic::CustomProps>;
 
     fn index(&self, roster_idx: RosterIndex) -> &Self::Output {
@@ -232,7 +249,7 @@ impl<MovementLogic: BaseMovementLogic> Index<RosterIndex> for Map<MovementLogic>
     }
 }
 
-impl<MovementLogic: BaseMovementLogic> IndexMut<RosterIndex> for Map<MovementLogic> {
+impl<MovementLogic: BaseMovementLogic> IndexMut<RosterIndex> for Arena<MovementLogic> {
     fn index_mut(&mut self, roster_idx: RosterIndex) -> &mut Self::Output {
         let mapref = self.roster[roster_idx];
         &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h]
@@ -247,8 +264,8 @@ pub struct Refs {
     pub prev_pos: MapCoord,
 }
 
-/// "Map": Grid of locations. Represents state of current level.
-/// NOTE: Could currently be moved back into Map. Not borrowed separately.
+/// "Grid": Grid of locations. Represents state of current level.
+/// NOTE: Could currently be moved back into Arena. Not borrowed separately.
 #[derive(Clone)]
 struct Grid<MovementLogic: BaseMovementLogic> {
     // Stored as a collection of columns, e.g. map.locs[x][y]
@@ -299,7 +316,7 @@ impl<MovementLogic: BaseMovementLogic> IndexMut<MapCoord> for Grid<MovementLogic
 impl<MovementLogic: BaseMovementLogic> std::fmt::Debug for Grid<MovementLogic> {
     #[try_fn]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
-        write!(f, "Map[")?;
+        write!(f, "Arena[")?;
         for (x, y, loc) in self.locs() {
             loc.map_fmt(f)?;
             if x ==0 && y > 0 {
@@ -400,7 +417,7 @@ impl MapRef
 /// Could in theory extend to a component-like system storing overlapping lists of
 /// indexhandles for "objects with this property".
 //
-// NOTE: Could currently be moved back into Map. Not borrowed separately.
+// NOTE: Could currently be moved back into Arena. Not borrowed separately.
 #[derive(Clone, Debug)]
 struct Roster {
     pub hero: MapRef,

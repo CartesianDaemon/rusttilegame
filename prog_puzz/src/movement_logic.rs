@@ -50,7 +50,7 @@ impl BaseMovementLogic for ProgpuzzMovementLogic
 {
     type CustomProps = ProgpuzzCustomProps;
 
-    fn move_mov(map: &mut Map<Self>, mov: RosterIndex, _cmd: Cmd) -> PaneContinuation {
+    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, _cmd: Cmd) -> PaneContinuation {
         let props = &map[mov].logical_props.custom_props;
         match props.ai {
             ProgpuzzAI::Prog => {

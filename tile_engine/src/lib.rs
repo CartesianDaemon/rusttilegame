@@ -35,7 +35,7 @@ pub mod for_gamedata {
     pub use super::pane::*;
     pub use super::map_coords::*;
     pub use super::simple_custom_props::*;
-    pub use super::map::{Map, RosterIndex};
+    pub use super::map::{Arena, RosterIndex};
 }
 
 pub mod for_testing {
