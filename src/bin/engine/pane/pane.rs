@@ -24,7 +24,7 @@ pub trait BasePane {
 
 /// One unit of gameplay: one map layout, one splash screen, etc.
 ///
-/// TODO: Implement PaneBase? Use spire_enum or similar crate?
+/// Breadcrumb: Implement PaneBase using spire_enum or similar crate?
 #[derive(Clone, Debug)]
 pub enum Pane<MovementLogic: super::super::for_scripting::BaseMovementLogic> {
     Arena(Arena<MovementLogic>),
