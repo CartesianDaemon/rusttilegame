@@ -1,8 +1,6 @@
 use std::collections::HashMap;
 use std::ops::ControlFlow;
 
-// NB: Could move pane types back up into top level. Esp. if Map merged into Arena.
-
 pub use crate::pane_arena::Arena;
 pub use crate::pane_code::*;
 pub use crate::pane_splash::*;
@@ -22,6 +20,7 @@ pub enum PaneConclusion {
 // After each tick, either Continue, or restart/start another level based on Conclusion.
 pub type PaneContinuation = ControlFlow<PaneConclusion, ()>;
 
+// NB Breadcrumb: Need different name for Scene ("level part") than Pane ("screen part").
 pub trait BasePane {
     fn need_sync_to_ticks(&self) -> bool;
     fn advance(&mut self, input : &mut Input) -> PaneContinuation;
