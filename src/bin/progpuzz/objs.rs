@@ -11,9 +11,7 @@ pub fn new_progbot() -> FreeObj<CustomProps> {
         logical_props: LogicalProps::<CustomProps> {
             name:"Hero".to_string(),
             pass: Pass::Mov,
-            custom_props: CustomProps {
-                ai: ProgpuzzAI::Prog,
-            },
+            custom_props: CustomProps::new(ProgpuzzAI::Prog),
             ..LogicalProps::<CustomProps>::defaults()
         },
         visual_props: VisualProps::new_text_fill("HERO".to_string(), Some(GOLD), Some(BLACK))

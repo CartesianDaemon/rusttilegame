@@ -14,13 +14,23 @@ pub fn impassable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, po
 #[derive(Clone, PartialEq, Debug)]
 pub struct ProgpuzzCustomProps {
     pub ai: ProgpuzzAI,
-    // pub prog: Prog,
+    pub prog: Prog,
+}
+
+impl ProgpuzzCustomProps {
+    pub fn new(ai: ProgpuzzAI) -> Self {
+        Self {
+            ai,
+            ..Self::default()
+        }
+    }
 }
 
 impl BaseCustomProps for ProgpuzzCustomProps {
     fn default() -> Self {
         Self {
             ai: ProgpuzzAI::Stay,
+            prog: Prog::default(),
         }
     }
 

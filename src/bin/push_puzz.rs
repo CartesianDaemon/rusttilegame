@@ -1,3 +1,5 @@
+// Breadcrumb: Don't use separate bins. Use workspace. Or separate workspaces?
+
 #![feature(coroutines, coroutine_trait, iter_from_coroutine)]
 #![feature(try_trait_v2)]
 
