@@ -77,9 +77,9 @@ impl Input {
             *slide_pc = 0.;
             true
         } else {
-            let frame_time_pc = ((get_time() - self.last_tick_time) / self.speed) as f32;
-            *anim_pc = frame_time_pc % 1.0;
-            *slide_pc = frame_time_pc.min(1.0);
+            let pc_through_tick = ((get_time() - self.last_tick_time) / self.speed) as f32;
+            *anim_pc = pc_through_tick % 1.0;
+            *slide_pc = pc_through_tick.min(1.0);
             false
         }
     }

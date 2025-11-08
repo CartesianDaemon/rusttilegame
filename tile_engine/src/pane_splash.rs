@@ -1,9 +1,8 @@
 use crate::pane::*;
+use crate::map_coords::Cmd;
 
 // Would be nice to remove if easy
 use macroquad::prelude::*;
-
-use crate::input::Input;
 
 #[derive(Clone, Debug)]
 pub struct DialogueLine {
@@ -47,14 +46,8 @@ impl Splash
 }
 
 impl BasePane for Splash {
-    fn advance(&mut self, input: &mut Input) -> PaneContinuation {
-        let key = input.consume_cmd();
-
-        // Reset "most recent tick" when leaving menu.
-        // FIXME: Avoid needing input as a parameter, move time update to input code.
-        input.last_tick_time = get_time();
-
-        match key {
+    fn advance(&mut self, cmd: Option<Cmd>) -> PaneContinuation {
+        match cmd {
             Some(_) => PaneContinuation::Break(PaneConclusion::SplashContinue),
             None => PaneContinuation::Continue(()),
         }

@@ -23,8 +23,8 @@ struct Engine<Gamedata: BaseGamedata> {
     /// TODO: Move into arena?
     /// TODO: Updated by input::ready_to_advance. Is that right? Could return tuple.
     /// TODO: Combine anim and slide..?
-    anim_real_pc: f32,
-    slide_real_pc: f32,
+    anim_pc: f32,
+    slide_pc: f32,
 
     /// Record input from user ready for use.
     input: Input,
@@ -40,8 +40,8 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
         Engine::<Gamedata> {
             gamedata: gamedata,
             curr_pane_state: arena,
-            anim_real_pc: 0.,
-            slide_real_pc: 0.,
+            anim_pc: 0.,
+            slide_pc: 0.,
             input: Input::new_begin(),
             render: Render::new(),
         }
@@ -49,20 +49,26 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
 
     /// Collect input. Draw frame. Advance logical Engine state, if tick scheduled.
     pub async fn do_frame(&mut self) {
-        /* ENH: Can read_input be combined with wait_for_tick? */
         self.input.read_input();
 
-        if !self.curr_pane_state.tick_based() || self.input.ready_to_advance_game_state(&mut self.anim_real_pc, &mut self.slide_real_pc) {
-            let pane_continuation = self.curr_pane_state.advance(&mut self.input);
+        // NB: Confusingly out of date! Currently we do a "tick" only when the user enters a key.
+        // Tick never happens automatically. All tick length means is how long each moving
+        // animation takes to complete
+        if !self.curr_pane_state.tick_based() || self.input.ready_to_advance_game_state(&mut self.anim_pc, &mut self.slide_pc) {
+            // Do a "tick". Actually, currently whenever user presses key.
+            // TODO: Use Option<Cmd> not Cmd::default.
+            let cmd = self.input.consume_cmd();
+            let pane_continuation = self.curr_pane_state.advance(cmd);
             if let PaneContinuation::Break(pane_ending) = pane_continuation {
                 self.curr_pane_state = self.gamedata.load_next_pane(pane_ending);
+                self.input.last_tick_time = macroquad::prelude::get_time();
             }
         }
 
         self.render.draw_frame(
             &self.curr_pane_state,
-            self.slide_real_pc,
-            self.anim_real_pc,
+            self.slide_pc,
+            self.anim_pc,
         ).await;
     }
 }

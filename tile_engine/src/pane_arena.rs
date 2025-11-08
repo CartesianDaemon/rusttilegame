@@ -16,7 +16,7 @@ use culpa::try_fn;
 use super::pane::{BasePane, PaneContinuation};
 use super::simple_custom_props;
 use super::for_gamedata::BaseMovementLogic;
-use crate::input::Input;
+use crate::map_coords::Cmd;
 
 use super::map_coords::*;
 
@@ -38,12 +38,13 @@ pub struct Arena<MovementLogic: super::for_gamedata::BaseMovementLogic> {
 
 impl<MovementLogic : super::for_gamedata::BaseMovementLogic> BasePane for Arena<MovementLogic>
 {
-    fn advance(&mut self, input : &mut Input) -> PaneContinuation  {
-        let cmd = input.consume_cmd().unwrap_or(Cmd::default());
+    fn advance(&mut self, cmd: Option<Cmd>) -> PaneContinuation  {
         // TODO: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // TODO: Consider: Maybe display char moving out of sync with enemy.
         let hero = Roster::hero();
+
+        let cmd = cmd.unwrap_or(Cmd::default());
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.

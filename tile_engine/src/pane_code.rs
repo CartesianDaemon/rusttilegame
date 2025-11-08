@@ -1,5 +1,5 @@
 use crate::pane::*;
-use crate::input::Input;
+use crate::map_coords::Cmd;
 
 use std::collections::HashMap;
 
@@ -77,7 +77,7 @@ impl Code {
 
 impl BasePane for Code
 {
-    fn advance(&mut self, _input: &mut Input) -> PaneContinuation {
+    fn advance(&mut self, _cmd: Option<Cmd>) -> PaneContinuation {
         // TODO
 
         return PaneContinuation::Continue(());

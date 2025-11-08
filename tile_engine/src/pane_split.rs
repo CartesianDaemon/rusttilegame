@@ -1,5 +1,5 @@
 use crate::pane::*;
-use crate::input::Input;
+use crate::map_coords::Cmd;
 
 #[derive(Clone, Debug)]
 pub enum SplitPhase {
@@ -18,7 +18,7 @@ pub struct Split<MovementLogic : super::for_gamedata::BaseMovementLogic> {
 // NB: Have separate Cmd for menu, movement, programming, etc. Pane chooses which?
 impl<MovementLogic : super::for_gamedata::BaseMovementLogic> BasePane for Split<MovementLogic>
 {
-    fn advance(&mut self, input: &mut Input) -> PaneContinuation {
+    fn advance(&mut self, cmd: Option<Cmd>) -> PaneContinuation {
         match self.phase {
             SplitPhase::Coding => {
                 // For now ignore input and treat anything as "start running"?
@@ -30,7 +30,7 @@ impl<MovementLogic : super::for_gamedata::BaseMovementLogic> BasePane for Split<
             SplitPhase::Running => {
                 // For now ignore input and execute program.
                 // Once run off end will always return ConclusionDie.
-                let _conclusion = self.arena.advance(input);
+                let _conclusion = self.arena.advance(cmd);
 
                 // TODO: If input space, start. Else advance arena.
                 // Will ignore input except for space = "stop"?
