@@ -1,18 +1,30 @@
 use super::{Arena, Code};
 use super::{PaneContinuation, PaneConclusion};
 use crate::engine::input::Input;
+use crate::engine::obj::FreeObj;
 use super::BasePane;
+
+use std::collections::HashMap;
+
+#[derive(Clone, Debug)]
+pub enum SplitPhase {
+    Coding,
+    Running,
+}
 
 #[derive(Clone, Debug)]
 pub struct Split<MovementLogic : super::super::for_gamedata::BaseMovementLogic> {
     pub arena: Arena<MovementLogic>,
     pub code: Code,
+    phase: SplitPhase,
 }
 
 impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> BasePane for Split<MovementLogic>
 {
     fn advance(&mut self, _input: &mut Input) -> PaneContinuation {
-        // TODO
+        // TODO: If input space, start/stop. Else:
+        // TODO: If coding, advance code by input.
+        // TODO: If running, advance arena deterministically.
 
         return PaneContinuation::Continue(());
     }
@@ -25,17 +37,14 @@ impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> BasePane for
 
 impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> Split<MovementLogic>
 {
-//    pub fn from_string(txt: String) -> Splash {
-//        Splash {
-//            splash_text: txt,
-//            dialogue: Dialogue { entries: vec![]},
-//        }
-//    }
-
-//    pub fn from_dialogue(entries: Vec<&str>) -> Splash {
-//        Splash {
-//            splash_text: "".to_string(),
-//            dialogue: Dialogue { entries: entries.iter().map(|x| DialogueLine {tex_path: "".to_string(), text: x.to_string()} ).collect() },
-//        }
-//    }
+    pub fn new<const HEIGHT: usize>(
+        arena: Arena<MovementLogic>,
+        code: Code,
+    ) -> Self {
+        Self {
+            arena,
+            code,
+            phase: SplitPhase::Coding,
+        }
+    }
 }
