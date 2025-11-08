@@ -31,8 +31,7 @@ impl Input {
         }
     }
 
-    // TODO: Reinstate key injection command for tests?
-    #[cfg(test)]
+    // #[cfg(test)]
     pub fn inject_cmd(self: &mut Input, cmd: Cmd)
     {
         self.most_recent_cmd = Some(cmd);

@@ -69,7 +69,6 @@ impl<MovementLogic: super::super::for_scripting::BaseMovementLogic> Pane<Movemen
         }
     }
 
-    #[cfg(test)]
     pub fn as_play(&self) -> &Arena<MovementLogic> {
         match self {
             Self::Arena(arena) => &arena,
@@ -79,7 +78,6 @@ impl<MovementLogic: super::super::for_scripting::BaseMovementLogic> Pane<Movemen
     }
 
     // Used for debugging. Ideally would avoid .as_play().
-    #[cfg(test)]
     pub fn as_ascii_rows(&self)-> Vec<String>  {
         self.as_play().map.as_ascii_rows()
     }

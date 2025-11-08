@@ -216,8 +216,7 @@ impl<MovementLogic: BaseMovementLogic> Map<MovementLogic> {
         ).collect()
     }
 
-    /// Ascii representation of map. Test functions check it's as expected.
-    #[cfg(test)]
+    /// Ascii representation of map. Checked by test functions. Used for debug logging.
     pub fn as_ascii_rows(&self) -> Vec<String> {
         (0..self.map.h() as i16).map(|y|
             (0..self.map.w() as i16).map(|x| {
