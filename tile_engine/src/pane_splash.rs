@@ -4,7 +4,17 @@ use crate::pane::*;
 use macroquad::prelude::*;
 
 use crate::input::Input;
-use super::dialogue::*;
+
+#[derive(Clone, Debug)]
+pub struct DialogueLine {
+    pub tex_path: String,
+    pub text: String,
+}
+
+#[derive(Clone, Debug)]
+pub struct Dialogue {
+    pub entries: Vec<DialogueLine>,
+}
 
 /// Splash message, any key to continue. E.g. New level, game over.
 ///
