@@ -23,6 +23,7 @@ fn _instr_to_txt(instr: &Instr) -> String {
     }.to_string()
 }
 
+// NB: Nice to move to progpuzz if we can.
 // NB: Could be combined with putative AttemptedAction defined for Cmd.
 // Breadcrumb: Could implement to_txt and txt_to in terms of common trait.
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]

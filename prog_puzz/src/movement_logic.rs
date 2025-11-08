@@ -50,7 +50,7 @@ impl BaseMovementLogic for ProgpuzzMovementLogic
 {
     type CustomProps = ProgpuzzCustomProps;
 
-    fn move_mov(map: &mut Map<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
+    fn move_mov(map: &mut Map<Self>, mov: RosterIndex, _cmd: Cmd) -> PaneContinuation {
         let props = &map[mov].logical_props.custom_props;
         match props.ai {
             ProgpuzzAI::Prog => {
@@ -62,7 +62,7 @@ impl BaseMovementLogic for ProgpuzzMovementLogic
                     // Move forward
                     Some(Instr::F) => {
                         // NB Breadcrumb: Move to an attempt_action fn in simple_props.
-                        let target_pos = map[mov].pos() + cmd.as_dir();
+                        let target_pos = map[mov].pos() + map[mov].logical_props.dir;
                         if map.passable(target_pos) {
                             map.move_obj_to(mov, target_pos);
                         }

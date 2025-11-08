@@ -19,7 +19,7 @@ pub struct Arena<MovementLogic: super::super::for_gamedata::BaseMovementLogic> {
 impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> BasePane for Arena<MovementLogic>
 {
     fn advance(&mut self, input : &mut Input) -> PaneContinuation  {
-        let cmd = input.consume_cmd().unwrap_or(Cmd::default_cmd());
+        let cmd = input.consume_cmd().unwrap_or(Cmd::default());
         self.map.advance(cmd)
     }
 

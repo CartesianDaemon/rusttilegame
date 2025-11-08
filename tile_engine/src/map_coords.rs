@@ -96,9 +96,11 @@ impl CoordDelta {
 }
 
 // Translation of Key or Mouse into attempted movement of hero.
-// NB: Not quite right currently as Progpuzz Arena bot should accept something
+// NB: Should love to interface exposed by input.
+// NB: Have separate Cmd for menu, movement, programming, etc. Pane chooses which?
+// Not quite right currently as Progpuzz Arena bot should accept something
 // like Cmd from executing program. Only pushpuzz hero gets it from user?
-// NB: Could turn into AttemptAction struct in simple_logic, which is
+// NB: Or could turn into AttemptAction struct in simple_logic, which is
 // used by most game movement logic but doesn't have to be? Along with an
 // attempt_action fn which handles passability etc.
 #[derive(PartialEq, Copy, Clone)]
@@ -122,7 +124,7 @@ impl Cmd {
         }
     }
 
-    pub fn default_cmd() -> Self {
+    pub fn default() -> Self {
         Self::Stay
     }
 }

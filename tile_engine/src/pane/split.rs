@@ -16,18 +16,24 @@ pub struct Split<MovementLogic : super::super::for_gamedata::BaseMovementLogic> 
     phase: SplitPhase,
 }
 
+// NB: Should this be calling input at all or not?
+// NB: Have separate Cmd for menu, movement, programming, etc. Pane chooses which?
 impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> BasePane for Split<MovementLogic>
 {
-    fn advance(&mut self, _input: &mut Input) -> PaneContinuation {
+    fn advance(&mut self, input: &mut Input) -> PaneContinuation {
         match self.phase {
             SplitPhase::Coding => {
-                // TODO: Advance code by input. Check input, or check return, to know when to start running.
+                // For now ignore input and treat anything as "start running"?
                 self.phase = SplitPhase::Running;
+                // TODO: Edit program according to input. Or start running.
                 let _ = &self.code.supplies;
                 let _ = &self.code.prog;
-                unimplemented!();
             },
             SplitPhase::Running => {
+                // For now ignore input and execute program.
+                // Once run off end will always return ConclusionDie.
+                let _conclusion = self.arena.advance(input);
+
                 // TODO: If input space, start. Else advance arena.
                 // Will ignore input except for space = "stop"?
                 // Win => return Win. Die => Stop running.

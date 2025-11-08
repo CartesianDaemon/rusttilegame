@@ -1,13 +1,14 @@
 use std::collections::HashMap;
 use std::ops::ControlFlow;
 
+// NB: Could move pane types back up into top level. Esp. if Map merged into Arena.
+
 use super::*;
 use super::Split;
 use crate::input::Input;
 use crate::obj::FreeObj;
 
 // TODO: Move into game-specific info if possible?
-#[allow(dead_code)]
 pub enum PaneConclusion {
     SplashContinue,
     ArenaWin,
