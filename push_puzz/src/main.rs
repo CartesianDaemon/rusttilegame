@@ -3,7 +3,7 @@
 
 mod pushpuzz;
 #[cfg(test)]
-mod engine_tests;
+mod push_puzz_tests;
 
 #[macroquad::main("Tile Game")]
 async fn main() {
