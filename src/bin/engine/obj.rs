@@ -28,7 +28,7 @@ pub struct LogicalProps<CustomProps: BaseCustomProps> {
     pub name: String,
 
     // Internal status for ents which have a current movement direction.
-    // Also used for display
+    // Also used to calculate current facing direction, to rotate texture.
     pub dir: CoordDelta,
 
     // Custom properties used by movement logic.

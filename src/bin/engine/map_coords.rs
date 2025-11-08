@@ -58,13 +58,40 @@ impl CoordDelta {
         CoordDelta {dx, dy}
     }
 
-    // TODO: Consider implementing Mul<> on integer types instead?
     pub fn reverse(&mut self) {
         *self = self.reversed()
     }
 
-    pub fn reversed(self) -> Self {
+    fn reversed(self) -> Self {
         CoordDelta { dx: self.dx * -1, dy: self.dy * -1 }
+    }
+
+    // Cycles forward through:
+    // Facing N 0,-1
+    // Facing E 1, 0
+    // Facing S 0, -1
+    // Facing W -1, 0
+    fn rotated_r(&self) -> CoordDelta {
+        CoordDelta {
+            dx: -self.dy,
+            dy: self.dx,
+        }
+    }
+
+    // Reverse of rotated_r
+    fn rotated_l(&self) -> CoordDelta {
+        CoordDelta {
+            dx: self.dy,
+            dy: -self.dx,
+        }
+    }
+
+    pub fn rotate_r(&mut self) {
+        *self = self.rotated_r()
+    }
+
+    pub fn rotate_l(&mut self) {
+        *self = self.rotated_l()
     }
 }
 
@@ -86,6 +113,7 @@ pub enum Cmd {
 impl Cmd {
     pub fn as_dir(self: Self) -> CoordDelta {
         match self {
+            // NB: Could be mapped in terms of rotatable Facing type.
             Self::Stay  => CoordDelta::from_xy(0, 0),
             Self::Left  => CoordDelta::from_xy(-1, 0),
             Self::Right => CoordDelta::from_xy(1, 0),

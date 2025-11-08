@@ -80,9 +80,11 @@ impl BaseMovementLogic for ProgpuzzMovementLogic
                     },
                     // Rotate L
                     Some(Instr::L) => {
+                        map[mov].logical_props.dir.rotate_l();
                     },
                     // Rotate R
                     Some(Instr::R) => {
+                        map[mov].logical_props.dir.rotate_r();
                     },
                     // Loop through contained instructions. NB: Placeholder.
                     Some(Instr::Loop(_)) => {
