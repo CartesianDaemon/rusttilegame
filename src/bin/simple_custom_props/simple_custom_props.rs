@@ -14,11 +14,11 @@ impl BaseCustomProps for SimpleCustomProps {
         }
     }
 
-    fn is_hero(props: Self) -> bool {
-        props.ai == SimpleAI::Hero
+    fn is_hero(self: &Self) -> bool {
+        self.ai == SimpleAI::Hero
     }
-    fn is_any_mov(props: Self) -> bool {
-        props.ai != SimpleAI::Stay
+    fn is_any_mov(self: &Self) -> bool {
+        self.ai != SimpleAI::Stay
     }
 }
 
