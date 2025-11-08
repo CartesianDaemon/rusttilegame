@@ -14,6 +14,7 @@ pub enum PaneConclusion {
     ArenaDie,
 }
 
+// After each tick, either Continue, or restart/start another level based on Conclusion.
 pub type PaneContinuation = ControlFlow<PaneConclusion, ()>;
 
 /// One unit of gameplay: one map layout, one splash screen, etc.
