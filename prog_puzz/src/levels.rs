@@ -37,7 +37,7 @@ impl ProgpuzzLevset {
             ('#', vec![ new_floor(), new_wall() ]),
             ('^', vec![ new_floor(), new_progbot(CoordDelta::from_xy(0, -1)) ]),
             ('>', vec![ new_floor(), new_progbot(CoordDelta::from_xy(1, 0)) ]),
-            ('v', vec![ new_floor(), new_progbot(CoordDelta::from_xy(0, -1)) ]),
+            ('v', vec![ new_floor(), new_progbot(CoordDelta::from_xy(0, 1)) ]),
             ('<', vec![ new_floor(), new_progbot(CoordDelta::from_xy(-1, 0)) ]),
             ('w', vec![ new_door_win() ]),
             /*
