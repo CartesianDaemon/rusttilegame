@@ -52,7 +52,7 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
         /* ENH: Can read_input be combined with wait_for_tick? */
         self.input.read_input();
 
-        if !self.curr_pane_state.need_sync_to_ticks() || self.input.ready_to_advance_game_state(&mut self.anim_real_pc, &mut self.slide_real_pc) {
+        if !self.curr_pane_state.tick_based() || self.input.ready_to_advance_game_state(&mut self.anim_real_pc, &mut self.slide_real_pc) {
             let pane_continuation = self.curr_pane_state.advance(&mut self.input);
             if let PaneContinuation::Break(pane_ending) = pane_continuation {
                 self.curr_pane_state = self.gamedata.load_next_pane(pane_ending);

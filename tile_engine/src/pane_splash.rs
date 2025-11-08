@@ -60,7 +60,7 @@ impl BasePane for Splash {
         }
     }
 
-    fn need_sync_to_ticks(&self) -> bool {
+    fn tick_based(&self) -> bool {
         false
     }
 }

@@ -63,7 +63,7 @@ impl<MovementLogic : super::for_gamedata::BaseMovementLogic> BasePane for Arena<
         PaneContinuation::Continue(())
     }
 
-    fn need_sync_to_ticks(&self) -> bool {
+    fn tick_based(&self) -> bool {
         true
     }
 }

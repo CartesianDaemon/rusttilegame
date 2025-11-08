@@ -41,7 +41,7 @@ impl<MovementLogic : super::for_gamedata::BaseMovementLogic> BasePane for Split<
         return PaneContinuation::Continue(());
     }
 
-    fn need_sync_to_ticks(&self) -> bool {
+    fn tick_based(&self) -> bool {
         // TODO: Need "stop" to happen at any time. But could trigger bot movement on key, or on tick?
         false
     }

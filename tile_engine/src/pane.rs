@@ -22,7 +22,7 @@ pub type PaneContinuation = ControlFlow<PaneConclusion, ()>;
 
 // NB Breadcrumb: Need different name for Scene ("level part") than Pane ("screen part").
 pub trait BasePane {
-    fn need_sync_to_ticks(&self) -> bool;
+    fn tick_based(&self) -> bool;
     fn advance(&mut self, input : &mut Input) -> PaneContinuation;
 }
 
@@ -55,11 +55,11 @@ impl<MovementLogic: super::for_gamedata::BaseMovementLogic> Pane<MovementLogic> 
     }
 
     // Does current pane act on user input immediately (not governed by a game tick)?
-    pub fn need_sync_to_ticks(&self) -> bool {
+    pub fn tick_based(&self) -> bool {
         match self {
-            Self::Arena(pane) => pane.need_sync_to_ticks(),
-            Self::Splash(pane) => pane.need_sync_to_ticks(),
-            Self::Split(pane) => pane.need_sync_to_ticks(),
+            Self::Arena(pane) => pane.tick_based(),
+            Self::Splash(pane) => pane.tick_based(),
+            Self::Split(pane) => pane.tick_based(),
         }
     }
 
