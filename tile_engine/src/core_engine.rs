@@ -1,10 +1,9 @@
 use crate::gamedata::BaseGamedata;
 
 use super::gamedata;
-use super::pane::Pane;
+use super::pane::*;
 use super::input::Input;
 use super::render::Render;
-use super::pane::*;
 
 /// Overall Engine state.
 ///

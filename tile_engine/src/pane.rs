@@ -3,8 +3,11 @@ use std::ops::ControlFlow;
 
 // NB: Could move pane types back up into top level. Esp. if Map merged into Arena.
 
-use super::*;
-use super::Split;
+pub use crate::pane_arena::Arena;
+pub use crate::pane_code::*;
+pub use crate::pane_splash::*;
+pub use crate::pane_split::*;
+
 use crate::input::Input;
 use crate::obj::FreeObj;
 
@@ -28,7 +31,7 @@ pub trait BasePane {
 ///
 /// Breadcrumb: Implement PaneBase using spire_enum or similar crate?
 #[derive(Clone, Debug)]
-pub enum Pane<MovementLogic: super::super::for_gamedata::BaseMovementLogic> {
+pub enum Pane<MovementLogic: super::for_gamedata::BaseMovementLogic> {
     Arena(Arena<MovementLogic>),
     Splash(Splash),
     Split(Split<MovementLogic>),
@@ -36,7 +39,7 @@ pub enum Pane<MovementLogic: super::super::for_gamedata::BaseMovementLogic> {
     //  Code(Code)
 }
 
-impl<MovementLogic: super::super::for_gamedata::BaseMovementLogic> Pane<MovementLogic> {
+impl<MovementLogic: super::for_gamedata::BaseMovementLogic> Pane<MovementLogic> {
     pub fn from_splash_string(txt: String) -> Self {
         Pane::Splash(Splash::from_string(txt))
     }

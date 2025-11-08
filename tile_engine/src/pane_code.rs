@@ -1,6 +1,5 @@
-use super::PaneContinuation;
+use crate::pane::*;
 use crate::input::Input;
-use super::BasePane;
 
 use std::collections::HashMap;
 

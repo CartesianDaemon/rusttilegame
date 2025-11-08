@@ -1,5 +1,4 @@
-use super::{PaneContinuation, PaneConclusion};
-use super::BasePane;
+use crate::pane::*;
 
 // Would be nice to remove if easy
 use macroquad::prelude::*;

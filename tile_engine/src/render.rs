@@ -3,8 +3,7 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 use assrt::rsst;
 
-use super::pane;
-use super::pane::Pane;
+use super::pane::*;
 use super::map::MapObj;
 use super::map_coords::CoordDelta;
 
@@ -213,7 +212,7 @@ pub struct RenderSplash {
 
 impl RenderSplash
 {
-    pub fn begin(splash: &pane::Splash) -> RenderSplash {
+    pub fn begin(splash: &Splash) -> RenderSplash {
         clear_background(WHITE);
 
         let text = &splash.splash_text;

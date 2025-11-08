@@ -1,7 +1,5 @@
-use super::{Arena, Code};
-use super::PaneContinuation;
+use crate::pane::*;
 use crate::input::Input;
-use super::BasePane;
 
 #[derive(Clone, Debug)]
 pub enum SplitPhase {
@@ -10,7 +8,7 @@ pub enum SplitPhase {
 }
 
 #[derive(Clone, Debug)]
-pub struct Split<MovementLogic : super::super::for_gamedata::BaseMovementLogic> {
+pub struct Split<MovementLogic : super::for_gamedata::BaseMovementLogic> {
     pub arena: Arena<MovementLogic>,
     pub code: Code,
     phase: SplitPhase,
@@ -18,7 +16,7 @@ pub struct Split<MovementLogic : super::super::for_gamedata::BaseMovementLogic> 
 
 // NB: Should this be calling input at all or not?
 // NB: Have separate Cmd for menu, movement, programming, etc. Pane chooses which?
-impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> BasePane for Split<MovementLogic>
+impl<MovementLogic : super::for_gamedata::BaseMovementLogic> BasePane for Split<MovementLogic>
 {
     fn advance(&mut self, input: &mut Input) -> PaneContinuation {
         match self.phase {
@@ -49,7 +47,7 @@ impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> BasePane for
     }
 }
 
-impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> Split<MovementLogic>
+impl<MovementLogic : super::for_gamedata::BaseMovementLogic> Split<MovementLogic>
 {
     pub fn new<const HEIGHT: usize>(
         arena: Arena<MovementLogic>,

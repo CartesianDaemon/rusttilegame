@@ -18,6 +18,11 @@ mod map;
 mod gamedata;
 pub mod input; // For engine_tests in push_puzz??
 mod pane;
+mod pane_code;
+mod dialogue;
+mod pane_arena;
+mod pane_splash;
+mod pane_split;
 mod obj;
 
 // Used in main() function
