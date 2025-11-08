@@ -52,7 +52,7 @@ impl Supply {
 }
 
 // Breadcrumb: Derive for implementing default value?
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct Prog {
     elems: Vec<Instr>,
 }

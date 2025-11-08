@@ -14,6 +14,7 @@ pub fn impassable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, po
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct ProgpuzzCustomProps {
     pub ai: ProgpuzzAI,
+    // pub prog: Prog,
 }
 
 impl BaseCustomProps for ProgpuzzCustomProps {
