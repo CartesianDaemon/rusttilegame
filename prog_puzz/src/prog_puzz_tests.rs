@@ -50,6 +50,7 @@ fn basic_move() {
     // TODO: Add printout of actual map on failure
     // TODO: Check coding/running changes as expected
     // TODO: Simpler syntax for test without so much input boilerplate
+    // TODO: Move assert line into function. With some way of seeing how many ticks have passed.
 
     let mut curr_pane_state = get_lev(1);
     assert_eq!(curr_pane_state.advance(&mut Input::from_one_cmd(Cmd::Stay)), PaneContinuation::Continue(()));
