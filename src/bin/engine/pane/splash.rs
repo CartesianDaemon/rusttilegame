@@ -32,6 +32,10 @@ impl PaneBase for Splash {
             None => PaneContinuation::Continue(()),
         }
     }
+
+    fn is_continuous(&self) -> bool {
+        true
+    }
 }
 
 impl Splash

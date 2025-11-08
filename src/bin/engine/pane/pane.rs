@@ -18,13 +18,13 @@ pub enum PaneConclusion {
 pub type PaneContinuation = ControlFlow<PaneConclusion, ()>;
 
 pub trait PaneBase {
-    // fn is_continuous(&self) -> bool;
+    fn is_continuous(&self) -> bool;
     fn advance(&mut self, input : &mut Input) -> PaneContinuation;
 }
 
 /// One unit of gameplay: one map layout, one splash screen, etc.
 ///
-/// Would be nice to have base trait for pane types. Look for helper crate?
+/// TODO: Implement PaneBase?
 #[derive(Clone, Debug)]
 pub enum Pane<MovementLogic: super::super::for_scripting::BaseMovementLogic> {
     Arena(Arena<MovementLogic>),
@@ -53,14 +53,15 @@ impl<MovementLogic: super::super::for_scripting::BaseMovementLogic> Pane<Movemen
     // Does current pane act on user input immediately (not governed by a game tick)?
     pub fn is_continuous(&self) -> bool {
         match self {
-            Self::Splash(_) => true,
-            Self::Arena(_) => false,
-            Self::Split(_) => false, // TODO: Depend on "running" or "coding" state.
+            Self::Arena(pane) => pane.is_continuous(),
+            Self::Splash(pane) => pane.is_continuous(),
+            Self::Split(pane) => pane.is_continuous(),
         }
     }
 
     // Advance game state. Called when clock ticks or when user inputs.
     pub fn advance(&mut self, input : &mut Input) -> PaneContinuation {
+        // TODO: Was there a pattern to get a variable of trait type here and avoid repition?
         match self {
             Self::Arena(pane) => pane.advance(input),
             Self::Splash(pane) => pane.advance(input),

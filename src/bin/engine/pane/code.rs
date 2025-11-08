@@ -14,4 +14,8 @@ impl PaneBase for Code
 
         return PaneContinuation::Continue(());
     }
+
+    fn is_continuous(&self) -> bool {
+        true
+    }
 }

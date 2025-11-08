@@ -22,6 +22,10 @@ impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> PaneBase for
         let cmd = input.consume_cmd().unwrap_or(Cmd::default_cmd());
         self.map.advance(cmd)
     }
+
+    fn is_continuous(&self) -> bool {
+        false
+    }
 }
 
 impl<MovementLogic: super::super::for_scripting::BaseMovementLogic> Arena<MovementLogic>

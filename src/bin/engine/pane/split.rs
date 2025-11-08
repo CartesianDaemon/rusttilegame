@@ -16,6 +16,11 @@ impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> PaneBase for
 
         return PaneContinuation::Continue(());
     }
+
+    fn is_continuous(&self) -> bool {
+        // TODO: Depend on "running" or "coding" state.
+        true
+    }
 }
 
 impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> Split<MovementLogic>
