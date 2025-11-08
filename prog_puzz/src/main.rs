@@ -1,8 +1,3 @@
-#![feature(coroutines, coroutine_trait, iter_from_coroutine)]
-#![feature(try_trait_v2)]
-
-#![allow(unused_braces)]
-
 /// This directory contains the artistic parts of my "Biobot Game"
 /// game in progress. e.g. gameplay, plot, art, characters, dialogue,
 /// level layout, etc.
