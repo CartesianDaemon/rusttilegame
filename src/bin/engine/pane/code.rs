@@ -4,6 +4,25 @@ use super::BasePane;
 
 use std::collections::HashMap;
 
+fn txt_to_instr(txt: &str) -> Instr {
+    match txt {
+        "F" => Instr::F,
+        "L" => Instr::L,
+        "R" => Instr::R,
+        "Loop" => Instr::Loop(vec![]),
+        _ => panic!("Unrecognised txt for instr")
+    }
+}
+
+fn instr_to_txt(instr: &Instr) -> String {
+    match instr {
+        Instr::F => "F",
+        Instr::L => "L",
+        Instr::R => "R",
+        Instr::Loop(_) => "Loop",
+    }.to_string()
+}
+
 // Todo: Could introduce AttemptAction with things like "move 1" and
 // "Rotate L/R", returned by a fn on Instr variants and similarly by
 // keys in pushpuzz. And interpreted further by an attempt_action fn
