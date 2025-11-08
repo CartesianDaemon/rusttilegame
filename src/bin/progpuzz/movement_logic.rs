@@ -15,6 +15,9 @@ pub fn impassable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, po
 pub struct ProgpuzzCustomProps {
     pub ai: ProgpuzzAI,
     pub prog: Prog,
+    // Next instruction to execute as index into vec.
+    // Later will need handle into branching object.
+    pub ip: u16,
 }
 
 impl ProgpuzzCustomProps {
@@ -31,6 +34,7 @@ impl BaseCustomProps for ProgpuzzCustomProps {
         Self {
             ai: ProgpuzzAI::Stay,
             prog: Prog::default(),
+            ip: 0,
         }
     }
 
