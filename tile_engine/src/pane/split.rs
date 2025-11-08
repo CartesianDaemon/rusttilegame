@@ -22,6 +22,9 @@ impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> BasePane for
         match self.phase {
             SplitPhase::Coding => {
                 // TODO: Advance code by input. Check input, or check return, to know when to start running.
+                self.phase = SplitPhase::Running;
+                let _ = &self.code.supplies;
+                let _ = &self.code.prog;
                 unimplemented!();
             },
             SplitPhase::Running => {

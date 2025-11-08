@@ -35,16 +35,16 @@ pub enum Instr {
 }
 
 #[derive(Clone, Debug)]
-struct Supply {
-    orig_count: u16,
-    curr_count: u16,
+pub struct Supply {
+    _orig_count: u16,
+    _curr_count: u16,
 }
 
 impl Supply {
-    fn new(orig_count: u16) -> Self {
+    fn new(_orig_count: u16) -> Self {
         Self {
-            orig_count: orig_count,
-            curr_count: orig_count,
+            _orig_count: _orig_count,
+            _curr_count: _orig_count,
         }
     }
 }
@@ -58,8 +58,8 @@ pub struct Prog {
 #[derive(Clone, Debug)]
 pub struct Code {
     // TODO: Need IndexMap or Vec to maintain order.
-    supplies: HashMap<Instr, Supply>,
-    prog: Prog,
+    pub supplies: HashMap<Instr, Supply>,
+    pub prog: Prog,
 }
 
 impl Code {
