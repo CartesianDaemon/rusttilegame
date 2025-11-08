@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::ops::ControlFlow;
 
 use super::*;
+use super::Split;
 use crate::engine::input::Input;
 use crate::engine::obj::FreeObj;
 
@@ -9,7 +10,7 @@ use crate::engine::obj::FreeObj;
 // TODO: Rename PaneConclusion??
 #[allow(dead_code)]
 pub enum PaneEnding {
-    SplashNext,
+    SplashNext, // TODO: Rename Continue?
     PlayWin,
     PlayDie,
 }
@@ -23,6 +24,9 @@ pub type PaneContinuation = ControlFlow<PaneEnding, ()>;
 pub enum Pane<MovementLogic: super::super::for_scripting::BaseMovementLogic> {
     Play(Play<MovementLogic>),
     Splash(Splash),
+    Split(Split<MovementLogic>),
+    // Could be defined but not used separately:
+    //  Code(Code)
 }
 
 impl<MovementLogic: super::super::for_scripting::BaseMovementLogic> Pane<MovementLogic> {
@@ -46,14 +50,16 @@ impl<MovementLogic: super::super::for_scripting::BaseMovementLogic> Pane<Movemen
         match self {
             Self::Splash(_) => true,
             Self::Play(_) => false,
+            Self::Split(_) => false, // TODO: Depend on "running" or "coding" state.
         }
     }
 
     // Advance game state. Called when clock ticks or when user inputs.
     pub fn advance(&mut self, input : &mut Input) -> PaneContinuation {
         match self {
-            Self::Play(play) => play.advance(input),
-            Self::Splash(play) => play.advance(input),
+            Self::Play(pane) => pane.advance(input),
+            Self::Splash(pane) => pane.advance(input),
+            Self::Split(pane) => pane.advance(input),
         }
     }
 
@@ -62,6 +68,7 @@ impl<MovementLogic: super::super::for_scripting::BaseMovementLogic> Pane<Movemen
         match self {
             Self::Play(play) => &play,
             Self::Splash(_splash) => panic!(),
+            Self::Split(pane) => &pane.play,
         }
     }
 

@@ -46,6 +46,9 @@ impl Render {
             Pane::Splash(play_state) => {
                 let _r = RenderSplash::begin(&play_state);
             }
+            Pane::Split(_) => {
+                // ...
+            }
         }
     }
 }
