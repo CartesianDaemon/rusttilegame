@@ -6,11 +6,11 @@ use std::collections::HashMap;
 use crate::map::Map;
 use crate::obj::FreeObj;
 use crate::input::Input;
-use crate::for_scripting::Cmd;
+use crate::for_gamedata::Cmd;
 
 /// Interactive map, the actual gameplay part of the game.
 #[derive(Clone, Debug)]
-pub struct Arena<MovementLogic: super::super::for_scripting::BaseMovementLogic> {
+pub struct Arena<MovementLogic: super::super::for_gamedata::BaseMovementLogic> {
     // Layout of current map.
     pub map: Map<MovementLogic>,
 }
@@ -27,7 +27,7 @@ impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> BasePane for
     }
 }
 
-impl<MovementLogic: super::super::for_scripting::BaseMovementLogic> Arena<MovementLogic>
+impl<MovementLogic: super::super::for_gamedata::BaseMovementLogic> Arena<MovementLogic>
 {
     pub fn from_ascii<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],

@@ -1,4 +1,3 @@
-use tile_engine::for_scripting::*;
 use tile_engine::for_gamedata::*;
 
 // NB: Custom props could be enum we need different data for different object types.

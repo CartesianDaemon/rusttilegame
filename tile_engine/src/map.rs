@@ -15,7 +15,7 @@ use culpa::try_fn;
 
 use super::pane::PaneContinuation;
 use super::simple_custom_props;
-use super::for_scripting::BaseMovementLogic;
+use super::for_gamedata::BaseMovementLogic;
 
 use super::map_coords::*;
 

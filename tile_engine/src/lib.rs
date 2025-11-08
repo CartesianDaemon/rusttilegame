@@ -23,28 +23,15 @@ mod obj;
 // Used in main() function
 pub use core_engine::run;
 
-// Engine exports needed for writing game scripts.
-// NB breadcrumb: Merge with gamedata. May or may not become sub-module.
-pub mod for_scripting {
-    pub use super::map::{Map, RosterIndex};
-    pub use super::map_coords::*;
-    pub use super::pane::{PaneContinuation, PaneConclusion};
-    pub use super::pane::{Prog, Instr};
-    pub use super::gamedata::BaseMovementLogic;
-    pub use super::simple_custom_props::*;
-}
-
 // Engine exports needed for writing game data.
-// TODO: Some only used by pushing puzzle, not programming puzzle?
-// TODO: For some types, put types in GameData already parameterised by appropritate custom types?
-//#[allow(unused_imports)]
+// NB: Check which things ought to be exported, which shouldn't be needed.
 pub mod for_gamedata {
     pub use super::obj::*;
     pub use super::gamedata::*;
-    pub use super::pane::{Pane, PaneConclusion};
-    pub use super::pane::{Split, Arena, Code};
+    pub use super::pane::*;
     pub use super::map_coords::*;
     pub use super::simple_custom_props::*;
+    pub use super::map::{Map, RosterIndex};
 }
 
 pub mod for_testing {

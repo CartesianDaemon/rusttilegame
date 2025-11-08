@@ -1,5 +1,5 @@
 // TODO: Add these types to a Script struct?
-use tile_engine::for_scripting::*;
+use tile_engine::for_gamedata::*;
 
 #[derive(Clone, Debug)]
 pub struct PushpuzzMovementLogic;
