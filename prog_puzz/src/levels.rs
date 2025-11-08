@@ -5,27 +5,27 @@ use super::objs::*;
 use tile_engine::for_gamedata::*;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
-pub enum BiobotPaneId {
+pub enum ProgpuzzPaneId {
     LevSplit(u16),
     Win,
 }
 
 #[derive(Debug)]
 pub struct ProgpuzzLevset {
-    pub current_paneid: BiobotPaneId,
+    pub current_paneid: ProgpuzzPaneId,
 }
 
 impl ProgpuzzLevset {
     pub fn new() -> ProgpuzzLevset {
-        ProgpuzzLevset { current_paneid: BiobotPaneId::LevSplit(1) }
+        ProgpuzzLevset { current_paneid: ProgpuzzPaneId::LevSplit(1) }
     }
 
     pub fn advance_pane(&mut self, continuation: PaneConclusion) {
         self.current_paneid = match (self.current_paneid, continuation) {
             // TODO: Get max levnum from list of levels?
-            (BiobotPaneId::LevSplit(1), PaneConclusion::ArenaWin) => BiobotPaneId::Win,
-            (BiobotPaneId::LevSplit(levnum), PaneConclusion::ArenaWin) => BiobotPaneId::LevSplit(levnum+1),
-            (BiobotPaneId::Win, PaneConclusion::SplashNext) => Self::new().current_paneid,
+            (ProgpuzzPaneId::LevSplit(1), PaneConclusion::ArenaWin) => ProgpuzzPaneId::Win,
+            (ProgpuzzPaneId::LevSplit(levnum), PaneConclusion::ArenaWin) => ProgpuzzPaneId::LevSplit(levnum+1),
+            (ProgpuzzPaneId::Win, PaneConclusion::SplashNext) => Self::new().current_paneid,
             _ => panic!()
         };
     }
@@ -43,7 +43,7 @@ impl ProgpuzzLevset {
         // NB: Would like to implement thin walls between squares, not walls filling whole squares.
         match self.current_paneid {
             // TODO: Avoid needing to specify HEIGHT explicitly.
-            BiobotPaneId::LevSplit(1) => Pane::Split(Split::new::<16>(
+            ProgpuzzPaneId::LevSplit(1) => Pane::Split(Split::new::<16>(
                 Arena::from_ascii(&[
                     "################",
                     "#              #",
@@ -73,11 +73,11 @@ impl ProgpuzzLevset {
                     ].into_iter().collect()
                 )
             )),
-            BiobotPaneId::Win => {
+            ProgpuzzPaneId::Win => {
                 Pane::from_splash_string("Congratulations. You've completed all the levels. Press [enter] to play through again".to_string())
             },
 
-            BiobotPaneId::LevSplit(_) => panic!("Loading LevSplit for level that can't be found."),
+            ProgpuzzPaneId::LevSplit(_) => panic!("Loading LevSplit for level that can't be found."),
         }
     }
 }

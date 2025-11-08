@@ -4,10 +4,8 @@ use super::objs::*;
 
 use tile_engine::for_gamedata::*;
 
-// TOOD: Would it be useful to have a levset trait defining the necessary traits,
-// even if it doesn't add any other functionality?
 #[derive(Clone, Copy, PartialEq, Debug)]
-pub enum BiobotPaneId {
+pub enum PushpuzzPaneId {
     NewGame,
     LevIntro(u16),
     LevArena(u16),
@@ -18,25 +16,25 @@ pub enum BiobotPaneId {
 
 #[derive(Debug)]
 pub struct PushpuzzLevset {
-    pub current_paneid: BiobotPaneId,
+    pub current_paneid: PushpuzzPaneId,
 }
 
 impl PushpuzzLevset {
     pub fn new() -> PushpuzzLevset {
-        PushpuzzLevset { current_paneid: BiobotPaneId::NewGame }
+        PushpuzzLevset { current_paneid: PushpuzzPaneId::NewGame }
     }
 
     pub fn advance_pane(&mut self, continuation: PaneConclusion) {
         self.current_paneid = match (self.current_paneid, continuation) {
-            (BiobotPaneId::NewGame, PaneConclusion::SplashNext) => BiobotPaneId::LevIntro(1),
-            (BiobotPaneId::LevIntro(levnum), PaneConclusion::SplashNext) => BiobotPaneId::LevArena(levnum),
-            (BiobotPaneId::LevArena(levnum), PaneConclusion::ArenaWin) => BiobotPaneId::LevOutro(levnum),
-            (BiobotPaneId::LevArena(levnum), PaneConclusion::ArenaDie) => BiobotPaneId::LevRetry(levnum),
-            (BiobotPaneId::LevRetry(levnum), PaneConclusion::SplashNext) => BiobotPaneId::LevArena(levnum),
+            (PushpuzzPaneId::NewGame, PaneConclusion::SplashNext) => PushpuzzPaneId::LevIntro(1),
+            (PushpuzzPaneId::LevIntro(levnum), PaneConclusion::SplashNext) => PushpuzzPaneId::LevArena(levnum),
+            (PushpuzzPaneId::LevArena(levnum), PaneConclusion::ArenaWin) => PushpuzzPaneId::LevOutro(levnum),
+            (PushpuzzPaneId::LevArena(levnum), PaneConclusion::ArenaDie) => PushpuzzPaneId::LevRetry(levnum),
+            (PushpuzzPaneId::LevRetry(levnum), PaneConclusion::SplashNext) => PushpuzzPaneId::LevArena(levnum),
             // TODO: Get max levnum from list of levels?
-            (BiobotPaneId::LevOutro(2), PaneConclusion::SplashNext) => BiobotPaneId::Win,
-            (BiobotPaneId::LevOutro(levnum), PaneConclusion::SplashNext) => BiobotPaneId::LevOutro(levnum+1),
-            (BiobotPaneId::Win, PaneConclusion::SplashNext) => BiobotPaneId::NewGame,
+            (PushpuzzPaneId::LevOutro(2), PaneConclusion::SplashNext) => PushpuzzPaneId::Win,
+            (PushpuzzPaneId::LevOutro(levnum), PaneConclusion::SplashNext) => PushpuzzPaneId::LevOutro(levnum+1),
+            (PushpuzzPaneId::Win, PaneConclusion::SplashNext) => PushpuzzPaneId::NewGame,
             _ => panic!()
         };
     }
@@ -59,7 +57,7 @@ impl PushpuzzLevset {
 
         match self.current_paneid {
             // TODO: Can we use idx++ instead of specifying each level number? Not immediately?
-            BiobotPaneId::NewGame => Pane::from_splash_dialogue(
+            PushpuzzPaneId::NewGame => Pane::from_splash_dialogue(
                 //"Click or press [enter] to start.".to_string(),
                 vec![
                     "Hello!",
@@ -69,10 +67,10 @@ impl PushpuzzLevset {
                 ]
             ),
 
-            BiobotPaneId::LevIntro(1) => {
+            PushpuzzPaneId::LevIntro(1) => {
                 Pane::from_splash_string("Welcome to level 1!".to_string())
             },
-            BiobotPaneId::LevArena(1) => Pane::from_play_ascii_map(&[
+            PushpuzzPaneId::LevArena(1) => Pane::from_play_ascii_map(&[
                 "#            # #",
                 "#####@####@###@#",
                 "@              #",
@@ -90,14 +88,14 @@ impl PushpuzzLevset {
                 "#            # #",
                 "#            @ #",
             ], aquarium1_key),
-            BiobotPaneId::LevOutro(1) => {
+            PushpuzzPaneId::LevOutro(1) => {
                 Pane::from_splash_string("Well done!! Goodbye from level 1".to_string())
             },
 
-            BiobotPaneId::LevIntro(2) => {
+            PushpuzzPaneId::LevIntro(2) => {
                 Pane::from_splash_string("Ooh, welcome to level 2!".to_string())
             },
-            BiobotPaneId::LevArena(2) => Pane::from_play_ascii_map(&[
+            PushpuzzPaneId::LevArena(2) => Pane::from_play_ascii_map(&[
                 "################",
                 "#              #",
                 "#              #",
@@ -115,20 +113,20 @@ impl PushpuzzLevset {
                 "#              #",
                 "####o###########",
             ], aquarium1_key),
-            BiobotPaneId::LevOutro(2) => {
+            PushpuzzPaneId::LevOutro(2) => {
                 Pane::from_splash_string("Wow, well done!! Goodbye from level 2!".to_string())
             },
 
-            BiobotPaneId::LevRetry(_levno) => {
+            PushpuzzPaneId::LevRetry(_levno) => {
                 Pane::from_splash_string("Game Over. Press [enter] to retry.".to_string())
             },
-            BiobotPaneId::Win => {
+            PushpuzzPaneId::Win => {
                 Pane::from_splash_string("Congratulations. You win! Press [enter] to play again.".to_string())
             },
 
-            BiobotPaneId::LevIntro(_) => panic!("Loading LevIntro for level that can't be found."),
-            BiobotPaneId::LevArena(_) => panic!("Loading LevArena for level that can't be found."),
-            BiobotPaneId::LevOutro(_) => panic!("Loading LevOutro for level that can't be found."),
+            PushpuzzPaneId::LevIntro(_) => panic!("Loading LevIntro for level that can't be found."),
+            PushpuzzPaneId::LevArena(_) => panic!("Loading LevArena for level that can't be found."),
+            PushpuzzPaneId::LevOutro(_) => panic!("Loading LevOutro for level that can't be found."),
         }
     }
 }
