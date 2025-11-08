@@ -1,16 +1,6 @@
 use tile_engine::for_scripting::*;
 use tile_engine::for_gamedata::*;
 
-// NB Breadcrumb: Move these fns to a struct in simple props.
-pub fn passable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, pos: MapCoord) -> bool {
-    map.all_pass(pos, Pass::Empty)
-}
-
-#[allow(dead_code)]
-pub fn impassable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, pos: MapCoord) -> bool {
-    !passable(map, pos)
-}
-
 // NB: Custom props could be enum we need different data for different object types.
 // Would need to figure out which types can have which AIs.
 #[derive(Clone, PartialEq, Debug)]

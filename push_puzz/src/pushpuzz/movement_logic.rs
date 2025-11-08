@@ -1,15 +1,6 @@
 // TODO: Add these types to a Script struct?
 use tile_engine::for_scripting::*;
 
-pub fn passable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, pos: MapCoord) -> bool {
-    map.all_pass(pos, Pass::Empty)
-}
-
-#[allow(dead_code)]
-pub fn impassable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, pos: MapCoord) -> bool {
-    !passable(map, pos)
-}
-
 #[derive(Clone, Debug)]
 pub struct PushpuzzMovementLogic;
 

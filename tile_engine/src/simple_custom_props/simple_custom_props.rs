@@ -1,6 +1,9 @@
 // Types used by common implementations of CustomProps.
 
 use crate::for_gamedata::BaseCustomProps;
+use crate::for_gamedata::BaseMovementLogic;
+use crate::map::Map;
+use crate::map_coords::MapCoord;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct SimpleCustomProps {
@@ -52,4 +55,14 @@ pub enum Effect {
     Win,
     // STUB: Can add effects like when ent dies
     // STUB: Could convert Win, Kill, to Progress(Win),... with enum Progress {Win, Lose}
+}
+
+// NB Breadcrumb: Move these fns to a struct in simple props.
+pub fn passable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, pos: MapCoord) -> bool {
+    map.all_pass(pos, Pass::Empty)
+}
+
+#[allow(dead_code)]
+pub fn impassable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, pos: MapCoord) -> bool {
+    !passable(map, pos)
 }
