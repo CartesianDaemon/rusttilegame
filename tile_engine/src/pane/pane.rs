@@ -9,6 +9,7 @@ use crate::input::Input;
 use crate::obj::FreeObj;
 
 // TODO: Move into game-specific info if possible?
+#[derive(Debug, PartialEq)]
 pub enum PaneConclusion {
     SplashContinue,
     ArenaWin,

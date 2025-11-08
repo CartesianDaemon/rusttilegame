@@ -16,8 +16,8 @@ pub struct Input {
 }
 
 impl Input {
-    pub fn new_blank() -> Input {
-        Input {
+    pub fn new() -> Input {
+        Self {
             speed: 0.3,
             last_real_update: 0.,
             most_recent_cmd: None,
@@ -25,14 +25,23 @@ impl Input {
     }
 
     pub fn new_begin() -> Input {
-        Input {
+        Self {
             last_real_update: get_time(),
-            .. Input::new_blank()
+            .. Self::new()
+        }
+    }
+
+    pub fn from_one_cmd(cmd: Cmd) -> Self
+    {
+        Self {
+            most_recent_cmd: Some(cmd),
+            ..Self::new()
         }
     }
 
     // Used for testing.
-    pub fn inject_cmd(self: &mut Input, cmd: Cmd)
+    // TODO: Replace with ::from_one_cmd()
+    pub fn inject_cmd(self: &mut Self, cmd: Cmd)
     {
         self.most_recent_cmd = Some(cmd);
     }

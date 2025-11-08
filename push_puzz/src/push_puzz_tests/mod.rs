@@ -60,7 +60,7 @@ mod basic_tests {
     #[test]
     fn basic_bounce() {
         let mut curr_pane_state = get_lev(1);
-        let mut input = Input::new_blank();
+        let mut input = Input::new();
         input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#   >        @ @");
         input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#    >       @ @");
         input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#     >      @ @");
@@ -89,7 +89,7 @@ mod basic_tests {
     fn basic_drift() {
         // TODO: Test rotated version of map somehow
         let mut curr_pane_state = get_lev(2);
-        let mut input = Input::new_blank();
+        let mut input = Input::new();
         input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[0], "# g #"); assert_eq!(&curr_pane_state.as_ascii_rows()[1], "#   #");
         input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[0], "#  g#"); assert_eq!(&curr_pane_state.as_ascii_rows()[1], "#   #");
         input.inject_cmd(Cmd::Stay); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[0], "#   #"); assert_eq!(&curr_pane_state.as_ascii_rows()[1], "# G #");
@@ -100,7 +100,7 @@ mod basic_tests {
     #[test]
     fn basic_move() {
         let mut curr_pane_state = get_lev(1);
-        let mut input = Input::new_blank();
+        let mut input = Input::new();
         input.inject_cmd(Cmd::Stay);  let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#       h    # #");
         input.inject_cmd(Cmd::Stay);  let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#       h    # #");
         input.inject_cmd(Cmd::Right); let _ = curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#        h   # #");
@@ -124,7 +124,7 @@ mod basic_tests {
     fn clone_map_and_move() {
         let orig_curr_pane_state = get_lev(1);
         let mut curr_pane_state = orig_curr_pane_state.clone();
-        let mut input = Input::new_blank();
+        let mut input = Input::new();
         println!("Orig>> {orig_curr_pane_state:?}");
         println!("Clone>> {curr_pane_state:?}");
         input.inject_cmd(Cmd::Right); let _ = curr_pane_state.advance(&mut input);
