@@ -16,7 +16,7 @@ mod map_coords;
 mod render;
 mod map;
 mod gamedata;
-mod input;
+pub mod input; // For engine_tests in push_puzz??
 mod pane;
 mod obj;
 
@@ -37,7 +37,7 @@ pub mod for_scripting {
 // Engine exports needed for writing game data.
 // TODO: Some only used by pushing puzzle, not programming puzzle?
 // TODO: For some types, put types in GameData already parameterised by appropritate custom types?
-#[allow(unused_imports)]
+//#[allow(unused_imports)]
 pub mod for_gamedata {
     pub use super::obj::*;
     pub use super::gamedata::*;
@@ -47,4 +47,6 @@ pub mod for_gamedata {
     pub use super::simple_custom_props::*;
 }
 
-mod engine_tests;
+pub mod for_testing {
+    pub use crate::input::Input;
+}

@@ -9,20 +9,18 @@ use sample_objs::*;
 
 use std::collections::HashMap;
 
-use assrt::*;
+//use assrt::*;
 use macroquad::prelude::*;
 
-use crate::gamedata::*; // For new_xxxx() fns
-use crate::pane::Pane;
-use crate::map_coords::*;
+use tile_engine::for_gamedata::*;
+use tile_engine::for_testing::*;
+use tile_engine::input::*;
 
 #[cfg(test)]
 mod basic_tests {
-    use crate::input::Input;
-
     use super::*;
 
-    fn get_lev(n: i32) -> Pane<push_puzz::ProgpuzzMovementLogic> {
+    fn get_lev(n: i32) -> Pane<super::super::pushpuzz::PushpuzzMovementLogic> {
         let test_key = HashMap::from([
             (' ', vec![ new_floor() ]),
             ('#', vec![ new_floor(), new_wall() ]),
@@ -67,7 +65,6 @@ mod basic_tests {
     fn basic_bounce() {
         let mut curr_pane_state = get_lev(1);
         let mut input = Input::new_blank();
-        // TODO: Need to specialise advance with MovementLogic.
         input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#   >        @ @");
         input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#    >       @ @");
         input.inject_cmd(Cmd::Stay); curr_pane_state.advance(&mut input); assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#     >      @ @");

@@ -7,6 +7,7 @@
 #![allow(unused_braces)]
 
 mod pushpuzz;
+mod engine_tests;
 
 #[macroquad::main("Tile Game")]
 async fn main() {

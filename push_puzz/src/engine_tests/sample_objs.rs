@@ -2,9 +2,9 @@
 
 use macroquad::prelude::*;
 
-use crate::for_gamedata::*;
+use tile_engine::for_gamedata::*;
 
-type SimpleCustomProps = super::super::simple_custom_props::SimpleCustomProps;
+type SimpleCustomProps = tile_engine::simple_custom_props::SimpleCustomProps;
 
 pub fn new_hero_crab() -> FreeObj<SimpleCustomProps> {
     FreeObj {
