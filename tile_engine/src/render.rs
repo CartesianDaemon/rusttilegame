@@ -4,7 +4,7 @@ use macroquad::prelude::*;
 use assrt::rsst;
 
 use super::pane::*;
-use super::map::MapObj;
+use super::pane_arena::MapObj;
 use super::map_coords::CoordDelta;
 
 type TextureCache = HashMap<String, Texture2D>;

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::ops::ControlFlow;
 
-pub use crate::map::Arena;
+pub use crate::pane_arena::Arena;
 pub use crate::pane_code::*;
 pub use crate::pane_splash::*;
 pub use crate::pane_split::*;
