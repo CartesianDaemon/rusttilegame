@@ -193,7 +193,7 @@ impl<MovementLogic: BaseMovementLogic> Map<MovementLogic> {
         self.map[pos].any_effect(sought_effect)
     }
 
-    pub fn all_pass(&self, pos: MapCoord, sought_pass: simple_custom_props::Pass) -> bool {
+    pub fn passable(&self, pos: MapCoord, sought_pass: simple_custom_props::Pass) -> bool {
         self.map[pos].all_pass(sought_pass)
     }
 
