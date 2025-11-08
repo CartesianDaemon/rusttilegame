@@ -1,5 +1,5 @@
 use super::{Arena, Code};
-use super::{PaneContinuation, PaneConclusion};
+use super::PaneContinuation;
 use crate::engine::input::Input;
 use super::BasePane;
 
@@ -19,9 +19,17 @@ pub struct Split<MovementLogic : super::super::for_gamedata::BaseMovementLogic> 
 impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> BasePane for Split<MovementLogic>
 {
     fn advance(&mut self, _input: &mut Input) -> PaneContinuation {
-        // TODO: If input space, start/stop. Else:
-        // TODO: If coding, advance code by input.
-        // TODO: If running, advance arena deterministically.
+        match self.phase {
+            SplitPhase::Coding => {
+                // TODO: Advance code by input. Check input, or check return, to know when to start running.
+                unimplemented!();
+            },
+            SplitPhase::Running => {
+                // TODO: If input space, start. Else advance arena.
+                // Will ignore input except for space = "stop"?
+                // Win => return Win. Die => Stop running.
+            },
+        }
 
         return PaneContinuation::Continue(());
     }

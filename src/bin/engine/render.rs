@@ -44,8 +44,10 @@ impl Render {
             Pane::Splash(curr_pane_state) => {
                 let _r = RenderSplash::begin(&curr_pane_state);
             }
-            Pane::Split(_) => {
-                // ...
+            Pane::Split(curr_pane_state) => {
+                let _arena = &curr_pane_state.arena;
+                let _code = &curr_pane_state.code;
+                unimplemented!();
             }
         }
     }
