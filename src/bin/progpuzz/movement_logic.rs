@@ -56,7 +56,7 @@ impl BaseMovementLogic for ProgpuzzMovementLogic
                 }
                 // Check for goal
                 return if map.any_effect(map[mov].pos(), Effect::Win) {
-                    PaneContinuation::Break(PaneEnding::PlayWin)
+                    PaneContinuation::Break(PaneConclusion::PlayWin)
                 } else {
                     PaneContinuation::Continue(())
                 }

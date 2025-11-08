@@ -7,15 +7,14 @@ use crate::engine::input::Input;
 use crate::engine::obj::FreeObj;
 
 // TODO: Move into game-specific info if possible?
-// TODO: Rename PaneConclusion??
 #[allow(dead_code)]
-pub enum PaneEnding {
+pub enum PaneConclusion {
     SplashNext, // TODO: Rename Continue?
     PlayWin,
     PlayDie,
 }
 
-pub type PaneContinuation = ControlFlow<PaneEnding, ()>;
+pub type PaneContinuation = ControlFlow<PaneConclusion, ()>;
 
 /// One unit of gameplay: one map layout, one splash screen, etc.
 ///

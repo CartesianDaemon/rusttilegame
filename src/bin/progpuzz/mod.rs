@@ -41,7 +41,7 @@ impl BaseGamedata for ProgpuzzGamedata {
         }
     }
 
-    fn advance_pane(&mut self, continuation: PaneEnding) {
+    fn advance_pane(&mut self, continuation: PaneConclusion) {
         self.levset.advance_pane(continuation)
     }
 

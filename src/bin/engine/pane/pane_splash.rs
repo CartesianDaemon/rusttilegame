@@ -1,4 +1,4 @@
-use super::{PaneContinuation, PaneEnding};
+use super::{PaneContinuation, PaneConclusion};
 
 // Would be nice to remove if easy
 use macroquad::prelude::*;
@@ -42,7 +42,7 @@ impl Splash
         input.last_real_update = get_time();
 
         match key {
-            Some(_) => PaneContinuation::Break(PaneEnding::SplashNext),
+            Some(_) => PaneContinuation::Break(PaneConclusion::SplashNext),
             None => PaneContinuation::Continue(()),
         }
     }

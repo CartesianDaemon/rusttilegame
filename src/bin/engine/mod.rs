@@ -23,7 +23,7 @@ pub use core_engine::run;
 pub mod for_scripting {
     pub use super::map::{Map, RosterIndex};
     pub use super::map_coords::*;
-    pub use super::pane::{PaneContinuation, PaneEnding};
+    pub use super::pane::{PaneContinuation, PaneConclusion};
     pub use super::gamedata::BaseMovementLogic;
     pub use super::super::simple_custom_props::*;
 }
@@ -35,7 +35,7 @@ pub mod for_scripting {
 pub mod for_gamedata {
     pub use super::obj::*;
     pub use super::gamedata::*;
-    pub use super::pane::{Pane, PaneEnding};
+    pub use super::pane::{Pane, PaneConclusion};
     pub use super::map_coords::*;
     pub use super::super::simple_custom_props::*;
 }

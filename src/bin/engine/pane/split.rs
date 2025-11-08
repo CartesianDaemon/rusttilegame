@@ -1,5 +1,5 @@
 use super::{Play};
-use super::{PaneContinuation, PaneEnding};
+use super::{PaneContinuation, PaneConclusion};
 use crate::engine::input::Input;
 
 #[derive(Clone, Debug)]

@@ -26,17 +26,17 @@ impl PushpuzzLevset {
         PushpuzzLevset { current_paneid: BiobotPaneId::NewGame }
     }
 
-    pub fn advance_pane(&mut self, continuation: PaneEnding) {
+    pub fn advance_pane(&mut self, continuation: PaneConclusion) {
         self.current_paneid = match (self.current_paneid, continuation) {
-            (BiobotPaneId::NewGame, PaneEnding::SplashNext) => BiobotPaneId::LevIntro(1),
-            (BiobotPaneId::LevIntro(levnum), PaneEnding::SplashNext) => BiobotPaneId::LevPlay(levnum),
-            (BiobotPaneId::LevPlay(levnum), PaneEnding::PlayWin) => BiobotPaneId::LevOutro(levnum),
-            (BiobotPaneId::LevPlay(levnum), PaneEnding::PlayDie) => BiobotPaneId::LevRetry(levnum),
-            (BiobotPaneId::LevRetry(levnum), PaneEnding::SplashNext) => BiobotPaneId::LevPlay(levnum),
+            (BiobotPaneId::NewGame, PaneConclusion::SplashNext) => BiobotPaneId::LevIntro(1),
+            (BiobotPaneId::LevIntro(levnum), PaneConclusion::SplashNext) => BiobotPaneId::LevPlay(levnum),
+            (BiobotPaneId::LevPlay(levnum), PaneConclusion::PlayWin) => BiobotPaneId::LevOutro(levnum),
+            (BiobotPaneId::LevPlay(levnum), PaneConclusion::PlayDie) => BiobotPaneId::LevRetry(levnum),
+            (BiobotPaneId::LevRetry(levnum), PaneConclusion::SplashNext) => BiobotPaneId::LevPlay(levnum),
             // TODO: Get max levnum from list of levels?
-            (BiobotPaneId::LevOutro(2), PaneEnding::SplashNext) => BiobotPaneId::Win,
-            (BiobotPaneId::LevOutro(levnum), PaneEnding::SplashNext) => BiobotPaneId::LevOutro(levnum+1),
-            (BiobotPaneId::Win, PaneEnding::SplashNext) => BiobotPaneId::NewGame,
+            (BiobotPaneId::LevOutro(2), PaneConclusion::SplashNext) => BiobotPaneId::Win,
+            (BiobotPaneId::LevOutro(levnum), PaneConclusion::SplashNext) => BiobotPaneId::LevOutro(levnum+1),
+            (BiobotPaneId::Win, PaneConclusion::SplashNext) => BiobotPaneId::NewGame,
             _ => panic!()
         };
     }
