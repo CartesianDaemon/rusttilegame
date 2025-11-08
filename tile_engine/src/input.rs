@@ -6,7 +6,7 @@ use super::map_coords::Cmd;
 ///
 /// TODO: Nice to simplify interface and move the correct things here and into Arena.
 pub struct Input {
-    pub last_real_update: f64,
+    pub last_tick_time: f64,
 
     // Time between ticks in sec.
     speed: f64,
@@ -19,14 +19,14 @@ impl Input {
     pub fn new() -> Input {
         Self {
             speed: 0.3,
-            last_real_update: 0.,
+            last_tick_time: 0.,
             most_recent_cmd: None,
         }
     }
 
     pub fn new_begin() -> Input {
         Self {
-            last_real_update: get_time(),
+            last_tick_time: get_time(),
             .. Self::new()
         }
     }
@@ -72,12 +72,12 @@ impl Input {
     /// Should any of this be in Arena not Input? Or should Input be called UI?
     pub fn ready_to_advance_game_state(&mut self, anim_pc: &mut f32, slide_pc: &mut f32) -> bool {
         if self.most_recent_cmd.is_some() {
-            self.last_real_update = get_time();
+            self.last_tick_time = get_time();
             *anim_pc = 0.;
             *slide_pc = 0.;
             true
         } else {
-            let frame_time_pc = ((get_time() - self.last_real_update) / self.speed) as f32;
+            let frame_time_pc = ((get_time() - self.last_tick_time) / self.speed) as f32;
             *anim_pc = frame_time_pc % 1.0;
             *slide_pc = frame_time_pc.min(1.0);
             false

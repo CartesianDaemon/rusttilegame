@@ -52,7 +52,7 @@ impl BasePane for Splash {
 
         // Reset "most recent tick" when leaving menu.
         // FIXME: Avoid needing input as a parameter, move time update to input code.
-        input.last_real_update = get_time();
+        input.last_tick_time = get_time();
 
         match key {
             Some(_) => PaneContinuation::Break(PaneConclusion::SplashContinue),
