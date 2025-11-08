@@ -6,7 +6,6 @@ use std::collections::HashMap;
 
 fn txt_to_instr(txt: &str) -> Instr {
     match txt {
-        "NOP" => Instr::NOP,
         "F" => Instr::F,
         "L" => Instr::L,
         "R" => Instr::R,
@@ -17,7 +16,6 @@ fn txt_to_instr(txt: &str) -> Instr {
 
 fn instr_to_txt(instr: &Instr) -> String {
     match instr {
-        Instr::NOP => "NOP",
         Instr::F => "F",
         Instr::L => "L",
         Instr::R => "R",
@@ -30,9 +28,8 @@ fn instr_to_txt(instr: &Instr) -> String {
 // keys in pushpuzz. And interpreted further by an attempt_action fn
 // in simple_custom_props which examines passability etc.
 // Breadcrumb: Could implement to_txt and txt_to in terms of common trait.
-#[derive(Clone, Default, Debug, Hash, PartialEq, Eq)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
 enum Instr {
-    #[default] NOP,
     F,
     L,
     R,
