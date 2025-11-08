@@ -43,7 +43,7 @@ impl ProgpuzzLevset {
         // NB: Would like to implement thin walls between squares, not walls filling whole squares.
         match self.current_paneid {
             // TODO: Avoid needing to specify HEIGHT explicitly.
-            BiobotPaneId::LevSplit(1) => Pane::<super::ProgpuzzMovementLogic>::Split(Split::new::<16>(
+            BiobotPaneId::LevSplit(1) => Pane::Split(Split::new::<16>(
                 Arena::from_ascii(&[
                     "################",
                     "#              #",
