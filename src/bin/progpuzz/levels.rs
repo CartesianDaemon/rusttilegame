@@ -65,7 +65,12 @@ impl ProgpuzzLevset {
                 Code::from_ascii(
                     // NB: Consider crate macro to initialise vec
                     // NB: Consider my iteration macro here and elsewhere I collect'ed.
-                    [("F".to_string(), 1)].into_iter().collect()
+                    [
+                        ("F".to_string(), 1),
+                        ("L".to_string(), 1),
+                        ("R".to_string(), 1),
+                        ("Loop".to_string(), 1),
+                    ].into_iter().collect()
                 )
             )),
             BiobotPaneId::Win => {
