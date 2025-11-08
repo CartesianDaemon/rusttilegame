@@ -1,10 +1,7 @@
 use super::{Arena, Code};
 use super::{PaneContinuation, PaneConclusion};
 use crate::engine::input::Input;
-use crate::engine::obj::FreeObj;
 use super::BasePane;
-
-use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
 pub enum SplitPhase {
@@ -30,7 +27,7 @@ impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> BasePane for
     }
 
     fn need_sync_to_ticks(&self) -> bool {
-        // TODO: Depend on "running" or "coding" state.
+        // TODO: Need "stop" to happen at any time. But could trigger bot movement on key, or on tick?
         false
     }
 }
