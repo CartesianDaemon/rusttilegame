@@ -192,8 +192,8 @@ impl<MovementLogic: BaseMovementLogic> Map<MovementLogic> {
         self.map[pos].any_effect(sought_effect)
     }
 
-    pub fn passable(&self, pos: MapCoord, sought_pass: simple_custom_props::Pass) -> bool {
-        self.map[pos].all_pass(sought_pass)
+    pub fn passable(&self, pos: MapCoord) -> bool {
+        self.map[pos].passable()
     }
 
     //////////////////////////////////////////////////////
@@ -485,8 +485,8 @@ impl<CustomProps: super::for_gamedata::BaseCustomProps> Loc<CustomProps> {
         self.objs.iter().any(|x| x.logical_props.effect == sought_effect)
     }
 
-    pub fn all_pass(&self, sought_pass: simple_custom_props::Pass) -> bool {
-        self.objs.iter().all(|x| x.logical_props.pass == sought_pass)
+    pub fn passable(&self) -> bool {
+        self.objs.iter().all(|x| x.logical_props.pass == crate::simple_custom_props::Pass::Empty)
     }
 
     fn map_fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {

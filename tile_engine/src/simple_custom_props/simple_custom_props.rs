@@ -59,10 +59,5 @@ pub enum Effect {
 
 // NB Breadcrumb: Move these fns to a struct in simple props.
 pub fn passable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, pos: MapCoord) -> bool {
-    map.passable(pos, Pass::Empty)
-}
-
-#[allow(dead_code)]
-pub fn impassable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, pos: MapCoord) -> bool {
-    !passable(map, pos)
+    map.passable(pos)
 }
