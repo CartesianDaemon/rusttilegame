@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 
 use tile_engine::for_gamedata::*;
-use tile_engine::for_testing::*;
 
 use super::objs::*;
 
@@ -57,14 +56,14 @@ fn basic_move() {
     // Including checking that we move through level transitions ok.
 
     let mut curr_pane_state = get_lev(1);
-    assert_eq!(curr_pane_state.advance(&mut Input::from_cmd(Cmd::Stay)), PaneContinuation::Continue(()));
+    assert_eq!(curr_pane_state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
     assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#   ^        #", "\n{}", curr_pane_state.as_ascii_rows().join("\n")); // Start running, no other effect
-    assert_eq!(curr_pane_state.advance(&mut Input::from_cmd(Cmd::Stay)), PaneContinuation::Continue(()));
+    assert_eq!(curr_pane_state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
     assert_eq!(&curr_pane_state.as_ascii_rows()[3], "#   ^        #", "\n{}", curr_pane_state.as_ascii_rows().join("\n")); // F
-    assert_eq!(curr_pane_state.advance(&mut Input::from_cmd(Cmd::Stay)), PaneContinuation::Continue(()));
+    assert_eq!(curr_pane_state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
     assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#   ^  w     #", "\n{}", curr_pane_state.as_ascii_rows().join("\n")); // F
-    assert_eq!(curr_pane_state.advance(&mut Input::from_cmd(Cmd::Stay)), PaneContinuation::Continue(()));
+    assert_eq!(curr_pane_state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
     assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#   >  w     #", "\n{}", curr_pane_state.as_ascii_rows().join("\n")); // R
-    assert_eq!(curr_pane_state.advance(&mut Input::from_cmd(Cmd::Stay)), PaneContinuation::Continue(()));
+    assert_eq!(curr_pane_state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
     assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#    > w     #", "\n{}", curr_pane_state.as_ascii_rows().join("\n")); // F
 }

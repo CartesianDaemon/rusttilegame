@@ -36,7 +36,3 @@ pub mod for_gamedata {
     pub use super::simple_custom_props::*;
     pub use super::pane_arena::{Arena, RosterIndex};
 }
-
-pub mod for_testing {
-    pub use crate::input::Input;
-}
