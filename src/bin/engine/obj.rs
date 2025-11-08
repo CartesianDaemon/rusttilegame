@@ -63,18 +63,18 @@ impl<CustomProps: BaseCustomProps> LogicalProps<CustomProps> {
     // NB: Could be combined if properties are made more generic.
 
     // Todo: Replace with more meaningful "is_hero" fn in scripts. Or obj_properties??
-    pub fn is_hero(props: CustomProps) -> bool {
-        CustomProps::is_hero(props)
+    pub fn is_hero(props: &CustomProps) -> bool {
+        props.is_hero()
     }
 
     // Indicate Obj which can move in their own logic, and need to be added to roster.
-    pub fn is_mob(props: CustomProps) -> bool {
-        Self::is_any_mov(props) && ! Self::is_hero(props)
+    pub fn is_mob(props: &CustomProps) -> bool {
+        props.is_any_mov() && ! Self::is_hero(props)
     }
 
     // Mob or Hero
     pub fn is_any_mov(props: CustomProps) -> bool {
-        CustomProps::is_any_mov(props)
+        props.is_any_mov()
     }
 }
 

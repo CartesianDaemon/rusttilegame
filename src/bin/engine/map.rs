@@ -436,10 +436,10 @@ impl Roster {
     }
 
     fn add_to_roster_if_mov<CustomProps: super::for_gamedata::BaseCustomProps>(&mut self, mapref: MapRef, props: &FreeObj<CustomProps>) -> RosterIndex {
-        if LogicalProps::<CustomProps>::is_hero(props.logical_props.custom_props) {
+        if props.logical_props.custom_props.is_hero() {
             self.hero = mapref;
             Self::hero()
-        } else if LogicalProps::<CustomProps>::is_mob(props.logical_props.custom_props) {
+        } else if LogicalProps::<CustomProps>::is_mob(&props.logical_props.custom_props) {
             self.movs.push(mapref);
             RosterIndex { ros_idx: self.movs.len() as u16 - 1 }
         } else {

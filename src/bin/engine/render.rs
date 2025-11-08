@@ -3,8 +3,6 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 use assrt::rsst;
 
-use crate::engine::obj::LogicalProps;
-
 use super::pane;
 use super::pane::Pane;
 use super::map::MapObj;
@@ -155,7 +153,7 @@ impl<'a> RenderLev<'a> {
         let w = self.sq_w * pc_size;
         let h = self.sq_h * pc_size;
 
-        if !LogicalProps::<CustomProps>::is_any_mov(logical_props.custom_props) {rsst!(prev_pos == pos)}
+        if !logical_props.custom_props.is_any_mov() {rsst!(prev_pos == pos)}
 
         let alpha = 1.;
 

@@ -11,7 +11,7 @@ pub fn impassable<MovementLogic: BaseMovementLogic>(map: &Map<MovementLogic>, po
     !passable(map, pos)
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct ProgpuzzCustomProps {
     pub ai: ProgpuzzAI,
     // pub prog: Prog,
@@ -24,11 +24,11 @@ impl BaseCustomProps for ProgpuzzCustomProps {
         }
     }
 
-    fn is_hero(props: Self) -> bool {
-        props.ai == ProgpuzzAI::Prog
+    fn is_hero(self: &Self) -> bool {
+        self.ai == ProgpuzzAI::Prog
     }
-    fn is_any_mov(props: Self) -> bool {
-        props.ai != ProgpuzzAI::Stay
+    fn is_any_mov(self: &Self) -> bool {
+        self.ai != ProgpuzzAI::Stay
     }
 }
 
