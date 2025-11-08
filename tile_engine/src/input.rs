@@ -39,13 +39,6 @@ impl Input {
         }
     }
 
-    // Used for testing.
-    // TODO: Replace with ::from_one_cmd()
-    pub fn inject_cmd(self: &mut Self, cmd: Cmd)
-    {
-        self.most_recent_cmd = Some(cmd);
-    }
-
     pub fn consume_cmd(&mut self) -> Option<Cmd> {
         self.most_recent_cmd.take()
     }
