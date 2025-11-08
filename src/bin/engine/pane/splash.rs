@@ -1,5 +1,5 @@
 use super::{PaneContinuation, PaneConclusion};
-use super::PaneBase;
+use super::BasePane;
 
 // Would be nice to remove if easy
 use macroquad::prelude::*;
@@ -19,7 +19,7 @@ pub struct Splash {
     pub dialogue: Dialogue, // If this works, will replace splash_text
 }
 
-impl PaneBase for Splash {
+impl BasePane for Splash {
     fn advance(&mut self, input: &mut Input) -> PaneContinuation {
         let key = input.consume_cmd();
 

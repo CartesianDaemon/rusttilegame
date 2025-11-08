@@ -1,13 +1,13 @@
 use super::{PaneContinuation, PaneConclusion};
 use crate::engine::input::Input;
-use super::PaneBase;
+use super::BasePane;
 
 #[derive(Clone, Debug)]
 pub struct Code {
     // Palette of available instructions, array of assembled instructions, etc.
 }
 
-impl PaneBase for Code
+impl BasePane for Code
 {
     fn advance(&mut self, _input: &mut Input) -> PaneContinuation {
         // TODO

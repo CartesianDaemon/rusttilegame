@@ -1,5 +1,5 @@
 use super::{PaneContinuation};
-use super::PaneBase;
+use super::BasePane;
 
 use std::collections::HashMap;
 
@@ -16,7 +16,7 @@ pub struct Arena<MovementLogic: super::super::for_scripting::BaseMovementLogic> 
     pub map: Map<MovementLogic>,
 }
 
-impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> PaneBase for Arena<MovementLogic>
+impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> BasePane for Arena<MovementLogic>
 {
     fn advance(&mut self, input : &mut Input) -> PaneContinuation  {
         let cmd = input.consume_cmd().unwrap_or(Cmd::default_cmd());

@@ -1,7 +1,7 @@
 use super::{Arena, Code};
 use super::{PaneContinuation, PaneConclusion};
 use crate::engine::input::Input;
-use super::PaneBase;
+use super::BasePane;
 
 #[derive(Clone, Debug)]
 pub struct Split<MovementLogic : super::super::for_gamedata::BaseMovementLogic> {
@@ -9,7 +9,7 @@ pub struct Split<MovementLogic : super::super::for_gamedata::BaseMovementLogic> 
     pub code: Code,
 }
 
-impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> PaneBase for Split<MovementLogic>
+impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> BasePane for Split<MovementLogic>
 {
     fn advance(&mut self, _input: &mut Input) -> PaneContinuation {
         // TODO
