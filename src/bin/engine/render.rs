@@ -28,9 +28,9 @@ impl Render {
     pub async fn draw_frame<MovementLogic: crate::engine::for_gamedata::BaseMovementLogic>(
         &mut self, play_state: &Pane<MovementLogic>, slide_real_pc: f32, anim_real_pc: f32
     ) {
-        // ENH: Avoid passing in whole Play object.
+        // ENH: Avoid passing in whole Arena object.
         match play_state {
-            Pane::Play(play_state) => {
+            Pane::Arena(play_state) => {
                 let mut render_lev = RenderLev::begin(&mut self.texture_cache, play_state.map.map_w(), play_state.map.map_h());
                 // Coords of first visible tile. Currently always 0,0.
                 let (ox, oy) = (0, 0);
@@ -58,9 +58,9 @@ impl Render {
 //#[derive(Clone)]
 pub struct RenderLev<'a> {
     // COORDS FOR CURRENT FRAME. In gl units which are pixels.
-    // Distance from edge of drawing surface to play area
+    // Distance from edge of drawing surface to arena area
     offset_x: f32,
-    // Distance from edge of drawing surface to play area
+    // Distance from edge of drawing surface to arena area
     offset_y: f32,
     // Size of each tile
     sq_w: f32,
@@ -115,7 +115,7 @@ impl<'a> RenderLev<'a> {
     }
 
     // Draw ent's texture/colour to the screen at specified tile coords.
-    // Works out pixel coords given pixel size of play area in RenderLev.
+    // Works out pixel coords given pixel size of arena area in RenderLev.
     pub async fn draw_ent<CustomProps: super::for_gamedata::BaseCustomProps>(
         self: &mut RenderLev<'a>,
         // View coords in map. Relative to first visible tile (currently always the same).

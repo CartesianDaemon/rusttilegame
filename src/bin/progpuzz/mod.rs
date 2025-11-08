@@ -13,7 +13,7 @@
 /// * Small-scale educational use.
 /// * Incorporating as a very small part of another artistic work.
 ///
-/// As long as the game is under development you are encouraged to play it.
+/// As long as the game is under development you are encouraged to arena it.
 /// If I finish the game I will specify how the game is distributed.
 
 // TODO: Move imgs into data. Test that builds and preview html still work.

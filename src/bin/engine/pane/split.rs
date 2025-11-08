@@ -1,4 +1,4 @@
-use super::{Play};
+use super::{Arena};
 use super::{PaneContinuation, PaneConclusion};
 use crate::engine::input::Input;
 
@@ -9,7 +9,7 @@ pub struct Code {
 
 #[derive(Clone, Debug)]
 pub struct Split<MovementLogic : super::super::for_gamedata::BaseMovementLogic> {
-    pub play: Play<MovementLogic>,
+    pub arena: Arena<MovementLogic>,
     pub code: Code,
 }
 

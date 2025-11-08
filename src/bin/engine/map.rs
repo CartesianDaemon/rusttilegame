@@ -4,7 +4,7 @@
 // Refactoring keeps pulling those into separate member classes so they
 // can be borrowed separately, then recombining them to be more concise.
 //
-// Movement logic etc are in Play.
+// Movement logic etc are in Arena.
 // The Grid/Map are also exported to level data files.
 
 use std::collections::HashMap;

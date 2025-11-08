@@ -23,7 +23,7 @@ struct Engine<Gamedata: BaseGamedata> {
     play_state: Pane<Gamedata::MovementLogic>,
 
     /// Smoothly from 0 to 1 transition from previous state to current state
-    /// TODO: Move into play?
+    /// TODO: Move into arena?
     /// TODO: Updated by input::ready_to_advance. Is that right? Could return tuple.
     /// TODO: Combine anim and slide..?
     anim_real_pc: f32,
@@ -39,10 +39,10 @@ struct Engine<Gamedata: BaseGamedata> {
 impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
     pub fn new() -> Engine<Gamedata> {
         let gamedata = Gamedata::new();
-        let play = gamedata.load_pane();
+        let arena = gamedata.load_pane();
         Engine::<Gamedata> {
             gamedata: gamedata,
-            play_state: play,
+            play_state: arena,
             anim_real_pc: 0.,
             slide_real_pc: 0.,
             input: Input::new_begin(),

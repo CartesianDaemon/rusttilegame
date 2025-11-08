@@ -8,7 +8,7 @@ use crate::engine::for_gamedata::*;
 pub enum BiobotPaneId {
     NewGame,
     LevIntro(u16),
-    LevPlay(u16),
+    LevArena(u16),
     LevOutro(u16),
     LevRetry(u16),
     Win,
@@ -27,10 +27,10 @@ impl ProgpuzzLevset {
     pub fn advance_pane(&mut self, continuation: PaneConclusion) {
         self.current_paneid = match (self.current_paneid, continuation) {
             (BiobotPaneId::NewGame, PaneConclusion::SplashNext) => BiobotPaneId::LevIntro(1),
-            (BiobotPaneId::LevIntro(levnum), PaneConclusion::SplashNext) => BiobotPaneId::LevPlay(levnum),
-            (BiobotPaneId::LevPlay(levnum), PaneConclusion::PlayWin) => BiobotPaneId::LevOutro(levnum),
-            (BiobotPaneId::LevPlay(levnum), PaneConclusion::PlayDie) => BiobotPaneId::LevRetry(levnum),
-            (BiobotPaneId::LevRetry(levnum), PaneConclusion::SplashNext) => BiobotPaneId::LevPlay(levnum),
+            (BiobotPaneId::LevIntro(levnum), PaneConclusion::SplashNext) => BiobotPaneId::LevArena(levnum),
+            (BiobotPaneId::LevArena(levnum), PaneConclusion::ArenaWin) => BiobotPaneId::LevOutro(levnum),
+            (BiobotPaneId::LevArena(levnum), PaneConclusion::ArenaDie) => BiobotPaneId::LevRetry(levnum),
+            (BiobotPaneId::LevRetry(levnum), PaneConclusion::SplashNext) => BiobotPaneId::LevArena(levnum),
             // TODO: Get max levnum from list of levels?
             (BiobotPaneId::LevOutro(2), PaneConclusion::SplashNext) => BiobotPaneId::Win,
             (BiobotPaneId::LevOutro(levnum), PaneConclusion::SplashNext) => BiobotPaneId::LevOutro(levnum+1),
@@ -61,7 +61,7 @@ impl ProgpuzzLevset {
             BiobotPaneId::LevIntro(1) => {
                 Pane::from_splash_string("Welcome to level 1!".to_string())
             },
-            BiobotPaneId::LevPlay(1) => Pane::<super::ProgpuzzMovementLogic>::from_play_ascii_map(&[
+            BiobotPaneId::LevArena(1) => Pane::<super::ProgpuzzMovementLogic>::from_play_ascii_map(&[
                 "################",
                 "#              #",
                 "#              #",
@@ -91,7 +91,7 @@ impl ProgpuzzLevset {
             },
 
             BiobotPaneId::LevIntro(_) => panic!("Loading LevIntro for level that can't be found."),
-            BiobotPaneId::LevPlay(_) => panic!("Loading LevPlay for level that can't be found."),
+            BiobotPaneId::LevArena(_) => panic!("Loading LevArena for level that can't be found."),
             BiobotPaneId::LevOutro(_) => panic!("Loading LevOutro for level that can't be found."),
         }
     }

@@ -10,8 +10,8 @@ use crate::engine::obj::FreeObj;
 #[allow(dead_code)]
 pub enum PaneConclusion {
     SplashNext, // TODO: Rename Continue?
-    PlayWin,
-    PlayDie,
+    ArenaWin,
+    ArenaDie,
 }
 
 pub type PaneContinuation = ControlFlow<PaneConclusion, ()>;
@@ -21,7 +21,7 @@ pub type PaneContinuation = ControlFlow<PaneConclusion, ()>;
 /// Would be nice to have base trait for pane types. Look for helper crate?
 #[derive(Clone, Debug)]
 pub enum Pane<MovementLogic: super::super::for_scripting::BaseMovementLogic> {
-    Play(Play<MovementLogic>),
+    Arena(Arena<MovementLogic>),
     Splash(Splash),
     Split(Split<MovementLogic>),
     // Could be defined but not used separately:
@@ -41,14 +41,14 @@ impl<MovementLogic: super::super::for_scripting::BaseMovementLogic> Pane<Movemen
         ascii_map: &[&str; HEIGHT],
         map_key: HashMap<char, Vec<FreeObj<MovementLogic::CustomProps>>>,
     ) -> Self {
-        Pane::Play(Play::from_ascii(ascii_map, map_key))
+        Pane::Arena(Arena::from_ascii(ascii_map, map_key))
     }
 
     // Does current pane act on user input immediately (not governed by a game tick)?
     pub fn is_continuous(&self) -> bool {
         match self {
             Self::Splash(_) => true,
-            Self::Play(_) => false,
+            Self::Arena(_) => false,
             Self::Split(_) => false, // TODO: Depend on "running" or "coding" state.
         }
     }
@@ -56,18 +56,18 @@ impl<MovementLogic: super::super::for_scripting::BaseMovementLogic> Pane<Movemen
     // Advance game state. Called when clock ticks or when user inputs.
     pub fn advance(&mut self, input : &mut Input) -> PaneContinuation {
         match self {
-            Self::Play(pane) => pane.advance(input),
+            Self::Arena(pane) => pane.advance(input),
             Self::Splash(pane) => pane.advance(input),
             Self::Split(pane) => pane.advance(input),
         }
     }
 
     #[cfg(test)]
-    pub fn as_play(&self) -> &Play<MovementLogic> {
+    pub fn as_play(&self) -> &Arena<MovementLogic> {
         match self {
-            Self::Play(play) => &play,
+            Self::Arena(arena) => &arena,
             Self::Splash(_splash) => panic!(),
-            Self::Split(pane) => &pane.play,
+            Self::Split(pane) => &pane.arena,
         }
     }
 
