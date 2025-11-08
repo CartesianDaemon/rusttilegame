@@ -41,7 +41,7 @@ impl BasePane for Code
         return PaneContinuation::Continue(());
     }
 
-    fn is_continuous(&self) -> bool {
-        true
+    fn need_sync_to_ticks(&self) -> bool {
+        false
     }
 }

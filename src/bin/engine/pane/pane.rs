@@ -18,7 +18,7 @@ pub enum PaneConclusion {
 pub type PaneContinuation = ControlFlow<PaneConclusion, ()>;
 
 pub trait BasePane {
-    fn is_continuous(&self) -> bool;
+    fn need_sync_to_ticks(&self) -> bool;
     fn advance(&mut self, input : &mut Input) -> PaneContinuation;
 }
 
@@ -51,11 +51,11 @@ impl<MovementLogic: super::super::for_scripting::BaseMovementLogic> Pane<Movemen
     }
 
     // Does current pane act on user input immediately (not governed by a game tick)?
-    pub fn is_continuous(&self) -> bool {
+    pub fn need_sync_to_ticks(&self) -> bool {
         match self {
-            Self::Arena(pane) => pane.is_continuous(),
-            Self::Splash(pane) => pane.is_continuous(),
-            Self::Split(pane) => pane.is_continuous(),
+            Self::Arena(pane) => pane.need_sync_to_ticks(),
+            Self::Splash(pane) => pane.need_sync_to_ticks(),
+            Self::Split(pane) => pane.need_sync_to_ticks(),
         }
     }
 

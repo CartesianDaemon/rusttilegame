@@ -23,8 +23,8 @@ impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> BasePane for
         self.map.advance(cmd)
     }
 
-    fn is_continuous(&self) -> bool {
-        false
+    fn need_sync_to_ticks(&self) -> bool {
+        true
     }
 }
 

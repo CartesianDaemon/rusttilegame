@@ -26,25 +26,25 @@ impl Render {
 
     /// Draw current gameplay to screen.
     pub async fn draw_frame<MovementLogic: crate::engine::for_gamedata::BaseMovementLogic>(
-        &mut self, play_state: &Pane<MovementLogic>, slide_real_pc: f32, anim_real_pc: f32
+        &mut self, curr_pane_state: &Pane<MovementLogic>, slide_real_pc: f32, anim_real_pc: f32
     ) {
         // ENH: Avoid passing in whole Arena object.
-        match play_state {
-            Pane::Arena(play_state) => {
-                let mut render_lev = RenderLev::begin(&mut self.texture_cache, play_state.map.map_w(), play_state.map.map_h());
+        match curr_pane_state {
+            Pane::Arena(curr_pane_state) => {
+                let mut render_lev = RenderLev::begin(&mut self.texture_cache, curr_pane_state.map.map_w(), curr_pane_state.map.map_h());
                 // Coords of first visible tile. Currently always 0,0.
                 let (ox, oy) = (0, 0);
                 let max_h = 5;
                 for h in 0..max_h {
-                    for (x, y, loc) in play_state.map.map_locs() {
+                    for (x, y, loc) in curr_pane_state.map.map_locs() {
                         if let Some(ent) = loc.get(h) {
                             render_lev.draw_ent(x - ox, y - oy, ent, anim_real_pc, slide_real_pc).await;
                         }
                     }
                 }
             }
-            Pane::Splash(play_state) => {
-                let _r = RenderSplash::begin(&play_state);
+            Pane::Splash(curr_pane_state) => {
+                let _r = RenderSplash::begin(&curr_pane_state);
             }
             Pane::Split(_) => {
                 // ...

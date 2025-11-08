@@ -20,7 +20,7 @@ struct Engine<Gamedata: BaseGamedata> {
     pub gamedata: Gamedata,
 
     /// Current state of gameplay, current level, mostly map etc.
-    play_state: Pane<Gamedata::MovementLogic>,
+    curr_pane_state: Pane<Gamedata::MovementLogic>,
 
     /// Smoothly from 0 to 1 transition from previous state to current state
     /// TODO: Move into arena?
@@ -42,7 +42,7 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
         let arena = gamedata.load_pane();
         Engine::<Gamedata> {
             gamedata: gamedata,
-            play_state: arena,
+            curr_pane_state: arena,
             anim_real_pc: 0.,
             slide_real_pc: 0.,
             input: Input::new_begin(),
@@ -55,15 +55,15 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
         /* ENH: Can read_input be combined with wait_for_tick? */
         self.input.read_input();
 
-        if self.play_state.is_continuous() || self.input.ready_to_advance_game_state(&mut self.anim_real_pc, &mut self.slide_real_pc) {
-            let pane_continuation = self.play_state.advance(&mut self.input);
+        if !self.curr_pane_state.need_sync_to_ticks() || self.input.ready_to_advance_game_state(&mut self.anim_real_pc, &mut self.slide_real_pc) {
+            let pane_continuation = self.curr_pane_state.advance(&mut self.input);
             if let PaneContinuation::Break(pane_ending) = pane_continuation {
-                self.play_state = self.gamedata.load_next_pane(pane_ending);
+                self.curr_pane_state = self.gamedata.load_next_pane(pane_ending);
             }
         }
 
         self.render.draw_frame(
-            &self.play_state,
+            &self.curr_pane_state,
             self.slide_real_pc,
             self.anim_real_pc,
         ).await;

@@ -33,8 +33,8 @@ impl BasePane for Splash {
         }
     }
 
-    fn is_continuous(&self) -> bool {
-        true
+    fn need_sync_to_ticks(&self) -> bool {
+        false
     }
 }
 

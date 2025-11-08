@@ -29,9 +29,9 @@ impl<MovementLogic : super::super::for_gamedata::BaseMovementLogic> BasePane for
         return PaneContinuation::Continue(());
     }
 
-    fn is_continuous(&self) -> bool {
+    fn need_sync_to_ticks(&self) -> bool {
         // TODO: Depend on "running" or "coding" state.
-        true
+        false
     }
 }
 
