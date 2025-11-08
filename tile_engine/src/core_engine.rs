@@ -17,7 +17,7 @@ struct Engine<Gamedata: BaseGamedata> {
     pub gamedata: Gamedata,
 
     /// Current state of gameplay, current level, mostly map etc.
-    curr_pane_state: Pane<Gamedata::MovementLogic>,
+    state: Pane<Gamedata::MovementLogic>,
 
     /// Smoothly from 0 to 1 transition from previous state to current state
     /// TODO: Move into arena?
@@ -39,7 +39,7 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
         let arena = gamedata.load_pane();
         Engine::<Gamedata> {
             gamedata: gamedata,
-            curr_pane_state: arena,
+            state: arena,
             anim_pc: 0.,
             slide_pc: 0.,
             input: Input::new_begin(),
@@ -54,19 +54,19 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
         // NB: Confusingly out of date! Currently we do a "tick" only when the user enters a key.
         // Tick never happens automatically. All tick length means is how long each moving
         // animation takes to complete
-        if !self.curr_pane_state.tick_based() || self.input.ready_to_advance_game_state(&mut self.anim_pc, &mut self.slide_pc) {
+        if !self.state.tick_based() || self.input.ready_to_advance_game_state(&mut self.anim_pc, &mut self.slide_pc) {
             // Do a "tick". Actually, currently whenever user presses key.
             // TODO: Use Option<Cmd> not Cmd::default.
             let cmd = self.input.consume_cmd();
-            let pane_continuation = self.curr_pane_state.advance(cmd);
+            let pane_continuation = self.state.advance(cmd);
             if let PaneContinuation::Break(pane_ending) = pane_continuation {
-                self.curr_pane_state = self.gamedata.load_next_pane(pane_ending);
+                self.state = self.gamedata.load_next_pane(pane_ending);
                 self.input.last_tick_time = macroquad::prelude::get_time();
             }
         }
 
         self.render.draw_frame(
-            &self.curr_pane_state,
+            &self.state,
             self.slide_pc,
             self.anim_pc,
         ).await;

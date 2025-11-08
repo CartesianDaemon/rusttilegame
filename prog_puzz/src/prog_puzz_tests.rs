@@ -51,19 +51,19 @@ fn basic_move() {
     // TODO: Simpler syntax for test without so much input boilerplate
     // TODO: Move assert line into function. With some way of seeing how many ticks have passed.
     // NB: Get away from as_play. Instead have initial map with 0123 in, and fn to say which is ^, or other mov.
-    // Then check that curr_pane_state is exactly the Pane::Something(Something) we expect.
+    // Then check that state is exactly the Pane::Something(Something) we expect.
     // Need to have decent visualisation for Pane::Something(Something).
     // Including checking that we move through level transitions ok.
 
-    let mut curr_pane_state = get_lev(1);
-    assert_eq!(curr_pane_state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
-    assert_eq!(&curr_pane_state.as_ascii_rows()[4], "#   ^        #", "\n{}", curr_pane_state.as_ascii_rows().join("\n")); // Start running, no other effect
-    assert_eq!(curr_pane_state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
-    assert_eq!(&curr_pane_state.as_ascii_rows()[3], "#   ^        #", "\n{}", curr_pane_state.as_ascii_rows().join("\n")); // F
-    assert_eq!(curr_pane_state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
-    assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#   ^  w     #", "\n{}", curr_pane_state.as_ascii_rows().join("\n")); // F
-    assert_eq!(curr_pane_state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
-    assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#   >  w     #", "\n{}", curr_pane_state.as_ascii_rows().join("\n")); // R
-    assert_eq!(curr_pane_state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
-    assert_eq!(&curr_pane_state.as_ascii_rows()[2], "#    > w     #", "\n{}", curr_pane_state.as_ascii_rows().join("\n")); // F
+    let mut state = get_lev(1);
+    assert_eq!(state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
+    assert_eq!(&state.as_ascii_rows()[4], "#   ^        #", "\n{}", state.as_ascii_rows().join("\n")); // Start running, no other effect
+    assert_eq!(state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
+    assert_eq!(&state.as_ascii_rows()[3], "#   ^        #", "\n{}", state.as_ascii_rows().join("\n")); // F
+    assert_eq!(state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
+    assert_eq!(&state.as_ascii_rows()[2], "#   ^  w     #", "\n{}", state.as_ascii_rows().join("\n")); // F
+    assert_eq!(state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
+    assert_eq!(&state.as_ascii_rows()[2], "#   >  w     #", "\n{}", state.as_ascii_rows().join("\n")); // R
+    assert_eq!(state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
+    assert_eq!(&state.as_ascii_rows()[2], "#    > w     #", "\n{}", state.as_ascii_rows().join("\n")); // F
 }
