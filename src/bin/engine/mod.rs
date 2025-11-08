@@ -38,6 +38,7 @@ pub mod for_gamedata {
     pub use super::obj::*;
     pub use super::gamedata::*;
     pub use super::pane::{Pane, PaneConclusion};
+    pub use super::pane::{Split, Arena, Code};
     pub use super::map_coords::*;
     pub use super::super::simple_custom_props::*;
 }

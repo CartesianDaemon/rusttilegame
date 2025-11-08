@@ -42,24 +42,30 @@ impl ProgpuzzLevset {
 
         // NB: Would like to implement thin walls between squares, not walls filling whole squares.
         match self.current_paneid {
-            BiobotPaneId::LevSplit(1) => Pane::<super::ProgpuzzMovementLogic>::from_play_ascii_map(&[
-                "################",
-                "#              #",
-                "#              #",
-                "#              #",
-                "#              #",
-                "#              #",
-                "#              #",
-                "#              #",
-                "#              #",
-                "#              #",
-                "#              #",
-                "#              #",
-                "#              #",
-                "#              #",
-                "#              #",
-                "################",
-            ], aquarium1_key),
+            // TODO: Avoid needing to specify HEIGHT explicitly.
+            BiobotPaneId::LevSplit(1) => Pane::<super::ProgpuzzMovementLogic>::Split(Split::new::<16>(
+                Arena::from_ascii(&[
+                    "################",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "################",
+                ], aquarium1_key),
+                Code::from_ascii(
+                    HashMap::new()
+                )
+            )),
             BiobotPaneId::Win => {
                 Pane::from_splash_string("Congratulations. You've completed all the levels. Press [enter] to play through again".to_string())
             },

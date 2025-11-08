@@ -63,7 +63,7 @@ pub struct Code {
 }
 
 impl Code {
-    fn from_ascii(supplies: HashMap<String, u16>) -> Code {
+    pub fn from_ascii(supplies: HashMap<String, u16>) -> Code {
         Code {
             supplies: supplies.iter().map(|(txt,count)|
                 (txt_to_instr(&txt),Supply::new(*count))
