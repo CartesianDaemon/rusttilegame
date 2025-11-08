@@ -176,8 +176,6 @@ impl<MovementLogic: BaseMovementLogic> Map<MovementLogic> {
     ///
     /// TODO: Would move into fns of Obj if we do that.
 
-    // TODO: Not used by programming puzzle?
-    #[allow(dead_code)]
     pub fn hero(&self) -> RosterIndex {
         Roster::hero()
     }
