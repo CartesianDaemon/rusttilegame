@@ -64,7 +64,7 @@ impl BaseMovementLogic for ProgpuzzMovementLogic
                     Some(Instr::F) => {
                         // NB Breadcrumb: Move to an attempt_action fn in simple_props.
                         let target_pos = map[mov].pos() + cmd.as_dir();
-                        if passable(map, target_pos) {
+                        if map.passable(target_pos) {
                             map.move_obj_to(mov, target_pos);
                         }
                     },

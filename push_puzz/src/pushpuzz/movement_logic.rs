@@ -17,7 +17,7 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
             SimpleAI::Hero => {
                 if cmd != Cmd::Stay {
                     let target_pos = map[mov].pos() + cmd.as_dir();
-                    if passable(map, target_pos) {
+                    if map.passable(target_pos) {
                         map.move_obj_to(mov, target_pos);
                     }
                 }
@@ -37,14 +37,14 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
                 // TODO: Consider adding map.try_move() fn.
                 // TODO: Consider adding map_coord *= -1.
                 let target_pos = map.obj_target_pos(mov);
-                if impassable(map, target_pos) {
+                if !map.passable(target_pos) {
                     map[mov].logical_props.dir.reverse();
                 }
 
                 // Move. Provided next space is passable. If both sides are impassable, don't move.
                 // TODO: Consider adding map.obj_try_move() function?
                 let target_pos = map[mov].pos() + map[mov].logical_props.dir;
-                if passable(map, target_pos) {
+                if map.passable(target_pos) {
                     map.move_obj_to(mov, target_pos);
                 }
 
@@ -60,7 +60,8 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
                 let mut drift_dir = CoordDelta::from_xy(0, 0);
 
                 // If hitting wall, reverse direction.
-                if impassable(map, map.obj_target_pos(mov)) {
+                if !map.passable(map.obj_target_pos(mov))
+                {
                     map[mov].logical_props.dir.reverse();
 
                     // And if hero "visible" forward or sideways, move one sideways towards them, if passable.
@@ -82,7 +83,8 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
                 // Move. Provided next space is passable. If both sides are impassable, don't move.
                 // TODO: Animation for turning? At least avoiding wall?
                 let delta = map[mov].logical_props.dir + drift_dir;
-                if passable(map, map[mov].pos() + delta) {
+                if map.passable(map[mov].pos() + delta)
+                {
                     map.move_obj_to(mov, map[mov].pos() + delta);
                 }
 
@@ -93,7 +95,8 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
             },
             SimpleAI::Scuttle => {
                 // If hitting wall, choose new direction.
-                if impassable(map, map.obj_target_pos(mov)) {
+                if !map.passable(map.obj_target_pos(mov))
+                {
                     let hero_dir = map[mov].pos().dir_to(map[hero].pos());
                     let hero_delta = map[mov].pos().delta_to(map[hero].pos());
                     // Find whether x or y is more towards the hero
@@ -114,14 +117,15 @@ impl BaseMovementLogic for PushpuzzMovementLogic {
                     // Can't be the same as original direction because that was impassable.
                     // If none are passable, stay in the same direction we started.
                     if let Some(dir) = try_dirs.iter().find(|dir|
-                        passable(map, map[mov].pos() + **dir)
+                        map.passable(map[mov].pos() + **dir)
                     ) {
                         map[mov].logical_props.dir = *dir;
                     }
                 }
 
                 // Move. Provided next space is passable. If all sides were impassable, don't move.
-                if passable(map, map.obj_target_pos(mov)) {
+                if map.passable(map.obj_target_pos(mov))
+                {
                     map.move_obj_to(mov, map[mov].pos() + map[mov].logical_props.dir);
                 }
 
