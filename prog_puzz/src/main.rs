@@ -16,7 +16,7 @@
 /// As long as the game is under development you are encouraged to arena it.
 /// If I finish the game I will specify how the game is distributed.
 
-// TODO: Move imgs into data. Test that builds and preview html still work.
+// NB: Consider moving types back into a file like mod.rs?
 
 mod levels;
 mod objs;
