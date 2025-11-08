@@ -31,7 +31,7 @@ impl Input {
         }
     }
 
-    pub fn from_one_cmd(cmd: Cmd) -> Self
+    pub fn from_cmd(cmd: Cmd) -> Self
     {
         Self {
             most_recent_cmd: Some(cmd),
