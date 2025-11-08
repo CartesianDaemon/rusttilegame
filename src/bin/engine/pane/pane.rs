@@ -17,6 +17,11 @@ pub enum PaneConclusion {
 // After each tick, either Continue, or restart/start another level based on Conclusion.
 pub type PaneContinuation = ControlFlow<PaneConclusion, ()>;
 
+pub trait PaneBase {
+    // fn is_continuous(&self) -> bool;
+    fn advance(&mut self, input : &mut Input) -> PaneContinuation;
+}
+
 /// One unit of gameplay: one map layout, one splash screen, etc.
 ///
 /// Would be nice to have base trait for pane types. Look for helper crate?

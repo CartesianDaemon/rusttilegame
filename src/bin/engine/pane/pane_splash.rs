@@ -1,4 +1,5 @@
 use super::{PaneContinuation, PaneConclusion};
+use super::PaneBase;
 
 // Would be nice to remove if easy
 use macroquad::prelude::*;
@@ -18,6 +19,21 @@ pub struct Splash {
     pub dialogue: Dialogue, // If this works, will replace splash_text
 }
 
+impl PaneBase for Splash {
+    fn advance(&mut self, input: &mut Input) -> PaneContinuation {
+        let key = input.consume_cmd();
+
+        // Reset "most recent tick" when leaving menu.
+        // FIXME: Avoid needing input as a parameter, move time update to input code.
+        input.last_real_update = get_time();
+
+        match key {
+            Some(_) => PaneContinuation::Break(PaneConclusion::SplashNext),
+            None => PaneContinuation::Continue(()),
+        }
+    }
+}
+
 impl Splash
 {
     pub fn from_string(txt: String) -> Splash {
@@ -31,19 +47,6 @@ impl Splash
         Splash {
             splash_text: "".to_string(),
             dialogue: Dialogue { entries: entries.iter().map(|x| DialogueLine {tex_path: "".to_string(), text: x.to_string()} ).collect() },
-        }
-    }
-
-    pub fn advance(&mut self, input: &mut Input) -> PaneContinuation {
-        let key = input.consume_cmd();
-
-        // Reset "most recent tick" when leaving menu.
-        // FIXME: Avoid needing input as a parameter, move time update to input code.
-        input.last_real_update = get_time();
-
-        match key {
-            Some(_) => PaneContinuation::Break(PaneConclusion::SplashNext),
-            None => PaneContinuation::Continue(()),
         }
     }
 }
