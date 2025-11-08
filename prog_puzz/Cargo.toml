@@ -1,0 +1,8 @@
+[package]
+name = "push_puzz"
+version = "1.0.2"
+edition = "2024"
+
+[dependencies]
+macroquad = "=0.4.7"
+tile_engine = { path = "../tile_engine" }

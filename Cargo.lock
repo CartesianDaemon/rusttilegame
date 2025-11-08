@@ -412,6 +412,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "push_puzz"
+version = "1.0.2"
+dependencies = [
+ "macroquad",
+ "tile_engine",
+]
+
+[[package]]
 name = "quad-rand"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -477,7 +485,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "tilegame"
+name = "tile_engine"
 version = "1.0.2"
 dependencies = [
  "assrt",

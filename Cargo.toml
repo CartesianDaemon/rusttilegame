@@ -1,13 +1,7 @@
-[package]
+[workspace]
 name = "tilegame"
 version = "1.0.2"
 edition = "2024"
+members = ["tile_engine", "prog_puzz"] # "push_puzz",
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-macroquad = "=0.4.7"
-futures = "0.3.30"
-derive_more = "0.99"
-assrt = {git = "https://github.com/CartesianDaemon/assrt.git", branch = "v0.2"} # Can also use {path = "../assrt"}
-culpa = "1.0.2"
