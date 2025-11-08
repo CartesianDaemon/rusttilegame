@@ -29,8 +29,8 @@ struct Flowchart<T> {
 
 #[derive(Clone, Debug)]
 pub struct Code {
-    // Palette of available instructions, array of assembled instructions, etc.
-    resources: HashMap<Instr, Supply>,
+    // TODO: Need IndexMap or Vec to maintain order.
+    supplies: HashMap<Instr, Supply>,
     prog: Flowchart<Instr>,
 }
 
