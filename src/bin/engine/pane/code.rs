@@ -2,6 +2,8 @@ use super::{PaneContinuation, PaneConclusion};
 use crate::engine::input::Input;
 use super::BasePane;
 
+use std::collections::HashMap;
+
 // Todo: Could introduce AttemptAction with things like "move 1" and
 // "Rotate L/R", returned by a fn on Instr variants and similarly by
 // keys in pushpuzz. And interpreted further by an attempt_action fn
@@ -15,8 +17,7 @@ enum Instr {
 }
 
 #[derive(Clone, Debug)]
-struct Bin<T> {
-    elem: T,
+struct Supply {
     orig_count: u16,
     curr_count: u16,
 }
@@ -29,8 +30,17 @@ struct Flowchart<T> {
 #[derive(Clone, Debug)]
 pub struct Code {
     // Palette of available instructions, array of assembled instructions, etc.
-    supply: Vec<Bin<Instr>>,
+    resources: HashMap<Instr, Supply>,
     prog: Flowchart<Instr>,
+}
+
+impl Code {
+    // `fn from_ascii(txt: String) -> Code {
+    // `    Code {
+    // `        resources: vec![],
+    // `        prog: Flowchart { elems: vec![] },
+    // `    }
+    // `}
 }
 
 impl BasePane for Code
