@@ -1,6 +1,7 @@
 use macroquad::prelude::*;
 
 use crate::{engine::for_gamedata::*};
+use crate::{engine::for_scripting::*};
 use super::movement_logic::ProgpuzzAI;
 
 type CustomProps = super::ProgpuzzCustomProps;

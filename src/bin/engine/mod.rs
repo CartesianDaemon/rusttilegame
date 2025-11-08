@@ -24,6 +24,7 @@ pub mod for_scripting {
     pub use super::map::{Map, RosterIndex};
     pub use super::map_coords::*;
     pub use super::pane::{PaneContinuation, PaneConclusion};
+    pub use super::pane::Prog;
     pub use super::gamedata::BaseMovementLogic;
     pub use super::super::simple_custom_props::*;
 }

@@ -6,6 +6,7 @@ use std::collections::HashMap;
 
 fn txt_to_instr(txt: &str) -> Instr {
     match txt {
+        "NOP" => Instr::NOP,
         "F" => Instr::F,
         "L" => Instr::L,
         "R" => Instr::R,
@@ -16,6 +17,7 @@ fn txt_to_instr(txt: &str) -> Instr {
 
 fn instr_to_txt(instr: &Instr) -> String {
     match instr {
+        Instr::NOP => "NOP",
         Instr::F => "F",
         Instr::L => "L",
         Instr::R => "R",
@@ -27,8 +29,10 @@ fn instr_to_txt(instr: &Instr) -> String {
 // "Rotate L/R", returned by a fn on Instr variants and similarly by
 // keys in pushpuzz. And interpreted further by an attempt_action fn
 // in simple_custom_props which examines passability etc.
-#[derive(Clone, Debug, Hash, PartialEq, Eq)]
+// Breadcrumb: Could implement to_txt and txt_to in terms of common trait.
+#[derive(Clone, Default, Debug, Hash, PartialEq, Eq)]
 enum Instr {
+    #[default] NOP,
     F,
     L,
     R,
@@ -50,16 +54,17 @@ impl Supply {
     }
 }
 
-#[derive(Clone, Debug)]
-struct Flowchart<T> {
-    elems: Vec<T>,
+// Breadcrumb: Derive for implementing default value?
+#[derive(Clone, Debug, Default)]
+pub struct Prog {
+    elems: Vec<Instr>,
 }
 
 #[derive(Clone, Debug)]
 pub struct Code {
     // TODO: Need IndexMap or Vec to maintain order.
     supplies: HashMap<Instr, Supply>,
-    prog: Flowchart<Instr>,
+    prog: Prog,
 }
 
 impl Code {
@@ -68,7 +73,7 @@ impl Code {
             supplies: supplies.iter().map(|(txt,count)|
                 (txt_to_instr(&txt),Supply::new(*count))
             ).collect(),
-            prog: Flowchart { elems: vec![] },
+            prog: Prog::default(),
         }
     }
 }
