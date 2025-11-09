@@ -23,9 +23,9 @@ fn get_lev(n: i32) -> Pane<super::ProgpuzzMovementLogic> {
             Arena::from_ascii(&[
             "##############",
             "#            #",
-            "#   23       #",
-            "#   1   w    #",
-            "#   0        #",
+            "#      w     #",
+            "#            #",
+            "#   ^        #",
             "#            #",
             "##############",
             ], test_key),
