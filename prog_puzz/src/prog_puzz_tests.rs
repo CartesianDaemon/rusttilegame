@@ -5,8 +5,6 @@ use macroquad::prelude::*;
 use tile_engine::for_gamedata::*;
 use super::objs::*;
 
-
-
 fn get_lev(n: i32) -> Pane<super::movement_logic::ProgpuzzMovementLogic> {
     // NB: Use progpuzz key directly
     let test_key = HashMap::from([
@@ -47,9 +45,6 @@ fn get_lev(n: i32) -> Pane<super::movement_logic::ProgpuzzMovementLogic> {
 
 #[test]
 fn basic_move() {
-    // TODO: Add printout of actual map on failure
-    // TODO: Check coding/running changes as expected
-    // TODO: Simpler syntax for test without so much input boilerplate
     // TODO: Move assert line into function. With some way of seeing how many ticks have passed.
     // NB: Get away from as_play. Instead have initial map with 0123 in, and fn to say which is ^, or other mov.
     // Then check that state is exactly the Pane::Something(Something) we expect.
@@ -57,14 +52,24 @@ fn basic_move() {
     // Including checking that we move through level transitions ok.
 
     let mut state = get_lev(1);
+    // assert!(matches!(state, Pane::Split(phase: SplitPhase::Running, ..)));
+    assert_eq!(state.as_ascii_rows(), get_lev(1).as_ascii_rows());
+
+    // Start running, no other effect
     assert_eq!(state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
-    assert_eq!(&state.as_ascii_rows()[4], "#   ^        #", "\n{}", state.as_ascii_rows().join("\n")); // Start running, no other effect
+    //assert_eq!(state.phase, SplitPhase::Coding);
+    assert_eq!(&state.as_ascii_rows()[4], "#   ^        #", "\n{}", state.as_ascii_rows().join("\n"));
+
     assert_eq!(state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
+    //assert_eq!(state.phase, SplitPhase::Running);
     assert_eq!(&state.as_ascii_rows()[3], "#   ^        #", "\n{}", state.as_ascii_rows().join("\n")); // F
+
     assert_eq!(state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
     assert_eq!(&state.as_ascii_rows()[2], "#   ^  w     #", "\n{}", state.as_ascii_rows().join("\n")); // F
+
     assert_eq!(state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
     assert_eq!(&state.as_ascii_rows()[2], "#   >  w     #", "\n{}", state.as_ascii_rows().join("\n")); // R
+
     assert_eq!(state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
     assert_eq!(&state.as_ascii_rows()[2], "#    > w     #", "\n{}", state.as_ascii_rows().join("\n")); // F
 }
