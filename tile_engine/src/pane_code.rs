@@ -1,3 +1,5 @@
+use mapchain::chain;
+
 use crate::pane::*;
 use crate::map_coords::Cmd;
 
@@ -15,6 +17,7 @@ pub enum Instr {
     Loop(Vec<Instr>),
 }
 
+// NB: This should be "from" and "into". If it is, does it save us any steps?
 fn txt_to_instr(txt: &str) -> Instr {
     match txt {
         "F" => Instr::F,
@@ -59,8 +62,10 @@ impl Prog {
     // E.g. from("F,F,R,Loop")
     pub fn from(txt: &str) -> Prog {
         Prog {
+            //instrs: txt.split_terminator(',').map(|x| txt_to_instr(x)).collect()
             // NB: Try using my chain crate
-            instrs: txt.split_terminator(',').map(|x| txt_to_instr(x)).collect()
+            // NB for chain: Any way to have myvec.chain![x*2] instead of chain![myvec|x*2]?
+            instrs: chain![txt.split_terminator(',') | txt_to_instr(x)]
         }
     }
 }
