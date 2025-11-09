@@ -230,6 +230,8 @@ impl<MovementLogic: BaseMovementLogic> Arena<MovementLogic> {
     }
 
     /// Ascii representation of map. Checked by test functions. Used for debug logging.
+    /// NB: Store an appropriate char for representing object in the object, or something,
+    /// instead of comparing to original and misusing PartialEq to ignore some fields.
     pub fn as_ascii_rows(&self) -> Vec<String> {
         (0..self.map.h() as i16).map(|y|
             (0..self.map.w() as i16).map(|x| {

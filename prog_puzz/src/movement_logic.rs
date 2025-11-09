@@ -2,7 +2,7 @@ use tile_engine::for_gamedata::*;
 
 // NB: Custom props could be enum we need different data for different object types.
 // Would need to figure out which types can have which AIs.
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, Debug)]
 pub struct ProgpuzzCustomProps {
     pub ai: ProgpuzzAI,
     pub prog: Prog,
@@ -17,6 +17,13 @@ impl ProgpuzzCustomProps {
             ai,
             ..Self::default()
         }
+    }
+}
+
+// Fuzzy matching
+impl PartialEq for ProgpuzzCustomProps {
+    fn eq(&self, other: &Self) -> bool {
+        self.ai == other.ai
     }
 }
 
