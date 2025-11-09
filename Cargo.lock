@@ -320,16 +320,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "mapchain"
-version = "0.1.9"
-dependencies = [
- "itertools",
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "memchr"
 version = "2.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -511,7 +501,6 @@ dependencies = [
  "derive_more",
  "futures",
  "macroquad",
- "mapchain",
 ]
 
 [[package]]
