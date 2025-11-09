@@ -5,17 +5,24 @@ use super::movement_logic::ProgpuzzAI;
 
 type CustomProps = super::movement_logic::ProgpuzzCustomProps;
 
-pub fn new_progbot(dir: CoordDelta) -> FreeObj<CustomProps> {
+pub fn new_progbot_with_prog(dir: CoordDelta, prog: Prog) -> FreeObj<CustomProps> {
     FreeObj {
-        logical_props: LogicalProps::<CustomProps> {
+        logical_props: LogicalProps {
             name:"Progbot".to_string(),
             dir: dir,
             pass: Pass::Mov,
-            custom_props: CustomProps::new(ProgpuzzAI::Prog),
+            custom_props: CustomProps {
+                prog,
+                ..CustomProps::new(ProgpuzzAI::Prog)
+            },
             ..LogicalProps::<CustomProps>::defaults()
         },
         visual_props: VisualProps::new_text_fill("HERO".to_string(), Some(GOLD), Some(BLACK))
     }
+}
+
+pub fn new_progbot(dir: CoordDelta) -> FreeObj<CustomProps> {
+    new_progbot_with_prog(dir, Prog::default())
 }
 
 pub fn new_floor() -> FreeObj<CustomProps> {
