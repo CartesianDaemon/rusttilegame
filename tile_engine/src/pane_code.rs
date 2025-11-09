@@ -3,6 +3,18 @@ use crate::map_coords::Cmd;
 
 use std::collections::HashMap;
 
+// NB: Nice to move to progpuzz if we can.
+// NB: Could be combined with putative AttemptedAction defined for Cmd.
+// Breadcrumb: Could implement to_txt and txt_to in terms of common trait.
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
+pub enum Instr {
+    F,
+    L,
+    R,
+    // NB: We're going to need to box this before we instantiate it anywhere, right?
+    Loop(Vec<Instr>),
+}
+
 fn txt_to_instr(txt: &str) -> Instr {
     match txt {
         "F" => Instr::F,
@@ -20,18 +32,6 @@ fn _instr_to_txt(instr: &Instr) -> String {
         Instr::R => "R",
         Instr::Loop(_) => "Loop",
     }.to_string()
-}
-
-// NB: Nice to move to progpuzz if we can.
-// NB: Could be combined with putative AttemptedAction defined for Cmd.
-// Breadcrumb: Could implement to_txt and txt_to in terms of common trait.
-#[derive(Clone, Debug, Hash, PartialEq, Eq)]
-pub enum Instr {
-    F,
-    L,
-    R,
-    // NB: We're going to need to box this before we instantiate it anywhere, right?
-    Loop(Vec<Instr>),
 }
 
 #[derive(Clone, Debug)]
@@ -55,6 +55,16 @@ pub struct Prog {
     pub instrs: Vec<Instr>,
 }
 
+impl Prog {
+    // E.g. from("F,F,R,Loop")
+    pub fn from(txt: &str) -> Prog {
+        Prog {
+            // NB: Try using my chain crate
+            instrs: txt.split_terminator(',').map(|x| txt_to_instr(x)).collect()
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Code {
     // TODO: Need IndexMap or Vec to maintain order.
@@ -68,9 +78,7 @@ impl Code {
             supplies: supplies.iter().map(|(txt,count)|
                 (txt_to_instr(&txt),Supply::new(*count))
             ).collect(),
-            prog: Prog {
-                instrs: vec![Instr::F, Instr::F, Instr::R, Instr::F],
-            },
+            prog: Prog::from("F,F,R,F"),
         }
     }
 }
