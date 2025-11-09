@@ -9,6 +9,14 @@ use super::map_coords::CoordDelta;
 
 type TextureCache = HashMap<String, Texture2D>;
 
+/// NB: Split Render up into a struct or trait implemented for each
+/// Pane. Or Screen of multiple Panes.
+/// NB: Or have ProgpuzzView (elsewhere called screen), which might
+/// delegate drawing to one preimplemented View, or multuple tiled.
+/// Which combine Render code in a View struct or trait specialised
+/// for the relevant Widget/Gamedata.
+/// And Gamedata contains one or more Widgets.
+/// And Views may display data from one Widget, or from more than one.
 pub struct Render {
     /// Loaded textures
     texture_cache: TextureCache,
