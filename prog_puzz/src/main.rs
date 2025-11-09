@@ -16,8 +16,7 @@
 /// As long as the game is under development you are encouraged to arena it.
 /// If I finish the game I will specify how the game is distributed.
 
-// NB: Consider moving types back into a file like mod.rs?
-
+mod gamedata;
 mod levels;
 mod objs;
 mod movement_logic;
@@ -25,33 +24,7 @@ mod movement_logic;
 #[cfg(test)]
 mod prog_puzz_tests;
 
-use movement_logic::{ProgpuzzMovementLogic, ProgpuzzCustomProps};
-
-use tile_engine::for_gamedata::*;
-
-#[derive(Debug)]
-pub struct ProgpuzzGamedata {
-    levset: levels::ProgpuzzLevset,
-}
-
-impl BaseGamedata for ProgpuzzGamedata {
-    type MovementLogic = ProgpuzzMovementLogic;
-    type CustomProps = ProgpuzzCustomProps;
-
-    fn new() -> Self {
-        ProgpuzzGamedata {
-            levset: levels::ProgpuzzLevset::new()
-        }
-    }
-
-    fn advance_pane(&mut self, continuation: PaneConclusion) {
-        self.levset.advance_pane(continuation)
-    }
-
-    fn load_pane(&self) -> Pane::<Self::MovementLogic> {
-        self.levset.load_pane()
-    }
-}
+use gamedata::*;
 
 #[macroquad::main("Tile Game")]
 async fn main() {

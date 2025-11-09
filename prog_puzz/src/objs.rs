@@ -3,7 +3,7 @@ use macroquad::prelude::*;
 use tile_engine::for_gamedata::*;
 use super::movement_logic::ProgpuzzAI;
 
-type CustomProps = super::ProgpuzzCustomProps;
+type CustomProps = super::movement_logic::ProgpuzzCustomProps;
 
 pub fn new_progbot(dir: CoordDelta) -> FreeObj<CustomProps> {
     FreeObj {
