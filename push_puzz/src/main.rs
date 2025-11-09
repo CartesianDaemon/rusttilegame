@@ -1,6 +1,3 @@
-// Breadcrumb: Avoid warnings of unused code in each separare binary.
-// Try using lib crate + two binary crates in a workspace?
-
 mod pushpuzz;
 #[cfg(test)]
 mod push_puzz_tests;
