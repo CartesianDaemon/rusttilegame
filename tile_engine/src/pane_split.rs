@@ -21,7 +21,9 @@ impl<MovementLogic : super::for_gamedata::BaseMovementLogic> BasePane for Split<
     fn advance(&mut self, cmd: Option<Cmd>) -> PaneContinuation {
         match self.phase {
             SplitPhase::Coding => {
-                print!("Advance Split (Coding)\n");
+                // NB: Need to have some permanent debug logging.
+                // That is often more useful for "how it went wrong" than more detailed tests.
+                println!("Split::advance (Coding)");
                 // For now ignore input and treat anything as "start running".
                 self.phase = SplitPhase::Running;
                 // Set progbot's prog to the user-assembled prog.
@@ -33,7 +35,7 @@ impl<MovementLogic : super::for_gamedata::BaseMovementLogic> BasePane for Split<
                 let _ = &self.code.prog;
             },
             SplitPhase::Running => {
-                print!("Advance Split (Running)\n");
+                println!("Split::advance (Running)");
                 // For now ignore input and execute program.
                 // Once run off end will always return ConclusionDie.
                 let _conclusion = self.arena.advance(cmd);

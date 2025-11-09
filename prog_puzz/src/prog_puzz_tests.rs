@@ -6,14 +6,15 @@ use tile_engine::for_gamedata::*;
 use super::objs::*;
 
 fn get_lev(n: i32) -> Pane<super::movement_logic::ProgpuzzMovementLogic> {
-    // NB: Use progpuzz key directly
+    // NB: Use progpuzz key directly``
+    let prog = Prog::from("F,F,R,F");
     let test_key = HashMap::from([
         (' ', vec![ new_floor() ]),
         ('#', vec![ new_floor(), new_wall() ]),
-        ('^', vec![ new_floor(), new_progbot(CoordDelta::from_xy(0, -1)) ]),
-        ('>', vec![ new_floor(), new_progbot(CoordDelta::from_xy(1, 0)) ]),
-        ('v', vec![ new_floor(), new_progbot(CoordDelta::from_xy(0, 1)) ]),
-        ('<', vec![ new_floor(), new_progbot(CoordDelta::from_xy(-1, 0)) ]),
+        ('^', vec![ new_floor(), new_progbot_with_prog(CoordDelta::from_xy(0, -1), &prog) ]),
+        ('>', vec![ new_floor(), new_progbot_with_prog(CoordDelta::from_xy(1, 0), &prog) ]),
+        ('v', vec![ new_floor(), new_progbot_with_prog(CoordDelta::from_xy(0, 1), &prog) ]),
+        ('<', vec![ new_floor(), new_progbot_with_prog(CoordDelta::from_xy(-1, 0), &prog) ]),
         ('w', vec![ new_door_win() ]),
     ]);
 

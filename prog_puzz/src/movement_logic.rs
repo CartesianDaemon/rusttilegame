@@ -55,16 +55,22 @@ impl BaseMovementLogic for ProgpuzzMovementLogic
         match props.ai {
             ProgpuzzAI::Prog => {
                 // NB: For now mostly ignoring input cmd. Need to revisit.
-                match props.prog.instrs.get(props.ip) {
+                let instr = props.prog.instrs.get(props.ip);
+                println!("ProgpuzzMovementLogic::move_mov: Prog ({:?}, {:?})", props.ip, instr);
+                match instr {
                     // Conclude pane with failure if we reach the end of the program.
                     None => return PaneContinuation::Break(PaneConclusion::ArenaDie),
-
                     // Move forward
                     Some(Instr::F) => {
                         // NB Breadcrumb: Move to an attempt_action fn in simple_props.
+                        println!("Bot at {:?}. Facing {:?}", map[mov].pos(), map[mov].logical_props.dir);
                         let target_pos = map[mov].pos() + map[mov].logical_props.dir;
                         if map.passable(target_pos) {
+                            println!("Moving bot to: {:?}", target_pos);
                             map.move_obj_to(mov, target_pos);
+                        }
+                        else {
+                            println!("Can't move bot: blocked at {:?}", target_pos);
                         }
                     },
                     // Rotate L
@@ -93,6 +99,7 @@ impl BaseMovementLogic for ProgpuzzMovementLogic
                 return PaneContinuation::Continue(());
             },
             ProgpuzzAI::Stay => {
+                print!("ProgpuzzMovementLogic::move_mov: Stay\n");
                 // Do nothing
             },
             }
