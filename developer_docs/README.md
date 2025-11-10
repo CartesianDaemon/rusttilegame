@@ -39,31 +39,27 @@ The `test_wasm/` directory contains a local version of the html used to
 serve the game. It includes some magic javascript from the macroquad
 homepage to get the javascript runtime for sdl working.
 
-It also symlinks the imgs directory so the wasm can see the imgs/ directory
-relative to its current directory.
+It symlinks wasm/ to the directory with build outputs. It symlinks imgs/
+to the top level imgs/ directory.
 
 ## Serve web page locally
 
-Most browsers won't serve wasm from .html files from the local file system. It
-ought to work to override that setting. But it is typical to test the wasm in
-a website using a minimal web server. E.g:
+Most browsers won't serve wasm from .html files from the local file system
+without overriding a security setting.
 
-TODO: Update instructions to refer to script.
+Instead we test wasm with a minimal web server:
 
 ```
- # Install very simple web server
+ # Install very simple web server (if not already installed)
  cargo install basic-http-server
-
-# Serve the web pages from the test_wasm directory.
- basic-http-server test_wasm/
 ```
 
-You can then see the debug build in a web browser by going to:
-http://127.0.0.1:4000/pushing_debug.html. You can see the release build by going to:
-http://127.0.0.1:4000/pushing_release.html.
+And run a script to open the html in a browser and start the web server.
 
-This works even when running the web browser in WSL and viewing the webpage from
-a browser in Windows.
+```
+ # Serve the web pages from the test_wasm directory.
+ ./build_scripts/serve_locally.sh
+```
 
 ### Notes
 
@@ -89,6 +85,8 @@ Maybe: Can compile the assets into the exe?
 
 Run `build_scripts/release.sh` to build a wasm release from the latest source, and copy the wasm
 output and image assets to published folder.
+
+TODO: Needs to be fixed to reflect current local wasm directory.
 
 You can check it works the same way as the local test site by running:
 
