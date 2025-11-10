@@ -306,6 +306,9 @@ impl RenderSplit
         Self::draw_instr(0, "F");
         Self::draw_instr(1, "F");
         Self::draw_instr(2, "R");
+        Self::draw_instr(3, "L");
+        Self::draw_instr(4, "L");
+        Self::draw_instr(5, "F");
     }
 
     pub fn draw_instr(idx: usize, txt: &str)
@@ -318,7 +321,7 @@ impl RenderSplit
         let game_y = (screen_width() - game_size)/2.;
         let w @ h = game_size / (spacing_pc + n*(1.+spacing_pc));
         let x = game_x + game_size/2. - w/2.;
-        let y = game_y + h * (spacing_pc + (idx as f32)*(1.+spacing_pc));
+        let y = game_y + h * (spacing_pc + (-3.8 + idx as f32)*(1.+spacing_pc));
         draw_rectangle_lines(x, y, w, h, 2., WHITE);
         draw_text(txt, x + 0.2*w, y+0.85*h, 100., DARKPURPLE);
     }
