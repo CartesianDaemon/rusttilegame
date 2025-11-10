@@ -15,8 +15,9 @@ type TextureCache = HashMap<String, Texture2D>;
 /// Don't know about linux or android.
 /// Don't know if fixed in more recent macroquad.
 fn clear_background_for_current_platform(color: Color) {
-    if ! cfg!(windows) {
-        clear_background(color);
+    match std::env::consts::OS {
+        "windows" => (),
+        _ => clear_background(color),
     }
 }
 
