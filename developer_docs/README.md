@@ -48,6 +48,8 @@ Most browsers won't serve wasm from .html files from the local file system. It
 ought to work to override that setting. But it is typical to test the wasm in
 a website using a minimal web server. E.g:
 
+TODO: Update instructions to refer to script.
+
 ```
  # Install very simple web server
  cargo install basic-http-server
