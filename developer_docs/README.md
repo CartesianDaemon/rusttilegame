@@ -16,7 +16,7 @@ cargo build --target x86_64-pc-windows-gnu
 cargo run --target x86_64-pc-windows-gnu --bin push_puzz
 ```
 
-It runs but sadly doesn't display correctly. Useful for seeing what panics occur.
+It runs successfully!
 
 # Running wasm locally
 
