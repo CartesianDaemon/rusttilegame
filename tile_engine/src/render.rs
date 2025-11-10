@@ -41,12 +41,10 @@ impl Render {
                 RenderLev::render(state, &mut self.texture_cache, slide_pc, anim_pc, state.map_w(), state.map_h()).await;
             }
             Pane::Splash(state) => {
-                let _r = RenderSplash::begin(&state);
+                let _r = RenderSplash::render(state);
             }
             Pane::Split(state) => {
-                let _arena = &state.arena;
-                let _code = &state.code;
-                unimplemented!();
+                RenderSplit::render(state);
             }
         }
     }
@@ -232,7 +230,7 @@ pub struct RenderSplash {
 
 impl RenderSplash
 {
-    pub fn begin(splash: &Splash) -> RenderSplash {
+    pub fn render(splash: &Splash) {
         clear_background(WHITE);
 
         let text = &splash.splash_text;
@@ -277,7 +275,18 @@ impl RenderSplash
 
             next_y += f32::max(avatar_h, text_size.height) + entry_spacing;
         }
+    }
+}
 
-        RenderSplash {}
+// Render state for one frame of "Show text, press enter to continue"
+// Currently not needing any global graphics state
+pub struct RenderSplit {
+}
+
+impl RenderSplit
+{
+    pub fn render<MovementLogic: BaseMovementLogic>(split: &Split<MovementLogic>) {
+                let _arena = &split.arena;
+                let _code = &split.code;
     }
 }
