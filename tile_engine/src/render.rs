@@ -288,5 +288,9 @@ impl RenderSplit
     pub fn render<MovementLogic: BaseMovementLogic>(split: &Split<MovementLogic>) {
         let _arena = &split.arena;
         let _code = &split.code;
+
+        clear_background(LIGHTGRAY);
+
+        draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
     }
 }
