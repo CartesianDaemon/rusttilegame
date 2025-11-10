@@ -286,7 +286,7 @@ pub struct RenderSplit {
 impl RenderSplit
 {
     pub fn render<MovementLogic: BaseMovementLogic>(split: &Split<MovementLogic>) {
-                let _arena = &split.arena;
-                let _code = &split.code;
+        let _arena = &split.arena;
+        let _code = &split.code;
     }
 }

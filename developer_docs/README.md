@@ -10,9 +10,13 @@ Sadly does not work in WSL yet, even though other graphical linux applications d
 
 # Running windows build locally
 
-Sadly build from WSL does not run under Windows successfully yet.
+```
+rustup target add x86_64-pc-windows-gnu
+cargo build --target x86_64-pc-windows-gnu
+cargo run --target x86_64-pc-windows-gnu --bin push_puzz
+```
 
-Not yet tried building natively on Windows.
+It runs but sadly doesn't display correctly. Useful for seeing what panics occur.
 
 # Running wasm locally
 
