@@ -11,6 +11,15 @@ use super::map_coords::CoordDelta;
 
 type TextureCache = HashMap<String, Texture2D>;
 
+/// Seems like clear_background is mandatory for wasm, broken for windows.
+/// Don't know about linux or android.
+/// Don't know if fixed in more recent macroquad.
+fn clear_background_for_current_platform(color: Color) {
+    if ! cfg!(windows) {
+        clear_background(color);
+    }
+}
+
 /// NB: Split Render up into a struct or trait implemented for each
 /// Pane. Or Screen of multiple Panes.
 /// NB: Or have ProgpuzzView (elsewhere called screen), which might
@@ -125,7 +134,7 @@ impl<'a> RenderLev<'a> {
 
     fn draw_backdrop(&self)
     {
-        clear_background(LIGHTGRAY);
+        clear_background_for_current_platform(LIGHTGRAY);
 
         draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
     }
@@ -289,7 +298,7 @@ impl RenderSplit
         let _arena = &split.arena;
         let _code = &split.code;
 
-        clear_background(LIGHTGRAY);
+        clear_background_for_current_platform(LIGHTGRAY);
 
         draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
     }
