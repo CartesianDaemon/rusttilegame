@@ -1,7 +1,7 @@
 #/bin/bash
 
-set -e
+# Do not 'set -e'. Browser will fail then retry.
 
-basic-http-server test_wasm/ &
+explorer.exe "http://localhost:4000"
 
-explorer.exe "test_wasm\index.html"
+basic-http-server test_wasm/
