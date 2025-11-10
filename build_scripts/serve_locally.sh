@@ -4,6 +4,9 @@
 
 cargo build --target wasm32-unknown-unknown # build debug wasm
 
-explorer.exe # "http://localhost:4000"
+# Need to switch to chrome without opening new file
+# Or open file in new chrome eg. /mnt/c/Program\ Files/Google/Chrome/Application/chrome.exe http://localhost:4000
+# explorer.exe # "http://localhost:4000"
+/mnt/c/Program\ Files/Google/Chrome/Application/chrome.exe http://localhost:4000
 
 basic-http-server test_wasm/
