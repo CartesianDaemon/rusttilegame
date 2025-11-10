@@ -79,6 +79,8 @@ pub struct RenderLev<'a> {
     sq_w: f32,
     sq_h: f32,
     texture_cache: &'a mut TextureCache,
+    slide_pc: f32,
+    anim_pc: f32,
 }
 
 impl<'a> RenderLev<'a> {
@@ -99,17 +101,17 @@ impl<'a> RenderLev<'a> {
             sq_w: (screen_height() - offset_y * 2.) / w as f32,
             sq_h: (screen_height() - offset_y * 2.) / w as f32,
             texture_cache,
+            slide_pc,
+            anim_pc,
         };
 
         render_lev.draw_backdrop();
 
-        render_lev.draw_map(state, slide_pc, anim_pc).await;
+        render_lev.draw_map(state).await;
     }
 
     pub async fn draw_map<MovementLogic: BaseMovementLogic>(
-        self: &mut Self,
-        state: &Arena<MovementLogic>,
-        slide_pc: f32, anim_pc: f32,
+        self: &mut Self, state: &Arena<MovementLogic>,
     ) {
         // Coords of first visible tile. Currently always 0,0.
         let (ox, oy) = (0, 0);
@@ -117,7 +119,7 @@ impl<'a> RenderLev<'a> {
         for h in 0..max_h {
             for (x, y, loc) in state.map_locs() {
                 if let Some(ent) = loc.get(h) {
-                    self.draw_ent(x - ox, y - oy, ent, anim_pc, slide_pc).await;
+                    self.draw_ent(x - ox, y - oy, ent).await;
                 }
             }
         }
@@ -144,10 +146,6 @@ impl<'a> RenderLev<'a> {
         vy: i16,
         // Ent to draw
         obj: &MapObj<CustomProps>,
-        // Proportion of animation from previous state to current (frame)
-        anim_pc: f32,
-        // Proportion of animation from previous state to current (position)
-        slide_pc: f32,
     ) {
         let visual_props = &obj.visual_props;
         let logical_props = &obj.logical_props;
@@ -166,9 +164,9 @@ impl<'a> RenderLev<'a> {
         // Switch to using fixed frame throughout from here?
         let slide_in_frame_units = Some(3);
         let slide_fr_pc = if let Some(fixed_frames) = slide_in_frame_units {
-            (slide_pc * fixed_frames as f32).floor() / fixed_frames as f32
+            (self.slide_pc * fixed_frames as f32).floor() / fixed_frames as f32
         } else {
-            slide_pc
+            self.slide_pc
         };
 
         let px = base_px + self.sq_w * (1.-pc_size) / 2. - (dx as f32 * (1.-slide_fr_pc) * self.sq_w);
@@ -190,7 +188,7 @@ impl<'a> RenderLev<'a> {
 
         if visual_props.tex_paths.len() > 0 {
             // TODO: Simplify calc? Prevent anim_pc being 100? Or being 0?
-            let tex_frame_idx = (visual_props.tex_paths.len()-1).min((anim_pc * visual_props.tex_paths.len() as f32) as usize);
+            let tex_frame_idx = (visual_props.tex_paths.len()-1).min((self.anim_pc * visual_props.tex_paths.len() as f32) as usize);
             let tex_path = &visual_props.tex_paths[tex_frame_idx];
 
             let tex_data: &Texture2D = if let Some(tex_data) = self.texture_cache.get(tex_path) {
