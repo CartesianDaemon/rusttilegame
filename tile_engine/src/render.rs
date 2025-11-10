@@ -302,5 +302,23 @@ impl RenderSplit
         clear_background_for_current_platform(LIGHTGRAY);
 
         draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
+
+        Self::draw_instr(0, "F");
+        Self::draw_instr(1, "F");
+        Self::draw_instr(2, "R");
+    }
+
+    pub fn draw_instr(idx: usize, txt: &str)
+    {
+        let n = 6.;
+        let spacing_pc = 0.5;
+        let game_size = screen_width().min(screen_height());
+        let game_x = (screen_width() - game_size)/2.;
+        let game_y = (screen_width() - game_size)/2.;
+        let w @ h = game_size / (spacing_pc + n*(1.+spacing_pc));
+        let x = game_x + game_size/2. - w/2.;
+        let y = game_y + h * (spacing_pc + (idx as f32)*(1.+spacing_pc));
+        draw_rectangle_lines(x, y, w, h, 2., WHITE);
+        draw_text(txt, x + 0.1*w, y+0.1*h, 15., DARKPURPLE);
     }
 }
