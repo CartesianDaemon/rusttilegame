@@ -310,6 +310,7 @@ impl RenderSplit
 
     pub fn draw_instr(idx: usize, txt: &str)
     {
+        // TODO: Need to not draw frame every Stay on windows!!
         let n = 6.;
         let spacing_pc = 0.5;
         let game_size = screen_width().min(screen_height());
@@ -319,6 +320,6 @@ impl RenderSplit
         let x = game_x + game_size/2. - w/2.;
         let y = game_y + h * (spacing_pc + (idx as f32)*(1.+spacing_pc));
         draw_rectangle_lines(x, y, w, h, 2., WHITE);
-        draw_text(txt, x + 0.1*w, y+0.1*h, 15., DARKPURPLE);
+        draw_text(txt, x + 0.1*w, y+w+0.1*h, 15., DARKPURPLE);
     }
 }
