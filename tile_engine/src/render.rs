@@ -3,6 +3,8 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 use assrt::rsst;
 
+use crate::gamedata::BaseMovementLogic;
+
 use super::pane::*;
 use super::pane_arena::MapObj;
 use super::map_coords::CoordDelta;
@@ -30,23 +32,13 @@ impl Render {
     }
 
     /// Draw current gameplay to screen.
-    pub async fn draw_frame<MovementLogic: crate::for_gamedata::BaseMovementLogic>(
-        &mut self, state: &Pane<MovementLogic>, slide_real_pc: f32, anim_real_pc: f32
+    /// TODO: Avoid passing slide and anim through so many layers? Add to struct?
+    pub async fn draw_frame<MovementLogic: BaseMovementLogic>(
+        &mut self, state: &Pane<MovementLogic>, slide_pc: f32, anim_pc: f32
     ) {
-        // ENH: Avoid passing in whole Arena object.
         match state {
             Pane::Arena(state) => {
-                let mut render_lev = RenderLev::begin(&mut self.texture_cache, state.map_w(), state.map_h());
-                // Coords of first visible tile. Currently always 0,0.
-                let (ox, oy) = (0, 0);
-                let max_h = 5;
-                for h in 0..max_h {
-                    for (x, y, loc) in state.map_locs() {
-                        if let Some(ent) = loc.get(h) {
-                            render_lev.draw_ent(x - ox, y - oy, ent, anim_real_pc, slide_real_pc).await;
-                        }
-                    }
-                }
+                RenderLev::render(state, &mut self.texture_cache, slide_pc, anim_pc, state.map_w(), state.map_h()).await;
             }
             Pane::Splash(state) => {
                 let _r = RenderSplash::begin(&state);
@@ -56,6 +48,20 @@ impl Render {
                 let _code = &state.code;
                 unimplemented!();
             }
+        }
+    }
+}
+
+/// Sync load macroquad texture. Panic on failure.
+pub async fn load_texture_unwrap(path: &str) -> Texture2D {
+    // futures::executor::block_on(load_texture(path))
+
+    // TODO: Remove this fallback again. But have some way of outputting errors in wasm?
+    match load_texture(path).await {
+        Result::Ok(tex_data) => tex_data,
+        Result::Err(_err) => {
+            // display error somewhere?
+            Texture2D::empty()
         }
     }
 }
@@ -75,27 +81,18 @@ pub struct RenderLev<'a> {
     texture_cache: &'a mut TextureCache,
 }
 
-/// Sync load macroquad texture. Panic on failure.
-pub async fn load_texture_unwrap(path: &str) -> Texture2D {
-    // futures::executor::block_on(load_texture(path))
-
-    // TODO: Remove this fallback again. But have some way of outputting errors in wasm?
-    match load_texture(path).await {
-        Result::Ok(tex_data) => tex_data,
-        Result::Err(_err) => {
-            // display error somewhere?
-            Texture2D::empty()
-        }
-    }
-}
-
 impl<'a> RenderLev<'a> {
-    pub fn begin(texture_cache: &mut TextureCache, w: u16, h: u16) -> RenderLev {
+    pub async fn render<MovementLogic: BaseMovementLogic>(
+        state: &Arena<MovementLogic>,
+        texture_cache: &mut TextureCache,
+        slide_pc: f32, anim_pc: f32,
+        w: u16, h: u16,
+    ) {
         assert_eq!(w, h);
         let game_size = screen_width().min(screen_height());
         let offset_y = (screen_height() - game_size) / 2. + 10.;
 
-        let r = RenderLev {
+        let mut render_lev = RenderLev {
             // FIXME: Why does this work with landscape orientation?
             offset_x: (screen_width() - game_size) / 2. + 10.,
             offset_y: (screen_height() - game_size) / 2. + 10.,
@@ -104,9 +101,26 @@ impl<'a> RenderLev<'a> {
             texture_cache,
         };
 
-        r.draw_backdrop();
+        render_lev.draw_backdrop();
 
-        r
+        render_lev.draw_map(state, slide_pc, anim_pc).await;
+    }
+
+    pub async fn draw_map<MovementLogic: BaseMovementLogic>(
+        self: &mut Self,
+        state: &Arena<MovementLogic>,
+        slide_pc: f32, anim_pc: f32,
+    ) {
+        // Coords of first visible tile. Currently always 0,0.
+        let (ox, oy) = (0, 0);
+        let max_h = 5;
+        for h in 0..max_h {
+            for (x, y, loc) in state.map_locs() {
+                if let Some(ent) = loc.get(h) {
+                    self.draw_ent(x - ox, y - oy, ent, anim_pc, slide_pc).await;
+                }
+            }
+        }
     }
 
     fn draw_backdrop(&self)
