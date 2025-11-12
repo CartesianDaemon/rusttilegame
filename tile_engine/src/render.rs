@@ -328,6 +328,6 @@ impl RenderSplit
         let y = game_y + h * (spacing_pc + (idx as f32)*(1.+spacing_pc));
         draw_rectangle_lines(x, y, w, h, 2., WHITE);
         let font_size = game_size * 0.14;
-        draw_text(txt, x + 0.2*w, y+0.85*h, font_size, DARKPURPLE);
+        draw_text(txt, x + 0.2*w, y+0.85*h, font_size, WHITE);
     }
 }
