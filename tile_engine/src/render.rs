@@ -313,16 +313,21 @@ impl RenderSplit
 
     pub fn draw_instr(idx: usize, txt: &str)
     {
-        // TODO: Need to not draw frame every Stay on windows!!
+        // TODO: Still drawing too often on windows compared to pushpuzz??
         let n = 6.;
         let spacing_pc = 0.5;
         let game_size = screen_width().min(screen_height());
         let game_x = (screen_width() - game_size)/2.;
-        let game_y = (screen_width() - game_size)/2.;
+        let game_y = (screen_height() - game_size)/2.;
+
+        // draw_rectangle_lines(game_x, game_y, game_size, game_size, 2., WHITE);
+        // draw_rectangle_lines(-10., -10., 20., 20., 2., WHITE);
+
         let w @ h = game_size / (spacing_pc + n*(1.+spacing_pc));
         let x = game_x + game_size/2. - w/2.;
-        let y = game_y + h * (spacing_pc + (-3.8 + idx as f32)*(1.+spacing_pc));
+        let y = game_y + h * (spacing_pc + (idx as f32)*(1.+spacing_pc));
         draw_rectangle_lines(x, y, w, h, 2., WHITE);
-        draw_text(txt, x + 0.2*w, y+0.85*h, 100., DARKPURPLE);
+        let font_size = game_size * 0.14;
+        draw_text(txt, x + 0.2*w, y+0.85*h, font_size, DARKPURPLE);
     }
 }
