@@ -291,6 +291,11 @@ impl RenderSplash
 // Render state for one frame of "Show text, press enter to continue"
 // Currently not needing any global graphics state
 pub struct RenderSplit {
+    game_x: f32,
+    game_y: f32,
+    game_size: f32,
+    n: f32,
+    spacing_pc: f32,
 }
 
 impl RenderSplit
@@ -303,31 +308,43 @@ impl RenderSplit
 
         draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
 
-        Self::draw_instr(0, "F");
-        Self::draw_instr(1, "F");
-        Self::draw_instr(2, "R");
-        Self::draw_instr(3, "L");
-        Self::draw_instr(4, "L");
-        Self::draw_instr(5, "F");
+        let r = Self::new();
+
+        r.draw_instr(0, "F");
+        r.draw_instr(1, "F");
+        r.draw_instr(2, "R");
+        r.draw_instr(3, "L");
+        r.draw_instr(4, "L");
+        r.draw_instr(5, "F");
     }
 
-    pub fn draw_instr(idx: usize, txt: &str)
+    fn new() -> Self {
+        let game_size = screen_width().min(screen_height());
+        Self {
+            n: 6.,
+            spacing_pc: 0.5,
+            game_size,
+            game_x: (screen_width() - game_size)/2.,
+            game_y: (screen_height() - game_size)/2.,
+        }
+
+    }
+
+    fn get_sq(&self, idx: usize) -> (f32, f32, f32, f32) {
+        let w @ h = self.game_size / (self.spacing_pc + self.n*(1.+self.spacing_pc));
+        let x = self.game_x + self.game_size/2. - w/2.;
+        let y = self.game_y + h * (self.spacing_pc + (idx as f32)*(1.+self.spacing_pc));
+        (x, y, w, h)
+    }
+
+    fn draw_instr(&self, idx: usize, txt: &str)
     {
         // TODO: Still drawing too often on windows compared to pushpuzz??
-        let n = 6.;
-        let spacing_pc = 0.5;
-        let game_size = screen_width().min(screen_height());
-        let game_x = (screen_width() - game_size)/2.;
-        let game_y = (screen_height() - game_size)/2.;
 
-        // draw_rectangle_lines(game_x, game_y, game_size, game_size, 2., WHITE);
-        // draw_rectangle_lines(-10., -10., 20., 20., 2., WHITE);
+        let (x, y, w, h) = self.get_sq(idx);
 
-        let w @ h = game_size / (spacing_pc + n*(1.+spacing_pc));
-        let x = game_x + game_size/2. - w/2.;
-        let y = game_y + h * (spacing_pc + (idx as f32)*(1.+spacing_pc));
         draw_rectangle_lines(x, y, w, h, 2., WHITE);
-        let font_size = game_size * 0.14;
+        let font_size = self.game_size * 0.14;
         draw_text(txt, x + 0.2*w, y+0.85*h, font_size, WHITE);
     }
 }
