@@ -292,6 +292,9 @@ pub struct RenderSplit {
     game_x: f32,
     game_y: f32,
     game_size: f32,
+    // Proportion of height of prog pane taken up by supply not flowchart.
+    _supply_pc: f32,
+    // Spacing between squares as proportion of square.
     spacing_pc: f32,
     w: f32,
     h: f32,
@@ -300,6 +303,24 @@ pub struct RenderSplit {
 
 impl RenderSplit
 {
+    fn new() -> Self {
+        let game_size = screen_width().min(screen_height());
+        let n = 6.;
+        let spacing_pc = 0.5;
+        let w @ h = game_size / (spacing_pc + n*(1.+spacing_pc));
+        Self {
+            game_x: (screen_width() - game_size)/2.,
+            game_y: (screen_height() - game_size)/2.,
+            game_size,
+            _supply_pc: 0.3,
+            spacing_pc,
+            w,
+            h,
+            spacing: h * spacing_pc,
+        }
+
+    }
+
     pub fn render<MovementLogic: BaseMovementLogic>(split: &Split<MovementLogic>) {
         let _arena = &split.arena;
         let _code = &split.code;
@@ -316,23 +337,6 @@ impl RenderSplit
         r.draw_instr(3, "L");
         r.draw_instr(4, "L");
         r.draw_instr(5, "");
-    }
-
-    fn new() -> Self {
-        let game_size = screen_width().min(screen_height());
-        let n = 6.;
-        let spacing_pc = 0.5;
-        let w @ h = game_size / (spacing_pc + n*(1.+spacing_pc));
-        Self {
-            game_x: (screen_width() - game_size)/2.,
-            game_y: (screen_height() - game_size)/2.,
-            game_size,
-            spacing_pc,
-            w,
-            h,
-            spacing: h * spacing_pc,
-        }
-
     }
 
     fn draw_instr(&self, idx: usize, txt: &str)
