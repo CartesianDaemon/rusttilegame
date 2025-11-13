@@ -32,12 +32,14 @@ fn clear_background_for_current_platform(color: Color) {
 pub struct Render {
     /// Loaded textures
     texture_cache: TextureCache,
+    render_split: RenderSplit,
 }
 
 impl Render {
     pub fn new() -> Render {
         Render {
             texture_cache: HashMap::new(),
+            render_split: RenderSplit::new(),
         }
     }
 
@@ -54,7 +56,7 @@ impl Render {
                 let _r = RenderSplash::render(state);
             }
             Pane::Split(state) => {
-                RenderSplit::render(state);
+                self.render_split.render(state);
             }
         }
     }
@@ -288,27 +290,49 @@ impl RenderSplash
     }
 }
 
+enum InstrRef {
+    Supply(usize),
+    Flowchart(usize),
+}
+
+struct DragInfo {
+    orig_offset_x: f32,
+    orig_offset_y: f32,
+    instr_ref: InstrRef,
+}
+
+enum Dragging {
+    No,
+    Yes(DragInfo),
+}
+
 pub struct RenderSplit {
     // game_x: f32,
     // game_y: f32,
     // game_w: f32,
     // game_h: f32,
+
     supply_x: f32,
     supply_y: f32,
     supply_w: f32,
     supply_h: f32,
+
     supply_instr_w: f32,
     supply_instr_h: f32,
     supply_instr_font_sz: f32,
     supply_instr_spacing: f32,
+
     flowchart_x: f32,
     flowchart_y: f32,
     flowchart_w: f32,
     flowchart_h: f32,
+
     flowchart_instr_w: f32,
     flowchart_instr_h: f32,
     flowchart_instr_font_sz: f32,
     flowchart_instr_spacing: f32,
+
+    dragging: Dragging,
 }
 
 impl RenderSplit
@@ -366,11 +390,12 @@ impl RenderSplit
             flowchart_instr_h,
             flowchart_instr_font_sz,
             flowchart_instr_spacing,
+            dragging: Dragging::No,
         }
 
     }
 
-    pub fn render<MovementLogic: BaseMovementLogic>(split: &Split<MovementLogic>) {
+    pub fn render<MovementLogic: BaseMovementLogic>(&mut self, split: &Split<MovementLogic>) {
         let _arena = &split.arena;
         let _code = &split.code;
 
@@ -378,19 +403,17 @@ impl RenderSplit
 
         draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
 
-        let r = Self::new();
+        draw_rectangle_lines(self.supply_x, self.supply_y, self.supply_w, self.supply_h+1., 2., WHITE);
+        self.draw_supply_instr(0, "F", 2);
+        self.draw_supply_instr(1, "L", 2);
 
-        draw_rectangle_lines(r.supply_x, r.supply_y, r.supply_w, r.supply_h+1., 2., WHITE);
-        r.draw_supply_instr(0, "F", 2);
-        r.draw_supply_instr(1, "L", 2);
-
-        draw_rectangle_lines(r.flowchart_x, r.flowchart_y, r.flowchart_w, r.flowchart_h, 2., WHITE);
-        r.draw_flowchart_instr(0, "F");
-        r.draw_flowchart_instr(1, "F");
-        r.draw_flowchart_instr(2, "R");
-        r.draw_flowchart_instr(3, "L");
-        r.draw_flowchart_instr(4, "L");
-        r.draw_flowchart_instr(5, "");
+        draw_rectangle_lines(self.flowchart_x, self.flowchart_y, self.flowchart_w, self.flowchart_h, 2., WHITE);
+        self.draw_flowchart_instr(0, "F");
+        self.draw_flowchart_instr(1, "F");
+        self.draw_flowchart_instr(2, "R");
+        self.draw_flowchart_instr(3, "L");
+        self.draw_flowchart_instr(4, "L");
+        self.draw_flowchart_instr(5, "");
     }
 
     fn mouse_in(&self, x: f32, y: f32, w: f32, h: f32) -> bool {
@@ -406,15 +429,19 @@ impl RenderSplit
         }
     }
 
-    fn draw_supply_instr(&self, idx: usize, txt: &str, curr_count: usize)
+    fn draw_supply_instr(&mut self, idx: usize, txt: &str, curr_count: usize)
     {
-        let idx = idx as f32;
+        let fdx = idx as f32;
         let _curr_count = curr_count as f32;
 
-        let x = self.supply_x + self.supply_instr_spacing + idx * (self.supply_instr_w + self.supply_instr_spacing);
+        let x = self.supply_x + self.supply_instr_spacing + fdx * (self.supply_instr_w + self.supply_instr_spacing);
         let y = self.supply_y + self.supply_h/2. - self.supply_instr_h/2.;
 
         let (border_width, border_col) = self.border_width_col(x, y, self.supply_instr_w, self.supply_instr_h);
+
+        if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(x, y, self.supply_instr_w, self.supply_instr_h) {
+            self.dragging = Dragging::Yes(DragInfo {orig_offset_x: 0., orig_offset_y: 0., instr_ref: InstrRef::Supply(idx)});
+        }
 
         // Square outline
         draw_rectangle_lines(x, y, self.supply_instr_w, self.supply_instr_h, border_width, border_col);
