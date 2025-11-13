@@ -293,18 +293,22 @@ pub struct RenderSplit {
     // game_y: f32,
     // game_w: f32,
     // game_h: f32,
-    flowchart_x: f32,
-    flowchart_y: f32,
-    flowchart_w: f32,
-    flowchart_h: f32,
     supply_x: f32,
     supply_y: f32,
     supply_w: f32,
     supply_h: f32,
-    instr_w: f32,
-    instr_h: f32,
-    instr_font_sz: f32,
-    instr_spacing: f32,
+    supply_instr_w: f32,
+    supply_instr_h: f32,
+    supply_instr_font_sz: f32,
+    supply_instr_spacing: f32,
+    flowchart_x: f32,
+    flowchart_y: f32,
+    flowchart_w: f32,
+    flowchart_h: f32,
+    flowchart_instr_w: f32,
+    flowchart_instr_h: f32,
+    flowchart_instr_font_sz: f32,
+    flowchart_instr_spacing: f32,
 }
 
 impl RenderSplit
@@ -318,41 +322,50 @@ impl RenderSplit
         // Arena
         let arena_w = screen_height().min(screen_width() * 0.6);
 
-        // supply
+        // Supply
         let supply_x = arena_w;
         let supply_y = 0.;
         let supply_w = screen_width() - arena_w;
         let supply_h = screen_height() * 0.3;
 
-        // flowchart
+        // Supply instr
+        let spacing_pc = 0.5;
+        let flow_n = 2.;
+        let supply_instr_w = (supply_h * 0.8).min(supply_w / (spacing_pc + flow_n*(1.+spacing_pc)));
+        let supply_instr_h = supply_instr_w;
+        let supply_instr_font_sz = supply_instr_h * 1.35;
+        let supply_instr_spacing = supply_instr_w * spacing_pc;
+
+        // Flowchart
         let flowchart_x = arena_w;
         let flowchart_y = supply_h;
         let flowchart_w = screen_width() - arena_w;
         let flowchart_h = screen_height() - supply_h;
 
-        // instrs in flowchart
-        let n = 6.;
-        let spacing_pc = 0.5;
-        let instr_h = flowchart_h / (spacing_pc + n*(1.+spacing_pc));
-        let instr_w = instr_h;
-
-        let instr_spacing = spacing_pc * instr_h;
-
-        let instr_font_sz = instr_h * 0.8;
+        // Flowchart instrs
+        let prog_n = 6.;
+        let flowchart_instr_h = (flowchart_w * 0.8).min(flowchart_h / (spacing_pc + prog_n*(1.+spacing_pc)));
+        let flowchart_instr_w = flowchart_instr_h;
+        let flowchart_instr_font_sz = flowchart_instr_w * 1.35;
+        let flowchart_instr_spacing =  flowchart_instr_w * spacing_pc;
 
         Self {
-            flowchart_x,
-            flowchart_y,
-            flowchart_w,
-            flowchart_h,
             supply_x,
             supply_y,
             supply_w,
             supply_h,
-            instr_w,
-            instr_h,
-            instr_font_sz,
-            instr_spacing,
+            supply_instr_w,
+            supply_instr_h,
+            supply_instr_font_sz,
+            supply_instr_spacing,
+            flowchart_x,
+            flowchart_y,
+            flowchart_w,
+            flowchart_h,
+            flowchart_instr_w,
+            flowchart_instr_h,
+            flowchart_instr_font_sz,
+            flowchart_instr_spacing,
         }
 
     }
@@ -367,31 +380,54 @@ impl RenderSplit
 
         let r = Self::new();
 
-        r.draw_instr(0, "F");
-        r.draw_instr(1, "F");
-        r.draw_instr(2, "R");
-        r.draw_instr(3, "L");
-        r.draw_instr(4, "L");
-        r.draw_instr(5, "");
+        // r.draw_supply_instr(0, "F", 2);
+        // r.draw_supply_instr(0, "L", 2);
+
+        r.draw_flowchart_instr(0, "F");
+        r.draw_flowchart_instr(1, "F");
+        r.draw_flowchart_instr(2, "R");
+        r.draw_flowchart_instr(3, "L");
+        r.draw_flowchart_instr(4, "L");
+        r.draw_flowchart_instr(5, "");
     }
 
-    fn draw_instr(&self, idx: usize, txt: &str)
+    fn draw_supply_instr(&self, idx: usize, txt: &str, curr_count: usize)
+    {
+        let idx = idx as f32;
+        let _curr_count = curr_count as f32;
+
+        let x = self.flowchart_x + self.flowchart_w/2. - self.flowchart_instr_w/2.;
+        let y = self.flowchart_y + self.flowchart_instr_spacing + idx * (self.flowchart_instr_h + self.flowchart_instr_spacing);
+
+        if txt=="" {
+            draw_rectangle(x+self.flowchart_instr_w*0.2, y-self.flowchart_instr_h*0.2, self.flowchart_instr_w*0.6, self.flowchart_instr_h*0.6, BLACK);
+            draw_rectangle_lines(x+self.flowchart_instr_w*0.2, y-self.flowchart_instr_h*0.2, self.flowchart_instr_w*0.6, self.flowchart_instr_h*0.6, 2., LIGHTGRAY);
+        } else {
+            draw_rectangle_lines(x, y, self.flowchart_instr_w, self.flowchart_instr_h, 2., WHITE);
+
+            draw_text(txt, x + 0.2*self.flowchart_instr_w, y+0.85*self.flowchart_instr_h, self.supply_instr_font_sz, WHITE);
+
+            draw_line(x+self.flowchart_instr_w/2., y+self.flowchart_instr_h, x+self.flowchart_instr_w/2., y+self.flowchart_instr_h+self.flowchart_instr_spacing, 2., LIGHTGRAY);
+        }
+    }
+
+    fn draw_flowchart_instr(&self, idx: usize, txt: &str)
     {
         // TODO: Still drawing too often on windows compared to pushpuzz??
         let idx = idx as f32;
 
-        let x = self.flowchart_x + self.flowchart_w/2. - self.instr_w/2.;
-        let y = self.flowchart_y + self.instr_spacing + idx * (self.instr_h + self.instr_spacing);
+        let x = self.flowchart_x + self.flowchart_w/2. - self.flowchart_instr_w/2.;
+        let y = self.flowchart_y + self.flowchart_instr_spacing + idx * (self.flowchart_instr_h + self.flowchart_instr_spacing);
 
         if txt=="" {
-            draw_rectangle(x+self.instr_w*0.2, y-self.instr_h*0.2, self.instr_w*0.6, self.instr_h*0.6, BLACK);
-            draw_rectangle_lines(x+self.instr_w*0.2, y-self.instr_h*0.2, self.instr_w*0.6, self.instr_h*0.6, 2., LIGHTGRAY);
+            draw_rectangle(x+self.flowchart_instr_w*0.2, y-self.flowchart_instr_h*0.2, self.flowchart_instr_w*0.6, self.flowchart_instr_h*0.6, BLACK);
+            draw_rectangle_lines(x+self.flowchart_instr_w*0.2, y-self.flowchart_instr_h*0.2, self.flowchart_instr_w*0.6, self.flowchart_instr_h*0.6, 2., LIGHTGRAY);
         } else {
-            draw_rectangle_lines(x, y, self.instr_w, self.instr_h, 2., WHITE);
+            draw_rectangle_lines(x, y, self.flowchart_instr_w, self.flowchart_instr_h, 2., WHITE);
 
-            draw_text(txt, x + 0.2*self.instr_w, y+0.85*self.instr_h, self.instr_font_sz, WHITE);
+            draw_text(txt, x + 0.2*self.flowchart_instr_w, y+0.85*self.flowchart_instr_h, self.flowchart_instr_font_sz, WHITE);
 
-            draw_line(x+self.instr_w/2., y+self.instr_h, x+self.instr_w/2., y+self.instr_h+self.instr_spacing, 2., LIGHTGRAY);
+            draw_line(x+self.flowchart_instr_w/2., y+self.flowchart_instr_h, x+self.flowchart_instr_w/2., y+self.flowchart_instr_h+self.flowchart_instr_spacing, 2., LIGHTGRAY);
         }
     }
 }
