@@ -288,8 +288,6 @@ impl RenderSplash
     }
 }
 
-// Render state for one frame of "Show text, press enter to continue"
-// Currently not needing any global graphics state
 pub struct RenderSplit {
     game_x: f32,
     game_y: f32,
