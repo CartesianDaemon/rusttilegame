@@ -294,8 +294,6 @@ pub struct RenderSplit {
     game_size: f32,
     // Proportion of height of prog pane taken up by supply not flowchart.
     _supply_pc: f32,
-    // Spacing between squares as proportion of square.
-    spacing_pc: f32,
     w: f32,
     h: f32,
     spacing: f32,
@@ -306,6 +304,7 @@ impl RenderSplit
     fn new() -> Self {
         let game_size = screen_width().min(screen_height());
         let n = 6.;
+        // Spacing between squares as proportion of square.
         let spacing_pc = 0.5;
         let w @ h = game_size / (spacing_pc + n*(1.+spacing_pc));
         Self {
@@ -313,7 +312,6 @@ impl RenderSplit
             game_y: (screen_height() - game_size)/2.,
             game_size,
             _supply_pc: 0.3,
-            spacing_pc,
             w,
             h,
             spacing: h * spacing_pc,
@@ -342,9 +340,10 @@ impl RenderSplit
     fn draw_instr(&self, idx: usize, txt: &str)
     {
         // TODO: Still drawing too often on windows compared to pushpuzz??
+        let idx = idx as f32;
 
         let x = self.game_x + self.game_size/2. - self.w/2.;
-        let y = self.game_y + self.h * (self.spacing_pc + (idx as f32)*(1.+self.spacing_pc));
+        let y = self.game_y + self.spacing + idx * (self.h + self.spacing);
 
         if txt=="" {
             draw_rectangle(x+self.w*0.2, y-self.h*0.2, self.w*0.6, self.h*0.6, BLACK);
