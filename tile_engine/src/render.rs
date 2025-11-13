@@ -380,9 +380,11 @@ impl RenderSplit
 
         let r = Self::new();
 
+        draw_rectangle_lines(r.supply_x, r.supply_y, r.supply_w, r.supply_h+1., 2., WHITE);
         // r.draw_supply_instr(0, "F", 2);
         // r.draw_supply_instr(0, "L", 2);
 
+        draw_rectangle_lines(r.flowchart_x, r.flowchart_y, r.flowchart_w, r.flowchart_h, 2., WHITE);
         r.draw_flowchart_instr(0, "F");
         r.draw_flowchart_instr(1, "F");
         r.draw_flowchart_instr(2, "R");
