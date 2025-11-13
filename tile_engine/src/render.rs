@@ -289,32 +289,70 @@ impl RenderSplash
 }
 
 pub struct RenderSplit {
-    game_x: f32,
-    game_y: f32,
-    game_size: f32,
-    // Proportion of height of prog pane taken up by supply not flowchart.
-    _supply_pc: f32,
-    w: f32,
-    h: f32,
-    spacing: f32,
+    // game_x: f32,
+    // game_y: f32,
+    // game_w: f32,
+    // game_h: f32,
+    flowchart_x: f32,
+    flowchart_y: f32,
+    flowchart_w: f32,
+    flowchart_h: f32,
+    supply_x: f32,
+    supply_y: f32,
+    supply_w: f32,
+    supply_h: f32,
+    instr_w: f32,
+    instr_h: f32,
+    instr_font_sz: f32,
+    instr_spacing: f32,
 }
 
 impl RenderSplit
 {
     fn new() -> Self {
-        let game_size = screen_width().min(screen_height());
+        // let game_w = screen_width().min(screen_height());
+        // let game_h = screen_width().min(screen_height());
+        // let game_x = (screen_width() - game_w)/2.;
+        // let game_y = (screen_height() - game_h)/2.;
+
+        // Arena
+        let arena_w = screen_height().min(screen_width() * 0.6);
+
+        // supply
+        let supply_x = arena_w;
+        let supply_y = 0.;
+        let supply_w = screen_width() - arena_w;
+        let supply_h = screen_height() * 0.3;
+
+        // flowchart
+        let flowchart_x = arena_w;
+        let flowchart_y = supply_h;
+        let flowchart_w = screen_width() - arena_w;
+        let flowchart_h = screen_height() - supply_h;
+
+        // instrs in flowchart
         let n = 6.;
-        // Spacing between squares as proportion of square.
         let spacing_pc = 0.5;
-        let w @ h = game_size / (spacing_pc + n*(1.+spacing_pc));
+        let instr_h = flowchart_h / (spacing_pc + n*(1.+spacing_pc));
+        let instr_w = instr_h;
+
+        let instr_spacing = spacing_pc * instr_h;
+
+        let instr_font_sz = instr_h * 0.8;
+
         Self {
-            game_x: (screen_width() - game_size)/2.,
-            game_y: (screen_height() - game_size)/2.,
-            game_size,
-            _supply_pc: 0.3,
-            w,
-            h,
-            spacing: h * spacing_pc,
+            flowchart_x,
+            flowchart_y,
+            flowchart_w,
+            flowchart_h,
+            supply_x,
+            supply_y,
+            supply_w,
+            supply_h,
+            instr_w,
+            instr_h,
+            instr_font_sz,
+            instr_spacing,
         }
 
     }
@@ -342,19 +380,18 @@ impl RenderSplit
         // TODO: Still drawing too often on windows compared to pushpuzz??
         let idx = idx as f32;
 
-        let x = self.game_x + self.game_size/2. - self.w/2.;
-        let y = self.game_y + self.spacing + idx * (self.h + self.spacing);
+        let x = self.flowchart_x + self.flowchart_w/2. - self.instr_w/2.;
+        let y = self.flowchart_y + self.instr_spacing + idx * (self.instr_h + self.instr_spacing);
 
         if txt=="" {
-            draw_rectangle(x+self.w*0.2, y-self.h*0.2, self.w*0.6, self.h*0.6, BLACK);
-            draw_rectangle_lines(x+self.w*0.2, y-self.h*0.2, self.w*0.6, self.h*0.6, 2., LIGHTGRAY);
+            draw_rectangle(x+self.instr_w*0.2, y-self.instr_h*0.2, self.instr_w*0.6, self.instr_h*0.6, BLACK);
+            draw_rectangle_lines(x+self.instr_w*0.2, y-self.instr_h*0.2, self.instr_w*0.6, self.instr_h*0.6, 2., LIGHTGRAY);
         } else {
-            draw_rectangle_lines(x, y, self.w, self.h, 2., WHITE);
+            draw_rectangle_lines(x, y, self.instr_w, self.instr_h, 2., WHITE);
 
-            let font_size = self.game_size * 0.14;
-            draw_text(txt, x + 0.2*self.w, y+0.85*self.h, font_size, WHITE);
+            draw_text(txt, x + 0.2*self.instr_w, y+0.85*self.instr_h, self.instr_font_sz, WHITE);
 
-            draw_line(x+self.w/2., y+self.h, x+self.w/2., y+self.h+self.spacing, 2., LIGHTGRAY);
+            draw_line(x+self.instr_w/2., y+self.instr_h, x+self.instr_w/2., y+self.instr_h+self.instr_spacing, 2., LIGHTGRAY);
         }
     }
 }
