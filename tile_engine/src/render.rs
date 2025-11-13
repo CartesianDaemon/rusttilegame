@@ -401,8 +401,15 @@ impl RenderSplit
         let x = self.supply_x + self.supply_instr_spacing + idx * (self.supply_instr_w + self.supply_instr_spacing);
         let y = self.supply_y + self.supply_h/2. - self.supply_instr_h/2.;
 
+        let (mx, my) = mouse_position();
+        let bordercol = if (x..x+self.supply_instr_w).contains(&mx) && (y..y+self.supply_instr_h).contains(&my) {
+            YELLOW
+        } else {
+            WHITE
+        };
+
         // Square outline
-        draw_rectangle_lines(x, y, self.supply_instr_w, self.supply_instr_h, 2., WHITE);
+        draw_rectangle_lines(x, y, self.supply_instr_w, self.supply_instr_h, 2., bordercol);
         // Text
         draw_text(txt, x + 0.2*self.supply_instr_w, y+0.85*self.supply_instr_h, self.supply_instr_font_sz, WHITE);
         // Count
