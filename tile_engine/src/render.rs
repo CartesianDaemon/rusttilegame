@@ -381,8 +381,8 @@ impl RenderSplit
         let r = Self::new();
 
         draw_rectangle_lines(r.supply_x, r.supply_y, r.supply_w, r.supply_h+1., 2., WHITE);
-        // r.draw_supply_instr(0, "F", 2);
-        // r.draw_supply_instr(0, "L", 2);
+        r.draw_supply_instr(0, "F", 2);
+        r.draw_supply_instr(1, "L", 2);
 
         draw_rectangle_lines(r.flowchart_x, r.flowchart_y, r.flowchart_w, r.flowchart_h, 2., WHITE);
         r.draw_flowchart_instr(0, "F");
@@ -398,19 +398,15 @@ impl RenderSplit
         let idx = idx as f32;
         let _curr_count = curr_count as f32;
 
-        let x = self.flowchart_x + self.flowchart_w/2. - self.flowchart_instr_w/2.;
-        let y = self.flowchart_y + self.flowchart_instr_spacing + idx * (self.flowchart_instr_h + self.flowchart_instr_spacing);
+        let x = self.supply_x + self.supply_instr_spacing + idx * (self.supply_instr_w + self.supply_instr_spacing);
+        let y = self.supply_y + self.supply_h/2. - self.supply_instr_h/2.;
 
-        if txt=="" {
-            draw_rectangle(x+self.flowchart_instr_w*0.2, y-self.flowchart_instr_h*0.2, self.flowchart_instr_w*0.6, self.flowchart_instr_h*0.6, BLACK);
-            draw_rectangle_lines(x+self.flowchart_instr_w*0.2, y-self.flowchart_instr_h*0.2, self.flowchart_instr_w*0.6, self.flowchart_instr_h*0.6, 2., LIGHTGRAY);
-        } else {
-            draw_rectangle_lines(x, y, self.flowchart_instr_w, self.flowchart_instr_h, 2., WHITE);
-
-            draw_text(txt, x + 0.2*self.flowchart_instr_w, y+0.85*self.flowchart_instr_h, self.supply_instr_font_sz, WHITE);
-
-            draw_line(x+self.flowchart_instr_w/2., y+self.flowchart_instr_h, x+self.flowchart_instr_w/2., y+self.flowchart_instr_h+self.flowchart_instr_spacing, 2., LIGHTGRAY);
-        }
+        // Square outline
+        draw_rectangle_lines(x, y, self.supply_instr_w, self.supply_instr_h, 2., WHITE);
+        // Text
+        draw_text(txt, x + 0.2*self.supply_instr_w, y+0.85*self.supply_instr_h, self.supply_instr_font_sz, WHITE);
+        // Count
+        //draw_text(txt, x + 0.2*self.supply_instr_w, y+0.85*self.supply_instr_h, self.supply_instr_font_sz, WHITE);
     }
 
     fn draw_flowchart_instr(&self, idx: usize, txt: &str)
@@ -422,13 +418,16 @@ impl RenderSplit
         let y = self.flowchart_y + self.flowchart_instr_spacing + idx * (self.flowchart_instr_h + self.flowchart_instr_spacing);
 
         if txt=="" {
+            // Square outline
             draw_rectangle(x+self.flowchart_instr_w*0.2, y-self.flowchart_instr_h*0.2, self.flowchart_instr_w*0.6, self.flowchart_instr_h*0.6, BLACK);
+            // Text
             draw_rectangle_lines(x+self.flowchart_instr_w*0.2, y-self.flowchart_instr_h*0.2, self.flowchart_instr_w*0.6, self.flowchart_instr_h*0.6, 2., LIGHTGRAY);
         } else {
+            // Square outline
             draw_rectangle_lines(x, y, self.flowchart_instr_w, self.flowchart_instr_h, 2., WHITE);
-
+            // Text
             draw_text(txt, x + 0.2*self.flowchart_instr_w, y+0.85*self.flowchart_instr_h, self.flowchart_instr_font_sz, WHITE);
-
+            // Connection to next instr
             draw_line(x+self.flowchart_instr_w/2., y+self.flowchart_instr_h, x+self.flowchart_instr_w/2., y+self.flowchart_instr_h+self.flowchart_instr_spacing, 2., LIGHTGRAY);
         }
     }
