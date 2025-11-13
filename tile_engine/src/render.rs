@@ -294,8 +294,10 @@ pub struct RenderSplit {
     game_x: f32,
     game_y: f32,
     game_size: f32,
-    n: f32,
     spacing_pc: f32,
+    w: f32,
+    h: f32,
+    spacing: f32,
 }
 
 impl RenderSplit
@@ -315,36 +317,43 @@ impl RenderSplit
         r.draw_instr(2, "R");
         r.draw_instr(3, "L");
         r.draw_instr(4, "L");
-        r.draw_instr(5, "F");
+        r.draw_instr(5, "");
     }
 
     fn new() -> Self {
         let game_size = screen_width().min(screen_height());
+        let n = 6.;
+        let spacing_pc = 0.5;
+        let w @ h = game_size / (spacing_pc + n*(1.+spacing_pc));
         Self {
-            n: 6.,
-            spacing_pc: 0.5,
-            game_size,
             game_x: (screen_width() - game_size)/2.,
             game_y: (screen_height() - game_size)/2.,
+            game_size,
+            spacing_pc,
+            w,
+            h,
+            spacing: h * spacing_pc,
         }
 
-    }
-
-    fn get_sq(&self, idx: usize) -> (f32, f32, f32, f32) {
-        let w @ h = self.game_size / (self.spacing_pc + self.n*(1.+self.spacing_pc));
-        let x = self.game_x + self.game_size/2. - w/2.;
-        let y = self.game_y + h * (self.spacing_pc + (idx as f32)*(1.+self.spacing_pc));
-        (x, y, w, h)
     }
 
     fn draw_instr(&self, idx: usize, txt: &str)
     {
         // TODO: Still drawing too often on windows compared to pushpuzz??
 
-        let (x, y, w, h) = self.get_sq(idx);
+        let x = self.game_x + self.game_size/2. - self.w/2.;
+        let y = self.game_y + self.h * (self.spacing_pc + (idx as f32)*(1.+self.spacing_pc));
 
-        draw_rectangle_lines(x, y, w, h, 2., WHITE);
-        let font_size = self.game_size * 0.14;
-        draw_text(txt, x + 0.2*w, y+0.85*h, font_size, WHITE);
+        if txt=="" {
+            draw_rectangle(x+self.w*0.2, y-self.h*0.2, self.w*0.6, self.h*0.6, BLACK);
+            draw_rectangle_lines(x+self.w*0.2, y-self.h*0.2, self.w*0.6, self.h*0.6, 2., LIGHTGRAY);
+        } else {
+            draw_rectangle_lines(x, y, self.w, self.h, 2., WHITE);
+
+            let font_size = self.game_size * 0.14;
+            draw_text(txt, x + 0.2*self.w, y+0.85*self.h, font_size, WHITE);
+
+            draw_line(x+self.w/2., y+self.h, x+self.w/2., y+self.h+self.spacing, 2., LIGHTGRAY);
+        }
     }
 }
