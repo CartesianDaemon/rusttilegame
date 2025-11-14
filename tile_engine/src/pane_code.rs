@@ -78,6 +78,7 @@ impl Code {
             supplies: supplies.iter().map(|(txt,count)|
                 (txt_to_instr(&txt),Supply::new(*count))
             ).collect(),
+            // prog: Prog::default(), // tests fail
             prog: Prog::from("F,F,R,F"),
         }
     }
