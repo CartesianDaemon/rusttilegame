@@ -201,11 +201,19 @@ impl UiCodingArena
         draw_text(txt, x + 0.2*self.fr_pos.supply_instr_w, y+0.85*self.fr_pos.supply_instr_h, self.fr_pos.supply_instr_font_sz, WHITE);
     }
 
-    fn move_instr(coding: &mut Coding, from: InstrRef, _to: InstrRef) {
-        match from {
-            InstrRef::Supply { idx } => coding.supplies.get_mut(idx).unwrap().curr_count -= 1,
-            InstrRef::Flowchart { idx:_idx } => (),
-        }
+    fn _move_instr(coding: &mut Coding, from: InstrRef, _to: InstrRef) {
+        // TODO: Check from.curr_count for supply >=1
+        let _instr = match from {
+            InstrRef::Supply { idx } => {
+                coding.supplies.get_mut(idx).unwrap().curr_count -= 1;
+                coding.supplies.get(idx).unwrap().instr.clone()
+            },
+            InstrRef::Flowchart { idx } => {
+                coding.prog.instrs.remove(idx)
+            },
+        };
+        // TODO: Adjust index for prog if we removed a lower index
+        // TODO: Check to.curr_count for supply <= orig_count
     }
 
     fn draw_supply_instr(&mut self, idx: usize, txt: &str, curr_count: u16, orig_count: u16)
