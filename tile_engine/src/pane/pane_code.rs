@@ -1,4 +1,4 @@
-use crate::pane::*;
+use super::*;
 use crate::map_coords::Cmd;
 
 use std::collections::HashMap;

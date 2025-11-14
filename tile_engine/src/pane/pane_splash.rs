@@ -1,4 +1,4 @@
-use crate::pane::*;
+use super::*;
 use crate::map_coords::Cmd;
 
 // Would be nice to remove if easy

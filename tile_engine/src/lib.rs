@@ -13,12 +13,8 @@
 mod core_engine;
 mod gamedata;
 mod map_coords;
-mod pane_arena;
 pub mod input; // For engine_tests in push_puzz??
 mod pane;
-mod pane_code;
-mod pane_splash;
-mod pane_split;
 mod obj;
 mod ui;
 pub mod simple_custom_props;
@@ -34,5 +30,6 @@ pub mod for_gamedata {
     pub use super::pane::*;
     pub use super::map_coords::*;
     pub use super::simple_custom_props::*;
-    pub use super::pane_arena::{Arena, RosterIndex};
+    pub use super::pane::Arena;
+    pub use super::pane::pane_arena::RosterIndex;
 }

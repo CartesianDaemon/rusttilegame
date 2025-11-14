@@ -22,7 +22,7 @@ pub trait BaseCustomProps : Clone + std::fmt::Debug + PartialEq {
     fn is_hero(self: &Self) -> bool;
 }
 
-use super::pane_arena::RosterIndex;
+use super::pane::pane_arena::RosterIndex;
 use crate::for_gamedata::Cmd;
 use super::pane::PaneContinuation;
 
