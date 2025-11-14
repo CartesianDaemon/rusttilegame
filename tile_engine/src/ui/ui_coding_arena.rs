@@ -199,9 +199,6 @@ impl UiCodingArena
 
         // Text
         draw_text(txt, x + 0.2*self.fr_pos.supply_instr_w, y+0.85*self.fr_pos.supply_instr_h, self.fr_pos.supply_instr_font_sz, WHITE);
-
-        // Count
-        //draw_text(txt, x + 0.2*self.frame_coords.supply_instr_w, y+0.85*self.frame_coords.supply_instr_h, self.frame_coords.supply_instr_font_sz, WHITE);
     }
 
     fn draw_supply_instr(&mut self, idx: usize, txt: &str, curr_count: u16, orig_count: u16)
@@ -210,7 +207,7 @@ impl UiCodingArena
         let _curr_count = curr_count as f32;
 
         let x = self.fr_pos.supply_x + self.fr_pos.supply_instr_spacing + fdx * (self.fr_pos.supply_instr_w + self.fr_pos.supply_instr_spacing);
-        let y = self.fr_pos.supply_y + self.fr_pos.supply_h/2. - self.fr_pos.supply_instr_h/2.;
+        let y = self.fr_pos.supply_y + self.fr_pos.supply_h/2. - self.fr_pos.supply_instr_h*0.6;
 
         if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h) {
             let orig_offset_x = mouse_position().0 - x;
@@ -219,8 +216,10 @@ impl UiCodingArena
         }
 
         self.draw_supply_instr_at(x, y, txt);
-        _ = curr_count;
-        _ = orig_count;
+
+        // Draw count
+        let count_txt = format!("{}/{}", curr_count, orig_count);
+        draw_text(&count_txt, x + 0.5*self.fr_pos.supply_instr_w, y+1.25*self.fr_pos.supply_instr_h, self.fr_pos.supply_instr_font_sz * 0.25, WHITE);
     }
 
     fn draw_flowchart_instr_at(&mut self, orig_x: f32, orig_y: f32, txt: &str, scale: f32) {
