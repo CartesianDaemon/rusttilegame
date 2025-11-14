@@ -27,7 +27,7 @@ use crate::for_gamedata::Cmd;
 use super::pane::PaneContinuation;
 
 // NB: Fns only applicable to some widgets. Should be in type related to those.
-pub trait BaseMovementLogic : Sized {
+pub trait BaseGameLogic : Sized {
     type CustomProps : BaseCustomProps;
     fn harmonise(_split: Split<Self>) {
     }
@@ -37,7 +37,7 @@ pub trait BaseMovementLogic : Sized {
 /// Manages game-specific state, e.g. which level to go to next.
 pub trait BaseGamedata {
     type CustomProps : BaseCustomProps;
-    type MovementLogic : BaseMovementLogic;
+    type MovementLogic : BaseGameLogic;
 
     fn new() -> Self;
 

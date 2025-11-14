@@ -4,7 +4,7 @@ use assrt::rsst;
 use crate::pane_arena::MapObj;
 use crate::map_coords::CoordDelta;
 use crate::pane::Arena;
-use crate::gamedata::BaseMovementLogic;
+use crate::gamedata::BaseGameLogic;
 
 use super::*;
 
@@ -26,7 +26,7 @@ pub struct UiArena<'a> {
 }
 
 impl<'a> UiArena<'a> {
-    pub async fn render<MovementLogic: BaseMovementLogic>(
+    pub async fn render<MovementLogic: BaseGameLogic>(
         state: &Arena<MovementLogic>,
         texture_cache: &mut TextureCache,
         slide_pc: f32, anim_pc: f32,
@@ -52,7 +52,7 @@ impl<'a> UiArena<'a> {
         render_lev.draw_map(state).await;
     }
 
-    pub async fn draw_map<MovementLogic: BaseMovementLogic>(
+    pub async fn draw_map<MovementLogic: BaseGameLogic>(
         self: &mut Self, state: &Arena<MovementLogic>,
     ) {
         // Coords of first visible tile. Currently always 0,0.

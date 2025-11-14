@@ -53,7 +53,7 @@ pub enum ProgpuzzAI {
 
 pub struct ProgpuzzMovementLogic;
 
-impl BaseMovementLogic for ProgpuzzMovementLogic
+impl BaseGameLogic for ProgpuzzMovementLogic
 {
     type CustomProps = ProgpuzzCustomProps;
 

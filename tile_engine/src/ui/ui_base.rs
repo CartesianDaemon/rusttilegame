@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use macroquad::prelude::*;
 
-use crate::gamedata::BaseMovementLogic;
+use crate::gamedata::BaseGameLogic;
 use crate::pane::*;
 
 use super::ui_splash::*;
@@ -45,7 +45,7 @@ impl UiBase {
 
     /// Draw current gameplay to screen.
     /// TODO: Avoid passing slide and anim through so many layers? Add to struct?
-    pub async fn draw_frame<MovementLogic: BaseMovementLogic>(
+    pub async fn draw_frame<MovementLogic: BaseGameLogic>(
         &mut self, state: &mut Pane<MovementLogic>, slide_pc: f32, anim_pc: f32
     ) {
         match state {

@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::gamedata::BaseMovementLogic;
+use crate::gamedata::BaseGameLogic;
 
 use crate::pane::*;
 
@@ -134,7 +134,7 @@ impl UiSplit
 
     }
 
-    pub fn render<MovementLogic: BaseMovementLogic>(&mut self, split: &mut Split<MovementLogic>) {
+    pub fn render<MovementLogic: BaseGameLogic>(&mut self, split: &mut Split<MovementLogic>) {
         let _arena = &split.arena;
         let _code = &split.code;
 

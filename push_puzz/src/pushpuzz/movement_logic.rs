@@ -4,7 +4,7 @@ use tile_engine::for_gamedata::*;
 #[derive(Clone, Debug)]
 pub struct PushpuzzMovementLogic;
 
-impl BaseMovementLogic for PushpuzzMovementLogic {
+impl BaseGameLogic for PushpuzzMovementLogic {
     type CustomProps = tile_engine::simple_custom_props::SimpleCustomProps;
 
     // Would be nice for these to be a function of an enum/trait impls

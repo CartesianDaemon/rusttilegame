@@ -42,7 +42,7 @@ pub trait BasePane {
 ///   or in individual games??
 /// Breadcrumb: Implement PaneBase using spire_enum or similar crate?
 #[derive(Clone, Debug)]
-pub enum Pane<MovementLogic: super::for_gamedata::BaseMovementLogic> {
+pub enum Pane<MovementLogic: super::for_gamedata::BaseGameLogic> {
     Arena(Arena<MovementLogic>),
     Splash(Splash),
     Split(Split<MovementLogic>),
@@ -50,7 +50,7 @@ pub enum Pane<MovementLogic: super::for_gamedata::BaseMovementLogic> {
     //  Code(Code)
 }
 
-impl<MovementLogic: super::for_gamedata::BaseMovementLogic> Pane<MovementLogic> {
+impl<MovementLogic: super::for_gamedata::BaseGameLogic> Pane<MovementLogic> {
     pub fn from_splash_string(txt: String) -> Self {
         Pane::Splash(Splash::from_string(txt))
     }

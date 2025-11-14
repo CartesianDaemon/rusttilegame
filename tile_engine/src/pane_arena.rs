@@ -15,7 +15,7 @@ use culpa::try_fn;
 
 use super::pane::{BasePane, PaneContinuation};
 use super::simple_custom_props;
-use super::for_gamedata::BaseMovementLogic;
+use super::for_gamedata::BaseGameLogic;
 use crate::map_coords::Cmd;
 
 use super::map_coords::*;
@@ -29,14 +29,14 @@ pub struct RosterIndex {
 
 /// Grid together with Ros. Those are two separate classes so they can more easily be borrowed separately.
 #[derive(Clone, Debug)]
-pub struct Arena<MovementLogic: super::for_gamedata::BaseMovementLogic> {
+pub struct Arena<MovementLogic: super::for_gamedata::BaseGameLogic> {
     map: Grid<MovementLogic>,
     roster: Roster,
     // Used to represent map as ascii for init and debugging. Not comprehensive.
     map_key: std::collections::HashMap<char, Vec<FreeObj<MovementLogic::CustomProps>>>,
 }
 
-impl<MovementLogic : super::for_gamedata::BaseMovementLogic> BasePane for Arena<MovementLogic>
+impl<MovementLogic : super::for_gamedata::BaseGameLogic> BasePane for Arena<MovementLogic>
 {
     fn advance(&mut self, cmd: Option<Cmd>) -> PaneContinuation  {
         // TODO: Decide order of char, enemy. Before or after not quite right. Or need
@@ -69,7 +69,7 @@ impl<MovementLogic : super::for_gamedata::BaseMovementLogic> BasePane for Arena<
     }
 }
 
-impl<MovementLogic: BaseMovementLogic> Arena<MovementLogic> {
+impl<MovementLogic: BaseGameLogic> Arena<MovementLogic> {
     // TODO: Remove again, redundant.
     pub fn from_ascii<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
@@ -243,7 +243,7 @@ impl<MovementLogic: BaseMovementLogic> Arena<MovementLogic> {
     }
 }
 
-impl<MovementLogic: BaseMovementLogic> Index<RosterIndex> for Arena<MovementLogic> {
+impl<MovementLogic: BaseGameLogic> Index<RosterIndex> for Arena<MovementLogic> {
     type Output = MapObj<MovementLogic::CustomProps>;
 
     fn index(&self, roster_idx: RosterIndex) -> &Self::Output {
@@ -252,7 +252,7 @@ impl<MovementLogic: BaseMovementLogic> Index<RosterIndex> for Arena<MovementLogi
     }
 }
 
-impl<MovementLogic: BaseMovementLogic> IndexMut<RosterIndex> for Arena<MovementLogic> {
+impl<MovementLogic: BaseGameLogic> IndexMut<RosterIndex> for Arena<MovementLogic> {
     fn index_mut(&mut self, roster_idx: RosterIndex) -> &mut Self::Output {
         let mapref = self.roster[roster_idx];
         &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h]
@@ -270,13 +270,13 @@ pub struct Refs {
 /// "Grid": Grid of locations. Represents state of current level.
 /// NOTE: Could currently be moved back into Arena. Not borrowed separately.
 #[derive(Clone)]
-struct Grid<MovementLogic: BaseMovementLogic> {
+struct Grid<MovementLogic: BaseGameLogic> {
     // Stored as a collection of columns, e.g. map.locs[x][y]
     // Must always be rectangular.
     locs: Vec<Vec<Loc<MovementLogic::CustomProps>>>,
 }
 
-impl<MovementLogic: BaseMovementLogic> Grid<MovementLogic> {
+impl<MovementLogic: BaseGameLogic> Grid<MovementLogic> {
     pub fn new(w: u16, h: u16) -> Self {
         Self {
             locs: vec!(vec!(Loc::new(); h.into()); w.into()),
@@ -302,7 +302,7 @@ impl<MovementLogic: BaseMovementLogic> Grid<MovementLogic> {
     }
 }
 
-impl<MovementLogic: BaseMovementLogic> Index<MapCoord> for Grid<MovementLogic> {
+impl<MovementLogic: BaseGameLogic> Index<MapCoord> for Grid<MovementLogic> {
     type Output = Loc<MovementLogic::CustomProps>;
 
     fn index(&self, pos: MapCoord) -> &Self::Output {
@@ -310,13 +310,13 @@ impl<MovementLogic: BaseMovementLogic> Index<MapCoord> for Grid<MovementLogic> {
     }
 }
 
-impl<MovementLogic: BaseMovementLogic> IndexMut<MapCoord> for Grid<MovementLogic> {
+impl<MovementLogic: BaseGameLogic> IndexMut<MapCoord> for Grid<MovementLogic> {
     fn index_mut(&mut self, pos: MapCoord) -> &mut Self::Output {
         &mut self.locs[pos.x as usize][pos.y as usize]
     }
 }
 
-impl<MovementLogic: BaseMovementLogic> std::fmt::Debug for Grid<MovementLogic> {
+impl<MovementLogic: BaseGameLogic> std::fmt::Debug for Grid<MovementLogic> {
     #[try_fn]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         write!(f, "Arena[")?;
@@ -339,7 +339,7 @@ pub struct CoordIterator {
     y: i16,
 }
 
-pub struct LocIterator<'a, MovementLogic: BaseMovementLogic> {
+pub struct LocIterator<'a, MovementLogic: BaseGameLogic> {
     // Original dimensions to iterate up to
     w: u16,
     h: u16,
@@ -371,7 +371,7 @@ impl Iterator for CoordIterator {
     }
 }
 
-impl<'a, MovementLogic: BaseMovementLogic> Iterator for LocIterator<'a, MovementLogic> {
+impl<'a, MovementLogic: BaseGameLogic> Iterator for LocIterator<'a, MovementLogic> {
     type Item = (i16, i16, &'a Loc<MovementLogic::CustomProps>);
 
     fn next(&mut self) -> Option<Self::Item> {
