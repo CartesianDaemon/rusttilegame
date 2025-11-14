@@ -309,11 +309,6 @@ enum Dragging {
 }
 
 pub struct RenderSplit {
-    // game_x: f32,
-    // game_y: f32,
-    // game_w: f32,
-    // game_h: f32,
-
     supply_x: f32,
     supply_y: f32,
     supply_w: f32,
