@@ -66,15 +66,15 @@ impl Prog {
 }
 
 #[derive(Clone, Debug)]
-pub struct Code {
+pub struct Coding {
     // TODO: Need IndexMap or Vec to maintain order.
     pub supplies: HashMap<Instr, Supply>,
     pub prog: Prog,
 }
 
-impl Code {
-    pub fn from_ascii(supplies: HashMap<&str, u16>) -> Code {
-        Code {
+impl Coding {
+    pub fn from_ascii(supplies: HashMap<&str, u16>) -> Coding {
+        Coding {
             supplies: supplies.iter().map(|(txt,count)|
                 (txt_to_instr(&txt),Supply::new(*count))
             ).collect(),
@@ -83,7 +83,7 @@ impl Code {
     }
 }
 
-impl BaseWidget for Code
+impl BaseWidget for Coding
 {
     fn advance(&mut self, _cmd: Option<Cmd>) -> PaneContinuation {
         // TODO

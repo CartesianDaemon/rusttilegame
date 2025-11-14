@@ -19,7 +19,7 @@ fn get_lev(n: i32) -> Pane<super::movement_logic::ProgpuzzGameLogic> {
     ]);
 
     match n {
-        1 => Pane::Split(Split::new::<16>(
+        1 => Pane::Split(CodingArena::new::<16>(
             Arena::from_ascii(&[
             "##############",
             "#            #",
@@ -29,7 +29,7 @@ fn get_lev(n: i32) -> Pane<super::movement_logic::ProgpuzzGameLogic> {
             "#            #",
             "##############",
             ], test_key),
-            Code::from_ascii(
+            Coding::from_ascii(
                 // NB: Consider crate macro to initialise vec
                 // NB: Consider my iteration macro here and elsewhere I collect'ed.
                 [

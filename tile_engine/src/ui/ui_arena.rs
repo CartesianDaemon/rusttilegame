@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 
 use assrt::rsst;
-use crate::widget::widget_arena::MapObj;
+use crate::widget::arena::MapObj;
 use crate::map_coords::CoordDelta;
 use crate::widget::Arena;
 use crate::gamedata::BaseGameLogic;

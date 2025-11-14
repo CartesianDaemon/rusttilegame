@@ -31,5 +31,5 @@ pub mod for_gamedata {
     pub use super::map_coords::*;
     pub use super::simple_custom_props::*;
     pub use super::widget::Arena;
-    pub use super::widget::widget_arena::RosterIndex;
+    pub use super::widget::arena::RosterIndex;
 }

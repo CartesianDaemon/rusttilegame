@@ -9,15 +9,15 @@ pub enum SplitPhase {
 }
 
 #[derive(Clone, Debug)]
-pub struct Split<GameLogic : for_gamedata::BaseGameLogic> {
+pub struct CodingArena<GameLogic : for_gamedata::BaseGameLogic> {
     pub arena: Arena<GameLogic>,
-    pub code: Code,
+    pub code: Coding,
     phase: SplitPhase,
 }
 
 // NB: Should this be calling input at all or not?
 // NB: Have separate Cmd for menu, movement, programming, etc. Pane chooses which?
-impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Split<GameLogic>
+impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLogic>
 {
     fn advance(&mut self, cmd: Option<Cmd>) -> PaneContinuation {
         match self.phase {
@@ -54,11 +54,11 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Split<GameLogic>
     }
 }
 
-impl<GameLogic : for_gamedata::BaseGameLogic> Split<GameLogic>
+impl<GameLogic : for_gamedata::BaseGameLogic> CodingArena<GameLogic>
 {
     pub fn new<const HEIGHT: usize>(
         arena: Arena<GameLogic>,
-        code: Code,
+        code: Coding,
     ) -> Self {
         Self {
             arena,

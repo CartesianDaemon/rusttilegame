@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 use std::ops::ControlFlow;
 
-pub use super::widget_arena::Arena;
-pub use super::widget_code::*;
-pub use super::widget_splash::*;
-pub use super::widget_split::*;
+pub use super::arena::Arena;
+pub use super::coding::*;
+pub use super::splash::*;
+pub use super::coding_arena::*;
 
 use crate::map_coords::Cmd;
 use crate::obj::FreeObj;
@@ -46,7 +46,7 @@ pub trait BaseWidget {
 pub enum Pane<GameLogic: for_gamedata::BaseGameLogic> {
     Arena(Arena<GameLogic>),
     Splash(Splash),
-    Split(Split<GameLogic>),
+    Split(CodingArena<GameLogic>),
     // Could be defined but not used separately:
     //  Code(Code)
 }

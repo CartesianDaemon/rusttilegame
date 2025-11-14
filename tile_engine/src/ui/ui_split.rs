@@ -134,7 +134,7 @@ impl UiSplit
 
     }
 
-    pub fn render<GameLogic: BaseGameLogic>(&mut self, split: &mut Split<GameLogic>) {
+    pub fn render<GameLogic: BaseGameLogic>(&mut self, split: &mut CodingArena<GameLogic>) {
         let _arena = &split.arena;
         let _code = &split.code;
 

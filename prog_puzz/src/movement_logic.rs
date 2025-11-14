@@ -57,7 +57,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
 {
     type CustomProps = ProgpuzzCustomProps;
 
-    fn harmonise(_split: &mut Split<Self>) {
+    fn harmonise(_split: &mut CodingArena<Self>) {
         // Set progbot's prog to the user-assembled prog.
         let bot = _split.arena.hero();
         _split.arena[bot].logical_props.custom_props.prog = _split.code.prog.clone();
