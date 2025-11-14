@@ -8,6 +8,7 @@ pub use super::pane_split::*;
 
 use crate::map_coords::Cmd;
 use crate::obj::FreeObj;
+use crate::for_gamedata;
 
 // TODO: Move into game-specific info if possible?
 #[derive(Debug, PartialEq)]
@@ -42,7 +43,7 @@ pub trait BasePane {
 ///   or in individual games??
 /// Breadcrumb: Implement PaneBase using spire_enum or similar crate?
 #[derive(Clone, Debug)]
-pub enum Pane<GameLogic: crate::for_gamedata::BaseGameLogic> {
+pub enum Pane<GameLogic: for_gamedata::BaseGameLogic> {
     Arena(Arena<GameLogic>),
     Splash(Splash),
     Split(Split<GameLogic>),
@@ -50,7 +51,7 @@ pub enum Pane<GameLogic: crate::for_gamedata::BaseGameLogic> {
     //  Code(Code)
 }
 
-impl<GameLogic: crate::for_gamedata::BaseGameLogic> Pane<GameLogic> {
+impl<GameLogic: for_gamedata::BaseGameLogic> Pane<GameLogic> {
     pub fn from_splash_string(txt: String) -> Self {
         Pane::Splash(Splash::from_string(txt))
     }

@@ -1,5 +1,6 @@
 use super::*;
 use crate::map_coords::Cmd;
+use crate::for_gamedata;
 
 #[derive(Clone, Debug)]
 pub enum SplitPhase {
@@ -8,7 +9,7 @@ pub enum SplitPhase {
 }
 
 #[derive(Clone, Debug)]
-pub struct Split<GameLogic : crate::for_gamedata::BaseGameLogic> {
+pub struct Split<GameLogic : for_gamedata::BaseGameLogic> {
     pub arena: Arena<GameLogic>,
     pub code: Code,
     phase: SplitPhase,
@@ -16,7 +17,7 @@ pub struct Split<GameLogic : crate::for_gamedata::BaseGameLogic> {
 
 // NB: Should this be calling input at all or not?
 // NB: Have separate Cmd for menu, movement, programming, etc. Pane chooses which?
-impl<GameLogic : crate::for_gamedata::BaseGameLogic> BasePane for Split<GameLogic>
+impl<GameLogic : for_gamedata::BaseGameLogic> BasePane for Split<GameLogic>
 {
     fn advance(&mut self, cmd: Option<Cmd>) -> PaneContinuation {
         match self.phase {
@@ -53,7 +54,7 @@ impl<GameLogic : crate::for_gamedata::BaseGameLogic> BasePane for Split<GameLogi
     }
 }
 
-impl<GameLogic : crate::for_gamedata::BaseGameLogic> Split<GameLogic>
+impl<GameLogic : for_gamedata::BaseGameLogic> Split<GameLogic>
 {
     pub fn new<const HEIGHT: usize>(
         arena: Arena<GameLogic>,
