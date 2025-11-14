@@ -25,7 +25,7 @@ fn txt_to_instr(txt: &str) -> Instr {
     }
 }
 
-fn _instr_to_txt(instr: &Instr) -> String {
+pub fn instr_to_txt(instr: &Instr) -> String {
     match instr {
         Instr::F => "F",
         Instr::L => "L",
@@ -35,16 +35,16 @@ fn _instr_to_txt(instr: &Instr) -> String {
 }
 
 #[derive(Clone, Debug)]
-pub struct Supply {
-    _orig_count: u16,
-    _curr_count: u16,
+pub struct Bin {
+    pub _orig_count: u16,
+    pub curr_count: u16,
 }
 
-impl Supply {
+impl Bin {
     fn new(_orig_count: u16) -> Self {
         Self {
             _orig_count: _orig_count,
-            _curr_count: _orig_count,
+            curr_count: _orig_count,
         }
     }
 }
@@ -68,7 +68,7 @@ impl Prog {
 #[derive(Clone, Debug)]
 pub struct Coding {
     // TODO: Need IndexMap or Vec to maintain order.
-    pub supplies: HashMap<Instr, Supply>,
+    pub supplies: HashMap<Instr, Bin>,
     pub prog: Prog,
 }
 
@@ -76,7 +76,7 @@ impl Coding {
     pub fn from_ascii(supplies: HashMap<&str, u16>) -> Coding {
         Coding {
             supplies: supplies.iter().map(|(txt,count)|
-                (txt_to_instr(&txt),Supply::new(*count))
+                (txt_to_instr(&txt),Bin::new(*count))
             ).collect(),
             prog: Prog::default(),
         }

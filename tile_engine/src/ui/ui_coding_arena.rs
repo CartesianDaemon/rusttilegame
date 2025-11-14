@@ -2,7 +2,7 @@ use macroquad::prelude::*;
 
 use crate::gamedata::BaseGameLogic;
 
-use crate::widget::*;
+use crate::widget::{self, *};
 
 enum InstrRef {
     Supply {
@@ -145,8 +145,9 @@ impl UiCodingArena
         draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
 
         draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., WHITE);
-        self.draw_supply_instr(0, "F", 2);
-        self.draw_supply_instr(1, "L", 2);
+        for (idx, (instr, bin)) in split.code.supplies.iter().enumerate() {
+            self.draw_supply_instr(idx, &widget::coding::instr_to_txt(instr), bin.curr_count);
+        }
 
         draw_rectangle_lines(self.fr_pos.flowchart_x, self.fr_pos.flowchart_y, self.fr_pos.flowchart_w, self.fr_pos.flowchart_h, 2., WHITE);
         self.draw_flowchart_instr(0, "F");
@@ -187,7 +188,7 @@ impl UiCodingArena
         }
     }
 
-    fn draw_supply_instr_at(&mut self, x: f32, y: f32, txt: &str, _curr_count: usize) {
+    fn draw_supply_instr_at(&mut self, x: f32, y: f32, txt: &str, _curr_count: u16) {
         let (border_width, border_col) = self.border_width_col(self.mouse_in(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h));
 
         // Draw square interior. Covers over background when dragging, or excess connecting line.
@@ -203,7 +204,7 @@ impl UiCodingArena
         //draw_text(txt, x + 0.2*self.frame_coords.supply_instr_w, y+0.85*self.frame_coords.supply_instr_h, self.frame_coords.supply_instr_font_sz, WHITE);
     }
 
-    fn draw_supply_instr(&mut self, idx: usize, txt: &str, curr_count: usize)
+    fn draw_supply_instr(&mut self, idx: usize, txt: &str, curr_count: u16)
     {
         let fdx = idx as f32;
         let _curr_count = curr_count as f32;

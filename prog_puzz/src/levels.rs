@@ -70,10 +70,12 @@ impl ProgpuzzLevset {
                     // NB: Consider crate macro to initialise vec
                     // NB: Consider my iteration macro here and elsewhere I collect'ed.
                     [
-                        ("F", 1),
-                        ("L", 1),
+                        ("F", 6),
                         ("R", 1),
-                        ("Loop", 1),
+                        // ("F", 1),
+                        // ("L", 1),
+                        // ("R", 1),
+                        // ("Loop", 1),
                     ].into_iter().collect()
                 )
             )),
