@@ -201,19 +201,45 @@ impl UiCodingArena
         draw_text(txt, x + 0.2*self.fr_pos.supply_instr_w, y+0.85*self.fr_pos.supply_instr_h, self.fr_pos.supply_instr_font_sz, WHITE);
     }
 
-    fn _move_instr(coding: &mut Coding, from: InstrRef, _to: InstrRef) {
+    fn _move_instr(coding: &mut Coding, from: InstrRef, to: InstrRef) {
         // TODO: Check from.curr_count for supply >=1
-        let _instr = match from {
+        let from_flowchart_idx;
+        let dragged_instr = match from {
             InstrRef::Supply { idx } => {
-                coding.supplies.get_mut(idx).unwrap().curr_count -= 1;
-                coding.supplies.get(idx).unwrap().instr.clone()
+                let bin = &mut coding.supplies.get_mut(idx).unwrap();
+                if bin.curr_count <= 0 {
+                    return;
+                }
+                bin.curr_count -= 1;
+                from_flowchart_idx = None;
+                bin.instr.clone()
             },
             InstrRef::Flowchart { idx } => {
+                from_flowchart_idx = Some(idx);
                 coding.prog.instrs.remove(idx)
             },
         };
         // TODO: Adjust index for prog if we removed a lower index
         // TODO: Check to.curr_count for supply <= orig_count
+        match to {
+            InstrRef::Supply { idx } => {
+                // TODO: Check instr matches bin. And/or figure out appropriate bin?
+                let bin = &mut coding.supplies.get_mut(idx).unwrap();
+                if bin.curr_count >= bin.orig_count {
+                    // ???
+                }
+                bin.curr_count += 1;
+            },
+            InstrRef::Flowchart { idx } => {
+                let to_idx;
+                if let Some(from_idx) = from_flowchart_idx && from_idx < idx {
+                    to_idx = idx-1;
+                } else {
+                    to_idx = idx;
+                }
+                coding.prog.instrs.insert(to_idx, dragged_instr);
+            },
+        }
     }
 
     fn draw_supply_instr(&mut self, idx: usize, txt: &str, curr_count: u16, orig_count: u16)
