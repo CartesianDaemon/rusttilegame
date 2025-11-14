@@ -3,7 +3,7 @@ use crate::gamedata::BaseGamedata;
 use super::gamedata;
 use super::pane::*;
 use super::input::Input;
-use super::ui::UI;
+use super::ui::UiBase;
 
 /// Overall Engine state.
 ///
@@ -30,7 +30,7 @@ struct Engine<Gamedata: BaseGamedata> {
     input: Input,
 
     ///
-    render: UI,
+    render: UiBase,
 }
 
 impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
@@ -43,7 +43,7 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
             anim_pc: 0.,
             slide_pc: 0.,
             input: Input::new_begin(),
-            render: UI::new(),
+            render: UiBase::new(),
         }
     }
 

@@ -2,7 +2,7 @@ use macroquad::prelude::*;
 
 use crate::gamedata::BaseMovementLogic;
 
-use super::pane::*;
+use crate::pane::*;
 
 enum InstrRef {
     Supply {

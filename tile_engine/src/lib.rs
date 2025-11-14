@@ -21,7 +21,6 @@ mod pane_splash;
 mod pane_split;
 mod obj;
 mod ui;
-mod ui_split;
 pub mod simple_custom_props;
 
 // Used in main() function
