@@ -414,6 +414,11 @@ impl RenderSplit
         self.draw_flowchart_instr(3, "L");
         self.draw_flowchart_instr(4, "L");
         self.draw_flowchart_instr(5, "");
+
+        if let Dragging::Yes(drag_info) = &self.dragging {
+            let (mx, my) = mouse_position();
+            self.draw_instr_at(mx, my, "?", 0)
+        }
     }
 
     fn mouse_in(&self, x: f32, y: f32, w: f32, h: f32) -> bool {
@@ -429,6 +434,17 @@ impl RenderSplit
         }
     }
 
+    fn draw_instr_at(&mut self, x: f32, y: f32, txt: &str, curr_count: usize) {
+        let (border_width, border_col) = self.border_width_col(x, y, self.supply_instr_w, self.supply_instr_h);
+
+        // Square outline
+        draw_rectangle_lines(x, y, self.supply_instr_w, self.supply_instr_h, border_width, border_col);
+        // Text
+        draw_text(txt, x + 0.2*self.supply_instr_w, y+0.85*self.supply_instr_h, self.supply_instr_font_sz, WHITE);
+        // Count
+        //draw_text(txt, x + 0.2*self.supply_instr_w, y+0.85*self.supply_instr_h, self.supply_instr_font_sz, WHITE);
+    }
+
     fn draw_supply_instr(&mut self, idx: usize, txt: &str, curr_count: usize)
     {
         let fdx = idx as f32;
@@ -437,18 +453,11 @@ impl RenderSplit
         let x = self.supply_x + self.supply_instr_spacing + fdx * (self.supply_instr_w + self.supply_instr_spacing);
         let y = self.supply_y + self.supply_h/2. - self.supply_instr_h/2.;
 
-        let (border_width, border_col) = self.border_width_col(x, y, self.supply_instr_w, self.supply_instr_h);
-
         if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(x, y, self.supply_instr_w, self.supply_instr_h) {
             self.dragging = Dragging::Yes(DragInfo {orig_offset_x: 0., orig_offset_y: 0., instr_ref: InstrRef::Supply(idx)});
         }
 
-        // Square outline
-        draw_rectangle_lines(x, y, self.supply_instr_w, self.supply_instr_h, border_width, border_col);
-        // Text
-        draw_text(txt, x + 0.2*self.supply_instr_w, y+0.85*self.supply_instr_h, self.supply_instr_font_sz, WHITE);
-        // Count
-        //draw_text(txt, x + 0.2*self.supply_instr_w, y+0.85*self.supply_instr_h, self.supply_instr_font_sz, WHITE);
+        self.draw_instr_at(x, y, txt, curr_count);
     }
 
     fn draw_flowchart_instr(&self, idx: usize, txt: &str)
