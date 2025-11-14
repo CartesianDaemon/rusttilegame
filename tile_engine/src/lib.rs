@@ -11,16 +11,17 @@
 // TODO: Need to move assets into each game folder?
 
 mod core_engine;
-mod map_coords;
-mod render;
-mod pane_arena;
 mod gamedata;
+mod map_coords;
+mod pane_arena;
 pub mod input; // For engine_tests in push_puzz??
 mod pane;
 mod pane_code;
 mod pane_splash;
 mod pane_split;
 mod obj;
+mod render;
+mod render_split;
 pub mod simple_custom_props;
 
 // Used in main() function
