@@ -60,7 +60,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
     fn harmonise(_split: &mut CodingArena<Self>) {
         // Set progbot's prog to the user-assembled prog.
         let bot = _split.arena.hero();
-        _split.arena[bot].logical_props.custom_props.prog = _split.code.prog.clone();
+        _split.arena[bot].logical_props.custom_props.prog = _split.coding.prog.clone();
     }
 
     fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, _cmd: Cmd) -> PaneContinuation {

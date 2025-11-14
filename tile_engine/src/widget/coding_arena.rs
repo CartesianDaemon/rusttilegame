@@ -12,7 +12,7 @@ pub enum SplitPhase {
 #[derive(Clone, Debug)]
 pub struct CodingArena<GameLogic : for_gamedata::BaseGameLogic> {
     pub arena: Arena<GameLogic>,
-    pub code: Coding,
+    pub coding: Coding,
     phase: SplitPhase,
 }
 
@@ -30,8 +30,8 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
                 GameLogic::harmonise(self);
 
                 // TODO: Edit program according to input. Or start running.
-                let _ = &self.code.supplies;
-                let _ = &self.code.prog;
+                let _ = &self.coding.supplies;
+                let _ = &self.coding.prog;
             },
             SplitPhase::Running => {
                 // For now ignore input and execute program.
@@ -61,7 +61,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> CodingArena<GameLogic>
     ) -> Self {
         Self {
             arena,
-            code,
+            coding: code,
             phase: SplitPhase::Coding,
         }
     }
