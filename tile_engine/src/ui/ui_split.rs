@@ -134,7 +134,7 @@ impl UiSplit
 
     }
 
-    pub fn render<MovementLogic: BaseGameLogic>(&mut self, split: &mut Split<MovementLogic>) {
+    pub fn render<GameLogic: BaseGameLogic>(&mut self, split: &mut Split<GameLogic>) {
         let _arena = &split.arena;
         let _code = &split.code;
 

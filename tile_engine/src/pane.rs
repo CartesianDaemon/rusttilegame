@@ -33,8 +33,8 @@ pub trait BasePane {
 ///   become (optional) parts of Gamedata.
 /// * Gamedata maybe renamed State.
 /// * LevID becomes entirely internal to Gamestate. How does encapsulation
-///   for reusing widgets work? Maybe MovementLogic for Gamestate interprets
-///   Conclusions returned by MovementLogic(s) for Widgets?
+///   for reusing widgets work? Maybe GameLogic for Gamestate interprets
+///   Conclusions returned by GameLogic(s) for Widgets?
 /// * Maybe "Screen" is a collection of "Panes", panes roughly corresponding
 ///   to renderers associated with one or more widgets?
 /// * Components like Widgets, Renderers, etc become more mix and match
@@ -42,15 +42,15 @@ pub trait BasePane {
 ///   or in individual games??
 /// Breadcrumb: Implement PaneBase using spire_enum or similar crate?
 #[derive(Clone, Debug)]
-pub enum Pane<MovementLogic: super::for_gamedata::BaseGameLogic> {
-    Arena(Arena<MovementLogic>),
+pub enum Pane<GameLogic: super::for_gamedata::BaseGameLogic> {
+    Arena(Arena<GameLogic>),
     Splash(Splash),
-    Split(Split<MovementLogic>),
+    Split(Split<GameLogic>),
     // Could be defined but not used separately:
     //  Code(Code)
 }
 
-impl<MovementLogic: super::for_gamedata::BaseGameLogic> Pane<MovementLogic> {
+impl<GameLogic: super::for_gamedata::BaseGameLogic> Pane<GameLogic> {
     pub fn from_splash_string(txt: String) -> Self {
         Pane::Splash(Splash::from_string(txt))
     }
@@ -61,7 +61,7 @@ impl<MovementLogic: super::for_gamedata::BaseGameLogic> Pane<MovementLogic> {
 
     pub fn from_play_ascii_map<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
-        map_key: HashMap<char, Vec<FreeObj<MovementLogic::CustomProps>>>,
+        map_key: HashMap<char, Vec<FreeObj<GameLogic::CustomProps>>>,
     ) -> Self {
         Pane::Arena(Arena::from_ascii(ascii_map, map_key))
     }
@@ -85,7 +85,7 @@ impl<MovementLogic: super::for_gamedata::BaseGameLogic> Pane<MovementLogic> {
         }
     }
 
-    pub fn as_arena(&self) -> &Arena<MovementLogic> {
+    pub fn as_arena(&self) -> &Arena<GameLogic> {
         match self {
             Self::Arena(arena) => &arena,
             Self::Splash(_splash) => panic!(),

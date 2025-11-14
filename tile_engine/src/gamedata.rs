@@ -6,9 +6,9 @@ use super::pane::{Pane, Arena, PaneConclusion, Split};
 
 // TODO: Don't need to for the first two games, but can move Pass and
 // Effect in here. Or better, make a SimpleObjectInteractions type
-// which isn't required but different MovementLogic customisations can
+// which isn't required but different GameLogic customisations can
 // use.
-// TODO: Could merge CustomProps into MovementLogic, as CustomLogic.
+// TODO: Could merge CustomProps into GameLogic, as CustomLogic.
 // Defn would be mostly props. Impl would be mostly logic.
 // Is that where fns like "all(Passable)" live?
 pub trait BaseCustomProps : Clone + std::fmt::Debug + PartialEq {
@@ -37,15 +37,15 @@ pub trait BaseGameLogic : Sized {
 /// Manages game-specific state, e.g. which level to go to next.
 pub trait BaseGamedata {
     type CustomProps : BaseCustomProps;
-    type MovementLogic : BaseGameLogic;
+    type GameLogic : BaseGameLogic;
 
     fn new() -> Self;
 
     fn advance_pane(&mut self, continuation: PaneConclusion);
 
-    fn load_pane(&self) -> Pane<Self::MovementLogic>;
+    fn load_pane(&self) -> Pane<Self::GameLogic>;
 
-    fn load_next_pane(&mut self, continuation: PaneConclusion) -> Pane<Self::MovementLogic> {
+    fn load_next_pane(&mut self, continuation: PaneConclusion) -> Pane<Self::GameLogic> {
         self.advance_pane(continuation);
         self.load_pane()
     }

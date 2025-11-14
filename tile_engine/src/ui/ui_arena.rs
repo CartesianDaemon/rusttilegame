@@ -26,8 +26,8 @@ pub struct UiArena<'a> {
 }
 
 impl<'a> UiArena<'a> {
-    pub async fn render<MovementLogic: BaseGameLogic>(
-        state: &Arena<MovementLogic>,
+    pub async fn render<GameLogic: BaseGameLogic>(
+        state: &Arena<GameLogic>,
         texture_cache: &mut TextureCache,
         slide_pc: f32, anim_pc: f32,
         w: u16, h: u16,
@@ -52,8 +52,8 @@ impl<'a> UiArena<'a> {
         render_lev.draw_map(state).await;
     }
 
-    pub async fn draw_map<MovementLogic: BaseGameLogic>(
-        self: &mut Self, state: &Arena<MovementLogic>,
+    pub async fn draw_map<GameLogic: BaseGameLogic>(
+        self: &mut Self, state: &Arena<GameLogic>,
     ) {
         // Coords of first visible tile. Currently always 0,0.
         let (ox, oy) = (0, 0);

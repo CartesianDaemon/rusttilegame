@@ -17,7 +17,7 @@ struct Engine<Gamedata: BaseGamedata> {
     pub gamedata: Gamedata,
 
     /// Current state of gameplay, current level, mostly map etc.
-    state: Pane<Gamedata::MovementLogic>,
+    state: Pane<Gamedata::GameLogic>,
 
     /// Smoothly from 0 to 1 transition from previous state to current state
     /// TODO: Move into arena?

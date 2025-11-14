@@ -9,7 +9,7 @@ pub struct ProgpuzzGamedata {
 }
 
 impl BaseGamedata for ProgpuzzGamedata {
-    type MovementLogic = ProgpuzzGameLogic;
+    type GameLogic = ProgpuzzGameLogic;
     type CustomProps = ProgpuzzCustomProps;
 
     fn new() -> Self {
@@ -22,7 +22,7 @@ impl BaseGamedata for ProgpuzzGamedata {
         self.levset.advance_pane(continuation)
     }
 
-    fn load_pane(&self) -> Pane::<Self::MovementLogic> {
+    fn load_pane(&self) -> Pane::<Self::GameLogic> {
         self.levset.load_pane()
     }
 }

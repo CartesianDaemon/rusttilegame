@@ -45,8 +45,8 @@ impl UiBase {
 
     /// Draw current gameplay to screen.
     /// TODO: Avoid passing slide and anim through so many layers? Add to struct?
-    pub async fn draw_frame<MovementLogic: BaseGameLogic>(
-        &mut self, state: &mut Pane<MovementLogic>, slide_pc: f32, anim_pc: f32
+    pub async fn draw_frame<GameLogic: BaseGameLogic>(
+        &mut self, state: &mut Pane<GameLogic>, slide_pc: f32, anim_pc: f32
     ) {
         match state {
             Pane::Arena(state) => {

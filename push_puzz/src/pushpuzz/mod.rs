@@ -33,7 +33,7 @@ pub struct PushpuzzGamedata {
 }
 
 impl BaseGamedata for PushpuzzGamedata {
-    type MovementLogic = PushpuzzGameLogic;
+    type GameLogic = PushpuzzGameLogic;
     type CustomProps = tile_engine::simple_custom_props::SimpleCustomProps;
 
     fn new() -> Self {
@@ -46,7 +46,7 @@ impl BaseGamedata for PushpuzzGamedata {
         self.levset.advance_pane(continuation)
     }
 
-    fn load_pane(&self) -> Pane<Self::MovementLogic> {
+    fn load_pane(&self) -> Pane<Self::GameLogic> {
         self.levset.load_pane()
     }
 }
