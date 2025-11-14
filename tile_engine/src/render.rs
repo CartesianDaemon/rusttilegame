@@ -331,7 +331,7 @@ pub struct FrameCoords {
 }
 
 pub struct RenderSplit {
-    frame_coords: FrameCoords,
+    fr_pos: FrameCoords,
     dragging: Dragging,
 }
 
@@ -339,7 +339,7 @@ impl RenderSplit
 {
     fn new() -> Self {
         Self {
-            frame_coords: FrameCoords {
+            fr_pos: FrameCoords {
                 supply_x: 0.,
                 supply_y: 0.,
                 supply_w: 0.,
@@ -399,7 +399,7 @@ impl RenderSplit
         let flowchart_instr_font_sz = flowchart_instr_w * 1.35;
         let flowchart_instr_spacing =  flowchart_instr_w * spacing_pc;
 
-        self.frame_coords = FrameCoords {
+        self.fr_pos = FrameCoords {
             supply_x,
             supply_y,
             supply_w,
@@ -430,11 +430,11 @@ impl RenderSplit
 
         draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
 
-        draw_rectangle_lines(self.frame_coords.supply_x, self.frame_coords.supply_y, self.frame_coords.supply_w, self.frame_coords.supply_h+1., 2., WHITE);
+        draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., WHITE);
         self.draw_supply_instr(0, "F", 2);
         self.draw_supply_instr(1, "L", 2);
 
-        draw_rectangle_lines(self.frame_coords.flowchart_x, self.frame_coords.flowchart_y, self.frame_coords.flowchart_w, self.frame_coords.flowchart_h, 2., WHITE);
+        draw_rectangle_lines(self.fr_pos.flowchart_x, self.fr_pos.flowchart_y, self.fr_pos.flowchart_w, self.fr_pos.flowchart_h, 2., WHITE);
         self.draw_flowchart_instr(0, "F");
         self.draw_flowchart_instr(1, "F");
         self.draw_flowchart_instr(2, "R");
@@ -473,12 +473,12 @@ impl RenderSplit
     }
 
     fn draw_supply_instr_at(&mut self, x: f32, y: f32, txt: &str, curr_count: usize) {
-        let (border_width, border_col) = self.border_width_col(x, y, self.frame_coords.supply_instr_w, self.frame_coords.supply_instr_h);
+        let (border_width, border_col) = self.border_width_col(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h);
 
         // Square outline
-        draw_rectangle_lines(x, y, self.frame_coords.supply_instr_w, self.frame_coords.supply_instr_h, border_width, border_col);
+        draw_rectangle_lines(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h, border_width, border_col);
         // Text
-        draw_text(txt, x + 0.2*self.frame_coords.supply_instr_w, y+0.85*self.frame_coords.supply_instr_h, self.frame_coords.supply_instr_font_sz, WHITE);
+        draw_text(txt, x + 0.2*self.fr_pos.supply_instr_w, y+0.85*self.fr_pos.supply_instr_h, self.fr_pos.supply_instr_font_sz, WHITE);
         // Count
         //draw_text(txt, x + 0.2*self.frame_coords.supply_instr_w, y+0.85*self.frame_coords.supply_instr_h, self.frame_coords.supply_instr_font_sz, WHITE);
     }
@@ -488,10 +488,10 @@ impl RenderSplit
         let fdx = idx as f32;
         let _curr_count = curr_count as f32;
 
-        let x = self.frame_coords.supply_x + self.frame_coords.supply_instr_spacing + fdx * (self.frame_coords.supply_instr_w + self.frame_coords.supply_instr_spacing);
-        let y = self.frame_coords.supply_y + self.frame_coords.supply_h/2. - self.frame_coords.supply_instr_h/2.;
+        let x = self.fr_pos.supply_x + self.fr_pos.supply_instr_spacing + fdx * (self.fr_pos.supply_instr_w + self.fr_pos.supply_instr_spacing);
+        let y = self.fr_pos.supply_y + self.fr_pos.supply_h/2. - self.fr_pos.supply_instr_h/2.;
 
-        if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(x, y, self.frame_coords.supply_instr_w, self.frame_coords.supply_instr_h) {
+        if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h) {
             self.dragging = Dragging::Yes{orig_offset_x: 0., orig_offset_y: 0., instr_ref: InstrRef::Supply{idx}};
         }
 
@@ -500,10 +500,10 @@ impl RenderSplit
 
     fn draw_flowchart_instr_at(&mut self, orig_x: f32, orig_y: f32, txt: &str, scale: f32) {
         let shrink_by = 1. - scale;
-        let x = orig_x + self.frame_coords.flowchart_instr_w * shrink_by / 2.;
-        let y = orig_y - self.frame_coords.flowchart_instr_h * shrink_by / 2.;
-        let w = self.frame_coords.flowchart_instr_w * scale;
-        let h = self.frame_coords.flowchart_instr_h * scale;
+        let x = orig_x + self.fr_pos.flowchart_instr_w * shrink_by / 2.;
+        let y = orig_y - self.fr_pos.flowchart_instr_h * shrink_by / 2.;
+        let w = self.fr_pos.flowchart_instr_w * scale;
+        let h = self.fr_pos.flowchart_instr_h * scale;
 
         let (border_width, border_col) = self.border_width_col(x, y, w, h);
 
@@ -514,7 +514,7 @@ impl RenderSplit
         draw_rectangle_lines(x, y, w, h, border_width, border_col);
 
         // Text
-        draw_text(txt, x + 0.2*w, y+0.85*h, self.frame_coords.flowchart_instr_font_sz, WHITE);
+        draw_text(txt, x + 0.2*w, y+0.85*h, self.fr_pos.flowchart_instr_font_sz, WHITE);
     }
 
     fn draw_flowchart_instr(&mut self, idx: usize, txt: &str)
@@ -522,22 +522,22 @@ impl RenderSplit
         // TODO: Still drawing too often on windows compared to pushpuzz??
         let fdx = idx as f32;
 
-        let x = self.frame_coords.flowchart_x + self.frame_coords.flowchart_w/2. - self.frame_coords.flowchart_instr_w/2.;
-        let y = self.frame_coords.flowchart_y + self.frame_coords.flowchart_instr_spacing + fdx * (self.frame_coords.flowchart_instr_h + self.frame_coords.flowchart_instr_spacing);
+        let x = self.fr_pos.flowchart_x + self.fr_pos.flowchart_w/2. - self.fr_pos.flowchart_instr_w/2.;
+        let y = self.fr_pos.flowchart_y + self.fr_pos.flowchart_instr_spacing + fdx * (self.fr_pos.flowchart_instr_h + self.fr_pos.flowchart_instr_spacing);
 
         let scale = if txt=="" {0.6} else {1.};
 
         self.draw_flowchart_instr_at(x, y, txt, scale);
 
         if txt!="" {
-            if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(x, y, self.frame_coords.flowchart_w, self.frame_coords.flowchart_instr_h) {
+            if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(x, y, self.fr_pos.flowchart_w, self.fr_pos.flowchart_instr_h) {
                 let orig_offset_x = mouse_position().0 - x;
                 let orig_offset_y = mouse_position().1 - y;
                 self.dragging = Dragging::Yes{orig_offset_x, orig_offset_y, instr_ref: InstrRef::Flowchart{idx}};
             }
 
             // Connection to next instr
-            draw_line(x+self.frame_coords.flowchart_instr_w/2., y+self.frame_coords.flowchart_instr_h, x+self.frame_coords.flowchart_instr_w/2., y+self.frame_coords.flowchart_instr_h+self.frame_coords.flowchart_instr_spacing, 2., LIGHTGRAY);
+            draw_line(x+self.fr_pos.flowchart_instr_w/2., y+self.fr_pos.flowchart_instr_h, x+self.fr_pos.flowchart_instr_w/2., y+self.fr_pos.flowchart_instr_h+self.fr_pos.flowchart_instr_spacing, 2., LIGHTGRAY);
         }
     }
 }
