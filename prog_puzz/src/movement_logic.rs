@@ -57,6 +57,12 @@ impl BaseGameLogic for ProgpuzzGameLogic
 {
     type CustomProps = ProgpuzzCustomProps;
 
+    fn harmonise(_split: &mut Split<Self>) {
+        // Set progbot's prog to the user-assembled prog.
+        let bot = _split.arena.hero();
+        _split.arena[bot].logical_props.custom_props.prog = _split.code.prog.clone();
+    }
+
     fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, _cmd: Cmd) -> PaneContinuation {
         let props = &map[mov].logical_props.custom_props;
         match props.ai {

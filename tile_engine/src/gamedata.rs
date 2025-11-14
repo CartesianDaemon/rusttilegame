@@ -29,7 +29,7 @@ use super::pane::PaneContinuation;
 // NB: Fns only applicable to some widgets. Should be in type related to those.
 pub trait BaseGameLogic : Sized {
     type CustomProps : BaseCustomProps;
-    fn harmonise(_split: Split<Self>) {
+    fn harmonise(_split: &mut Split<Self>) {
     }
     fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation;
 }

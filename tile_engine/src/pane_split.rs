@@ -25,9 +25,9 @@ impl<GameLogic : super::for_gamedata::BaseGameLogic> BasePane for Split<GameLogi
                 // That is often more useful for "how it went wrong" than more detailed tests.
                 // For now ignore input and treat anything as "start running".
                 self.phase = SplitPhase::Running;
-                // Set progbot's prog to the user-assembled prog.
-                // NB: Oops. prog field may not exist. Do this in custom advance() instead?
-                //self.arena[self.arena.hero()].logical_props.custom_props.prog = self.code.prog;
+
+                // Run game-specific logic for sync'ing different panes at start of run.
+                GameLogic::harmonise(self);
 
                 // TODO: Edit program according to input. Or start running.
                 let _ = &self.code.supplies;
