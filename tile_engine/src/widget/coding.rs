@@ -36,14 +36,14 @@ pub fn instr_to_txt(instr: &Instr) -> String {
 
 #[derive(Clone, Debug)]
 pub struct Bin {
-    pub _orig_count: u16,
+    pub orig_count: u16,
     pub curr_count: u16,
 }
 
 impl Bin {
     fn new(_orig_count: u16) -> Self {
         Self {
-            _orig_count: _orig_count,
+            orig_count: _orig_count,
             curr_count: _orig_count,
         }
     }

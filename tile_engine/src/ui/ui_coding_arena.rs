@@ -146,7 +146,7 @@ impl UiCodingArena
 
         draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., WHITE);
         for (idx, (instr, bin)) in split.code.supplies.iter().enumerate() {
-            self.draw_supply_instr(idx, &widget::coding::instr_to_txt(instr), bin.curr_count);
+            self.draw_supply_instr(idx, &widget::coding::instr_to_txt(instr), bin.curr_count, bin.orig_count);
         }
 
         draw_rectangle_lines(self.fr_pos.flowchart_x, self.fr_pos.flowchart_y, self.fr_pos.flowchart_w, self.fr_pos.flowchart_h, 2., WHITE);
@@ -168,7 +168,7 @@ impl UiCodingArena
             // TODO: get txt from original instr via InstrRef
             let txt = "?";
             match instr_ref {
-                InstrRef::Supply{..} => self.draw_supply_instr_at(x, y, txt, 0),
+                InstrRef::Supply{..} => self.draw_supply_instr_at(x, y, txt),
                 InstrRef::Flowchart{..} => self.draw_flowchart_instr_at(x, y, txt, 1.),
             }
         }
@@ -188,7 +188,7 @@ impl UiCodingArena
         }
     }
 
-    fn draw_supply_instr_at(&mut self, x: f32, y: f32, txt: &str, _curr_count: u16) {
+    fn draw_supply_instr_at(&mut self, x: f32, y: f32, txt: &str) {
         let (border_width, border_col) = self.border_width_col(self.mouse_in(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h));
 
         // Draw square interior. Covers over background when dragging, or excess connecting line.
@@ -204,7 +204,7 @@ impl UiCodingArena
         //draw_text(txt, x + 0.2*self.frame_coords.supply_instr_w, y+0.85*self.frame_coords.supply_instr_h, self.frame_coords.supply_instr_font_sz, WHITE);
     }
 
-    fn draw_supply_instr(&mut self, idx: usize, txt: &str, curr_count: u16)
+    fn draw_supply_instr(&mut self, idx: usize, txt: &str, curr_count: u16, orig_count: u16)
     {
         let fdx = idx as f32;
         let _curr_count = curr_count as f32;
@@ -218,7 +218,9 @@ impl UiCodingArena
             self.dragging = Dragging::Yes{orig_offset_x, orig_offset_y, instr_ref: InstrRef::Supply{_idx: idx}};
         }
 
-        self.draw_supply_instr_at(x, y, txt, curr_count);
+        self.draw_supply_instr_at(x, y, txt);
+        _ = curr_count;
+        _ = orig_count;
     }
 
     fn draw_flowchart_instr_at(&mut self, orig_x: f32, orig_y: f32, txt: &str, scale: f32) {
