@@ -6,7 +6,7 @@ use crate::widget::{self, *};
 
 enum InstrRef {
     Supply {
-        _idx: usize
+        idx: usize
     },
     Flowchart{
         _idx: usize,
@@ -212,13 +212,17 @@ impl UiCodingArena
         if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h) {
             let orig_offset_x = mouse_position().0 - x;
             let orig_offset_y = mouse_position().1 - y;
-            self.dragging = Dragging::Yes{orig_offset_x, orig_offset_y, instr_ref: InstrRef::Supply{_idx: idx}};
+            self.dragging = Dragging::Yes{orig_offset_x, orig_offset_y, instr_ref: InstrRef::Supply{idx}};
         }
 
         self.draw_supply_instr_at(x, y, txt);
 
         // Draw count
-        let count_txt = format!("{}/{}", curr_count, orig_count);
+        let display_count = match self.dragging {
+            Dragging::Yes{instr_ref:InstrRef::Supply{idx: dragging_idx},..} if dragging_idx == idx => curr_count-1,
+            _ => curr_count,
+        };
+        let count_txt = format!("{}/{}", display_count, orig_count);
         draw_text(&count_txt, x + 0.5*self.fr_pos.supply_instr_w, y+1.25*self.fr_pos.supply_instr_h, self.fr_pos.supply_instr_font_sz * 0.25, WHITE);
     }
 
