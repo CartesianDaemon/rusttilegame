@@ -9,7 +9,7 @@ enum InstrRef {
         idx: usize
     },
     Flowchart{
-        _idx: usize,
+        idx: usize,
     },
 }
 
@@ -145,8 +145,8 @@ impl UiCodingArena
         draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
 
         draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., WHITE);
-        for (idx, (instr, bin)) in split.code.supplies.iter().enumerate() {
-            self.draw_supply_instr(idx, &widget::coding::instr_to_txt(instr), bin.curr_count, bin.orig_count);
+        for (idx, bin) in split.code.supplies.iter().enumerate() {
+            self.draw_supply_instr(idx, &widget::coding::instr_to_txt(&bin.instr), bin.curr_count, bin.orig_count);
         }
 
         draw_rectangle_lines(self.fr_pos.flowchart_x, self.fr_pos.flowchart_y, self.fr_pos.flowchart_w, self.fr_pos.flowchart_h, 2., WHITE);
@@ -201,6 +201,13 @@ impl UiCodingArena
         draw_text(txt, x + 0.2*self.fr_pos.supply_instr_w, y+0.85*self.fr_pos.supply_instr_h, self.fr_pos.supply_instr_font_sz, WHITE);
     }
 
+    fn move_instr(coding: &mut Coding, from: InstrRef, _to: InstrRef) {
+        match from {
+            InstrRef::Supply { idx } => coding.supplies.get_mut(idx).unwrap().curr_count -= 1,
+            InstrRef::Flowchart { idx:_idx } => (),
+        }
+    }
+
     fn draw_supply_instr(&mut self, idx: usize, txt: &str, curr_count: u16, orig_count: u16)
     {
         let fdx = idx as f32;
@@ -209,10 +216,14 @@ impl UiCodingArena
         let x = self.fr_pos.supply_x + self.fr_pos.supply_instr_spacing + fdx * (self.fr_pos.supply_instr_w + self.fr_pos.supply_instr_spacing);
         let y = self.fr_pos.supply_y + self.fr_pos.supply_h/2. - self.fr_pos.supply_instr_h*0.6;
 
-        if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h) {
-            let orig_offset_x = mouse_position().0 - x;
-            let orig_offset_y = mouse_position().1 - y;
-            self.dragging = Dragging::Yes{orig_offset_x, orig_offset_y, instr_ref: InstrRef::Supply{idx}};
+        if self.mouse_in(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h) {
+            if is_mouse_button_pressed(MouseButton::Left) {
+                let orig_offset_x = mouse_position().0 - x;
+                let orig_offset_y = mouse_position().1 - y;
+                self.dragging = Dragging::Yes{orig_offset_x, orig_offset_y, instr_ref: InstrRef::Supply{idx}};
+            } else if is_mouse_button_released(MouseButton::Left) {
+
+            }
         }
 
         self.draw_supply_instr_at(x, y, txt);
@@ -264,7 +275,7 @@ impl UiCodingArena
             if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(x, y, self.fr_pos.flowchart_w, self.fr_pos.flowchart_instr_h) {
                 let orig_offset_x = mouse_position().0 - x;
                 let orig_offset_y = mouse_position().1 - y;
-                self.dragging = Dragging::Yes{orig_offset_x, orig_offset_y, instr_ref: InstrRef::Flowchart{_idx: idx}};
+                self.dragging = Dragging::Yes{orig_offset_x, orig_offset_y, instr_ref: InstrRef::Flowchart{idx}};
             }
 
             // Connection to next instr

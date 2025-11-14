@@ -36,15 +36,26 @@ pub fn instr_to_txt(instr: &Instr) -> String {
 
 #[derive(Clone, Debug)]
 pub struct Bin {
+    pub instr: Instr,
     pub orig_count: u16,
     pub curr_count: u16,
 }
 
 impl Bin {
-    fn new(_orig_count: u16) -> Self {
+    fn new(instr: Instr, orig_count: u16) -> Self {
         Self {
-            orig_count: _orig_count,
-            curr_count: _orig_count,
+            instr,
+            orig_count,
+            curr_count: orig_count,
+        }
+    }
+
+    pub fn put(&mut self) -> Result<(), ()> {
+        if self.curr_count < self.orig_count {
+            self.curr_count +=1;
+            Result::Ok(())
+        } else {
+            Result::Err(())
         }
     }
 }
@@ -68,7 +79,7 @@ impl Prog {
 #[derive(Clone, Debug)]
 pub struct Coding {
     // TODO: Need IndexMap or Vec to maintain order.
-    pub supplies: HashMap<Instr, Bin>,
+    pub supplies: Vec<Bin>,
     pub prog: Prog,
 }
 
@@ -76,7 +87,7 @@ impl Coding {
     pub fn from_ascii(supplies: HashMap<&str, u16>) -> Coding {
         Coding {
             supplies: supplies.iter().map(|(txt,count)|
-                (txt_to_instr(&txt),Bin::new(*count))
+                Bin::new(txt_to_instr(&txt), *count)
             ).collect(),
             prog: Prog::default(),
         }
