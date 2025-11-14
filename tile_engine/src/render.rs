@@ -475,10 +475,15 @@ impl RenderSplit
     fn draw_supply_instr_at(&mut self, x: f32, y: f32, txt: &str, curr_count: usize) {
         let (border_width, border_col) = self.border_width_col(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h);
 
-        // Square outline
+        // Draw square interior. Covers over background when dragging, or excess connecting line.
+        draw_rectangle(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h, BLACK);
+
+        // Draw outline
         draw_rectangle_lines(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h, border_width, border_col);
+
         // Text
         draw_text(txt, x + 0.2*self.fr_pos.supply_instr_w, y+0.85*self.fr_pos.supply_instr_h, self.fr_pos.supply_instr_font_sz, WHITE);
+
         // Count
         //draw_text(txt, x + 0.2*self.frame_coords.supply_instr_w, y+0.85*self.frame_coords.supply_instr_h, self.frame_coords.supply_instr_font_sz, WHITE);
     }
@@ -492,7 +497,9 @@ impl RenderSplit
         let y = self.fr_pos.supply_y + self.fr_pos.supply_h/2. - self.fr_pos.supply_instr_h/2.;
 
         if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h) {
-            self.dragging = Dragging::Yes{orig_offset_x: 0., orig_offset_y: 0., instr_ref: InstrRef::Supply{idx}};
+            let orig_offset_x = mouse_position().0 - x;
+            let orig_offset_y = mouse_position().1 - y;
+            self.dragging = Dragging::Yes{orig_offset_x, orig_offset_y, instr_ref: InstrRef::Supply{idx}};
         }
 
         self.draw_supply_instr_at(x, y, txt, curr_count);
@@ -507,13 +514,13 @@ impl RenderSplit
 
         let (border_width, border_col) = self.border_width_col(x, y, w, h);
 
-        // Cover over excess connecting line
+        // Draw square interior. Covers over background when dragging, or excess connecting line.
         draw_rectangle(x, y, w, h, BLACK);
 
-        // Square outline
+        // Draw outline
         draw_rectangle_lines(x, y, w, h, border_width, border_col);
 
-        // Text
+        // Draw text
         draw_text(txt, x + 0.2*w, y+0.85*h, self.fr_pos.flowchart_instr_font_sz, WHITE);
     }
 
