@@ -5,7 +5,7 @@ use macroquad::prelude::*;
 use tile_engine::for_gamedata::*;
 use super::objs::*;
 
-fn get_lev(n: i32) -> Pane<super::movement_logic::ProgpuzzMovementLogic> {
+fn get_lev(n: i32) -> Pane<super::movement_logic::ProgpuzzGameLogic> {
     // NB: Use progpuzz key directly``
     let prog = Prog::from("F,F,R,F");
     let test_key = HashMap::from([

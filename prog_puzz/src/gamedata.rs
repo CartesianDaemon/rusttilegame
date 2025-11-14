@@ -1,4 +1,4 @@
-use super::movement_logic::{ProgpuzzMovementLogic, ProgpuzzCustomProps};
+use super::movement_logic::{ProgpuzzGameLogic, ProgpuzzCustomProps};
 use super::levels;
 
 use tile_engine::for_gamedata::*;
@@ -9,7 +9,7 @@ pub struct ProgpuzzGamedata {
 }
 
 impl BaseGamedata for ProgpuzzGamedata {
-    type MovementLogic = ProgpuzzMovementLogic;
+    type MovementLogic = ProgpuzzGameLogic;
     type CustomProps = ProgpuzzCustomProps;
 
     fn new() -> Self {

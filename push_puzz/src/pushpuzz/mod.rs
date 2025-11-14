@@ -23,7 +23,7 @@ mod objs;
 
 mod movement_logic;
 
-pub use movement_logic::PushpuzzMovementLogic;
+pub use movement_logic::PushpuzzGameLogic;
 
 use tile_engine::for_gamedata::*;
 
@@ -33,7 +33,7 @@ pub struct PushpuzzGamedata {
 }
 
 impl BaseGamedata for PushpuzzGamedata {
-    type MovementLogic = PushpuzzMovementLogic;
+    type MovementLogic = PushpuzzGameLogic;
     type CustomProps = tile_engine::simple_custom_props::SimpleCustomProps;
 
     fn new() -> Self {

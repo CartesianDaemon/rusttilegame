@@ -51,9 +51,9 @@ pub enum ProgpuzzAI {
     Prog, // Controlled by program assembled by player.
 }
 
-pub struct ProgpuzzMovementLogic;
+pub struct ProgpuzzGameLogic;
 
-impl BaseGameLogic for ProgpuzzMovementLogic
+impl BaseGameLogic for ProgpuzzGameLogic
 {
     type CustomProps = ProgpuzzCustomProps;
 
