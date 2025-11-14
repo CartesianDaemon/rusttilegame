@@ -6,7 +6,7 @@ use crate::gamedata::BaseGameLogic;
 use crate::widget::*;
 
 use super::ui_splash::*;
-use super::ui_coding_arenat::*;
+use super::ui_coding_arena::*;
 use super::ui_arena::*;
 
 pub type TextureCache = HashMap<String, Texture2D>;
