@@ -1,5 +1,6 @@
 mod ui_base;
 mod ui_split;
+mod ui_arena;
+mod ui_splash;
 
-use ui_split::*;
 pub use ui_base::*;
