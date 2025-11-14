@@ -46,7 +46,7 @@ impl Render {
     /// Draw current gameplay to screen.
     /// TODO: Avoid passing slide and anim through so many layers? Add to struct?
     pub async fn draw_frame<MovementLogic: BaseMovementLogic>(
-        &mut self, state: &Pane<MovementLogic>, slide_pc: f32, anim_pc: f32
+        &mut self, state: &mut Pane<MovementLogic>, slide_pc: f32, anim_pc: f32
     ) {
         match state {
             Pane::Arena(state) => {
@@ -292,10 +292,10 @@ impl RenderSplash
 
 enum InstrRef {
     Supply {
-        idx: usize
+        _idx: usize
     },
     Flowchart{
-        idx: usize,
+        _idx: usize,
     },
 }
 
@@ -420,7 +420,7 @@ impl RenderSplit
 
     }
 
-    pub fn render<MovementLogic: BaseMovementLogic>(&mut self, split: &Split<MovementLogic>) {
+    pub fn render<MovementLogic: BaseMovementLogic>(&mut self, split: &mut Split<MovementLogic>) {
         let _arena = &split.arena;
         let _code = &split.code;
 
@@ -464,19 +464,20 @@ impl RenderSplit
         (x..x+w).contains(&mx) && (y..y+h).contains(&my)
     }
 
-    fn border_width_col(&self, x: f32, y: f32, w: f32, h: f32) -> (f32, Color) {
-        if self.mouse_in(x, y, w, h) {
+    fn border_width_col(&self, highlight: bool) -> (f32, Color) {
+        // TODO: Settings for mouseover highlight, dragged-from highlight, mid-drag, normal...
+        if highlight {
             (4., YELLOW)
         } else {
             (2., WHITE)
         }
     }
 
-    fn draw_supply_instr_at(&mut self, x: f32, y: f32, txt: &str, curr_count: usize) {
-        let (border_width, border_col) = self.border_width_col(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h);
+    fn draw_supply_instr_at(&mut self, x: f32, y: f32, txt: &str, _curr_count: usize) {
+        let (border_width, border_col) = self.border_width_col(self.mouse_in(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h));
 
         // Draw square interior. Covers over background when dragging, or excess connecting line.
-        draw_rectangle(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h, BLACK);
+        draw_rectangle(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h, Color{r: 0., g:0., b:0., a:0.5 });
 
         // Draw outline
         draw_rectangle_lines(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h, border_width, border_col);
@@ -499,7 +500,7 @@ impl RenderSplit
         if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h) {
             let orig_offset_x = mouse_position().0 - x;
             let orig_offset_y = mouse_position().1 - y;
-            self.dragging = Dragging::Yes{orig_offset_x, orig_offset_y, instr_ref: InstrRef::Supply{idx}};
+            self.dragging = Dragging::Yes{orig_offset_x, orig_offset_y, instr_ref: InstrRef::Supply{_idx: idx}};
         }
 
         self.draw_supply_instr_at(x, y, txt, curr_count);
@@ -512,10 +513,13 @@ impl RenderSplit
         let w = self.fr_pos.flowchart_instr_w * scale;
         let h = self.fr_pos.flowchart_instr_h * scale;
 
-        let (border_width, border_col) = self.border_width_col(x, y, w, h);
+        let mouse_in = self.mouse_in(x, y, w, h);
+        let highlight = mouse_in && (scale==1.0 || matches!(self.dragging, Dragging::Yes{..}) );
+        let (border_width, border_col) = self.border_width_col(highlight);
 
         // Draw square interior. Covers over background when dragging, or excess connecting line.
-        draw_rectangle(x, y, w, h, BLACK);
+        let fill_col = if scale==1.0 {Color{r: 0., g:0., b:0., a:0.5 }} else {BLACK};
+        draw_rectangle(x, y, w, h, fill_col);
 
         // Draw outline
         draw_rectangle_lines(x, y, w, h, border_width, border_col);
@@ -540,7 +544,7 @@ impl RenderSplit
             if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(x, y, self.fr_pos.flowchart_w, self.fr_pos.flowchart_instr_h) {
                 let orig_offset_x = mouse_position().0 - x;
                 let orig_offset_y = mouse_position().1 - y;
-                self.dragging = Dragging::Yes{orig_offset_x, orig_offset_y, instr_ref: InstrRef::Flowchart{idx}};
+                self.dragging = Dragging::Yes{orig_offset_x, orig_offset_y, instr_ref: InstrRef::Flowchart{_idx: idx}};
             }
 
             // Connection to next instr

@@ -66,7 +66,7 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
         }
 
         self.render.draw_frame(
-            &self.state,
+            &mut self.state,
             self.slide_pc,
             self.anim_pc,
         ).await;
