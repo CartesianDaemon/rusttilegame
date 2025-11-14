@@ -299,15 +299,13 @@ enum InstrRef {
     },
 }
 
-struct DragInfo {
-    orig_offset_x: f32,
-    orig_offset_y: f32,
-    instr_ref: InstrRef,
-}
-
 enum Dragging {
     No,
-    Yes(DragInfo),
+    Yes{
+        orig_offset_x: f32,
+        orig_offset_y: f32,
+        instr_ref: InstrRef,
+    },
 }
 
 pub struct RenderSplit {
@@ -424,11 +422,11 @@ impl RenderSplit
             self.dragging = Dragging::No;
         }
 
-        if let Dragging::Yes(drag_info) = &self.dragging {
+        if let Dragging::Yes{instr_ref,..} = &self.dragging {
             let (mx, my) = mouse_position();
             // TODO: get txt from original instr via InstrRef
             let txt = "?";
-            match drag_info.instr_ref {
+            match instr_ref {
                 InstrRef::Supply{..} => self.draw_supply_instr_at(mx, my, txt, 0),
                 InstrRef::Flowchart{..} => self.draw_flowchart_instr_at(mx, my, txt, 1.),
             }
@@ -468,7 +466,7 @@ impl RenderSplit
         let y = self.supply_y + self.supply_h/2. - self.supply_instr_h/2.;
 
         if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(x, y, self.supply_instr_w, self.supply_instr_h) {
-            self.dragging = Dragging::Yes(DragInfo {orig_offset_x: 0., orig_offset_y: 0., instr_ref: InstrRef::Supply{idx}});
+            self.dragging = Dragging::Yes{orig_offset_x: 0., orig_offset_y: 0., instr_ref: InstrRef::Supply{idx}};
         }
 
         self.draw_supply_instr_at(x, y, txt, curr_count);
@@ -507,7 +505,7 @@ impl RenderSplit
 
         if txt!="" {
             if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(x, y, self.flowchart_w, self.flowchart_instr_h) {
-                self.dragging = Dragging::Yes(DragInfo {orig_offset_x: 0., orig_offset_y: 0., instr_ref: InstrRef::Flowchart{idx}});
+                self.dragging = Dragging::Yes{orig_offset_x: 0., orig_offset_y: 0., instr_ref: InstrRef::Flowchart{idx}};
             }
 
             // Connection to next instr
