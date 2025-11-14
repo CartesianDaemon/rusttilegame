@@ -56,6 +56,11 @@ fn basic_move() {
     // assert!(matches!(state, Pane::Split(phase: SplitPhase::Running, ..)));
     assert_eq!(state.as_ascii_rows(), get_lev(1).as_ascii_rows());
 
+    // Set up program that "user" has entered in code pane, that bot will follow.
+    if let Pane::Split(split)= &mut state {
+        split.code.prog =  Prog::from("F,F,R,F");
+    }
+
     // Start running, no other effect
     assert_eq!(state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
     //assert_eq!(state.phase, SplitPhase::Coding);
