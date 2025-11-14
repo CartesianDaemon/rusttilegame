@@ -415,6 +415,11 @@ impl RenderSplit
         self.draw_flowchart_instr(4, "L");
         self.draw_flowchart_instr(5, "");
 
+        // If mouse is released anywhere non-actionable, forget any dragging.
+        if !is_mouse_button_down(MouseButton::Left) {
+            self.dragging = Dragging::No;
+        }
+
         if let Dragging::Yes(drag_info) = &self.dragging {
             let (mx, my) = mouse_position();
             self.draw_supply_instr_at(mx, my, "?", 0)
