@@ -417,7 +417,7 @@ impl RenderSplit
 
         if let Dragging::Yes(drag_info) = &self.dragging {
             let (mx, my) = mouse_position();
-            self.draw_instr_at(mx, my, "?", 0)
+            self.draw_supply_instr_at(mx, my, "?", 0)
         }
     }
 
@@ -434,7 +434,7 @@ impl RenderSplit
         }
     }
 
-    fn draw_instr_at(&mut self, x: f32, y: f32, txt: &str, curr_count: usize) {
+    fn draw_supply_instr_at(&mut self, x: f32, y: f32, txt: &str, curr_count: usize) {
         let (border_width, border_col) = self.border_width_col(x, y, self.supply_instr_w, self.supply_instr_h);
 
         // Square outline
@@ -457,10 +457,29 @@ impl RenderSplit
             self.dragging = Dragging::Yes(DragInfo {orig_offset_x: 0., orig_offset_y: 0., instr_ref: InstrRef::Supply(idx)});
         }
 
-        self.draw_instr_at(x, y, txt, curr_count);
+        self.draw_supply_instr_at(x, y, txt, curr_count);
     }
 
-    fn draw_flowchart_instr(&self, idx: usize, txt: &str)
+    fn draw_flowchart_instr_at(&mut self, orig_x: f32, orig_y: f32, txt: &str, scale: f32) {
+        let shrink_by = 1. - scale;
+        let x = orig_x + self.flowchart_instr_w * shrink_by / 2.;
+        let y = orig_y - self.flowchart_instr_h * shrink_by / 2.;
+        let w = self.flowchart_instr_w * scale;
+        let h = self.flowchart_instr_h * scale;
+
+        let (border_width, border_col) = self.border_width_col(x, y, w, h);
+
+        // Cover over excess connecting line
+        draw_rectangle(x, y, w, h, BLACK);
+
+        // Square outline
+        draw_rectangle_lines(x, y, w, h, border_width, border_col);
+
+        // Text
+        draw_text(txt, x + 0.2*w, y+0.85*h, self.flowchart_instr_font_sz, WHITE);
+    }
+
+    fn draw_flowchart_instr(&mut self, idx: usize, txt: &str)
     {
         // TODO: Still drawing too often on windows compared to pushpuzz??
         let idx = idx as f32;
@@ -470,16 +489,11 @@ impl RenderSplit
 
         let (border_width, border_col) = self.border_width_col(x, y, self.flowchart_instr_w, self.flowchart_instr_h);
 
-        if txt=="" {
-            // Square outline
-            draw_rectangle(x+self.flowchart_instr_w*0.2, y-self.flowchart_instr_h*0.2, self.flowchart_instr_w*0.6, self.flowchart_instr_h*0.6, BLACK);
-            // Text
-            draw_rectangle_lines(x+self.flowchart_instr_w*0.2, y-self.flowchart_instr_h*0.2, self.flowchart_instr_w*0.6, self.flowchart_instr_h*0.6, border_width, border_col);
-        } else {
-            // Square outline
-            draw_rectangle_lines(x, y, self.flowchart_instr_w, self.flowchart_instr_h, border_width, border_col);
-            // Text
-            draw_text(txt, x + 0.2*self.flowchart_instr_w, y+0.85*self.flowchart_instr_h, self.flowchart_instr_font_sz, WHITE);
+        let scale = if txt=="" {0.6} else {1.};
+
+        self.draw_flowchart_instr_at(x, y, txt, scale);
+
+        if txt!="" {
             // Connection to next instr
             draw_line(x+self.flowchart_instr_w/2., y+self.flowchart_instr_h, x+self.flowchart_instr_w/2., y+self.flowchart_instr_h+self.flowchart_instr_spacing, 2., LIGHTGRAY);
         }
