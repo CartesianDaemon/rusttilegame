@@ -422,7 +422,12 @@ impl RenderSplit
 
         if let Dragging::Yes(drag_info) = &self.dragging {
             let (mx, my) = mouse_position();
-            self.draw_supply_instr_at(mx, my, "?", 0)
+            // TODO: get txt from original instr via InstrRef
+            let txt = "?";
+            match drag_info.instr_ref {
+                InstrRef::Supply(_) => self.draw_supply_instr_at(mx, my, txt, 0),
+                InstrRef::Flowchart(_) => self.draw_flowchart_instr_at(mx, my, txt, 1.),
+            }
         }
     }
 
