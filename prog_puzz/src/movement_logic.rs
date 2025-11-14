@@ -71,7 +71,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
                 let instr = props.prog.instrs.get(props.ip);
                 match instr {
                     // Conclude pane with failure if we reach the end of the program.
-                    None => return PaneContinuation::Break(PaneConclusion::ArenaDie),
+                    None => return PaneContinuation::Break(WidgetConclusion::ArenaDie),
                     // Move forward
                     Some(Instr::F) => {
                         // NB Breadcrumb: Move to an attempt_action fn in simple_props.
@@ -99,7 +99,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
 
                 // Conclude pane successfully if hero finds with goal.
                 if map.any_has_effect(map[mov].pos(), Effect::Win) {
-                    return PaneContinuation::Break(PaneConclusion::ArenaWin)
+                    return PaneContinuation::Break(WidgetConclusion::ArenaWin)
                 }
 
                 // Continue pane without concluding.

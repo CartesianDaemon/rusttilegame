@@ -18,11 +18,11 @@ impl BaseGamedata for ProgpuzzGamedata {
         }
     }
 
-    fn advance_pane(&mut self, continuation: PaneConclusion) {
+    fn advance_pane(&mut self, continuation: WidgetConclusion) {
         self.levset.advance_pane(continuation)
     }
 
-    fn load_pane(&self) -> Pane::<Self::GameLogic> {
+    fn load_pane(&self) -> Widget::<Self::GameLogic> {
         self.levset.load_pane()
     }
 }

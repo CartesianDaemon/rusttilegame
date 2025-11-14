@@ -2,7 +2,7 @@
 
 /// Trait for interface needed for Games implemented in the Engine
 
-use super::widget::{Pane, Arena, PaneConclusion, CodingArena};
+use super::widget::{Widget, Arena, WidgetConclusion, CodingArena};
 
 // TODO: Don't need to for the first two games, but can move Pass and
 // Effect in here. Or better, make a SimpleObjectInteractions type
@@ -41,11 +41,11 @@ pub trait BaseGamedata {
 
     fn new() -> Self;
 
-    fn advance_pane(&mut self, continuation: PaneConclusion);
+    fn advance_pane(&mut self, continuation: WidgetConclusion);
 
-    fn load_pane(&self) -> Pane<Self::GameLogic>;
+    fn load_pane(&self) -> Widget<Self::GameLogic>;
 
-    fn load_next_pane(&mut self, continuation: PaneConclusion) -> Pane<Self::GameLogic> {
+    fn load_next_pane(&mut self, continuation: WidgetConclusion) -> Widget<Self::GameLogic> {
         self.advance_pane(continuation);
         self.load_pane()
     }

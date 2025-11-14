@@ -48,7 +48,7 @@ impl Splash
 impl BaseWidget for Splash {
     fn advance(&mut self, cmd: Option<Cmd>) -> PaneContinuation {
         match cmd {
-            Some(_) => PaneContinuation::Break(PaneConclusion::SplashContinue),
+            Some(_) => PaneContinuation::Break(WidgetConclusion::SplashContinue),
             None => PaneContinuation::Continue(()),
         }
     }

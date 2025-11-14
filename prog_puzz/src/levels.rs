@@ -6,7 +6,7 @@ use tile_engine::for_gamedata::*;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum ProgpuzzPaneId {
-    LevSplit(u16),
+    LevCodingArena(u16),
     Win,
 }
 
@@ -17,20 +17,20 @@ pub struct ProgpuzzLevset {
 
 impl ProgpuzzLevset {
     pub fn new() -> ProgpuzzLevset {
-        ProgpuzzLevset { current_paneid: ProgpuzzPaneId::LevSplit(1) }
+        ProgpuzzLevset { current_paneid: ProgpuzzPaneId::LevCodingArena(1) }
     }
 
-    pub fn advance_pane(&mut self, continuation: PaneConclusion) {
+    pub fn advance_pane(&mut self, continuation: WidgetConclusion) {
         self.current_paneid = match (self.current_paneid, continuation) {
             // TODO: Get max levnum from list of levels?
-            (ProgpuzzPaneId::LevSplit(1), PaneConclusion::ArenaWin) => ProgpuzzPaneId::Win,
-            (ProgpuzzPaneId::LevSplit(levnum), PaneConclusion::ArenaWin) => ProgpuzzPaneId::LevSplit(levnum+1),
-            (ProgpuzzPaneId::Win, PaneConclusion::SplashContinue) => Self::new().current_paneid,
+            (ProgpuzzPaneId::LevCodingArena(1), WidgetConclusion::ArenaWin) => ProgpuzzPaneId::Win,
+            (ProgpuzzPaneId::LevCodingArena(levnum), WidgetConclusion::ArenaWin) => ProgpuzzPaneId::LevCodingArena(levnum+1),
+            (ProgpuzzPaneId::Win, WidgetConclusion::SplashContinue) => Self::new().current_paneid,
             _ => panic!()
         };
     }
 
-    pub fn load_pane(&self) -> Pane<super::movement_logic::ProgpuzzGameLogic> {
+    pub fn load_pane(&self) -> Widget<super::movement_logic::ProgpuzzGameLogic> {
         let progpuzz_key = HashMap::from([
             // NB: Better to move this into obj? Combined with obj.char types?
             (' ', vec![ new_floor() ]),
@@ -47,7 +47,7 @@ impl ProgpuzzLevset {
         // NB: Would like to implement thin walls between squares, not walls filling whole squares.
         match self.current_paneid {
             // TODO: Avoid needing to specify HEIGHT explicitly.
-            ProgpuzzPaneId::LevSplit(1) => Pane::Split(CodingArena::new::<16>(
+            ProgpuzzPaneId::LevCodingArena(1) => Widget::CodingArena(CodingArena::new::<16>(
                 Arena::from_ascii(&[
                     "################",
                     "#              #",
@@ -78,10 +78,10 @@ impl ProgpuzzLevset {
                 )
             )),
             ProgpuzzPaneId::Win => {
-                Pane::from_splash_string("Congratulations. You've completed all the levels. Press [enter] to play through again".to_string())
+                Widget::from_splash_string("Congratulations. You've completed all the levels. Press [enter] to play through again".to_string())
             },
 
-            ProgpuzzPaneId::LevSplit(_) => panic!("Loading LevSplit for level that can't be found."),
+            ProgpuzzPaneId::LevCodingArena(_) => panic!("Loading LevSplit for level that can't be found."),
         }
     }
 }

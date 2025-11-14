@@ -15,7 +15,7 @@ use tile_engine::for_gamedata::*;
 mod basic_tests {
     use super::*;
 
-    fn get_lev(n: i32) -> Pane<super::super::pushpuzz::PushpuzzGameLogic> {
+    fn get_lev(n: i32) -> Widget<super::super::pushpuzz::PushpuzzGameLogic> {
         let test_key = HashMap::from([
             (' ', vec![ new_floor() ]),
             ('#', vec![ new_floor(), new_wall() ]),
@@ -30,7 +30,7 @@ mod basic_tests {
         ]);
 
         match n {
-            1=> Pane::from_play_ascii_map(&[
+            1=> Widget::from_play_ascii_map(&[
                 "#####_########_#",
                 "#            # #",
                 "#  >         @ @",
@@ -40,7 +40,7 @@ mod basic_tests {
                 "##############@#",
             ], test_key
             ),
-            2=> Pane::from_play_ascii_map(&[
+            2=> Widget::from_play_ascii_map(&[
                 "#g  #",
                 "#   #",
                 "h   #",

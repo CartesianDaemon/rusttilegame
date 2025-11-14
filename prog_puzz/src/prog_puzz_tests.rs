@@ -5,7 +5,7 @@ use macroquad::prelude::*;
 use tile_engine::for_gamedata::*;
 use super::objs::*;
 
-fn get_lev(n: i32) -> Pane<super::movement_logic::ProgpuzzGameLogic> {
+fn get_lev(n: i32) -> Widget<super::movement_logic::ProgpuzzGameLogic> {
     // NB: Use progpuzz key directly``
     let prog = Prog::from("F,F,R,F");
     let test_key = HashMap::from([
@@ -19,7 +19,7 @@ fn get_lev(n: i32) -> Pane<super::movement_logic::ProgpuzzGameLogic> {
     ]);
 
     match n {
-        1 => Pane::Split(CodingArena::new::<16>(
+        1 => Widget::CodingArena(CodingArena::new::<16>(
             Arena::from_ascii(&[
             "##############",
             "#            #",
@@ -57,7 +57,7 @@ fn basic_move() {
     assert_eq!(state.as_ascii_rows(), get_lev(1).as_ascii_rows());
 
     // Set up program that "user" has entered in code pane, that bot will follow.
-    if let Pane::Split(split)= &mut state {
+    if let Widget::CodingArena(split)= &mut state {
         split.code.prog =  Prog::from("F,F,R,F");
     }
 

@@ -23,7 +23,7 @@ impl BaseGameLogic for PushpuzzGameLogic {
                 }
                 // TODO: Avoid needing to re-get the hero handle, make move function consume or update the rich_mov handle.
                 return if map.any_has_effect(map[mov].pos(), Effect::Win) {
-                    PaneContinuation::Break(PaneConclusion::ArenaWin)
+                    PaneContinuation::Break(WidgetConclusion::ArenaWin)
                 } else {
                     PaneContinuation::Continue(())
                 }
@@ -51,7 +51,7 @@ impl BaseGameLogic for PushpuzzGameLogic {
                 // Hero dies if mov moves onto hero
                 // TODO: Check at end of function? Or as part of obj?
                 if map[mov].logical_props.effect == Effect::Kill && map[mov].pos() == map[hero].pos() {
-                    return PaneContinuation::Break(PaneConclusion::ArenaDie);
+                    return PaneContinuation::Break(WidgetConclusion::ArenaDie);
                 }
             },
             SimpleAI::Drift => {
@@ -90,7 +90,7 @@ impl BaseGameLogic for PushpuzzGameLogic {
 
                 // Hero dies if mov moves onto hero
                 if map[mov].logical_props.effect == Effect::Kill && map[mov].pos() == map[hero].pos() {
-                    return PaneContinuation::Break(PaneConclusion::ArenaDie);
+                    return PaneContinuation::Break(WidgetConclusion::ArenaDie);
                 }
             },
             SimpleAI::Scuttle => {
@@ -131,7 +131,7 @@ impl BaseGameLogic for PushpuzzGameLogic {
 
                 // Hero dies if bot moves onto hero
                 if map[mov].logical_props.effect == Effect::Kill && map[mov].pos() == map[hero].pos() {
-                    return PaneContinuation::Break(PaneConclusion::ArenaDie);
+                    return PaneContinuation::Break(WidgetConclusion::ArenaDie);
                 }
             },
         }

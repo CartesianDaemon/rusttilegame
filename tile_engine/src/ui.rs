@@ -1,5 +1,5 @@
 mod ui_base;
-mod ui_split;
+mod ui_coding_arenat;
 mod ui_arena;
 mod ui_splash;
 

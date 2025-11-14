@@ -12,14 +12,14 @@ use crate::for_gamedata;
 
 // TODO: Move into game-specific info if possible?
 #[derive(Debug, PartialEq)]
-pub enum PaneConclusion {
+pub enum WidgetConclusion {
     SplashContinue,
     ArenaWin,
     ArenaDie,
 }
 
 // After each tick, either Continue, or restart/start another level based on Conclusion.
-pub type PaneContinuation = ControlFlow<PaneConclusion, ()>;
+pub type PaneContinuation = ControlFlow<WidgetConclusion, ()>;
 
 // NB Breadcrumb: Need different name for Scene ("level part") than Pane ("screen part").
 pub trait BaseWidget {
@@ -43,28 +43,28 @@ pub trait BaseWidget {
 ///   or in individual games??
 /// Breadcrumb: Implement PaneBase using spire_enum or similar crate?
 #[derive(Clone, Debug)]
-pub enum Pane<GameLogic: for_gamedata::BaseGameLogic> {
+pub enum Widget<GameLogic: for_gamedata::BaseGameLogic> {
     Arena(Arena<GameLogic>),
     Splash(Splash),
-    Split(CodingArena<GameLogic>),
+    CodingArena(CodingArena<GameLogic>),
     // Could be defined but not used separately:
     //  Code(Code)
 }
 
-impl<GameLogic: for_gamedata::BaseGameLogic> Pane<GameLogic> {
+impl<GameLogic: for_gamedata::BaseGameLogic> Widget<GameLogic> {
     pub fn from_splash_string(txt: String) -> Self {
-        Pane::Splash(Splash::from_string(txt))
+        Widget::Splash(Splash::from_string(txt))
     }
 
     pub fn from_splash_dialogue(entries: Vec<&str>) -> Self {
-        Pane::Splash(Splash::from_dialogue(entries))
+        Widget::Splash(Splash::from_dialogue(entries))
     }
 
     pub fn from_play_ascii_map<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
         map_key: HashMap<char, Vec<FreeObj<GameLogic::CustomProps>>>,
     ) -> Self {
-        Pane::Arena(Arena::from_ascii(ascii_map, map_key))
+        Widget::Arena(Arena::from_ascii(ascii_map, map_key))
     }
 
     // Does current pane act on user input immediately (not governed by a game tick)?
@@ -72,7 +72,7 @@ impl<GameLogic: for_gamedata::BaseGameLogic> Pane<GameLogic> {
         match self {
             Self::Arena(pane) => pane.tick_based(),
             Self::Splash(pane) => pane.tick_based(),
-            Self::Split(pane) => pane.tick_based(),
+            Self::CodingArena(pane) => pane.tick_based(),
         }
     }
 
@@ -82,7 +82,7 @@ impl<GameLogic: for_gamedata::BaseGameLogic> Pane<GameLogic> {
         match self {
             Self::Arena(pane) => pane.advance(cmd),
             Self::Splash(pane) => pane.advance(cmd),
-            Self::Split(pane) => pane.advance(cmd),
+            Self::CodingArena(pane) => pane.advance(cmd),
         }
     }
 
@@ -90,7 +90,7 @@ impl<GameLogic: for_gamedata::BaseGameLogic> Pane<GameLogic> {
         match self {
             Self::Arena(arena) => &arena,
             Self::Splash(_splash) => panic!(),
-            Self::Split(pane) => &pane.arena,
+            Self::CodingArena(pane) => &pane.arena,
         }
     }
 

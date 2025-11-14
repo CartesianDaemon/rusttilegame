@@ -6,7 +6,7 @@ use crate::gamedata::BaseGameLogic;
 use crate::widget::*;
 
 use super::ui_splash::*;
-use super::ui_split::*;
+use super::ui_coding_arenat::*;
 use super::ui_arena::*;
 
 pub type TextureCache = HashMap<String, Texture2D>;
@@ -32,30 +32,30 @@ pub fn clear_background_for_current_platform(color: Color) {
 pub struct UiBase {
     /// Loaded textures
     texture_cache: TextureCache,
-    render_split: UiSplit,
+    render_split: UiCodingArena,
 }
 
 impl UiBase {
     pub fn new() -> UiBase {
         UiBase {
             texture_cache: HashMap::new(),
-            render_split: UiSplit::new(),
+            render_split: UiCodingArena::new(),
         }
     }
 
     /// Draw current gameplay to screen.
     /// TODO: Avoid passing slide and anim through so many layers? Add to struct?
     pub async fn draw_frame<GameLogic: BaseGameLogic>(
-        &mut self, state: &mut Pane<GameLogic>, slide_pc: f32, anim_pc: f32
+        &mut self, state: &mut Widget<GameLogic>, slide_pc: f32, anim_pc: f32
     ) {
         match state {
-            Pane::Arena(state) => {
+            Widget::Arena(state) => {
                 UiArena::render(state, &mut self.texture_cache, slide_pc, anim_pc, state.map_w(), state.map_h()).await;
             }
-            Pane::Splash(state) => {
+            Widget::Splash(state) => {
                 let _r = UiSplash::render(state);
             }
-            Pane::Split(state) => {
+            Widget::CodingArena(state) => {
                 self.render_split.render(state);
             }
         }

@@ -44,12 +44,12 @@ struct FrameCoords {
     flowchart_instr_spacing: f32,
 }
 
-pub struct UiSplit {
+pub struct UiCodingArena {
     fr_pos: FrameCoords,
     dragging: Dragging,
 }
 
-impl UiSplit
+impl UiCodingArena
 {
     pub fn new() -> Self {
         Self {
