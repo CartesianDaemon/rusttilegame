@@ -13,7 +13,7 @@ use std::ops::IndexMut;
 
 use culpa::try_fn;
 
-use super::pane_base::{BasePane, PaneContinuation};
+use super::widget_base::{BaseWidget, PaneContinuation};
 use crate::simple_custom_props;
 use crate::for_gamedata;
 use for_gamedata::BaseGameLogic;
@@ -37,7 +37,7 @@ pub struct Arena<GameLogic: for_gamedata::BaseGameLogic> {
     map_key: std::collections::HashMap<char, Vec<FreeObj<GameLogic::CustomProps>>>,
 }
 
-impl<GameLogic : for_gamedata::BaseGameLogic> BasePane for Arena<GameLogic>
+impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Arena<GameLogic>
 {
     fn advance(&mut self, cmd: Option<Cmd>) -> PaneContinuation  {
         // TODO: Decide order of char, enemy. Before or after not quite right. Or need

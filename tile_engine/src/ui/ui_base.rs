@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 
 use crate::gamedata::BaseGameLogic;
-use crate::pane::*;
+use crate::widget::*;
 
 use super::ui_splash::*;
 use super::ui_split::*;

@@ -1,7 +1,7 @@
 use crate::gamedata::BaseGamedata;
 
 use super::gamedata;
-use super::pane::*;
+use super::widget::*;
 use super::input::Input;
 use super::ui::UiBase;
 
@@ -58,9 +58,9 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
             // Do a "tick". Actually, currently whenever user presses key.
             // TODO: Use Option<Cmd> not Cmd::default.
             let cmd = self.input.consume_cmd();
-            let pane_continuation = self.state.advance(cmd);
-            if let PaneContinuation::Break(pane_ending) = pane_continuation {
-                self.state = self.gamedata.load_next_pane(pane_ending);
+            let widget_continuation = self.state.advance(cmd);
+            if let PaneContinuation::Break(widget_ending) = widget_continuation {
+                self.state = self.gamedata.load_next_pane(widget_ending);
                 self.input.last_tick_time = macroquad::prelude::get_time();
             }
         }

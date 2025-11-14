@@ -17,7 +17,7 @@ pub struct Split<GameLogic : for_gamedata::BaseGameLogic> {
 
 // NB: Should this be calling input at all or not?
 // NB: Have separate Cmd for menu, movement, programming, etc. Pane chooses which?
-impl<GameLogic : for_gamedata::BaseGameLogic> BasePane for Split<GameLogic>
+impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Split<GameLogic>
 {
     fn advance(&mut self, cmd: Option<Cmd>) -> PaneContinuation {
         match self.phase {

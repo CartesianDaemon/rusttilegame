@@ -1,9 +1,9 @@
 use macroquad::prelude::*;
 
 use assrt::rsst;
-use crate::pane::pane_arena::MapObj;
+use crate::widget::widget_arena::MapObj;
 use crate::map_coords::CoordDelta;
-use crate::pane::Arena;
+use crate::widget::Arena;
 use crate::gamedata::BaseGameLogic;
 
 use super::*;

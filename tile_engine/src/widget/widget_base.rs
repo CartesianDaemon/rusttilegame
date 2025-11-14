@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 use std::ops::ControlFlow;
 
-pub use super::pane_arena::Arena;
-pub use super::pane_code::*;
-pub use super::pane_splash::*;
-pub use super::pane_split::*;
+pub use super::widget_arena::Arena;
+pub use super::widget_code::*;
+pub use super::widget_splash::*;
+pub use super::widget_split::*;
 
 use crate::map_coords::Cmd;
 use crate::obj::FreeObj;
@@ -22,7 +22,7 @@ pub enum PaneConclusion {
 pub type PaneContinuation = ControlFlow<PaneConclusion, ()>;
 
 // NB Breadcrumb: Need different name for Scene ("level part") than Pane ("screen part").
-pub trait BasePane {
+pub trait BaseWidget {
     fn tick_based(&self) -> bool;
     fn advance(&mut self, cmd: Option<Cmd>) -> PaneContinuation;
 }

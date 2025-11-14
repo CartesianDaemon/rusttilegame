@@ -83,7 +83,7 @@ impl Code {
     }
 }
 
-impl BasePane for Code
+impl BaseWidget for Code
 {
     fn advance(&mut self, _cmd: Option<Cmd>) -> PaneContinuation {
         // TODO

@@ -2,7 +2,7 @@
 
 /// Trait for interface needed for Games implemented in the Engine
 
-use super::pane::{Pane, Arena, PaneConclusion, Split};
+use super::widget::{Pane, Arena, PaneConclusion, Split};
 
 // TODO: Don't need to for the first two games, but can move Pass and
 // Effect in here. Or better, make a SimpleObjectInteractions type
@@ -22,9 +22,9 @@ pub trait BaseCustomProps : Clone + std::fmt::Debug + PartialEq {
     fn is_hero(self: &Self) -> bool;
 }
 
-use super::pane::pane_arena::RosterIndex;
+use super::widget::widget_arena::RosterIndex;
 use crate::for_gamedata::Cmd;
-use super::pane::PaneContinuation;
+use super::widget::PaneContinuation;
 
 // NB: Fns only applicable to some widgets. Should be in type related to those.
 pub trait BaseGameLogic : Sized {

@@ -14,7 +14,7 @@ mod core_engine;
 mod gamedata;
 mod map_coords;
 pub mod input; // For engine_tests in push_puzz??
-mod pane;
+mod widget;
 mod obj;
 mod ui;
 pub mod simple_custom_props;
@@ -27,9 +27,9 @@ pub use core_engine::run;
 pub mod for_gamedata {
     pub use super::obj::*;
     pub use super::gamedata::*;
-    pub use super::pane::*;
+    pub use super::widget::*;
     pub use super::map_coords::*;
     pub use super::simple_custom_props::*;
-    pub use super::pane::Arena;
-    pub use super::pane::pane_arena::RosterIndex;
+    pub use super::widget::Arena;
+    pub use super::widget::widget_arena::RosterIndex;
 }
