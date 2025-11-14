@@ -4,7 +4,7 @@ use super::map_coords::Cmd;
 
 /// Interaction from user. Including timing.
 ///
-/// TODO: Nice to simplify interface and move the correct things here and into Arena.
+/// NB: Want to keep some utility code here and merge the Pane-specific info into Panes.
 pub struct Input {
     pub last_tick_time: f64,
 
