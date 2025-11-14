@@ -487,18 +487,20 @@ impl RenderSplit
     fn draw_flowchart_instr(&mut self, idx: usize, txt: &str)
     {
         // TODO: Still drawing too often on windows compared to pushpuzz??
-        let idx = idx as f32;
+        let fdx = idx as f32;
 
         let x = self.flowchart_x + self.flowchart_w/2. - self.flowchart_instr_w/2.;
-        let y = self.flowchart_y + self.flowchart_instr_spacing + idx * (self.flowchart_instr_h + self.flowchart_instr_spacing);
-
-        let (border_width, border_col) = self.border_width_col(x, y, self.flowchart_instr_w, self.flowchart_instr_h);
+        let y = self.flowchart_y + self.flowchart_instr_spacing + fdx * (self.flowchart_instr_h + self.flowchart_instr_spacing);
 
         let scale = if txt=="" {0.6} else {1.};
 
         self.draw_flowchart_instr_at(x, y, txt, scale);
 
         if txt!="" {
+            if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(x, y, self.flowchart_w, self.flowchart_instr_h) {
+                self.dragging = Dragging::Yes(DragInfo {orig_offset_x: 0., orig_offset_y: 0., instr_ref: InstrRef::Flowchart(idx)});
+            }
+
             // Connection to next instr
             draw_line(x+self.flowchart_instr_w/2., y+self.flowchart_instr_h, x+self.flowchart_instr_w/2., y+self.flowchart_instr_h+self.flowchart_instr_spacing, 2., LIGHTGRAY);
         }
