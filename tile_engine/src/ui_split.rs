@@ -44,12 +44,12 @@ struct FrameCoords {
     flowchart_instr_spacing: f32,
 }
 
-pub struct RenderSplit {
+pub struct UiSplit {
     fr_pos: FrameCoords,
     dragging: Dragging,
 }
 
-impl RenderSplit
+impl UiSplit
 {
     pub fn new() -> Self {
         Self {
@@ -140,7 +140,7 @@ impl RenderSplit
 
         self.initialise_frame_coords();
 
-        crate::render::clear_background_for_current_platform(LIGHTGRAY);
+        crate::ui::clear_background_for_current_platform(LIGHTGRAY);
 
         draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
 

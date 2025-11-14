@@ -9,7 +9,7 @@ use super::pane::*;
 use super::pane_arena::MapObj;
 use super::map_coords::CoordDelta;
 
-use crate::render_split::RenderSplit;
+use crate::ui_split::UiSplit;
 
 type TextureCache = HashMap<String, Texture2D>;
 
@@ -31,17 +31,17 @@ pub fn clear_background_for_current_platform(color: Color) {
 /// for the relevant Widget/Gamedata.
 /// And Gamedata contains one or more Widgets.
 /// And Views may display data from one Widget, or from more than one.
-pub struct Render {
+pub struct UI {
     /// Loaded textures
     texture_cache: TextureCache,
-    render_split: RenderSplit,
+    render_split: UiSplit,
 }
 
-impl Render {
-    pub fn new() -> Render {
-        Render {
+impl UI {
+    pub fn new() -> UI {
+        UI {
             texture_cache: HashMap::new(),
-            render_split: RenderSplit::new(),
+            render_split: UiSplit::new(),
         }
     }
 
@@ -52,10 +52,10 @@ impl Render {
     ) {
         match state {
             Pane::Arena(state) => {
-                RenderLev::render(state, &mut self.texture_cache, slide_pc, anim_pc, state.map_w(), state.map_h()).await;
+                UiArena::render(state, &mut self.texture_cache, slide_pc, anim_pc, state.map_w(), state.map_h()).await;
             }
             Pane::Splash(state) => {
-                let _r = RenderSplash::render(state);
+                let _r = UiSplash::render(state);
             }
             Pane::Split(state) => {
                 self.render_split.render(state);
@@ -79,9 +79,9 @@ pub async fn load_texture_unwrap(path: &str) -> Texture2D {
 }
 
 /// Render state for one frame of level
-/// TODO: Does this still want to be a separate class? Or more like a struct?
+// NB: Good to move Input relating to map movement in here.
 //#[derive(Clone)]
-pub struct RenderLev<'a> {
+pub struct UiArena<'a> {
     // COORDS FOR CURRENT FRAME. In gl units which are pixels.
     // Distance from edge of drawing surface to arena area
     offset_x: f32,
@@ -95,7 +95,7 @@ pub struct RenderLev<'a> {
     anim_pc: f32,
 }
 
-impl<'a> RenderLev<'a> {
+impl<'a> UiArena<'a> {
     pub async fn render<MovementLogic: BaseMovementLogic>(
         state: &Arena<MovementLogic>,
         texture_cache: &mut TextureCache,
@@ -106,7 +106,7 @@ impl<'a> RenderLev<'a> {
         let game_size = screen_width().min(screen_height());
         let offset_y = (screen_height() - game_size) / 2. + 10.;
 
-        let mut render_lev = RenderLev {
+        let mut render_lev = UiArena {
             // FIXME: Why does this work with landscape orientation?
             offset_x: (screen_width() - game_size) / 2. + 10.,
             offset_y: (screen_height() - game_size) / 2. + 10.,
@@ -152,7 +152,7 @@ impl<'a> RenderLev<'a> {
     // Draw ent's texture/colour to the screen at specified tile coords.
     // Works out pixel coords given pixel size of arena area in RenderLev.
     pub async fn draw_ent<CustomProps: super::for_gamedata::BaseCustomProps>(
-        self: &mut RenderLev<'a>,
+        self: &mut UiArena<'a>,
         // View coords in map. Relative to first visible tile (currently always the same).
         vx: i16,
         vy: i16,
@@ -239,10 +239,11 @@ impl<'a> RenderLev<'a> {
 
 // Render state for one frame of "Show text, press enter to continue"
 // Currently not needing any global graphics state
-pub struct RenderSplash {
+// NB: Good to move Input relating to "continue" in here.
+pub struct UiSplash {
 }
 
-impl RenderSplash
+impl UiSplash
 {
     pub fn render(splash: &Splash) {
         clear_background(WHITE);
