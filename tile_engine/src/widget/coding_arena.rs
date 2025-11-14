@@ -8,6 +8,7 @@ pub enum SplitPhase {
     Running,
 }
 
+// NB: Move into Prog Puzz. Or make into a general multi-widget widget.
 #[derive(Clone, Debug)]
 pub struct CodingArena<GameLogic : for_gamedata::BaseGameLogic> {
     pub arena: Arena<GameLogic>,
@@ -15,8 +16,6 @@ pub struct CodingArena<GameLogic : for_gamedata::BaseGameLogic> {
     phase: SplitPhase,
 }
 
-// NB: Should this be calling input at all or not?
-// NB: Have separate Cmd for menu, movement, programming, etc. Pane chooses which?
 impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLogic>
 {
     fn advance(&mut self, cmd: Option<Cmd>) -> PaneContinuation {
