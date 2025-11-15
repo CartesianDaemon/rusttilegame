@@ -217,7 +217,7 @@ impl UiCodingArena
 
     fn drag_supply_op(&mut self, coding: &mut Coding, idx: usize, orig_offset_x: f32, orig_offset_y: f32) {
         let bin = &mut coding.supply.get_mut(idx).unwrap();
-        self.dragging = if bin.curr_count >= 0 {
+        self.dragging = if bin.curr_count > 0 {
             bin.curr_count -= 1;
             Dragging::Yes {
                 op: bin.op,
