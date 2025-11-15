@@ -75,7 +75,9 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
 
 pub async fn run<Gamedata: gamedata::BaseGamedata>()
 {
+    unsafe { std::env::set_var("RUST_LOG", "debug") };
     env_logger::init();
+    log::info!("Started logging!");
 
     let mut engine = Engine::<Gamedata>::new();
 

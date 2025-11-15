@@ -4,8 +4,6 @@ use crate::gamedata::BaseGameLogic;
 
 use crate::widget::*;
 
-use log;
-
 #[derive(Copy, Clone)]
 enum InstrRef {
     Supply {
@@ -271,7 +269,7 @@ impl UiCodingArena
     fn drag_supply_op(&mut self, coding: &mut Coding, idx: usize, orig_offset_x: f32, orig_offset_y: f32) {
         // TODO: Test not already dragging?
         let bin = &mut coding.supply.get_mut(idx).unwrap();
-        println!("INFO: Dragging from supply");
+        log::debug!("INFO: Dragging from supply");
         self.dragging = if bin.curr_count > 0 {
             bin.curr_count -= 1;
             Dragging::Yes {
@@ -288,7 +286,7 @@ impl UiCodingArena
     fn drag_prog_instr(&mut self, coding: &mut Coding, idx: usize, orig_offset_x: f32, orig_offset_y: f32) {
         // TODO: Test not already dragging?
         let op = coding.prog.instrs.remove(idx);
-        println!("INFO: Dragging from prog");
+        log::debug!("INFO: Dragging from prog");
         self.dragging = Dragging::Yes {
             op: op,
             op_ref: InstrRef::Prog { idx },
@@ -299,7 +297,7 @@ impl UiCodingArena
 
     fn drop_to_supply_bin(&mut self, coding: &mut Coding, idx: usize) {
         // Untested
-        println!("INFO: Dropping to supply bin");
+        log::debug!("INFO: Dropping to supply bin");
         if let Dragging::Yes {op: dragged_op, ..} = self.dragging {
             let bin = &mut coding.supply.get_mut(idx).unwrap();
             if bin.op == dragged_op && bin.curr_count < bin.orig_count {
@@ -312,7 +310,7 @@ impl UiCodingArena
     fn drop_to_supply(&mut self, coding: &mut Coding) {
         // TODO: For loop to find correct bin.
         // TODO: Handle index errors, or bin overflow errors, without panicking.
-        println!("INFO: Dropping to supply");
+        log::debug!("INFO: Dropping to supply");
         if let Dragging::Yes {op: dragged_op, ..} = self.dragging {
             for bin in &mut coding.supply {
                 if bin.op == dragged_op && bin.curr_count < bin.orig_count {
@@ -324,7 +322,7 @@ impl UiCodingArena
     }
 
     fn drop_to_prog(&mut self, coding: &mut Coding, idx: usize) {
-        println!("INFO: Dropping to prog");
+        log::debug!("INFO: Dropping to prog");
         if let Dragging::Yes { op, .. } = self.dragging {
             coding.prog.instrs.insert(idx, op);
             self.dragging = Dragging::No;
