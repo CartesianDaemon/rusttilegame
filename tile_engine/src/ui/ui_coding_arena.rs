@@ -246,6 +246,7 @@ impl UiCodingArena
     }
 
     fn drag_supply_op(&mut self, coding: &mut Coding, idx: usize, orig_offset_x: f32, orig_offset_y: f32) {
+        // TODO: Test not already dragging?
         let bin = &mut coding.supply.get_mut(idx).unwrap();
         self.dragging = if bin.curr_count > 0 {
             bin.curr_count -= 1;
@@ -261,6 +262,7 @@ impl UiCodingArena
     }
 
     fn drag_prog_instr(&mut self, coding: &mut Coding, idx: usize, orig_offset_x: f32, orig_offset_y: f32) {
+        // TODO: Test not already dragging?
         let op = coding.prog.instrs.remove(idx);
         self.dragging = Dragging::Yes {
             op: op,
@@ -302,8 +304,10 @@ impl UiCodingArena
     }
 
     fn drop_cancel(&mut self, coding: &mut Coding) {
-        // TODO: Interpret InstrRef to return op to origin
-        unimplemented!();
+        if let Dragging::Yes {op: dragged_op, ..} = self.dragging {
+            // TODO: Interpret InstrRef to return op to origin
+            unimplemented!();
+        }
     }
 
     // TODO: Get counts from coding, not from parameters
