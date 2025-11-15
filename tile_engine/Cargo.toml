@@ -9,3 +9,4 @@ futures = "0.3.30"
 derive_more = "0.99"
 assrt = {git = "https://github.com/CartesianDaemon/assrt.git", branch = "v0.2"}
 culpa = "1.0.2"
+env_logger = "0.11.8"
