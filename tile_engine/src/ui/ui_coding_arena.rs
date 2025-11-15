@@ -266,6 +266,7 @@ impl UiCodingArena
         unimplemented!();
     }
 
+    // TODO: Get counts from coding, not from parameters
     fn draw_supply_op(&mut self, coding: &mut Coding, idx: usize, txt: &str, curr_count: u16, orig_count: u16)
     {
         let fdx = idx as f32;
@@ -290,11 +291,7 @@ impl UiCodingArena
         self.draw_supply_op_at(x, y, txt);
 
         // Draw count
-        let display_count = match self.dragging {
-            Dragging::Yes{op_ref:InstrRef::Supply{idx: dragging_idx},..} if dragging_idx == idx => curr_count-1,
-            _ => curr_count,
-        };
-        let count_txt = format!("{}/{}", display_count, orig_count);
+        let count_txt = format!("{}/{}", curr_count, orig_count);
         draw_text(&count_txt, x + 0.5*self.fr_pos.supply_op_w, y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, WHITE);
     }
 
