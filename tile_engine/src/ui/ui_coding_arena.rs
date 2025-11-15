@@ -271,7 +271,14 @@ impl UiCodingArena
     }
 
     fn drop_to_supply_bin(&mut self, coding: &mut Coding, idx: usize) {
-        // Maybe: Drop to specific bin?
+        // Untested
+        if let Dragging::Yes {op: dragged_op, ..} = self.dragging {
+            let bin = &mut coding.supply.get_mut(idx).unwrap();
+            if bin.op == dragged_op && bin.curr_count < bin.orig_count {
+                bin.curr_count += 1;
+                self.dragging = Dragging::No;
+            }
+        }
     }
 
     fn drop_to_supply(&mut self, coding: &mut Coding) {
