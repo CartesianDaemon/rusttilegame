@@ -44,10 +44,6 @@ fn txt_to_op(txt: &str) -> Op {
     Op::from(txt)
 }
 
-pub fn op_to_txt(instr: &Op) -> String {
-    instr.to_string()
-}
-
 #[derive(Clone, Debug)]
 pub struct Bin {
     pub op: Op,

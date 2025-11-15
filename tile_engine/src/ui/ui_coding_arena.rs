@@ -359,7 +359,7 @@ impl UiCodingArena
             }
         }
 
-        self.draw_supply_op_at(x, y, &widget::coding::op_to_txt(&bin.op));
+        self.draw_supply_op_at(x, y, &bin.op.to_string());
 
         // Draw count
         let count_txt = format!("{}/{}", bin.curr_count, bin.orig_count);
@@ -371,7 +371,7 @@ impl UiCodingArena
         // TODO: Review when things are highlighted. Show placeholder for dragged thing?
         // TODO: Still drawing too often on windows compared to pushpuzz??
         let fdx = idx as f32;
-        let txt = instr.map_or("".to_string(), op_to_txt);
+        let txt = instr.map_or("".to_string(), Op::to_string);
 
         let x = self.fr_pos.prog_x + self.fr_pos.prog_w/2. - self.fr_pos.prog_instr_w/2.;
         let y = self.fr_pos.prog_y + self.fr_pos.prog_instr_spacing + fdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
