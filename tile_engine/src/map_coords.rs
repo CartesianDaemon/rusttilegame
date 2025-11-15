@@ -1,5 +1,5 @@
 use std::ops::Add;
-use derive_more::*;
+use derive_more::{Add, Mul, Neg};
 
 // Coord types (in theory)
 //

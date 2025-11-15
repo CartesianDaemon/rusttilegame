@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 macroquad = "=0.4.7"
 futures = "0.3.30"
-derive_more = "0.99"
+derive_more = {version = "2.0.1", features = ["add", "mul", "not"]}
 assrt = {git = "https://github.com/CartesianDaemon/assrt.git", branch = "v0.2"}
 culpa = "1.0.2"
 log = "0.4.28"
