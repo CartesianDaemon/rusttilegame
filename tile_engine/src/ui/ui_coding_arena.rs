@@ -25,6 +25,7 @@ enum Dragging {
     },
 }
 
+// NB: This approaches implementing a UI with nested controls inheriting from a control trait.
 struct FrameCoords {
     supply_x: f32,
     supply_y: f32,
@@ -150,7 +151,7 @@ impl UiCodingArena
         // Draw lev info. TODO: Move to sep fn
         draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
 
-        // Draw supply. TODO: Move to sep fn
+        //// Draw supply. TODO: Move to sep fn
 
         draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., WHITE);
 
@@ -159,7 +160,11 @@ impl UiCodingArena
             self.draw_supply_op(coding, idx, &widget::coding::op_to_txt(&bin.op), bin.curr_count, bin.orig_count);
         }
 
-        // Draw prog. TODO: Move to sep fn
+        if self.mouse_in(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h) {
+            self.drop_to_supply(coding);
+        }
+
+        //// Draw prog. TODO: Move to sep fn
 
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., WHITE);
 
@@ -171,9 +176,12 @@ impl UiCodingArena
         self.draw_prog_instr(coding, 4, "L");
         self.draw_prog_instr(coding, 5, "");
 
-        // If mouse is released anywhere non-actionable, forget any dragging.
+        //// Draw dragging
+
+        // If mouse is released anywhere non-actionable, cancel any dragging.
+        // Use "!is_mouse_button_down" not "is_mouse_buttom_released" to ensure dragging is stopped.
         if !is_mouse_button_down(MouseButton::Left) {
-            self.dragging = Dragging::No;
+            self.drop_cancel(coding);
         }
 
         if let Dragging::Yes{orig_offset_x, orig_offset_y, op_ref,..} = &self.dragging {
@@ -262,7 +270,7 @@ impl UiCodingArena
         }
     }
 
-    fn drop_to_supply_bin(&mut self, coding: &mut Coding) {
+    fn drop_to_supply_bin(&mut self, coding: &mut Coding, idx: usize) {
         // Maybe: Drop to specific bin?
     }
 
@@ -307,7 +315,7 @@ impl UiCodingArena
             } else if is_mouse_button_released(MouseButton::Left) {
                 // TODO: Have render section do this for anywhere in supply region.
                 // TODO: Highlight appropriate bin, or all bins, not only bin mouse is over.
-                self.drop_to_supply(coding);
+                self.drop_to_supply_bin(coding, idx);
             }
         }
 
