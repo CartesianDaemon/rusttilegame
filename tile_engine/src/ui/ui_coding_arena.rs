@@ -170,19 +170,24 @@ impl UiCodingArena
 
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., WHITE);
 
-        // TODO: Take from coding.prog
-        self.draw_prog_instr(coding, 0, "F");
-        self.draw_prog_instr(coding, 1, "F");
-        self.draw_prog_instr(coding, 2, "R");
-        self.draw_prog_instr(coding, 3, "L");
-        self.draw_prog_instr(coding, 4, "L");
-        self.draw_prog_instr(coding, 5, "");
+        // NB: Clone means that we draw the original instrs, even if one is dragged out.
+        for (idx, instr) in coding.prog.instrs.clone().iter().enumerate() {
+            self.draw_prog_instr(coding, idx, &op_to_txt(instr));
+        }
+         self.draw_prog_instr(coding, coding.prog.instrs.len(), "");
+
+        // self.draw_prog_instr(coding, 0, "F");
+        // self.draw_prog_instr(coding, 1, "F");
+        // self.draw_prog_instr(coding, 2, "R");
+        // self.draw_prog_instr(coding, 3, "L");
+        // self.draw_prog_instr(coding, 4, "L");
+        // self.draw_prog_instr(coding, 5, "");
 
         //// Draw dragging
 
         // If mouse is released anywhere non-actionable, cancel any dragging.
         // Use "!is_mouse_button_down" not "is_mouse_buttom_released" to ensure dragging is stopped.
-        if !is_mouse_button_down(MouseButton::Left) && let Dragging::Yes {op: dragged_op, ..} = self.dragging  {
+        if !is_mouse_button_down(MouseButton::Left) && let Dragging::Yes {..} = self.dragging  {
             self.drop_cancel(coding);
         }
 
