@@ -555,6 +555,7 @@ dependencies = [
 name = "prog_puzz"
 version = "1.0.2"
 dependencies = [
+ "log",
  "macroquad",
  "tile_engine",
 ]
@@ -563,6 +564,7 @@ dependencies = [
 name = "push_puzz"
 version = "1.0.2"
 dependencies = [
+ "log",
  "macroquad",
  "tile_engine",
 ]

@@ -120,8 +120,8 @@ mod basic_tests {
     fn clone_map_and_move() {
         let orig_curr_widget_state = get_lev(1);
         let mut state = orig_curr_widget_state.clone();
-        println!("Orig>> {orig_curr_widget_state:?}");
-        println!("Clone>> {state:?}");
+        log::trace!("Orig>> {orig_curr_widget_state:?}");
+        log::trace!("Clone>> {state:?}");
         let _ = state.advance(Some(Cmd::Right));
     }
 }

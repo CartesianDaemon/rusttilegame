@@ -106,7 +106,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
                 return PaneContinuation::Continue(());
             },
             ProgpuzzAI::Stay => {
-                print!("ProgpuzzGameLogic::move_mov: Stay\n");
+                log::trace!("ProgpuzzGameLogic::move_mov: Stay\n");
                 // Do nothing
             },
             }
