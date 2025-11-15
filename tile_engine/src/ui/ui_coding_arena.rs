@@ -269,13 +269,15 @@ impl UiCodingArena
     fn drop_to_supply(&mut self, coding: &mut Coding) {
         // TODO: For loop to find correct bin.
         // TODO: Handle index errors, or bin overflow errors, without panicking.
-        let idx = 0;
-        let bin = &mut coding.supply.get_mut(idx).unwrap();
-        if bin.curr_count >= bin.orig_count {
-            // ???
+        if let Dragging::Yes {..} = self.dragging {
+            let idx = 0;
+            let bin = &mut coding.supply.get_mut(idx).unwrap();
+            if bin.curr_count >= bin.orig_count {
+                // ???
+            }
+            bin.curr_count += 1;
+            self.dragging = Dragging::No;
         }
-        bin.curr_count += 1;
-        self.dragging = Dragging::No;
     }
 
     fn drop_to_prog(&mut self, coding: &mut Coding, idx: usize) {
@@ -302,10 +304,7 @@ impl UiCodingArena
         if self.mouse_in(x, y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h) {
             if is_mouse_button_pressed(MouseButton::Left) {
                 self.drag_supply_op(coding, idx, mouse_position().0 - x, mouse_position().1 - y);
-            } else if is_mouse_button_released(MouseButton::Left) && let Dragging::Yes{..} = self.dragging {
-                // Maybe: Drop on specific bin
-                // Self::move_op(coding, op_ref, InstrRef::Supply { idx });
-
+            } else if is_mouse_button_released(MouseButton::Left) {
                 // TODO: Have render section do this for anywhere in supply region.
                 // TODO: Highlight appropriate bin, or all bins, not only bin mouse is over.
                 self.drop_to_supply(coding);
@@ -333,13 +332,16 @@ impl UiCodingArena
         self.draw_prog_instr_at(x, y, txt, scale);
 
         if txt!="" {
-            if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(x, y, self.fr_pos.prog_w, self.fr_pos.prog_instr_h) {
-                self.drag_prog_instr(coding, idx, mouse_position().0 - x, mouse_position().1 - y);
-            }
-            
-
             // Connection to next op
             draw_line(x+self.fr_pos.prog_instr_w/2., y+self.fr_pos.prog_instr_h, x+self.fr_pos.prog_instr_w/2., y+self.fr_pos.prog_instr_h+self.fr_pos.prog_instr_spacing, 2., LIGHTGRAY);
+        }
+
+        if self.mouse_in(x, y, self.fr_pos.prog_w, self.fr_pos.prog_instr_h) {
+            if txt!="" && is_mouse_button_pressed(MouseButton::Left) {
+                self.drag_prog_instr(coding, idx, mouse_position().0 - x, mouse_position().1 - y);
+            } else if is_mouse_button_released(MouseButton::Left){
+                self.drop_to_prog(coding, idx);
+            }
         }
     }
 }
