@@ -75,6 +75,8 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
 
 pub async fn run<Gamedata: gamedata::BaseGamedata>()
 {
+    env_logger::init();
+
     let mut engine = Engine::<Gamedata>::new();
 
     loop {

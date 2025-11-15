@@ -4,6 +4,8 @@ use crate::gamedata::BaseGameLogic;
 
 use crate::widget::*;
 
+use log;
+
 #[derive(Copy, Clone)]
 enum InstrRef {
     Supply {
