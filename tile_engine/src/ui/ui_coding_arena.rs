@@ -2,7 +2,7 @@ use macroquad::prelude::*;
 
 use crate::gamedata::BaseGameLogic;
 
-use crate::widget::{self, *};
+use crate::widget::*;
 
 #[derive(Copy, Clone)]
 enum InstrRef {
