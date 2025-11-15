@@ -277,14 +277,13 @@ impl UiCodingArena
     fn drop_to_supply(&mut self, coding: &mut Coding) {
         // TODO: For loop to find correct bin.
         // TODO: Handle index errors, or bin overflow errors, without panicking.
-        if let Dragging::Yes {..} = self.dragging {
-            let idx = 0;
-            let bin = &mut coding.supply.get_mut(idx).unwrap();
-            if bin.curr_count >= bin.orig_count {
-                // ???
+        if let Dragging::Yes {op: dragged_op, ..} = self.dragging {
+            for bin in &mut coding.supply {
+                if bin.op == dragged_op && bin.curr_count < bin.orig_count {
+                    bin.curr_count += 1;
+                    self.dragging = Dragging::No;
+                }
             }
-            bin.curr_count += 1;
-            self.dragging = Dragging::No;
         }
     }
 
