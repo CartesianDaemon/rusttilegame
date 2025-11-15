@@ -4,5 +4,5 @@ version = "1.0.2"
 edition = "2024"
 
 [dependencies]
-macroquad = "=0.4.7"
+macroquad = "=0.4.14"
 tile_engine = { path = "../tile_engine" }

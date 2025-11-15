@@ -4,7 +4,7 @@ version = "1.0.2"
 edition = "2024"
 
 [dependencies]
-macroquad = "=0.4.7"
+macroquad = "=0.4.14"
 futures = "0.3.30"
 derive_more = {version = "2.0.1", features = ["add", "mul", "not"]}
 assrt = {git = "https://github.com/CartesianDaemon/assrt.git", branch = "v0.2"}
