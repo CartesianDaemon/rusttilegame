@@ -141,16 +141,24 @@ impl UiCodingArena
 
     pub fn render<GameLogic: BaseGameLogic>(&mut self, coding_arena: &mut CodingArena<GameLogic>) {
         let _arena = &mut coding_arena.arena;
-        let coding = &mut coding_arena.coding;
 
         self.initialise_frame_coords();
 
+        self.draw_background(coding_arena);
+        self.draw_supply(&mut coding_arena.coding);
+        self.draw_prog(&mut coding_arena.coding);
+        self.draw_dragging(&mut coding_arena.coding);
+    }
+
+    pub fn draw_background<GameLogic: BaseGameLogic>(&mut self, _coding_arena: &mut CodingArena<GameLogic>) {
         // Clear background if necessary.
         crate::ui::clear_background_for_current_platform(LIGHTGRAY);
 
         // Draw lev info. TODO: Move to sep fn
         draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
+    }
 
+    pub fn draw_supply(&mut self, coding: &mut Coding) {
         //// Draw supply. TODO: Move to sep fn
 
         draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., WHITE);
@@ -166,6 +174,9 @@ impl UiCodingArena
             }
         }
 
+    }
+
+    pub fn draw_prog(&mut self, coding: &mut Coding) {
         //// Draw prog. TODO: Move to sep fn
 
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., WHITE);
@@ -183,6 +194,9 @@ impl UiCodingArena
         // self.draw_prog_instr(coding, 4, "L");
         // self.draw_prog_instr(coding, 5, "");
 
+    }
+
+    pub fn draw_dragging(&mut self, coding: &mut Coding) {
         //// Draw dragging
 
         // If mouse is released anywhere non-actionable, cancel any dragging.
