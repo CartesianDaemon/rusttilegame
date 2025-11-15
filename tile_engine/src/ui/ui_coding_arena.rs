@@ -165,7 +165,7 @@ impl UiCodingArena
 
         // TODO: Avoid clone, and work out how iteration should work if something is changed?
         for (idx, bin) in coding.supply.clone().iter().enumerate() {
-            self.draw_supply_op(coding, idx, &widget::coding::op_to_txt(&bin.op), bin.curr_count, bin.orig_count);
+            self.draw_supply_op(coding, idx, bin);
         }
 
         if self.mouse_in(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h) {
@@ -183,9 +183,9 @@ impl UiCodingArena
 
         // NB: Clone means that we draw the original instrs, even if one is dragged out.
         for (idx, instr) in coding.prog.instrs.clone().iter().enumerate() {
-            self.draw_prog_instr(coding, idx, &op_to_txt(instr));
+            self.draw_prog_instr(coding, idx, Some(instr));
         }
-         self.draw_prog_instr(coding, coding.prog.instrs.len(), "");
+         self.draw_prog_instr(coding, coding.prog.instrs.len(), None);
 
         // self.draw_prog_instr(coding, 0, "F");
         // self.draw_prog_instr(coding, 1, "F");
@@ -342,10 +342,9 @@ impl UiCodingArena
     }
 
     // TODO: Get counts from coding, not from parameters
-    fn draw_supply_op(&mut self, coding: &mut Coding, idx: usize, txt: &str, curr_count: u16, orig_count: u16)
+    fn draw_supply_op(&mut self, coding: &mut Coding, idx: usize, bin: &Bin)
     {
         let fdx = idx as f32;
-        let _curr_count = curr_count as f32;
 
         let x = self.fr_pos.supply_x + self.fr_pos.supply_op_spacing + fdx * (self.fr_pos.supply_op_w + self.fr_pos.supply_op_spacing);
         let y = self.fr_pos.supply_y + self.fr_pos.supply_h/2. - self.fr_pos.supply_op_h*0.6;
@@ -360,25 +359,26 @@ impl UiCodingArena
             }
         }
 
-        self.draw_supply_op_at(x, y, txt);
+        self.draw_supply_op_at(x, y, &widget::coding::op_to_txt(&bin.op));
 
         // Draw count
-        let count_txt = format!("{}/{}", curr_count, orig_count);
+        let count_txt = format!("{}/{}", bin.curr_count, bin.orig_count);
         draw_text(&count_txt, x + 0.5*self.fr_pos.supply_op_w, y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, WHITE);
     }
 
-    fn draw_prog_instr(&mut self, coding: &mut Coding, idx: usize, txt: &str)
+    fn draw_prog_instr(&mut self, coding: &mut Coding, idx: usize, instr: Option<&Op>)
     {
         // TODO: Review when things are highlighted. Show placeholder for dragged thing?
         // TODO: Still drawing too often on windows compared to pushpuzz??
         let fdx = idx as f32;
+        let txt = instr.map_or("".to_string(), op_to_txt);
 
         let x = self.fr_pos.prog_x + self.fr_pos.prog_w/2. - self.fr_pos.prog_instr_w/2.;
         let y = self.fr_pos.prog_y + self.fr_pos.prog_instr_spacing + fdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
 
         let scale = if txt=="" {0.6} else {1.};
 
-        self.draw_prog_instr_at(x, y, txt, scale);
+        self.draw_prog_instr_at(x, y, &txt, scale);
 
         if txt!="" {
             // Connection to next op
