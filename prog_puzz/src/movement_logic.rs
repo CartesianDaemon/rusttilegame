@@ -73,7 +73,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
                     // Conclude pane with failure if we reach the end of the program.
                     None => return PaneContinuation::Break(WidgetConclusion::ArenaDie),
                     // Move forward
-                    Some(Instr::F) => {
+                    Some(Op::F) => {
                         // NB Breadcrumb: Move to an attempt_action fn in simple_props.
                         let target_pos = map[mov].pos() + map[mov].logical_props.dir;
                         if map.passable(target_pos) {
@@ -81,17 +81,17 @@ impl BaseGameLogic for ProgpuzzGameLogic
                         }
                     },
                     // Rotate L
-                    Some(Instr::L) => {
+                    Some(Op::L) => {
                         map[mov].logical_props.dir.rotate_l();
                     },
                     // Rotate R
-                    Some(Instr::R) => {
+                    Some(Op::R) => {
                         map[mov].logical_props.dir.rotate_r();
                     },
                     // Loop through contained instructions. NB: Placeholder.
-                    Some(Instr::Loop(_)) => {
-                        unimplemented!();
-                    },
+                    // Some(Op::Loop(_)) => {
+                    //     unimplemented!();
+                    // },
                 }
 
                 // Advance to next instr for next time.

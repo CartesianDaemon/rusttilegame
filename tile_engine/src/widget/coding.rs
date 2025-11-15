@@ -6,45 +6,47 @@ use std::collections::HashMap;
 // NB: Nice to move to progpuzz if we can.
 // NB: Could be combined with putative AttemptedAction defined for Cmd.
 // Breadcrumb: Could implement to_txt and txt_to in terms of common trait.
-#[derive(Clone, Debug, Hash, PartialEq, Eq)]
-pub enum Instr {
+// NB: Need enum to be Instr including subsiduary values, and then define
+// Op in terms of that, in terms of pure index.
+#[derive(Copy, Clone, Debug, Hash, PartialEq, Eq)]
+pub enum Op {
     F,
     L,
     R,
     // NB: We're going to need to box this before we instantiate it anywhere, right?
-    Loop(Vec<Instr>),
+    // Loop(Vec<Instr>),
 }
 
-fn txt_to_instr(txt: &str) -> Instr {
+fn txt_to_op(txt: &str) -> Op {
     match txt {
-        "F" => Instr::F,
-        "L" => Instr::L,
-        "R" => Instr::R,
-        "Loop" => Instr::Loop(vec![]),
+        "F" => Op::F,
+        "L" => Op::L,
+        "R" => Op::R,
+        // "Loop" => Op::Loop(vec![]),
         _ => panic!("Unrecognised txt for instr")
     }
 }
 
-pub fn instr_to_txt(instr: &Instr) -> String {
+pub fn op_to_txt(instr: &Op) -> String {
     match instr {
-        Instr::F => "F",
-        Instr::L => "L",
-        Instr::R => "R",
-        Instr::Loop(_) => "Loop",
+        Op::F => "F",
+        Op::L => "L",
+        Op::R => "R",
+        // Op::Loop(_) => "Loop",
     }.to_string()
 }
 
 #[derive(Clone, Debug)]
 pub struct Bin {
-    pub instr: Instr,
+    pub op: Op,
     pub orig_count: u16,
     pub curr_count: u16,
 }
 
 impl Bin {
-    fn new(instr: Instr, orig_count: u16) -> Self {
+    fn new(op: Op, orig_count: u16) -> Self {
         Self {
-            instr,
+            op,
             orig_count,
             curr_count: orig_count,
         }
@@ -63,7 +65,7 @@ impl Bin {
 // Breadcrumb: Derive for implementing default value?
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Prog {
-    pub instrs: Vec<Instr>,
+    pub instrs: Vec<Op>,
 }
 
 impl Prog {
@@ -71,7 +73,7 @@ impl Prog {
     pub fn from(txt: &str) -> Prog {
         Prog {
             // NB: Try using my chain crate
-            instrs: txt.split_terminator(',').map(|x| txt_to_instr(x)).collect()
+            instrs: txt.split_terminator(',').map(|x| txt_to_op(x)).collect()
         }
     }
 }
@@ -79,15 +81,15 @@ impl Prog {
 #[derive(Clone, Debug)]
 pub struct Coding {
     // TODO: Need IndexMap or Vec to maintain order.
-    pub supplies: Vec<Bin>,
+    pub supply: Vec<Bin>,
     pub prog: Prog,
 }
 
 impl Coding {
     pub fn from_ascii(supplies: HashMap<&str, u16>) -> Coding {
         Coding {
-            supplies: supplies.iter().map(|(txt,count)|
-                Bin::new(txt_to_instr(&txt), *count)
+            supply: supplies.iter().map(|(txt,count)|
+                Bin::new(txt_to_op(&txt), *count)
             ).collect(),
             prog: Prog::default(),
         }

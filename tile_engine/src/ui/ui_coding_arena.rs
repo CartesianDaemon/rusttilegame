@@ -9,17 +9,19 @@ enum InstrRef {
     Supply {
         idx: usize
     },
-    Flowchart{
+    Prog{
         idx: usize,
     },
 }
 
+// TODO: CodingArena.dragging to Option(DragInfo).
 enum Dragging {
     No,
     Yes{
+        op: Op,
+        op_ref: InstrRef,
         orig_offset_x: f32,
         orig_offset_y: f32,
-        instr_ref: InstrRef,
     },
 }
 
@@ -29,20 +31,21 @@ struct FrameCoords {
     supply_w: f32,
     supply_h: f32,
 
-    supply_instr_w: f32,
-    supply_instr_h: f32,
-    supply_instr_font_sz: f32,
-    supply_instr_spacing: f32,
+    supply_op_w: f32,
+    supply_op_h: f32,
+    supply_op_font_sz: f32,
+    supply_op_spacing: f32,
 
-    flowchart_x: f32,
-    flowchart_y: f32,
-    flowchart_w: f32,
-    flowchart_h: f32,
+    // TODO: Rename prog -> prog
+    prog_x: f32,
+    prog_y: f32,
+    prog_w: f32,
+    prog_h: f32,
 
-    flowchart_instr_w: f32,
-    flowchart_instr_h: f32,
-    flowchart_instr_font_sz: f32,
-    flowchart_instr_spacing: f32,
+    prog_instr_w: f32,
+    prog_instr_h: f32,
+    prog_instr_font_sz: f32,
+    prog_instr_spacing: f32,
 }
 
 pub struct UiCodingArena {
@@ -59,18 +62,18 @@ impl UiCodingArena
                 supply_y: 0.,
                 supply_w: 0.,
                 supply_h: 0.,
-                supply_instr_w: 0.,
-                supply_instr_h: 0.,
-                supply_instr_font_sz: 0.,
-                supply_instr_spacing: 0.,
-                flowchart_x: 0.,
-                flowchart_y: 0.,
-                flowchart_w: 0.,
-                flowchart_h: 0.,
-                flowchart_instr_w: 0.,
-                flowchart_instr_h: 0.,
-                flowchart_instr_font_sz: 0.,
-                flowchart_instr_spacing: 0.,
+                supply_op_w: 0.,
+                supply_op_h: 0.,
+                supply_op_font_sz: 0.,
+                supply_op_spacing: 0.,
+                prog_x: 0.,
+                prog_y: 0.,
+                prog_w: 0.,
+                prog_h: 0.,
+                prog_instr_w: 0.,
+                prog_instr_h: 0.,
+                prog_instr_font_sz: 0.,
+                prog_instr_spacing: 0.,
             },
             dragging: Dragging::No,
         }
@@ -93,44 +96,44 @@ impl UiCodingArena
         let supply_w = screen_width() - arena_w;
         let supply_h = screen_height() * 0.3;
 
-        // Supply instr
+        // Supply op
         let spacing_pc = 0.5;
         let flow_n = 2.;
-        let supply_instr_w = (supply_h * 0.8).min(supply_w / (spacing_pc + flow_n*(1.+spacing_pc)));
-        let supply_instr_h = supply_instr_w;
-        let supply_instr_font_sz = supply_instr_h * 1.35;
-        let supply_instr_spacing = supply_instr_w * spacing_pc;
+        let supply_op_w = (supply_h * 0.8).min(supply_w / (spacing_pc + flow_n*(1.+spacing_pc)));
+        let supply_op_h = supply_op_w;
+        let supply_op_font_sz = supply_op_h * 1.35;
+        let supply_op_spacing = supply_op_w * spacing_pc;
 
-        // Flowchart
-        let flowchart_x = arena_w;
-        let flowchart_y = supply_h;
-        let flowchart_w = screen_width() - arena_w;
-        let flowchart_h = screen_height() - supply_h;
+        // Prog
+        let prog_x = arena_w;
+        let prog_y = supply_h;
+        let prog_w = screen_width() - arena_w;
+        let prog_h = screen_height() - supply_h;
 
-        // Flowchart instrs
+        // Prog instrs
         let prog_n = 6.;
-        let flowchart_instr_h = (flowchart_w * 0.8).min(flowchart_h / (spacing_pc + prog_n*(1.+spacing_pc)));
-        let flowchart_instr_w = flowchart_instr_h;
-        let flowchart_instr_font_sz = flowchart_instr_w * 1.35;
-        let flowchart_instr_spacing =  flowchart_instr_w * spacing_pc;
+        let prog_instr_h = (prog_w * 0.8).min(prog_h / (spacing_pc + prog_n*(1.+spacing_pc)));
+        let prog_instr_w = prog_instr_h;
+        let prog_instr_font_sz = prog_instr_w * 1.35;
+        let prog_instr_spacing =  prog_instr_w * spacing_pc;
 
         self.fr_pos = FrameCoords {
             supply_x,
             supply_y,
             supply_w,
             supply_h,
-            supply_instr_w,
-            supply_instr_h,
-            supply_instr_font_sz,
-            supply_instr_spacing,
-            flowchart_x,
-            flowchart_y,
-            flowchart_w,
-            flowchart_h,
-            flowchart_instr_w,
-            flowchart_instr_h,
-            flowchart_instr_font_sz,
-            flowchart_instr_spacing,
+            supply_op_w,
+            supply_op_h,
+            supply_op_font_sz,
+            supply_op_spacing,
+            prog_x,
+            prog_y,
+            prog_w,
+            prog_h,
+            prog_instr_w,
+            prog_instr_h,
+            prog_instr_font_sz,
+            prog_instr_spacing,
         }
 
     }
@@ -141,37 +144,46 @@ impl UiCodingArena
 
         self.initialise_frame_coords();
 
+        // Clear background if necessary.
         crate::ui::clear_background_for_current_platform(LIGHTGRAY);
 
+        // Draw lev info. TODO: Move to sep fn
         draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
 
+        // Draw supply. TODO: Move to sep fn
+
         draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., WHITE);
+
         // TODO: Avoid clone, and work out how iteration should work if something is changed?
-        for (idx, bin) in coding.supplies.clone().iter().enumerate() {
-            self.draw_supply_instr(coding, idx, &widget::coding::instr_to_txt(&bin.instr), bin.curr_count, bin.orig_count);
+        for (idx, bin) in coding.supply.clone().iter().enumerate() {
+            self.draw_supply_op(coding, idx, &widget::coding::op_to_txt(&bin.op), bin.curr_count, bin.orig_count);
         }
 
-        draw_rectangle_lines(self.fr_pos.flowchart_x, self.fr_pos.flowchart_y, self.fr_pos.flowchart_w, self.fr_pos.flowchart_h, 2., WHITE);
-        self.draw_flowchart_instr(0, "F");
-        self.draw_flowchart_instr(1, "F");
-        self.draw_flowchart_instr(2, "R");
-        self.draw_flowchart_instr(3, "L");
-        self.draw_flowchart_instr(4, "L");
-        self.draw_flowchart_instr(5, "");
+        // Draw prog. TODO: Move to sep fn
+
+        draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., WHITE);
+
+        // TODO: Take from coding.prog
+        self.draw_prog_instr(coding, 0, "F");
+        self.draw_prog_instr(coding, 1, "F");
+        self.draw_prog_instr(coding, 2, "R");
+        self.draw_prog_instr(coding, 3, "L");
+        self.draw_prog_instr(coding, 4, "L");
+        self.draw_prog_instr(coding, 5, "");
 
         // If mouse is released anywhere non-actionable, forget any dragging.
         if !is_mouse_button_down(MouseButton::Left) {
             self.dragging = Dragging::No;
         }
 
-        if let Dragging::Yes{orig_offset_x, orig_offset_y, instr_ref,..} = &self.dragging {
+        if let Dragging::Yes{orig_offset_x, orig_offset_y, op_ref,..} = &self.dragging {
             let (mx, my) = mouse_position();
             let (x,y) = (mx - orig_offset_x, my - orig_offset_y);
-            // TODO: get txt from original instr via InstrRef
+            // TODO: get txt from original op via InstrRef
             let txt = "?";
-            match instr_ref {
-                InstrRef::Supply{..} => self.draw_supply_instr_at(x, y, txt),
-                InstrRef::Flowchart{..} => self.draw_flowchart_instr_at(x, y, txt, 1.),
+            match op_ref {
+                InstrRef::Supply{..} => self.draw_supply_op_at(x, y, txt),
+                InstrRef::Prog{..} => self.draw_prog_instr_at(x, y, txt, 1.),
             }
         }
     }
@@ -190,96 +202,108 @@ impl UiCodingArena
         }
     }
 
-    fn draw_supply_instr_at(&mut self, x: f32, y: f32, txt: &str) {
-        let (border_width, border_col) = self.border_width_col(self.mouse_in(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h));
+    fn draw_supply_op_at(&mut self, x: f32, y: f32, txt: &str) {
+        let (border_width, border_col) = self.border_width_col(self.mouse_in(x, y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h));
 
         // Draw square interior. Covers over background when dragging, or excess connecting line.
-        draw_rectangle(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h, Color{r: 0., g:0., b:0., a:0.5 });
+        draw_rectangle(x, y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h, Color{r: 0., g:0., b:0., a:0.5 });
 
         // Draw outline
-        draw_rectangle_lines(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h, border_width, border_col);
+        draw_rectangle_lines(x, y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h, border_width, border_col);
 
         // Text
-        draw_text(txt, x + 0.2*self.fr_pos.supply_instr_w, y+0.85*self.fr_pos.supply_instr_h, self.fr_pos.supply_instr_font_sz, WHITE);
+        draw_text(txt, x + 0.2*self.fr_pos.supply_op_w, y+0.85*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz, WHITE);
     }
 
-    fn move_instr(coding: &mut Coding, from: InstrRef, to: InstrRef) {
-        // TODO: Check from.curr_count for supply >=1
-        let from_flowchart_idx;
-        let dragged_instr = match from {
-            InstrRef::Supply { idx } => {
-                let bin = &mut coding.supplies.get_mut(idx).unwrap();
-                if bin.curr_count <= 0 {
-                    return;
-                }
-                bin.curr_count -= 1;
-                from_flowchart_idx = None;
-                bin.instr.clone()
-            },
-            InstrRef::Flowchart { idx } => {
-                from_flowchart_idx = Some(idx);
-                coding.prog.instrs.remove(idx)
-            },
-        };
-        // TODO: Adjust index for prog if we removed a lower index
-        // TODO: Check to.curr_count for supply <= orig_count
-        // TODO: In fact, make dropping anywhere *except* flowchart go back to the supply.
-        match to {
-            InstrRef::Supply { idx } => {
-                // TODO: Check instr matches bin. And/or figure out appropriate bin?
-                let bin = &mut coding.supplies.get_mut(idx).unwrap();
-                if bin.curr_count >= bin.orig_count {
-                    // ???
-                }
-                bin.curr_count += 1;
-            },
-            InstrRef::Flowchart { idx } => {
-                let to_idx;
-                if let Some(from_idx) = from_flowchart_idx && from_idx < idx {
-                    to_idx = idx-1;
-                } else {
-                    to_idx = idx;
-                }
-                coding.prog.instrs.insert(to_idx, dragged_instr);
-            },
+    fn drag_supply_op(&mut self, coding: &mut Coding, idx: usize, orig_offset_x: f32, orig_offset_y: f32) {
+        let bin = &mut coding.supply.get_mut(idx).unwrap();
+        self.dragging = if bin.curr_count >= 0 {
+            bin.curr_count -= 1;
+            Dragging::Yes {
+                op: bin.op,
+                op_ref: InstrRef::Supply { idx },
+                orig_offset_x,
+                orig_offset_y
+            }
+        } else {
+            Dragging::No
         }
     }
 
-    fn draw_supply_instr(&mut self, coding: &mut Coding, idx: usize, txt: &str, curr_count: u16, orig_count: u16)
+    fn drag_prog_instr(&mut self, coding: &mut Coding, idx: usize, orig_offset_x: f32, orig_offset_y: f32) {
+        let op = coding.prog.instrs.remove(idx);
+        self.dragging = Dragging::Yes {
+            op: op,
+            op_ref: InstrRef::Prog { idx },
+            orig_offset_x,
+            orig_offset_y
+        }
+    }
+
+    fn drop_to_supply(&mut self, coding: &mut Coding) {
+        // TODO: For loop.
+        // Maybe: Allow choice between duplicate bins?
+        // TODO: Handle index errors, or bin overflow errors, without panicking.
+        // TODO: Find appropriate bin
+        let idx = 0;
+        let bin = &mut coding.supply.get_mut(idx).unwrap();
+        if bin.curr_count >= bin.orig_count {
+            // ???
+        }
+        bin.curr_count += 1;
+        self.dragging = Dragging::No;
+    }
+
+    fn drop_to_prog(&mut self, coding: &mut Coding, idx: usize) {
+        if let Dragging::Yes { op, .. } = self.dragging {
+            coding.prog.instrs.insert(idx, op);
+            self.dragging = Dragging::No;
+        }
+    }
+
+    fn drop_cancel(&mut self, coding: &mut Coding) {
+        // TODO: Interpret InstrRef to return op to origin
+        unimplemented!();
+    }
+
+    fn draw_supply_op(&mut self, coding: &mut Coding, idx: usize, txt: &str, curr_count: u16, orig_count: u16)
     {
         let fdx = idx as f32;
         let _curr_count = curr_count as f32;
 
-        let x = self.fr_pos.supply_x + self.fr_pos.supply_instr_spacing + fdx * (self.fr_pos.supply_instr_w + self.fr_pos.supply_instr_spacing);
-        let y = self.fr_pos.supply_y + self.fr_pos.supply_h/2. - self.fr_pos.supply_instr_h*0.6;
+        let x = self.fr_pos.supply_x + self.fr_pos.supply_op_spacing + fdx * (self.fr_pos.supply_op_w + self.fr_pos.supply_op_spacing);
+        let y = self.fr_pos.supply_y + self.fr_pos.supply_h/2. - self.fr_pos.supply_op_h*0.6;
 
-        if self.mouse_in(x, y, self.fr_pos.supply_instr_w, self.fr_pos.supply_instr_h) {
+        if self.mouse_in(x, y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h) {
             if is_mouse_button_pressed(MouseButton::Left) {
-                let orig_offset_x = mouse_position().0 - x;
-                let orig_offset_y = mouse_position().1 - y;
-                self.dragging = Dragging::Yes{orig_offset_x, orig_offset_y, instr_ref: InstrRef::Supply{idx}};
-            } else if is_mouse_button_released(MouseButton::Left) && let Dragging::Yes{instr_ref, ..} = self.dragging {
-                Self::move_instr(coding, instr_ref, InstrRef::Supply { idx });
+                self.drag_supply_op(coding, idx, mouse_position().0 - x, mouse_position().1 - y);
+            } else if is_mouse_button_released(MouseButton::Left) && let Dragging::Yes{..} = self.dragging {
+                // Maybe: Drop on specific bin
+                // Self::move_op(coding, op_ref, InstrRef::Supply { idx });
+
+                // TODO: Have render section do this for anywhere in supply region.
+                // TODO: Highlight appropriate bin, or all bins, not only bin mouse is over.
+                self.drop_to_supply(coding);
             }
         }
 
-        self.draw_supply_instr_at(x, y, txt);
+        self.draw_supply_op_at(x, y, txt);
 
         // Draw count
         let display_count = match self.dragging {
-            Dragging::Yes{instr_ref:InstrRef::Supply{idx: dragging_idx},..} if dragging_idx == idx => curr_count-1,
+            Dragging::Yes{op_ref:InstrRef::Supply{idx: dragging_idx},..} if dragging_idx == idx => curr_count-1,
             _ => curr_count,
         };
         let count_txt = format!("{}/{}", display_count, orig_count);
-        draw_text(&count_txt, x + 0.5*self.fr_pos.supply_instr_w, y+1.25*self.fr_pos.supply_instr_h, self.fr_pos.supply_instr_font_sz * 0.25, WHITE);
+        draw_text(&count_txt, x + 0.5*self.fr_pos.supply_op_w, y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, WHITE);
     }
 
-    fn draw_flowchart_instr_at(&mut self, orig_x: f32, orig_y: f32, txt: &str, scale: f32) {
+    fn draw_prog_instr_at(&mut self, orig_x: f32, orig_y: f32, txt: &str, scale: f32) {
         let shrink_by = 1. - scale;
-        let x = orig_x + self.fr_pos.flowchart_instr_w * shrink_by / 2.;
-        let y = orig_y - self.fr_pos.flowchart_instr_h * shrink_by / 2.;
-        let w = self.fr_pos.flowchart_instr_w * scale;
-        let h = self.fr_pos.flowchart_instr_h * scale;
+        let x = orig_x + self.fr_pos.prog_instr_w * shrink_by / 2.;
+        let y = orig_y - self.fr_pos.prog_instr_h * shrink_by / 2.;
+        let w = self.fr_pos.prog_instr_w * scale;
+        let h = self.fr_pos.prog_instr_h * scale;
 
         let mouse_in = self.mouse_in(x, y, w, h);
         let highlight = mouse_in && (scale==1.0 || matches!(self.dragging, Dragging::Yes{..}) );
@@ -293,30 +317,29 @@ impl UiCodingArena
         draw_rectangle_lines(x, y, w, h, border_width, border_col);
 
         // Draw text
-        draw_text(txt, x + 0.2*w, y+0.85*h, self.fr_pos.flowchart_instr_font_sz, WHITE);
+        draw_text(txt, x + 0.2*w, y+0.85*h, self.fr_pos.prog_instr_font_sz, WHITE);
     }
 
-    fn draw_flowchart_instr(&mut self, idx: usize, txt: &str)
+    fn draw_prog_instr(&mut self, coding: &mut Coding, idx: usize, txt: &str)
     {
         // TODO: Still drawing too often on windows compared to pushpuzz??
         let fdx = idx as f32;
 
-        let x = self.fr_pos.flowchart_x + self.fr_pos.flowchart_w/2. - self.fr_pos.flowchart_instr_w/2.;
-        let y = self.fr_pos.flowchart_y + self.fr_pos.flowchart_instr_spacing + fdx * (self.fr_pos.flowchart_instr_h + self.fr_pos.flowchart_instr_spacing);
+        let x = self.fr_pos.prog_x + self.fr_pos.prog_w/2. - self.fr_pos.prog_instr_w/2.;
+        let y = self.fr_pos.prog_y + self.fr_pos.prog_instr_spacing + fdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
 
         let scale = if txt=="" {0.6} else {1.};
 
-        self.draw_flowchart_instr_at(x, y, txt, scale);
+        self.draw_prog_instr_at(x, y, txt, scale);
 
         if txt!="" {
-            if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(x, y, self.fr_pos.flowchart_w, self.fr_pos.flowchart_instr_h) {
-                let orig_offset_x = mouse_position().0 - x;
-                let orig_offset_y = mouse_position().1 - y;
-                self.dragging = Dragging::Yes{orig_offset_x, orig_offset_y, instr_ref: InstrRef::Flowchart{idx}};
+            if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(x, y, self.fr_pos.prog_w, self.fr_pos.prog_instr_h) {
+                self.drag_prog_instr(coding, idx, mouse_position().0 - x, mouse_position().1 - y);
             }
+            
 
-            // Connection to next instr
-            draw_line(x+self.fr_pos.flowchart_instr_w/2., y+self.fr_pos.flowchart_instr_h, x+self.fr_pos.flowchart_instr_w/2., y+self.fr_pos.flowchart_instr_h+self.fr_pos.flowchart_instr_spacing, 2., LIGHTGRAY);
+            // Connection to next op
+            draw_line(x+self.fr_pos.prog_instr_w/2., y+self.fr_pos.prog_instr_h, x+self.fr_pos.prog_instr_w/2., y+self.fr_pos.prog_instr_h+self.fr_pos.prog_instr_spacing, 2., LIGHTGRAY);
         }
     }
 }

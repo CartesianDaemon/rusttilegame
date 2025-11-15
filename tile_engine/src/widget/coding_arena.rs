@@ -30,7 +30,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
                 GameLogic::harmonise(self);
 
                 // TODO: Edit program according to input. Or start running.
-                let _ = &self.coding.supplies;
+                let _ = &self.coding.supply;
                 let _ = &self.coding.prog;
             },
             SplitPhase::Running => {
