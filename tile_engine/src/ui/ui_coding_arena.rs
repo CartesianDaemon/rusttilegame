@@ -188,6 +188,41 @@ impl UiCodingArena
         }
     }
 
+    fn draw_supply_op_at(&mut self, x: f32, y: f32, txt: &str) {
+        let (border_width, border_col) = self.border_width_col(self.mouse_in(x, y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h));
+
+        // Draw square interior. Covers over background when dragging, or excess connecting line.
+        draw_rectangle(x, y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h, Color{r: 0., g:0., b:0., a:0.5 });
+
+        // Draw outline
+        draw_rectangle_lines(x, y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h, border_width, border_col);
+
+        // Text
+        draw_text(txt, x + 0.2*self.fr_pos.supply_op_w, y+0.85*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz, WHITE);
+    }
+
+    fn draw_prog_instr_at(&mut self, orig_x: f32, orig_y: f32, txt: &str, scale: f32) {
+        let shrink_by = 1. - scale;
+        let x = orig_x + self.fr_pos.prog_instr_w * shrink_by / 2.;
+        let y = orig_y - self.fr_pos.prog_instr_h * shrink_by / 2.;
+        let w = self.fr_pos.prog_instr_w * scale;
+        let h = self.fr_pos.prog_instr_h * scale;
+
+        let mouse_in = self.mouse_in(x, y, w, h);
+        let highlight = mouse_in && (scale==1.0 || matches!(self.dragging, Dragging::Yes{..}) );
+        let (border_width, border_col) = self.border_width_col(highlight);
+
+        // Draw square interior. Covers over background when dragging, or excess connecting line.
+        let fill_col = if scale==1.0 {Color{r: 0., g:0., b:0., a:0.5 }} else {BLACK};
+        draw_rectangle(x, y, w, h, fill_col);
+
+        // Draw outline
+        draw_rectangle_lines(x, y, w, h, border_width, border_col);
+
+        // Draw text
+        draw_text(txt, x + 0.2*w, y+0.85*h, self.fr_pos.prog_instr_font_sz, WHITE);
+    }
+
     fn mouse_in(&self, x: f32, y: f32, w: f32, h: f32) -> bool {
         let (mx, my) = mouse_position();
         (x..x+w).contains(&mx) && (y..y+h).contains(&my)
@@ -200,19 +235,6 @@ impl UiCodingArena
         } else {
             (2., WHITE)
         }
-    }
-
-    fn draw_supply_op_at(&mut self, x: f32, y: f32, txt: &str) {
-        let (border_width, border_col) = self.border_width_col(self.mouse_in(x, y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h));
-
-        // Draw square interior. Covers over background when dragging, or excess connecting line.
-        draw_rectangle(x, y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h, Color{r: 0., g:0., b:0., a:0.5 });
-
-        // Draw outline
-        draw_rectangle_lines(x, y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h, border_width, border_col);
-
-        // Text
-        draw_text(txt, x + 0.2*self.fr_pos.supply_op_w, y+0.85*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz, WHITE);
     }
 
     fn drag_supply_op(&mut self, coding: &mut Coding, idx: usize, orig_offset_x: f32, orig_offset_y: f32) {
@@ -240,11 +262,13 @@ impl UiCodingArena
         }
     }
 
+    fn drop_to_supply_bin(&mut self, coding: &mut Coding) {
+        // Maybe: Drop to specific bin?
+    }
+
     fn drop_to_supply(&mut self, coding: &mut Coding) {
-        // TODO: For loop.
-        // Maybe: Allow choice between duplicate bins?
+        // TODO: For loop to find correct bin.
         // TODO: Handle index errors, or bin overflow errors, without panicking.
-        // TODO: Find appropriate bin
         let idx = 0;
         let bin = &mut coding.supply.get_mut(idx).unwrap();
         if bin.curr_count >= bin.orig_count {
@@ -295,30 +319,9 @@ impl UiCodingArena
         draw_text(&count_txt, x + 0.5*self.fr_pos.supply_op_w, y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, WHITE);
     }
 
-    fn draw_prog_instr_at(&mut self, orig_x: f32, orig_y: f32, txt: &str, scale: f32) {
-        let shrink_by = 1. - scale;
-        let x = orig_x + self.fr_pos.prog_instr_w * shrink_by / 2.;
-        let y = orig_y - self.fr_pos.prog_instr_h * shrink_by / 2.;
-        let w = self.fr_pos.prog_instr_w * scale;
-        let h = self.fr_pos.prog_instr_h * scale;
-
-        let mouse_in = self.mouse_in(x, y, w, h);
-        let highlight = mouse_in && (scale==1.0 || matches!(self.dragging, Dragging::Yes{..}) );
-        let (border_width, border_col) = self.border_width_col(highlight);
-
-        // Draw square interior. Covers over background when dragging, or excess connecting line.
-        let fill_col = if scale==1.0 {Color{r: 0., g:0., b:0., a:0.5 }} else {BLACK};
-        draw_rectangle(x, y, w, h, fill_col);
-
-        // Draw outline
-        draw_rectangle_lines(x, y, w, h, border_width, border_col);
-
-        // Draw text
-        draw_text(txt, x + 0.2*w, y+0.85*h, self.fr_pos.prog_instr_font_sz, WHITE);
-    }
-
     fn draw_prog_instr(&mut self, coding: &mut Coding, idx: usize, txt: &str)
     {
+        // TODO: Review when things are highlighted. Show placeholder for dragged thing?
         // TODO: Still drawing too often on windows compared to pushpuzz??
         let fdx = idx as f32;
 
