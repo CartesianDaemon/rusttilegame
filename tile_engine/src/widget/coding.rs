@@ -40,10 +40,6 @@ impl From<&str> for Op {
     }
 }
 
-fn txt_to_op(txt: &str) -> Op {
-    Op::from(txt)
-}
-
 #[derive(Clone, Debug)]
 pub struct Bin {
     pub op: Op,
@@ -78,10 +74,10 @@ pub struct Prog {
 
 impl Prog {
     // E.g. from("F,F,R,Loop")
-    pub fn from(txt: &str) -> Prog {
+    pub fn from(prog_txt: &str) -> Prog {
         Prog {
             // NB: Try using my chain crate
-            instrs: txt.split_terminator(',').map(|x| txt_to_op(x)).collect()
+            instrs: prog_txt.split_terminator(',').map(|op_txt| Op::from(op_txt)).collect()
         }
     }
 }
@@ -97,7 +93,7 @@ impl Coding {
     pub fn from_ascii(supplies: HashMap<&str, u16>) -> Coding {
         Coding {
             supply: supplies.iter().map(|(txt,count)|
-                Bin::new(txt_to_op(&txt), *count)
+                Bin::new(Op::from(*txt), *count)
             ).collect(),
             prog: Prog::default(),
         }
