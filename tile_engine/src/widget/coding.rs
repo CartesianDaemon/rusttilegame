@@ -17,23 +17,35 @@ pub enum Op {
     // Loop(Vec<Instr>),
 }
 
-fn txt_to_op(txt: &str) -> Op {
-    match txt {
-        "F" => Op::F,
-        "L" => Op::L,
-        "R" => Op::R,
-        // "Loop" => Op::Loop(vec![]),
-        _ => panic!("Unrecognised txt for instr")
+impl ToString for Op {
+    fn to_string(&self) -> String {
+        match self {
+            Op::F => "F",
+            Op::L => "L",
+            Op::R => "R",
+            // Op::Loop(_) => "Loop",
+        }.to_string()
     }
 }
 
+impl From<&str> for Op {
+    fn from(txt: &str) -> Self {
+        match txt {
+            "F" => Op::F,
+            "L" => Op::L,
+            "R" => Op::R,
+            // "Loop" => Op::Loop(vec![]),
+            _ => panic!("Unrecognised txt for instr")
+        }
+    }
+}
+
+fn txt_to_op(txt: &str) -> Op {
+    Op::from(txt)
+}
+
 pub fn op_to_txt(instr: &Op) -> String {
-    match instr {
-        Op::F => "F",
-        Op::L => "L",
-        Op::R => "R",
-        // Op::Loop(_) => "Loop",
-    }.to_string()
+    instr.to_string()
 }
 
 #[derive(Clone, Debug)]
