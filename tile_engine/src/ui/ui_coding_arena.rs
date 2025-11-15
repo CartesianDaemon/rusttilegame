@@ -311,10 +311,14 @@ impl UiCodingArena
     }
 
     fn drop_cancel(&mut self, coding: &mut Coding) {
-        if let Dragging::Yes {op: dragged_op, ..} = self.dragging {
-            println!("INFO: Dropping to nowhere");
-            // TODO: Interpret InstrRef to return op to origin
-            unimplemented!();
+        match self.dragging {
+            Dragging::Yes { op_ref: InstrRef::Supply { idx }, ..} => {
+                self.drop_to_supply_bin(coding, idx);
+            },
+            Dragging::Yes { op_ref: InstrRef::Prog { idx }, ..} => {
+                self.drop_to_prog(coding, idx);
+            },
+            Dragging::No => (),
         }
     }
 
