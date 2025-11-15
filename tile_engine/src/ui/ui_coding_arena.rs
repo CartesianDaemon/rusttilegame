@@ -205,14 +205,13 @@ impl UiCodingArena
             self.drop_cancel(coding);
         }
 
-        if let Dragging::Yes{orig_offset_x, orig_offset_y, op_ref,..} = &self.dragging {
+        if let Dragging::Yes{op, orig_offset_x, orig_offset_y, op_ref,..} = &self.dragging {
             let (mx, my) = mouse_position();
             let (x,y) = (mx - orig_offset_x, my - orig_offset_y);
             // TODO: get txt from original op via InstrRef
-            let txt = "?";
             match op_ref {
-                InstrRef::Supply{..} => self.draw_supply_op_at(x, y, txt),
-                InstrRef::Prog{..} => self.draw_prog_instr_at(x, y, txt, 1.),
+                InstrRef::Supply{..} => self.draw_supply_op_at(x, y, &op.to_string()),
+                InstrRef::Prog{..} => self.draw_prog_instr_at(x, y, &op.to_string(), 1.),
             }
         }
     }
@@ -330,10 +329,12 @@ impl UiCodingArena
 
     fn drop_cancel(&mut self, coding: &mut Coding) {
         match self.dragging {
-            Dragging::Yes { op_ref: InstrRef::Supply { idx }, ..} => {
+            Dragging::Yes { op, op_ref: InstrRef::Supply { idx }, ..} => {
+                log::debug!("INFO: Cancelling drag. Returning {:?} to supply idx {:?}", op, idx);
                 self.drop_to_supply_bin(coding, idx);
             },
-            Dragging::Yes { op_ref: InstrRef::Prog { idx }, ..} => {
+            Dragging::Yes { op, op_ref: InstrRef::Prog { idx }, ..} => {
+                log::debug!("INFO: Cancelling drag. Returning {:?} to supply idx {:?}", op, idx);
                 self.drop_to_prog(coding, idx);
             },
             Dragging::No => (),

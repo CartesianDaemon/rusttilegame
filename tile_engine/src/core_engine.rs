@@ -80,6 +80,7 @@ pub async fn run<Gamedata: gamedata::BaseGamedata>()
             unsafe { std::env::set_var("RUST_LOG", log_opts) };
         }
     }
+    // TODO: Configure logging to have shorter prefix.
     env_logger::init();
     log::info!("Started logging!");
 
