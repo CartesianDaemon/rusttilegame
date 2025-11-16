@@ -21,8 +21,8 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
     fn advance(&mut self, cmd: Option<MoveCmd>) -> PaneContinuation {
         match self.phase {
             SplitPhase::Coding => {
-                if let Some(cmd) = cmd {
-                    log::debug!("CodingArena::advance(): {:?}", cmd);
+                if let Some(move_cmd) = cmd {
+                    log::debug!("CodingArena coding advance(): {:?}", move_cmd);
 
                     log::debug!("Start program running.");
 
@@ -33,14 +33,18 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
                 }
             },
             SplitPhase::Running => {
-                // log::debug!("Advance arena...");
-                // For now ignore input and execute program.
-                // Once run off end will always return ConclusionDie.
-                let _conclusion = self.arena.advance(cmd);
+                if let Some(move_cmd) = cmd {
+                    log::debug!("CodingArena arena advance(): {:?}", move_cmd);
 
-                // TODO: If input space, start. Else advance arena.
-                // Will ignore input except for space = "stop"?
-                // Win => return Win. Die => Stop running.
+                    // log::debug!("Advance arena...");
+                    // For now ignore input and execute program.
+                    // Once run off end will always return ConclusionDie.
+                    let _conclusion = self.arena.advance(cmd);
+
+                    // TODO: If input space, start. Else advance arena.
+                    // Will ignore input except for space = "stop"?
+                    // Win => return Win. Die => Stop running.
+                }
             },
         }
 
