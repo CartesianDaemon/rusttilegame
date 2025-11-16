@@ -2,8 +2,8 @@ use super::*;
 use crate::map_coords::MoveCmd;
 use crate::for_gamedata;
 
-#[derive(Clone, Debug)]
-pub enum SplitPhase {
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum CodingRunningPhase {
     Coding,
     Running,
 }
@@ -13,14 +13,14 @@ pub enum SplitPhase {
 pub struct CodingArena<GameLogic : for_gamedata::BaseGameLogic> {
     pub arena: Arena<GameLogic>,
     pub coding: Coding,
-    phase: SplitPhase,
+    phase: CodingRunningPhase,
 }
 
 impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLogic>
 {
     fn advance(&mut self, cmd: Option<MoveCmd>) -> PaneContinuation {
         match self.phase {
-            SplitPhase::Coding => {
+            CodingRunningPhase::Coding => {
                 if let Some(move_cmd) = cmd && move_cmd == MoveCmd::Stay {
                     // log::debug!("advance: {:?}", move_cmd);
 
@@ -29,10 +29,10 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
                     // Run game-specific logic for sync'ing different panes at start of run.
                     GameLogic::harmonise(self);
 
-                    self.phase = SplitPhase::Running;
+                    self.phase = CodingRunningPhase::Running;
                 }
             },
-            SplitPhase::Running => {
+            CodingRunningPhase::Running => {
                 if let Some(move_cmd) = cmd && move_cmd == MoveCmd::Stay {
                     // log::debug!("advance: {:?}", move_cmd);
                     log::debug!("Advance bot program.");
@@ -41,7 +41,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
                     if conclusion == std::ops::ControlFlow::Break(for_gamedata::WidgetConclusion::ArenaDie) {
                         log::debug!("Ran off end of program. Stop running.");
                         // TODO: Reset ip. Actually recreate whole arena from original template.
-                        self.phase = SplitPhase::Running;
+                        self.phase = CodingRunningPhase::Coding;
                     } else if conclusion == std::ops::ControlFlow::Break(for_gamedata::WidgetConclusion::ArenaWin) {
                         log::debug!("Bot found target! Go to next level");
                         unimplemented!();
@@ -61,7 +61,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
     }
 }
 
-impl<GameLogic : for_gamedata::BaseGameLogic> CodingArena<GameLogic>
+impl<GameLogic: for_gamedata::BaseGameLogic> CodingArena<GameLogic>
 {
     pub fn new<const HEIGHT: usize>(
         arena: Arena<GameLogic>,
@@ -70,7 +70,11 @@ impl<GameLogic : for_gamedata::BaseGameLogic> CodingArena<GameLogic>
         Self {
             arena,
             coding: code,
-            phase: SplitPhase::Coding,
+            phase: CodingRunningPhase::Coding,
         }
+    }
+
+    pub fn is_coding(&self) -> bool {
+        self.phase == CodingRunningPhase::Coding
     }
 }

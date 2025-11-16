@@ -86,7 +86,7 @@ impl UiCodingArena
 
     }
 
-    pub fn initialise_frame_coords(&mut self) {
+    pub fn initialise_frame_coords(&mut self, coding: bool) {
         // Game
         // let game_w = screen_width().min(screen_height());
         // let game_h = screen_width().min(screen_height());
@@ -106,7 +106,7 @@ impl UiCodingArena
         let supply_x = arena_w;
         let supply_y = 0.;
         let supply_w = screen_width() - arena_w;
-        let supply_h = screen_height() * 0.3;
+        let supply_h = if coding {screen_height() * 0.3} else { 0. };
 
         // Supply op
         let spacing_pc = 0.5;
@@ -163,14 +163,17 @@ impl UiCodingArena
         ) {
         let _arena = &mut coding_arena.arena;
 
-        self.initialise_frame_coords();
+        let coding = coding_arena.is_coding();
+        self.initialise_frame_coords(coding);
 
         UiArena::render(&coding_arena.arena, texture_cache, self.fr_pos.arena, anim).await;
 
         self.draw_background(coding_arena);
-        self.draw_supply(&mut coding_arena.coding);
         self.draw_prog(&mut coding_arena.coding);
-        self.draw_dragging(&mut coding_arena.coding);
+        if coding {
+            self.draw_supply(&mut coding_arena.coding);
+            self.draw_dragging(&mut coding_arena.coding);
+        }
     }
 
     pub fn draw_background<GameLogic: BaseGameLogic>(&mut self, _coding_arena: &mut CodingArena<GameLogic>) {
