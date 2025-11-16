@@ -29,8 +29,8 @@ impl<'a> UiArena<'a> {
     pub async fn render<GameLogic: BaseGameLogic>(
         state: &Arena<GameLogic>,
         texture_cache: &mut TextureCache,
+        draw_area: PRect,
         anim: AnimState,
-        // Area of map to draw
     ) {
         let game_size = screen_width().min(screen_height());
         let offset_y = (screen_height() - game_size) / 2. + 10.;

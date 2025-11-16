@@ -11,16 +11,16 @@ use super::ui_arena::*;
 
 pub type TextureCache = HashMap<String, Texture2D>;
 
-struct _PRect {
+pub struct PRect {
     pub x: f32,
     pub y: f32,
     pub w: f32,
     pub h: f32,
 }
 
-impl _PRect {
-    pub fn _from_screen() -> _PRect {
-        _PRect {
+impl PRect {
+    pub fn from_screen() -> PRect {
+        PRect {
             x: 0.,
             y: 0.,
             w: screen_width(),
@@ -75,7 +75,7 @@ impl UiBase {
         let anim = AnimState {slide_pc, anim_pc};
         match state {
             Widget::Arena(state) => {
-                UiArena::render(state, &mut self.texture_cache, anim).await;
+                UiArena::render(state, &mut self.texture_cache, PRect::from_screen(), anim).await;
             }
             Widget::Splash(state) => {
                 let _r = UiSplash::render(state);
