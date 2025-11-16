@@ -30,8 +30,6 @@ enum Dragging {
 // NB: This approaches implementing a UI with nested controls inheriting from a control trait.
 #[derive(Default)]
 struct FrameCoords {
-    is_coding: bool,
-
     arena: PRect,
 
     supply_x: f32,
@@ -57,7 +55,10 @@ struct FrameCoords {
 }
 
 pub struct UiCodingArena {
+    is_coding: bool,
+
     fr_pos: FrameCoords,
+
     dragging: Dragging,
 }
 
@@ -65,6 +66,7 @@ impl UiCodingArena
 {
     pub fn new() -> Self {
         Self {
+            is_coding: false,
             fr_pos: FrameCoords::default(),
             dragging: Dragging::No,
         }
@@ -108,9 +110,8 @@ impl UiCodingArena
         let prog_instr_font_sz = prog_instr_w * 1.35;
         let prog_instr_spacing =  prog_instr_w * spacing_pc;
 
+        self.is_coding = coding;
         self.fr_pos = FrameCoords {
-            is_coding: coding,
-
             arena,
 
             supply_x,
@@ -150,7 +151,7 @@ impl UiCodingArena
 
         self.draw_background(coding_arena);
         self.draw_prog(&mut coding_arena.coding);
-        if self.fr_pos.is_coding {
+        if self.is_coding {
             self.draw_supply(&mut coding_arena.coding);
             self.draw_dragging(&mut coding_arena.coding);
         }
@@ -185,7 +186,7 @@ impl UiCodingArena
     pub fn draw_prog(&mut self, coding: &mut Coding) {
         //// Draw prog. TODO: Move to sep fn
 
-        let border_col = if self.fr_pos.is_coding {WHITE} else {SKYBLUE};
+        let border_col = if self.is_coding {WHITE} else {SKYBLUE};
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., border_col);
 
         // NB: Clone means that we draw the original instrs, even if one is dragged out.
@@ -217,7 +218,7 @@ impl UiCodingArena
 
     fn border_width_col(&self, highlight: bool) -> (f32, Color) {
         // TODO: Settings for mouseover highlight, dragged-from highlight, mid-drag, normal...
-        if self.fr_pos.is_coding {
+        if self.is_coding {
             if highlight {
                 (4., YELLOW)
             } else {
