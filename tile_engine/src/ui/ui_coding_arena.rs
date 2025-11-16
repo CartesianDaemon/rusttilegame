@@ -4,6 +4,8 @@ use crate::gamedata::BaseGameLogic;
 
 use crate::widget::*;
 
+use super::{TextureCache, PRect, AnimState, ui_arena::UiArena};
+
 #[derive(Copy, Clone)]
 enum InstrRef {
     Supply {
@@ -139,10 +141,17 @@ impl UiCodingArena
 
     }
 
-    pub fn render<GameLogic: BaseGameLogic>(&mut self, coding_arena: &mut CodingArena<GameLogic>) {
+    pub async fn render<GameLogic: BaseGameLogic>(
+            &mut self,
+            coding_arena: &mut CodingArena<GameLogic>,
+            texture_cache: &mut TextureCache,
+            anim: AnimState,
+        ) {
         let _arena = &mut coding_arena.arena;
 
         self.initialise_frame_coords();
+
+        UiArena::render(&coding_arena.arena, texture_cache, PRect::from_screen(), anim).await;
 
         self.draw_background(coding_arena);
         self.draw_supply(&mut coding_arena.coding);

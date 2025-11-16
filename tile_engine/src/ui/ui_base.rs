@@ -44,7 +44,7 @@ impl UiBase {
                 let _r = UiSplash::render(state);
             }
             Widget::CodingArena(state) => {
-                self.render_split.render(state);
+                self.render_split.render(state, &mut self.texture_cache, anim).await;
             }
         }
     }
