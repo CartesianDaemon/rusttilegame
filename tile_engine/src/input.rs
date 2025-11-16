@@ -1,5 +1,7 @@
 use macroquad::prelude::*;
 
+use crate::ui::AnimState;
+
 use super::map_coords::MoveCmd;
 
 /// Interaction from user. Including timing.
@@ -70,16 +72,15 @@ impl Input {
     /// Defining when to advance game state.
     ///
     /// Should any of this be in Arena not Input? Or should Input be called UI?
-    pub fn ready_to_advance_game_state(&mut self, anim_pc: &mut f32, slide_pc: &mut f32) -> bool {
+    pub fn ready_to_advance_game_state(&mut self, anim: &mut AnimState) -> bool {
         if self.most_recent_cmd.is_some() {
             self.last_tick_time = get_time();
-            *anim_pc = 0.;
-            *slide_pc = 0.;
+            *anim = AnimState::default();
             true
         } else {
             let pc_through_tick = ((get_time() - self.last_tick_time) / self.speed) as f32;
-            *anim_pc = pc_through_tick % 1.0;
-            *slide_pc = pc_through_tick.min(1.0);
+            anim.anim_pc = pc_through_tick % 1.0;
+            anim.slide_pc = pc_through_tick.min(1.0);
             false
         }
     }

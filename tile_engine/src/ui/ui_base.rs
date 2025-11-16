@@ -32,10 +32,7 @@ impl UiBase {
 
     /// Draw current gameplay to screen.
     /// TODO: Avoid passing slide and anim through so many layers? Add to struct?
-    pub async fn draw_frame<GameLogic: BaseGameLogic>(
-        &mut self, state: &mut Widget<GameLogic>, slide_pc: f32, anim_pc: f32
-    ) {
-        let anim = AnimState {slide_pc, anim_pc};
+    pub async fn draw_frame<GameLogic: BaseGameLogic>(&mut self, state: &mut Widget<GameLogic>, anim: AnimState) {
         match state {
             Widget::Arena(state) => {
                 UiArena::render(state, &mut self.texture_cache, PRect::from_screen(), anim).await;

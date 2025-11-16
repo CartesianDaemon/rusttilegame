@@ -20,6 +20,7 @@ impl PRect {
 }
 
 // Current state of animation for UIs which implement that.
+#[derive(Clone, Copy, Default)]
 pub struct AnimState {
     // How far to slide drawing elements from screen coordinates for previous posn to
     // scren coordinates for current posn. Between 0 and 1.0.

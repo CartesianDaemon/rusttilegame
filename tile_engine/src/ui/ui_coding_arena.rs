@@ -73,7 +73,27 @@ impl UiCodingArena
 
     }
 
-    pub fn initialise_frame_coords(&mut self, coding: bool) {
+    pub async fn render<GameLogic: BaseGameLogic>(
+            &mut self,
+            coding_arena: &mut CodingArena<GameLogic>,
+            texture_cache: &mut TextureCache,
+            anim: AnimState,
+        ) {
+        let _arena = &mut coding_arena.arena;
+
+        self.initialise_frame_coords(coding_arena.is_coding());
+
+        UiArena::render(&coding_arena.arena, texture_cache, self.fr_pos.arena, anim).await;
+
+        self.draw_background(coding_arena);
+        self.draw_prog(&mut coding_arena.coding);
+        if self.is_coding {
+            self.draw_supply(&mut coding_arena.coding);
+            self.draw_dragging(&mut coding_arena.coding);
+        }
+    }
+
+    fn initialise_frame_coords(&mut self, coding: bool) {
         // Arena
         let arena = PRect {
             x: 0.,
@@ -137,27 +157,7 @@ impl UiCodingArena
 
     }
 
-    pub async fn render<GameLogic: BaseGameLogic>(
-            &mut self,
-            coding_arena: &mut CodingArena<GameLogic>,
-            texture_cache: &mut TextureCache,
-            anim: AnimState,
-        ) {
-        let _arena = &mut coding_arena.arena;
-
-        self.initialise_frame_coords(coding_arena.is_coding());
-
-        UiArena::render(&coding_arena.arena, texture_cache, self.fr_pos.arena, anim).await;
-
-        self.draw_background(coding_arena);
-        self.draw_prog(&mut coding_arena.coding);
-        if self.is_coding {
-            self.draw_supply(&mut coding_arena.coding);
-            self.draw_dragging(&mut coding_arena.coding);
-        }
-    }
-
-    pub fn draw_background<GameLogic: BaseGameLogic>(&mut self, _coding_arena: &mut CodingArena<GameLogic>) {
+    fn draw_background<GameLogic: BaseGameLogic>(&mut self, _coding_arena: &mut CodingArena<GameLogic>) {
         // Clear background if necessary.
         crate::ui::clear_background_for_current_platform(LIGHTGRAY);
 
@@ -165,7 +165,7 @@ impl UiCodingArena
         draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
     }
 
-    pub fn draw_supply(&mut self, coding: &mut Coding) {
+    fn draw_supply(&mut self, coding: &mut Coding) {
         //// Draw supply. TODO: Move to sep fn
 
         draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., WHITE);
@@ -183,7 +183,7 @@ impl UiCodingArena
 
     }
 
-    pub fn draw_prog(&mut self, coding: &mut Coding) {
+    fn draw_prog(&mut self, coding: &mut Coding) {
         //// Draw prog. TODO: Move to sep fn
 
         let border_col = if self.is_coding {WHITE} else {SKYBLUE};
@@ -196,7 +196,7 @@ impl UiCodingArena
          self.draw_prog_instr(coding, coding.prog.instrs.len(), None);
     }
 
-    pub fn draw_dragging(&mut self, coding: &mut Coding) {
+    fn draw_dragging(&mut self, coding: &mut Coding) {
         //// Draw dragging
 
         // If mouse is released anywhere non-actionable, cancel any dragging.

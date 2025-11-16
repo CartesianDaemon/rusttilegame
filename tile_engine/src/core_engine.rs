@@ -1,4 +1,5 @@
 use crate::gamedata::BaseGamedata;
+use crate::ui::AnimState;
 
 use super::gamedata;
 use super::widget::*;
@@ -23,14 +24,13 @@ struct Engine<Gamedata: BaseGamedata> {
     /// TODO: Move into arena?
     /// TODO: Updated by input::ready_to_advance. Is that right? Could return tuple.
     /// TODO: Combine anim and slide..?
-    anim_pc: f32,
-    slide_pc: f32,
+    anim: crate::ui::AnimState,
 
     /// Record input from user ready for use.
     input: Input,
 
     ///
-    render: UiBase,
+    ui: UiBase,
 }
 
 impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
@@ -40,10 +40,9 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
         Engine::<Gamedata> {
             gamedata: gamedata,
             state: arena,
-            anim_pc: 0.,
-            slide_pc: 0.,
+            anim: AnimState::default(),
             input: Input::new_begin(),
-            render: UiBase::new(),
+            ui: UiBase::new(),
         }
     }
 
@@ -54,7 +53,7 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
         // NB: Confusingly out of date! Currently we do a "tick" only when the user enters a key.
         // Tick never happens automatically. All tick length means is how long each moving
         // animation takes to complete
-        if !self.state.tick_based() || self.input.ready_to_advance_game_state(&mut self.anim_pc, &mut self.slide_pc) {
+        if !self.state.tick_based() || self.input.ready_to_advance_game_state(&mut self.anim) {
             // Do a "tick". Actually, currently whenever user presses key.
             // TODO: Use Option<Cmd> not Cmd::default.
             let cmd = self.input.consume_cmd();
@@ -65,11 +64,7 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
             }
         }
 
-        self.render.draw_frame(
-            &mut self.state,
-            self.slide_pc,
-            self.anim_pc,
-        ).await;
+        self.ui.draw_frame(&mut self.state, self.anim).await;
     }
 }
 
