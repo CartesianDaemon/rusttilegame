@@ -23,7 +23,7 @@ pub type PaneContinuation = ControlFlow<WidgetConclusion, ()>;
 
 // NB Breadcrumb: Need different name for Scene ("level part") than Pane ("screen part").
 pub trait BaseWidget {
-    fn tick_based(&self) -> bool;
+    fn tick_based(&self) -> crate::ui::TickStyle;
     fn advance(&mut self, cmd: Option<MoveCmd>) -> PaneContinuation;
 }
 
@@ -69,7 +69,7 @@ impl<GameLogic: for_gamedata::BaseGameLogic> Widget<GameLogic> {
 
     // Does current pane act on user input immediately (not governed by a game tick)?
     // NB: Move into Ui not Widget. Then move out of core engine entirely into Ui.
-    pub fn tick_based(&self) -> bool {
+    pub fn tick_based(&self) -> crate::ui::TickStyle {
         match self {
             Self::Arena(widget) => widget.tick_based(),
             Self::Splash(widget) => widget.tick_based(),

@@ -108,7 +108,7 @@ impl BaseWidget for Coding
         return PaneContinuation::Continue(());
     }
 
-    fn tick_based(&self) -> bool {
-        false
+    fn tick_based(&self) -> crate::ui::TickStyle {
+        crate::ui::TickStyle::Continuous
     }
 }

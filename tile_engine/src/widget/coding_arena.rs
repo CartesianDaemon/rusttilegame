@@ -55,9 +55,13 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
         return PaneContinuation::Continue(());
     }
 
-    fn tick_based(&self) -> bool {
+    fn tick_based(&self) -> crate::ui::TickStyle {
         // TODO: Need "stop" to happen at any time. But could trigger bot movement on key, or on tick?
-        self.is_running()
+        if self.is_running() {
+            crate::ui::TickStyle::TickAutomatically
+        } else {
+            crate::ui::TickStyle::Continuous
+        }
     }
 }
 

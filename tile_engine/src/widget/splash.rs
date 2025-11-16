@@ -1,9 +1,6 @@
 use super::*;
 use crate::map_coords::MoveCmd;
 
-// Would be nice to remove if easy
-use macroquad::prelude::*;
-
 #[derive(Clone, Debug)]
 pub struct DialogueLine {
     pub tex_path: String,
@@ -53,7 +50,7 @@ impl BaseWidget for Splash {
         }
     }
 
-    fn tick_based(&self) -> bool {
-        false
+    fn tick_based(&self) -> crate::ui::TickStyle {
+        crate::ui::TickStyle::Continuous
     }
 }

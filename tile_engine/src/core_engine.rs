@@ -1,5 +1,6 @@
 use crate::gamedata::BaseGamedata;
 use crate::ui::AnimState;
+use crate::ui::TickStyle;
 use crate::ui::Ticker;
 
 use super::gamedata;
@@ -49,6 +50,7 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
         }
     }
 
+    // NB: Move into Ui and Widget
     fn advance(&mut self) {
         let cmd = self.input.consume_cmd();
         let widget_continuation = self.state.advance(cmd);
@@ -62,20 +64,23 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
     pub async fn do_frame(&mut self) {
         self.input.read_input();
 
-        let advance_automatically = false;
-        if advance_automatically {
-            // Automatic advancing not implemented yet.
-            unimplemented!();
-        } else if self.state.tick_based() {
-            // Advances whenever key pressed. Animation proceeds for tick-interval afterwards.
-            if self.input.most_recent_cmd.is_some() {
-                self.ticker.reset();
+        match self.state.tick_based() {
+            TickStyle::TickAutomatically => {
+                // Automatic advancing not implemented yet.
+                unimplemented!();
+            },
+            TickStyle::TickOnInput => {
+                // Advances whenever key pressed. Animation proceeds for tick-interval afterwards.
+                if self.input.most_recent_cmd.is_some() {
+                    self.ticker.reset();
+                    self.advance();
+                }
+                self.anim = self.ticker.anim_state();
+            },
+            TickStyle::Continuous => {
+                // Advances whenever key pressed. Animation always at 0 or 1.
                 self.advance();
             }
-            self.anim = self.ticker.anim_state();
-        } else {
-            // Advances whenever key pressed. Animation always at 0 or 1.
-            self.advance();
         }
 
         self.ui.draw_frame(&mut self.state, self.anim).await;

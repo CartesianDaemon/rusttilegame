@@ -65,8 +65,8 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Arena<GameLogic>
         PaneContinuation::Continue(())
     }
 
-    fn tick_based(&self) -> bool {
-        true
+    fn tick_based(&self) -> crate::ui::TickStyle {
+        crate::ui::TickStyle::TickOnInput
     }
 }
 
