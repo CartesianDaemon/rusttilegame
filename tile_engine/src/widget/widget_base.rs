@@ -24,7 +24,7 @@ pub type PaneContinuation = ControlFlow<WidgetConclusion, ()>;
 // NB Breadcrumb: Need different name for Scene ("level part") than Pane ("screen part").
 pub trait BaseWidget {
     fn tick_based(&self) -> crate::ui::TickStyle;
-    fn advance(&mut self, cmd: Option<MoveCmd>) -> PaneContinuation;
+    fn advance(&mut self, cmd: MoveCmd) -> PaneContinuation;
 }
 
 /// One unit of gameplay: one map layout, one splash screen, etc.
@@ -78,7 +78,7 @@ impl<GameLogic: for_gamedata::BaseGameLogic> Widget<GameLogic> {
     }
 
     // Advance game state. Called when clock ticks or when user inputs.
-    pub fn advance(&mut self, cmd: Option<MoveCmd>) -> PaneContinuation {
+    pub fn advance(&mut self, cmd: MoveCmd) -> PaneContinuation {
         // NB: Use the crate that makes it easy to inherit behaviour between enum variants.
         match self {
             Self::Arena(widget) => widget.advance(cmd),

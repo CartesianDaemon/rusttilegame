@@ -102,7 +102,7 @@ impl Coding {
 
 impl BaseWidget for Coding
 {
-    fn advance(&mut self, _cmd: Option<MoveCmd>) -> PaneContinuation {
+    fn advance(&mut self, _cmd: MoveCmd) -> PaneContinuation {
         // TODO
 
         return PaneContinuation::Continue(());

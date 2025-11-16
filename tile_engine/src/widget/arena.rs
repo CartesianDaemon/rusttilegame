@@ -39,13 +39,11 @@ pub struct Arena<GameLogic: for_gamedata::BaseGameLogic> {
 
 impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Arena<GameLogic>
 {
-    fn advance(&mut self, cmd: Option<MoveCmd>) -> PaneContinuation  {
+    fn advance(&mut self, cmd: MoveCmd) -> PaneContinuation  {
         // TODO: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // TODO: Consider: Maybe display char moving out of sync with enemy.
         let hero = Roster::hero();
-
-        let cmd = cmd.unwrap_or(MoveCmd::default());
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.

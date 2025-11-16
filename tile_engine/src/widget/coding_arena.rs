@@ -18,11 +18,11 @@ pub struct CodingArena<GameLogic : for_gamedata::BaseGameLogic> {
 
 impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLogic>
 {
-    fn advance(&mut self, cmd: Option<MoveCmd>) -> PaneContinuation {
+    fn advance(&mut self, cmd: MoveCmd) -> PaneContinuation {
         match self.phase {
             CodingRunningPhase::Coding => {
-                if let Some(move_cmd) = cmd && move_cmd == MoveCmd::Stay {
-                    // log::debug!("advance: {:?}", move_cmd);
+                if cmd == MoveCmd::Stay {
+                    // log::debug!("advance: {:?}", cmd);
 
                     log::debug!("Start program running.");
 
@@ -33,7 +33,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
                 }
             },
             CodingRunningPhase::Running => {
-                if let Some(move_cmd) = cmd && move_cmd == MoveCmd::Stay {
+                if cmd == MoveCmd::Stay {
                     // log::debug!("advance: {:?}", move_cmd);
                     log::debug!("Advance bot program.");
 
