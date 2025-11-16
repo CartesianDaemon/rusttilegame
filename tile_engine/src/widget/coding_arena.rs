@@ -6,6 +6,7 @@ use crate::for_gamedata;
 pub enum CodingRunningPhase {
     Coding,
     Running,
+    Stopped,
 }
 
 // NB: Move into Prog Puzz. Or make into a general multi-widget widget.
@@ -34,15 +35,14 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
             },
             CodingRunningPhase::Running => {
                 if cmd == MoveCmd::Stay {
-                    // log::debug!("advance: {:?}", move_cmd);
                     log::debug!("Advance bot program.");
 
                     let conclusion = self.arena.advance(cmd);
                     if conclusion == std::ops::ControlFlow::Break(for_gamedata::WidgetConclusion::ArenaDie) {
-                        log::debug!("Ran off end of program. Stop running.");
-                        // TODO: Reset ip. Actually recreate whole arena from original template.
-                        self.phase = CodingRunningPhase::Coding;
+                        log::debug!("Ran off end of program. Stopped.");
+                        self.phase = CodingRunningPhase::Stopped;
                     } else if conclusion == std::ops::ControlFlow::Break(for_gamedata::WidgetConclusion::ArenaWin) {
+                        // TODO: Put in a delay and win animation here.
                         log::debug!("Bot found target! Go to next level");
                         unimplemented!();
                     } else if conclusion == std::ops::ControlFlow::Continue(()) {
@@ -50,6 +50,11 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
                     }
                 }
             },
+            CodingRunningPhase::Stopped => {
+                log::debug!("Returning to coding screen");
+                self.phase = CodingRunningPhase::Coding;
+                // TODO: Reset ip. Actually recreate whole arena from original template.
+            }
         }
 
         return PaneContinuation::Continue(());
