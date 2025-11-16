@@ -30,11 +30,15 @@ impl<'a> UiArena<'a> {
         state: &Arena<GameLogic>,
         texture_cache: &mut TextureCache,
         slide_pc: f32, anim_pc: f32,
-        w: u16, h: u16,
+        // Area of map to draw
     ) {
-        assert_eq!(w, h);
         let game_size = screen_width().min(screen_height());
         let offset_y = (screen_height() - game_size) / 2. + 10.;
+
+        // Area of map to display. Currently all of it.
+        let w = state.map_w();
+        let h = state.map_h();
+        assert_eq!(w, h);
 
         let mut render_lev = UiArena {
             // FIXME: Why does this work with landscape orientation?

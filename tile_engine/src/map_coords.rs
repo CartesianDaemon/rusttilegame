@@ -9,7 +9,7 @@ use derive_more::{Add, Mul, Neg};
 // ViewCoord: As MapCoord but relative to visible part of map (currently all).
 //            Vars vx, vy.
 // Delta: Offset of map coord. Signed. Vars dx, dy.
-// PixCoord: Coords on screen. f32. Vars px, py.
+// PixCoord: Coords on screen. f32. Vars px, py. Used in ui_arena particularly.
 // MapRef: Coords including height, only used internally to identify objects.
 
 // Types of index (the int type most easily converted to MapCoord::x, ros_idx, etc)

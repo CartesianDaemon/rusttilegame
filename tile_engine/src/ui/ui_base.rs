@@ -11,6 +11,24 @@ use super::ui_arena::*;
 
 pub type TextureCache = HashMap<String, Texture2D>;
 
+struct PRect {
+    pub x: f32,
+    pub y: f32,
+    pub w: f32,
+    pub h: f32,
+}
+
+impl PRect {
+    pub fn from_screen() -> PRect {
+        PRect {
+            x: 0.,
+            y: 0.,
+            w: screen_width(),
+            h: screen_height(),
+        }
+    }
+}
+
 /// Seems like clear_background is mandatory for wasm, broken for windows.
 /// Don't know about linux or android.
 /// Don't know if fixed in more recent macroquad.
@@ -46,7 +64,7 @@ impl UiBase {
     ) {
         match state {
             Widget::Arena(state) => {
-                UiArena::render(state, &mut self.texture_cache, slide_pc, anim_pc, state.map_w(), state.map_h()).await;
+                UiArena::render(state, &mut self.texture_cache, slide_pc, anim_pc).await;
             }
             Widget::Splash(state) => {
                 let _r = UiSplash::render(state);
