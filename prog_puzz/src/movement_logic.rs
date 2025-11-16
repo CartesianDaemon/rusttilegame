@@ -67,25 +67,28 @@ impl BaseGameLogic for ProgpuzzGameLogic
         let props = &map[mov].logical_props.custom_props;
         match props.ai {
             ProgpuzzAI::Prog => {
-                // NB: For now mostly ignoring input cmd. Need to revisit.
                 let instr = props.prog.instrs.get(props.ip);
                 match instr {
                     // Conclude pane with failure if we reach the end of the program.
-                    None => return PaneContinuation::Break(WidgetConclusion::ArenaDie),
+                    None => {
+                        log::debug!("Bot reached end of program.");
+                        map[mov].logical_props.custom_props.ip = 0; // TODO: Move to coding_arena.
+                        return PaneContinuation::Break(WidgetConclusion::ArenaDie);
+                    }
                     // Move forward
                     Some(Op::F) => {
-                        // NB Breadcrumb: Move to an attempt_action fn in simple_props.
+                        log::debug!("Bot move F.");
                         let target_pos = map[mov].pos() + map[mov].logical_props.dir;
                         if map.passable(target_pos) {
                             map.move_obj_to(mov, target_pos);
                         }
                     },
-                    // Rotate L
                     Some(Op::L) => {
+                        log::debug!("Bot rotate L.");
                         map[mov].logical_props.dir.rotate_l();
                     },
-                    // Rotate R
                     Some(Op::R) => {
+                        log::debug!("Bot rotate R.");
                         map[mov].logical_props.dir.rotate_r();
                     },
                     // Loop through contained instructions. NB: Placeholder.

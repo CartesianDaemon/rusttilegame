@@ -22,7 +22,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
         match self.phase {
             SplitPhase::Coding => {
                 if let Some(move_cmd) = cmd && move_cmd == MoveCmd::Stay {
-                    log::debug!("CodingArena coding advance(): {:?}", move_cmd);
+                    // log::debug!("advance: {:?}", move_cmd);
 
                     log::debug!("Start program running.");
 
@@ -34,16 +34,20 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
             },
             SplitPhase::Running => {
                 if let Some(move_cmd) = cmd && move_cmd == MoveCmd::Stay {
-                    log::debug!("CodingArena arena advance(): {:?}", move_cmd);
+                    // log::debug!("advance: {:?}", move_cmd);
+                    log::debug!("Advance bot program.");
 
-                    // log::debug!("Advance arena...");
-                    // For now ignore input and execute program.
-                    // Once run off end will always return ConclusionDie.
-                    let _conclusion = self.arena.advance(cmd);
-
-                    // TODO: If input space, start. Else advance arena.
-                    // Will ignore input except for space = "stop"?
-                    // Win => return Win. Die => Stop running.
+                    let conclusion = self.arena.advance(cmd);
+                    if conclusion == std::ops::ControlFlow::Break(for_gamedata::WidgetConclusion::ArenaDie) {
+                        log::debug!("Ran off end of program. Stop running.");
+                        // TODO: Reset ip. Actually recreate whole arena from original template.
+                        self.phase = SplitPhase::Running;
+                    } else if conclusion == std::ops::ControlFlow::Break(for_gamedata::WidgetConclusion::ArenaWin) {
+                        log::debug!("Bot found target! Go to next level");
+                        unimplemented!();
+                    } else if conclusion == std::ops::ControlFlow::Continue(()) {
+                        log::trace!("Bot advanced normally. Continue executing program.");
+                    }
                 }
             },
         }
