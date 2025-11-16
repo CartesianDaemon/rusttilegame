@@ -1,5 +1,5 @@
 use super::*;
-use crate::map_coords::Cmd;
+use crate::map_coords::MoveCmd;
 
 use std::collections::HashMap;
 
@@ -102,7 +102,7 @@ impl Coding {
 
 impl BaseWidget for Coding
 {
-    fn advance(&mut self, _cmd: Option<Cmd>) -> PaneContinuation {
+    fn advance(&mut self, _cmd: Option<MoveCmd>) -> PaneContinuation {
         // TODO
 
         return PaneContinuation::Continue(());

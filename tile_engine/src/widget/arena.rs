@@ -17,7 +17,7 @@ use super::widget_base::{BaseWidget, PaneContinuation};
 use crate::simple_custom_props;
 use crate::for_gamedata;
 use for_gamedata::BaseGameLogic;
-use crate::map_coords::Cmd;
+use crate::map_coords::MoveCmd;
 
 use crate::map_coords::*;
 
@@ -39,13 +39,13 @@ pub struct Arena<GameLogic: for_gamedata::BaseGameLogic> {
 
 impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Arena<GameLogic>
 {
-    fn advance(&mut self, cmd: Option<Cmd>) -> PaneContinuation  {
+    fn advance(&mut self, cmd: Option<MoveCmd>) -> PaneContinuation  {
         // TODO: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // TODO: Consider: Maybe display char moving out of sync with enemy.
         let hero = Roster::hero();
 
-        let cmd = cmd.unwrap_or(Cmd::default());
+        let cmd = cmd.unwrap_or(MoveCmd::default());
 
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.

@@ -62,20 +62,20 @@ fn basic_move() {
     }
 
     // Start running, no other effect
-    assert_eq!(state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
+    assert_eq!(state.advance(Some(MoveCmd::Stay)), PaneContinuation::Continue(()));
     //assert_eq!(state.phase, SplitPhase::Coding);
     assert_eq!(&state.as_ascii_rows()[4], "#   ^        #", "\n{}", state.as_ascii_rows().join("\n"));
 
-    assert_eq!(state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
+    assert_eq!(state.advance(Some(MoveCmd::Stay)), PaneContinuation::Continue(()));
     //assert_eq!(state.phase, SplitPhase::Running);
     assert_eq!(&state.as_ascii_rows()[3], "#   ^        #", "\n{}", state.as_ascii_rows().join("\n")); // F
 
-    assert_eq!(state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
+    assert_eq!(state.advance(Some(MoveCmd::Stay)), PaneContinuation::Continue(()));
     assert_eq!(&state.as_ascii_rows()[2], "#   ^  w     #", "\n{}", state.as_ascii_rows().join("\n")); // F
 
-    assert_eq!(state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
+    assert_eq!(state.advance(Some(MoveCmd::Stay)), PaneContinuation::Continue(()));
     assert_eq!(&state.as_ascii_rows()[2], "#   >  w     #", "\n{}", state.as_ascii_rows().join("\n")); // R
 
-    assert_eq!(state.advance(Some(Cmd::Stay)), PaneContinuation::Continue(()));
+    assert_eq!(state.advance(Some(MoveCmd::Stay)), PaneContinuation::Continue(()));
     assert_eq!(&state.as_ascii_rows()[2], "#    > w     #", "\n{}", state.as_ascii_rows().join("\n")); // F
 }

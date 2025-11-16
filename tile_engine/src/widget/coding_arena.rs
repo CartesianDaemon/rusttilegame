@@ -1,5 +1,5 @@
 use super::*;
-use crate::map_coords::Cmd;
+use crate::map_coords::MoveCmd;
 use crate::for_gamedata;
 
 #[derive(Clone, Debug)]
@@ -18,21 +18,19 @@ pub struct CodingArena<GameLogic : for_gamedata::BaseGameLogic> {
 
 impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLogic>
 {
-    fn advance(&mut self, cmd: Option<Cmd>) -> PaneContinuation {
+    fn advance(&mut self, cmd: Option<MoveCmd>) -> PaneContinuation {
         match self.phase {
             SplitPhase::Coding => {
-                log::debug!("Start program running.");
-                // NB: Need to have some permanent debug logging.
-                // That is often more useful for "how it went wrong" than more detailed tests.
-                // For now ignore input and treat anything as "start running".
-                self.phase = SplitPhase::Running;
+                if let Some(cmd) = cmd {
+                    log::debug!("CodingArena::advance(): {:?}", cmd);
 
-                // Run game-specific logic for sync'ing different panes at start of run.
-                GameLogic::harmonise(self);
+                    log::debug!("Start program running.");
 
-                // TODO: Edit program according to input. Or start running.
-                let _ = &self.coding.supply;
-                let _ = &self.coding.prog;
+                    // Run game-specific logic for sync'ing different panes at start of run.
+                    GameLogic::harmonise(self);
+
+                    self.phase = SplitPhase::Running;
+                }
             },
             SplitPhase::Running => {
                 // log::debug!("Advance arena...");

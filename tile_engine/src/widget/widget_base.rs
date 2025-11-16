@@ -6,7 +6,7 @@ pub use super::coding::*;
 pub use super::splash::*;
 pub use super::coding_arena::*;
 
-use crate::map_coords::Cmd;
+use crate::map_coords::MoveCmd;
 use crate::obj::FreeObj;
 use crate::for_gamedata;
 
@@ -24,7 +24,7 @@ pub type PaneContinuation = ControlFlow<WidgetConclusion, ()>;
 // NB Breadcrumb: Need different name for Scene ("level part") than Pane ("screen part").
 pub trait BaseWidget {
     fn tick_based(&self) -> bool;
-    fn advance(&mut self, cmd: Option<Cmd>) -> PaneContinuation;
+    fn advance(&mut self, cmd: Option<MoveCmd>) -> PaneContinuation;
 }
 
 /// One unit of gameplay: one map layout, one splash screen, etc.
@@ -77,7 +77,7 @@ impl<GameLogic: for_gamedata::BaseGameLogic> Widget<GameLogic> {
     }
 
     // Advance game state. Called when clock ticks or when user inputs.
-    pub fn advance(&mut self, cmd: Option<Cmd>) -> PaneContinuation {
+    pub fn advance(&mut self, cmd: Option<MoveCmd>) -> PaneContinuation {
         // TODO: Was there a pattern to get a variable of trait type here and avoid repition?
         match self {
             Self::Arena(pane) => pane.advance(cmd),

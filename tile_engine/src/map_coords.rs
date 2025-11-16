@@ -104,8 +104,8 @@ impl CoordDelta {
 // NB: Or could turn into AttemptAction struct in simple_logic, which is
 // used by most game movement logic but doesn't have to be? Along with an
 // attempt_action fn which handles passability etc.
-#[derive(PartialEq, Copy, Clone)]
-pub enum Cmd {
+#[derive(PartialEq, Copy, Clone, Debug)]
+pub enum MoveCmd {
     Stay,
     Left,
     Right,
@@ -113,7 +113,7 @@ pub enum Cmd {
     Down,
 }
 
-impl Cmd {
+impl MoveCmd {
     pub fn as_dir(self: Self) -> CoordDelta {
         match self {
             // NB: Could be mapped in terms of rotatable Facing type.

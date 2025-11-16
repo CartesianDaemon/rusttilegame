@@ -23,7 +23,7 @@ pub trait BaseCustomProps : Clone + std::fmt::Debug + PartialEq {
 }
 
 use super::widget::arena::RosterIndex;
-use crate::for_gamedata::Cmd;
+use crate::for_gamedata::MoveCmd;
 use super::widget::PaneContinuation;
 
 // NB: Fns only applicable to some widgets. Should be in type related to those.
@@ -31,7 +31,7 @@ pub trait BaseGameLogic : Sized {
     type CustomProps : BaseCustomProps;
     fn harmonise(_split: &mut CodingArena<Self>) {
     }
-    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation;
+    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, cmd: MoveCmd) -> PaneContinuation;
 }
 
 /// Manages game-specific state, e.g. which level to go to next.

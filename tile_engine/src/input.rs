@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use super::map_coords::Cmd;
+use super::map_coords::MoveCmd;
 
 /// Interaction from user. Including timing.
 ///
@@ -12,7 +12,7 @@ pub struct Input {
     speed: f64,
 
     // Should change to list.
-    most_recent_cmd: Option<Cmd>,
+    most_recent_cmd: Option<MoveCmd>,
 }
 
 impl Input {
@@ -31,7 +31,7 @@ impl Input {
         }
     }
 
-    pub fn from_cmd(cmd: Cmd) -> Self
+    pub fn from_cmd(cmd: MoveCmd) -> Self
     {
         Self {
             most_recent_cmd: Some(cmd),
@@ -39,18 +39,18 @@ impl Input {
         }
     }
 
-    pub fn consume_cmd(&mut self) -> Option<Cmd> {
+    pub fn consume_cmd(&mut self) -> Option<MoveCmd> {
         self.most_recent_cmd.take()
     }
 
     pub fn read_input(&mut self) {
         if let Some(key) = get_last_key_pressed() {
             self.most_recent_cmd = Some( match key {
-                KeyCode::Left  => Cmd::Left,
-                KeyCode::Right => Cmd::Right,
-                KeyCode::Up    => Cmd::Up,
-                KeyCode::Down  => Cmd::Down,
-                _              => Cmd::Stay,
+                KeyCode::Left  => MoveCmd::Left,
+                KeyCode::Right => MoveCmd::Right,
+                KeyCode::Up    => MoveCmd::Up,
+                KeyCode::Down  => MoveCmd::Down,
+                _              => MoveCmd::Stay,
             })
         } else if is_mouse_button_pressed(MouseButton::Left) {
             let pp = mouse_position();
@@ -58,10 +58,10 @@ impl Input {
             let up_left: bool = (screen_width() - pp.0) / pp.1 >= screen_width() / screen_height();
             self.most_recent_cmd = Some(
                 match (up_right, up_left) {
-                    (true, true) => Cmd::Up,
-                    (true, false) => Cmd::Right,
-                    (false, true) => Cmd::Left,
-                    (false, false) => Cmd::Down,
+                    (true, true) => MoveCmd::Up,
+                    (true, false) => MoveCmd::Right,
+                    (false, true) => MoveCmd::Left,
+                    (false, false) => MoveCmd::Down,
                 }
             )
         }

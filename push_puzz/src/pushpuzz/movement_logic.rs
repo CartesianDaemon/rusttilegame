@@ -8,14 +8,14 @@ impl BaseGameLogic for PushpuzzGameLogic {
     type CustomProps = tile_engine::simple_custom_props::SimpleCustomProps;
 
     // Would be nice for these to be a function of an enum/trait impls
-    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, cmd: Cmd) -> PaneContinuation {
+    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, cmd: MoveCmd) -> PaneContinuation {
         let hero = map.hero();
         match map[mov].logical_props.custom_props.ai {
             SimpleAI::Stay => {
                 // Do nothing
             },
             SimpleAI::Hero => {
-                if cmd != Cmd::Stay {
+                if cmd != MoveCmd::Stay {
                     let target_pos = map[mov].pos() + cmd.as_dir();
                     if map.passable(target_pos) {
                         map.move_obj_to(mov, target_pos);

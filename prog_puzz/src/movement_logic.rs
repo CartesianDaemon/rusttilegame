@@ -63,7 +63,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
         _split.arena[bot].logical_props.custom_props.prog = _split.coding.prog.clone();
     }
 
-    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, _cmd: Cmd) -> PaneContinuation {
+    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, _cmd: MoveCmd) -> PaneContinuation {
         let props = &map[mov].logical_props.custom_props;
         match props.ai {
             ProgpuzzAI::Prog => {
