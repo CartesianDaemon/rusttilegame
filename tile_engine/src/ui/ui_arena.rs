@@ -150,9 +150,9 @@ impl<'a> UiArena<'a> {
             };
 
             let rotation = match logical_props.dir {
-                CoordDelta{dx:0, dy:-1} => std::f32::consts::PI / 2.,
-                CoordDelta{dx:1, dy: 0} => std::f32::consts::PI,
-                CoordDelta{dx:0, dy: 1} => std::f32::consts::PI * 1.5,
+                CoordDelta{dx:1, dy:0} => std::f32::consts::PI / 2.,
+                CoordDelta{dx:0, dy: 1} => std::f32::consts::PI,
+                CoordDelta{dx:-1, dy: 0} => std::f32::consts::PI * 1.5,
                 _ => 0.
             };
             draw_texture_ex(
