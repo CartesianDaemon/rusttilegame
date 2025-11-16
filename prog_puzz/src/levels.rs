@@ -23,8 +23,8 @@ impl ProgpuzzLevset {
     pub fn advance_pane(&mut self, continuation: WidgetConclusion) {
         self.current_paneid = match (self.current_paneid, continuation) {
             // TODO: Get max levnum from list of levels?
-            (ProgpuzzPaneId::LevCodingArena(1), WidgetConclusion::ArenaWin) => ProgpuzzPaneId::Win,
-            (ProgpuzzPaneId::LevCodingArena(levnum), WidgetConclusion::ArenaWin) => ProgpuzzPaneId::LevCodingArena(levnum+1),
+            (ProgpuzzPaneId::LevCodingArena(1), WidgetConclusion::Win) => ProgpuzzPaneId::Win,
+            (ProgpuzzPaneId::LevCodingArena(levnum), WidgetConclusion::Win) => ProgpuzzPaneId::LevCodingArena(levnum+1),
             (ProgpuzzPaneId::Win, WidgetConclusion::SplashContinue) => Self::new().current_paneid,
             _ => panic!()
         };

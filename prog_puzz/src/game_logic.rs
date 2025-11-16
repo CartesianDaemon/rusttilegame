@@ -73,7 +73,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
                     // Conclude pane with failure if we reach the end of the program.
                     None => {
                         log::debug!("Bot reached end of program.");
-                        return PaneContinuation::Break(WidgetConclusion::ArenaDie);
+                        return PaneContinuation::Break(WidgetConclusion::Die);
                     }
                     // Move forward
                     Some(Op::F) => {
@@ -102,7 +102,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
 
                 // Conclude pane successfully if hero finds with goal.
                 if map.any_has_effect(map[mov].pos(), Effect::Win) {
-                    return PaneContinuation::Break(WidgetConclusion::ArenaWin)
+                    return PaneContinuation::Break(WidgetConclusion::Win)
                 }
 
                 // Continue pane without concluding.

@@ -28,8 +28,8 @@ impl PushpuzzLevset {
         self.current_paneid = match (self.current_paneid, continuation) {
             (PushpuzzPaneId::NewGame, WidgetConclusion::SplashContinue) => PushpuzzPaneId::LevIntro(1),
             (PushpuzzPaneId::LevIntro(levnum), WidgetConclusion::SplashContinue) => PushpuzzPaneId::LevArena(levnum),
-            (PushpuzzPaneId::LevArena(levnum), WidgetConclusion::ArenaWin) => PushpuzzPaneId::LevOutro(levnum),
-            (PushpuzzPaneId::LevArena(levnum), WidgetConclusion::ArenaDie) => PushpuzzPaneId::LevRetry(levnum),
+            (PushpuzzPaneId::LevArena(levnum), WidgetConclusion::Win) => PushpuzzPaneId::LevOutro(levnum),
+            (PushpuzzPaneId::LevArena(levnum), WidgetConclusion::Die) => PushpuzzPaneId::LevRetry(levnum),
             (PushpuzzPaneId::LevRetry(levnum), WidgetConclusion::SplashContinue) => PushpuzzPaneId::LevArena(levnum),
             // TODO: Get max levnum from list of levels?
             (PushpuzzPaneId::LevOutro(2), WidgetConclusion::SplashContinue) => PushpuzzPaneId::Win,

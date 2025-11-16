@@ -40,13 +40,13 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
                     log::debug!("Advance bot program.");
 
                     let conclusion = self.curr_arena.as_mut().unwrap().advance(cmd);
-                    if conclusion == std::ops::ControlFlow::Break(for_gamedata::WidgetConclusion::ArenaDie) {
+                    if conclusion == std::ops::ControlFlow::Break(for_gamedata::WidgetConclusion::Die) {
                         log::debug!("Ran off end of program. Stopped.");
                         self.phase = CodingRunningPhase::Stopped;
-                    } else if conclusion == std::ops::ControlFlow::Break(for_gamedata::WidgetConclusion::ArenaWin) {
+                    } else if conclusion == std::ops::ControlFlow::Break(for_gamedata::WidgetConclusion::Win) {
                         // TODO: Put in a delay and win animation here.
                         log::debug!("Bot found target! Go to next level");
-                        unimplemented!();
+                        return PaneContinuation::Break(WidgetConclusion::Win);
                     } else if conclusion == std::ops::ControlFlow::Continue(()) {
                         log::trace!("Bot advanced normally. Continue executing program.");
                     }

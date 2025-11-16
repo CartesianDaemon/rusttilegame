@@ -14,8 +14,8 @@ use crate::for_gamedata;
 #[derive(Debug, PartialEq)]
 pub enum WidgetConclusion {
     SplashContinue,
-    ArenaWin,
-    ArenaDie,
+    Win,
+    Die,
 }
 
 // After each tick, either Continue, or restart/start another level based on Conclusion.
