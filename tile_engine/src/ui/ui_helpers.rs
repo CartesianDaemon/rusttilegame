@@ -1,5 +1,6 @@
 use macroquad::prelude::*;
 
+#[derive(Copy, Clone, Default)]
 pub struct PRect {
     pub x: f32,
     pub y: f32,

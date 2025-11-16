@@ -29,6 +29,8 @@ enum Dragging {
 
 // NB: This approaches implementing a UI with nested controls inheriting from a control trait.
 struct FrameCoords {
+    arena: PRect,
+
     supply_x: f32,
     supply_y: f32,
     supply_w: f32,
@@ -61,6 +63,7 @@ impl UiCodingArena
     pub fn new() -> Self {
         Self {
             fr_pos: FrameCoords {
+                arena: PRect::default(),
                 supply_x: 0.,
                 supply_y: 0.,
                 supply_w: 0.,
@@ -91,7 +94,13 @@ impl UiCodingArena
         // let game_y = (screen_height() - game_h)/2.;
 
         // Arena
-        let arena_w = screen_height().min(screen_width() * 0.6);
+        let arena = PRect {
+            x: 0.,
+            y: 0.,
+            w: screen_height().min(screen_width() * 0.6),
+            h: screen_height(),
+        };
+        let arena_w = arena.w;
 
         // Supply
         let supply_x = arena_w;
@@ -121,18 +130,23 @@ impl UiCodingArena
         let prog_instr_spacing =  prog_instr_w * spacing_pc;
 
         self.fr_pos = FrameCoords {
+            arena,
+
             supply_x,
             supply_y,
             supply_w,
             supply_h,
+
             supply_op_w,
             supply_op_h,
             supply_op_font_sz,
             supply_op_spacing,
+
             prog_x,
             prog_y,
             prog_w,
             prog_h,
+
             prog_instr_w,
             prog_instr_h,
             prog_instr_font_sz,
@@ -151,7 +165,7 @@ impl UiCodingArena
 
         self.initialise_frame_coords();
 
-        UiArena::render(&coding_arena.arena, texture_cache, PRect::from_screen(), anim).await;
+        UiArena::render(&coding_arena.arena, texture_cache, self.fr_pos.arena, anim).await;
 
         self.draw_background(coding_arena);
         self.draw_supply(&mut coding_arena.coding);
