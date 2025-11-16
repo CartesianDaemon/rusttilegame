@@ -68,21 +68,22 @@ impl<GameLogic: for_gamedata::BaseGameLogic> Widget<GameLogic> {
     }
 
     // Does current pane act on user input immediately (not governed by a game tick)?
+    // NB: Move into Ui not Widget. Then move out of core engine entirely into Ui.
     pub fn tick_based(&self) -> bool {
         match self {
-            Self::Arena(pane) => pane.tick_based(),
-            Self::Splash(pane) => pane.tick_based(),
-            Self::CodingArena(pane) => pane.tick_based(),
+            Self::Arena(widget) => widget.tick_based(),
+            Self::Splash(widget) => widget.tick_based(),
+            Self::CodingArena(widget) => widget.tick_based(),
         }
     }
 
     // Advance game state. Called when clock ticks or when user inputs.
     pub fn advance(&mut self, cmd: Option<MoveCmd>) -> PaneContinuation {
-        // TODO: Was there a pattern to get a variable of trait type here and avoid repition?
+        // NB: Use the crate that makes it easy to inherit behaviour between enum variants.
         match self {
-            Self::Arena(pane) => pane.advance(cmd),
-            Self::Splash(pane) => pane.advance(cmd),
-            Self::CodingArena(pane) => pane.advance(cmd),
+            Self::Arena(widget) => widget.advance(cmd),
+            Self::Splash(widget) => widget.advance(cmd),
+            Self::CodingArena(widget) => widget.advance(cmd),
         }
     }
 

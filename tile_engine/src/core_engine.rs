@@ -41,7 +41,7 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
             gamedata: gamedata,
             state: arena,
             anim: AnimState::default(),
-            input: Input::new_begin(),
+            input: Input::new(),
             ui: UiBase::new(),
         }
     }
@@ -60,7 +60,7 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
             let widget_continuation = self.state.advance(cmd);
             if let PaneContinuation::Break(widget_ending) = widget_continuation {
                 self.state = self.gamedata.load_next_pane(widget_ending);
-                self.input.last_tick_time = macroquad::prelude::get_time();
+                self.input.ticker.last_tick_time = macroquad::prelude::get_time();
             }
         }
 
