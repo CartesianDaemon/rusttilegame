@@ -353,7 +353,7 @@ impl UiCodingArena
         let x = self.fr_pos.supply_x + self.fr_pos.supply_op_spacing + fdx * (self.fr_pos.supply_op_w + self.fr_pos.supply_op_spacing);
         let y = self.fr_pos.supply_y + self.fr_pos.supply_h/2. - self.fr_pos.supply_op_h*0.6;
 
-        if self.mouse_in(x, y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h) {
+        if self.is_coding && self.mouse_in(x, y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h) {
             if is_mouse_button_pressed(MouseButton::Left) {
                 self.drag_supply_op(coding, idx, mouse_position().0 - x, mouse_position().1 - y);
             } else if is_mouse_button_released(MouseButton::Left) {
@@ -389,7 +389,7 @@ impl UiCodingArena
             draw_line(x+self.fr_pos.prog_instr_w/2., y+self.fr_pos.prog_instr_h, x+self.fr_pos.prog_instr_w/2., y+self.fr_pos.prog_instr_h+self.fr_pos.prog_instr_spacing, 2., LIGHTGRAY);
         }
 
-        if self.mouse_in(x, y, self.fr_pos.prog_w, self.fr_pos.prog_instr_h) {
+        if self.is_coding && self.mouse_in(x, y, self.fr_pos.prog_w, self.fr_pos.prog_instr_h) {
             if txt!="" && is_mouse_button_pressed(MouseButton::Left) {
                 self.drag_prog_instr(coding, idx, mouse_position().0 - x, mouse_position().1 - y);
             } else if is_mouse_button_released(MouseButton::Left){
