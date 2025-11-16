@@ -14,9 +14,10 @@ use super::*;
 pub struct UiArena<'a> {
     // COORDS FOR CURRENT FRAME. In gl units which are pixels.
     // Distance from edge of drawing surface to arena area
-    offset_x: f32,
+    // Or to centre??
+    game_x: f32,
     // Distance from edge of drawing surface to arena area
-    offset_y: f32,
+    game_y: f32,
     // Size of each tile
     sq_w: f32,
     sq_h: f32,
@@ -29,11 +30,13 @@ impl<'a> UiArena<'a> {
     pub async fn render<GameLogic: BaseGameLogic>(
         state: &Arena<GameLogic>,
         texture_cache: &mut TextureCache,
+        // Whole screen, or smaller area, in which to fit a square map.
         draw_area: PRect,
         anim: AnimState,
     ) {
-        let game_size = screen_width().min(screen_height());
-        let offset_y = (screen_height() - game_size) / 2. + 10.;
+        let game_sz = draw_area.w.min(draw_area.h);
+        let game_x = draw_area.x + (draw_area.w - game_sz) / 2. + 10.;
+        let game_y = draw_area.y + (draw_area.h - game_sz) / 2. + 10.;
 
         // Area of map to display. Currently all of it.
         let w = state.map_w();
@@ -42,10 +45,10 @@ impl<'a> UiArena<'a> {
 
         let mut render_lev = UiArena {
             // FIXME: Why does this work with landscape orientation?
-            offset_x: (screen_width() - game_size) / 2. + 10.,
-            offset_y: (screen_height() - game_size) / 2. + 10.,
-            sq_w: (screen_height() - offset_y * 2.) / w as f32,
-            sq_h: (screen_height() - offset_y * 2.) / w as f32,
+            game_x,
+            game_y,
+            sq_w: (draw_area.w - game_y * 2.) / w as f32,
+            sq_h: (draw_area.h - game_y * 2.) / w as f32,
             texture_cache,
             slide_pc: anim.slide_pc,
             anim_pc: anim.anim_pc,
@@ -98,8 +101,8 @@ impl<'a> UiArena<'a> {
         let pos = obj.pos();
         let prev_pos = obj.prev_pos();
 
-        let base_px = self.offset_x + self.sq_w * vx as f32;
-        let base_py = self.offset_y + self.sq_h * vy as f32;
+        let base_px = self.game_x + self.sq_w * vx as f32;
+        let base_py = self.game_y + self.sq_h * vy as f32;
 
         // Used to draw tile smaller than real size. Not used at the moment.
         let pc_size = 1.;
