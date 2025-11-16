@@ -21,14 +21,10 @@ pub fn clear_background_for_current_platform(color: Color) {
     }
 }
 
-/// NB: Split Render up into a struct or trait implemented for each
-/// Pane. Or Screen of multiple Panes.
-/// NB: Or have ProgpuzzView (elsewhere called screen), which might
-/// delegate drawing to one preimplemented View, or multuple tiled.
-/// Which combine Render code in a View struct or trait specialised
-/// for the relevant Widget/Gamedata.
-/// And Gamedata contains one or more Widgets.
-/// And Views may display data from one Widget, or from more than one.
+/// Handles drawing and often input for a specific game state.
+/// Delegates drawing to a variety of UiSomething classes. Could be
+/// more unified with a base trait. Could rationalise the relationship
+/// between a Ui class and a Widget.
 pub struct UiBase {
     /// Loaded textures
     texture_cache: TextureCache,
