@@ -209,14 +209,6 @@ impl UiCodingArena
             self.draw_prog_instr(coding, idx, Some(instr));
         }
          self.draw_prog_instr(coding, coding.prog.instrs.len(), None);
-
-        // self.draw_prog_instr(coding, 0, "F");
-        // self.draw_prog_instr(coding, 1, "F");
-        // self.draw_prog_instr(coding, 2, "R");
-        // self.draw_prog_instr(coding, 3, "L");
-        // self.draw_prog_instr(coding, 4, "L");
-        // self.draw_prog_instr(coding, 5, "");
-
     }
 
     pub fn draw_dragging(&mut self, coding: &mut Coding) {
