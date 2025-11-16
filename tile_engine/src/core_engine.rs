@@ -77,11 +77,10 @@ pub async fn run<Gamedata: gamedata::BaseGamedata>()
 {
     for arg in std::env::args() {
         if let Some(log_opts) = arg.strip_prefix("--rust-log=") {
-            unsafe { std::env::set_var("RUST_LOG", log_opts) };
+            env_logger::Builder::new().parse_filters(log_opts).init();
         }
     }
     // TODO: Configure logging to have shorter prefix.
-    env_logger::init();
     log::info!("Started logging!");
 
     let mut engine = Engine::<Gamedata>::new();
