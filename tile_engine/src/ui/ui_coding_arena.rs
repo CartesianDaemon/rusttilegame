@@ -30,7 +30,7 @@ enum Dragging {
 // NB: This approaches implementing a UI with nested controls inheriting from a control trait.
 #[derive(Default)]
 struct FrameCoords {
-    coding: bool,
+    is_coding: bool,
 
     arena: PRect,
 
@@ -72,17 +72,11 @@ impl UiCodingArena
     }
 
     pub fn initialise_frame_coords(&mut self, coding: bool) {
-        // Game
-        // let game_w = screen_width().min(screen_height());
-        // let game_h = screen_width().min(screen_height());
-        // let game_x = (screen_width() - game_w)/2.;
-        // let game_y = (screen_height() - game_h)/2.;
-
         // Arena
         let arena = PRect {
             x: 0.,
             y: 0.,
-            w: screen_height().min(screen_width() * 0.6),
+            w: screen_height().min(screen_width() * if coding {0.6} else {0.8} ) ,
             h: screen_height(),
         };
         let arena_w = arena.w;
@@ -115,7 +109,7 @@ impl UiCodingArena
         let prog_instr_spacing =  prog_instr_w * spacing_pc;
 
         self.fr_pos = FrameCoords {
-            coding,
+            is_coding: coding,
 
             arena,
 
@@ -150,14 +144,13 @@ impl UiCodingArena
         ) {
         let _arena = &mut coding_arena.arena;
 
-        let coding = coding_arena.is_coding();
-        self.initialise_frame_coords(coding);
+        self.initialise_frame_coords(coding_arena.is_coding());
 
         UiArena::render(&coding_arena.arena, texture_cache, self.fr_pos.arena, anim).await;
 
         self.draw_background(coding_arena);
         self.draw_prog(&mut coding_arena.coding);
-        if coding {
+        if self.fr_pos.is_coding {
             self.draw_supply(&mut coding_arena.coding);
             self.draw_dragging(&mut coding_arena.coding);
         }
@@ -192,7 +185,7 @@ impl UiCodingArena
     pub fn draw_prog(&mut self, coding: &mut Coding) {
         //// Draw prog. TODO: Move to sep fn
 
-        let border_col = if self.fr_pos.coding {WHITE} else {SKYBLUE};
+        let border_col = if self.fr_pos.is_coding {WHITE} else {SKYBLUE};
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., border_col);
 
         // NB: Clone means that we draw the original instrs, even if one is dragged out.
@@ -224,7 +217,7 @@ impl UiCodingArena
 
     fn border_width_col(&self, highlight: bool) -> (f32, Color) {
         // TODO: Settings for mouseover highlight, dragged-from highlight, mid-drag, normal...
-        if self.fr_pos.coding {
+        if self.fr_pos.is_coding {
             if highlight {
                 (4., YELLOW)
             } else {
