@@ -1,31 +1,17 @@
 use macroquad::prelude::*;
 
-use crate::ui::AnimState;
-
 use super::map_coords::MoveCmd;
-
-pub struct Ticker {
-    pub last_tick_time: f64,
-
-    // Time between ticks in sec.
-    speed: f64,
-}
 
 /// Interaction from user. Including timing.
 ///
 /// NB: Want to keep some utility code here and merge the Pane-specific info into Panes.
 pub struct Input {
-    most_recent_cmd: Option<MoveCmd>,
-    pub ticker: Ticker,
+    pub most_recent_cmd: Option<MoveCmd>,
 }
 
 impl Input {
     pub fn new() -> Input {
         Self {
-            ticker: Ticker {
-                speed: 0.3,
-                last_tick_time: get_time(),
-            },
             most_recent_cmd: None,
         }
     }
@@ -55,22 +41,6 @@ impl Input {
                     (false, false) => MoveCmd::Down,
                 }
             )
-        }
-    }
-
-    /// Defining when to advance game state.
-    ///
-    /// Should any of this be in Arena not Input? Or should Input be called UI?
-    pub fn ready_to_advance_game_state(&mut self, anim: &mut AnimState) -> bool {
-        if self.most_recent_cmd.is_some() {
-            self.ticker.last_tick_time = get_time();
-            *anim = AnimState::default();
-            true
-        } else {
-            let pc_through_tick = ((get_time() - self.ticker.last_tick_time) / self.ticker.speed) as f32;
-            anim.anim_pc = pc_through_tick % 1.0;
-            anim.slide_pc = pc_through_tick.min(1.0);
-            false
         }
     }
 }

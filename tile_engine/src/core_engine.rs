@@ -1,5 +1,6 @@
 use crate::gamedata::BaseGamedata;
 use crate::ui::AnimState;
+use crate::ui::Ticker;
 
 use super::gamedata;
 use super::widget::*;
@@ -28,6 +29,7 @@ struct Engine<Gamedata: BaseGamedata> {
 
     /// Record input from user ready for use.
     input: Input,
+    ticker: Ticker,
 
     ///
     ui: UiBase,
@@ -43,6 +45,7 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
             anim: AnimState::default(),
             input: Input::new(),
             ui: UiBase::new(),
+            ticker: Ticker::new(),
         }
     }
 
@@ -53,14 +56,14 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
         // NB: Confusingly out of date! Currently we do a "tick" only when the user enters a key.
         // Tick never happens automatically. All tick length means is how long each moving
         // animation takes to complete
-        if !self.state.tick_based() || self.input.ready_to_advance_game_state(&mut self.anim) {
+        if !self.state.tick_based() || self.ticker.ready_to_advance_game_state(self.input.most_recent_cmd, &mut self.anim) {
             // Do a "tick". Actually, currently whenever user presses key.
             // TODO: Use Option<Cmd> not Cmd::default.
             let cmd = self.input.consume_cmd();
             let widget_continuation = self.state.advance(cmd);
             if let PaneContinuation::Break(widget_ending) = widget_continuation {
                 self.state = self.gamedata.load_next_pane(widget_ending);
-                self.input.ticker.last_tick_time = macroquad::prelude::get_time();
+                self.ticker.last_tick_time = macroquad::prelude::get_time();
             }
         }
 

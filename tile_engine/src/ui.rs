@@ -5,5 +5,5 @@ mod ui_coding_arena;
 mod ui_splash;
 
 use ui_helpers::*;
-pub use ui_helpers::AnimState;
+pub use ui_helpers::{AnimState, Ticker};
 pub use ui_base::*;
