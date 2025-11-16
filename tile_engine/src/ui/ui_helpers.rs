@@ -36,14 +36,36 @@ pub struct Ticker {
     pub last_tick_time: f64,
 
     // Time between ticks in sec.
-    speed: f64,
+    tick_interval: f64,
 }
 
 impl Ticker {
     pub fn new() -> Ticker {
         Ticker {
-            speed: 0.3,
+            tick_interval: 0.3,
             last_tick_time: get_time(),
+        }
+    }
+
+    pub fn tick_now(&mut self) {
+        self.last_tick_time = get_time();
+    }
+
+    pub fn _tick_if_ready(&mut self) -> bool {
+        let curr_time = get_time();
+        if curr_time - self.last_tick_time >= self.tick_interval {
+            self.tick_now();
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn anim_state(&self) -> AnimState {
+        let pc_through_tick = ((get_time() - self.last_tick_time) / self.tick_interval) as f32;
+        AnimState {
+            anim_pc: pc_through_tick % 1.0,
+            slide_pc: pc_through_tick.min(1.0),
         }
     }
 
@@ -51,14 +73,11 @@ impl Ticker {
     ///
     /// Should any of this be in Arena not Input? Or should Input be called UI?
     pub fn ready_to_advance_game_state(&mut self, most_recent_cmd: Option<for_gamedata::MoveCmd>, anim: &mut AnimState) -> bool {
+        *anim = self.anim_state();
         if most_recent_cmd.is_some() {
             self.last_tick_time = get_time();
-            *anim = AnimState::default();
             true
         } else {
-            let pc_through_tick = ((get_time() - self.last_tick_time) / self.speed) as f32;
-            anim.anim_pc = pc_through_tick % 1.0;
-            anim.slide_pc = pc_through_tick.min(1.0);
             false
         }
     }
