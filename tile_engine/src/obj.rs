@@ -59,7 +59,7 @@ impl<CustomProps: BaseCustomProps> LogicalProps<CustomProps> {
     }
 }
 
-/// Visual display properties. Only used by Render.
+/// Visual display properties used by UI.
 #[derive(Clone, Debug)]
 pub struct VisualProps {
     pub border: Option<Color>,

@@ -17,7 +17,7 @@ pub fn new_progbot_with_prog(dir: CoordDelta, prog: &Prog) -> FreeObj<CustomProp
             },
             ..LogicalProps::<CustomProps>::defaults()
         },
-        visual_props: VisualProps::new_text_fill("HERO".to_string(), Some(GOLD), Some(BLACK))
+        visual_props: VisualProps::new_tex("ferris.png"),
     }
 }
 
