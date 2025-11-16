@@ -56,7 +56,7 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
         let widget_continuation = self.state.advance(cmd);
         if let PaneContinuation::Break(widget_ending) = widget_continuation {
             self.state = self.gamedata.load_next_pane(widget_ending);
-            self.ticker.reset();
+            self.ticker.force_tick();
         }
     }
 
@@ -66,19 +66,19 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
 
         match self.state.tick_based() {
             TickStyle::TickAutomatically => {
-                // Automatic advancing not implemented yet.
-                unimplemented!();
+                if self.ticker.tick_if_ready() {
+                    self.advance();
+                }
+                self.anim = self.ticker.anim_state();
             },
             TickStyle::TickOnInput => {
-                // Advances whenever key pressed. Animation proceeds for tick-interval afterwards.
                 if self.input.most_recent_cmd.is_some() {
-                    self.ticker.reset();
+                    self.ticker.force_tick();
                     self.advance();
                 }
                 self.anim = self.ticker.anim_state();
             },
             TickStyle::Continuous => {
-                // Advances whenever key pressed. Animation always at 0 or 1.
                 self.advance();
             }
         }

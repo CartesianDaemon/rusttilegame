@@ -51,14 +51,14 @@ impl Ticker {
         }
     }
 
-    pub fn reset(&mut self) {
+    pub fn force_tick(&mut self) {
         self.last_tick_time = get_time();
     }
 
-    pub fn _tick_if_ready(&mut self) -> bool {
+    pub fn tick_if_ready(&mut self) -> bool {
         let curr_time = get_time();
         if curr_time - self.last_tick_time >= self.tick_interval {
-            self.reset();
+            self.force_tick();
             true
         } else {
             false
