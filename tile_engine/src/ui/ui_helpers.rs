@@ -1,7 +1,5 @@
 use macroquad::prelude::*;
 
-use crate::for_gamedata;
-
 #[derive(Copy, Clone, Default)]
 pub struct PRect {
     pub x: f32,
@@ -47,14 +45,14 @@ impl Ticker {
         }
     }
 
-    pub fn tick_now(&mut self) {
+    pub fn reset(&mut self) {
         self.last_tick_time = get_time();
     }
 
     pub fn _tick_if_ready(&mut self) -> bool {
         let curr_time = get_time();
         if curr_time - self.last_tick_time >= self.tick_interval {
-            self.tick_now();
+            self.reset();
             true
         } else {
             false
@@ -66,19 +64,6 @@ impl Ticker {
         AnimState {
             anim_pc: pc_through_tick % 1.0,
             slide_pc: pc_through_tick.min(1.0),
-        }
-    }
-
-    /// Defining when to advance game state.
-    ///
-    /// Should any of this be in Arena not Input? Or should Input be called UI?
-    pub fn ready_to_advance_game_state(&mut self, most_recent_cmd: Option<for_gamedata::MoveCmd>, anim: &mut AnimState) -> bool {
-        *anim = self.anim_state();
-        if most_recent_cmd.is_some() {
-            self.last_tick_time = get_time();
-            true
-        } else {
-            false
         }
     }
 }

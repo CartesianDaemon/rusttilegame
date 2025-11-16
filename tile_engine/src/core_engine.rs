@@ -49,22 +49,33 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
         }
     }
 
+    fn advance(&mut self) {
+        let cmd = self.input.consume_cmd();
+        let widget_continuation = self.state.advance(cmd);
+        if let PaneContinuation::Break(widget_ending) = widget_continuation {
+            self.state = self.gamedata.load_next_pane(widget_ending);
+            self.ticker.reset();
+        }
+    }
+
     /// Collect input. Draw frame. Advance logical Engine state, if tick scheduled.
     pub async fn do_frame(&mut self) {
         self.input.read_input();
 
-        // NB: Confusingly out of date! Currently we do a "tick" only when the user enters a key.
-        // Tick never happens automatically. All tick length means is how long each moving
-        // animation takes to complete
-        if !self.state.tick_based() || self.ticker.ready_to_advance_game_state(self.input.most_recent_cmd, &mut self.anim) {
-            // Do a "tick". Actually, currently whenever user presses key.
-            // TODO: Use Option<Cmd> not Cmd::default.
-            let cmd = self.input.consume_cmd();
-            let widget_continuation = self.state.advance(cmd);
-            if let PaneContinuation::Break(widget_ending) = widget_continuation {
-                self.state = self.gamedata.load_next_pane(widget_ending);
-                self.ticker.last_tick_time = macroquad::prelude::get_time();
+        let advance_automatically = false;
+        if advance_automatically {
+            // Automatic advancing not implemented yet.
+            unimplemented!();
+        } else if self.state.tick_based() {
+            // Advances whenever key pressed. Animation proceeds for tick-interval afterwards.
+            if self.input.most_recent_cmd.is_some() {
+                self.ticker.reset();
+                self.advance();
             }
+            self.anim = self.ticker.anim_state();
+        } else {
+            // Advances whenever key pressed. Animation always at 0 or 1.
+            self.advance();
         }
 
         self.ui.draw_frame(&mut self.state, self.anim).await;
