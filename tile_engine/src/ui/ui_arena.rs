@@ -29,7 +29,7 @@ impl<'a> UiArena<'a> {
     pub async fn render<GameLogic: BaseGameLogic>(
         state: &Arena<GameLogic>,
         texture_cache: &mut TextureCache,
-        slide_pc: f32, anim_pc: f32,
+        anim: AnimState,
         // Area of map to draw
     ) {
         let game_size = screen_width().min(screen_height());
@@ -47,8 +47,8 @@ impl<'a> UiArena<'a> {
             sq_w: (screen_height() - offset_y * 2.) / w as f32,
             sq_h: (screen_height() - offset_y * 2.) / w as f32,
             texture_cache,
-            slide_pc,
-            anim_pc,
+            slide_pc: anim.slide_pc,
+            anim_pc: anim.anim_pc,
         };
 
         render_lev.draw_backdrop();
