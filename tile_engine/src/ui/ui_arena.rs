@@ -43,12 +43,14 @@ impl<'a> UiArena<'a> {
         let h = state.map_h();
         assert_eq!(w, h);
 
+        let sq_sz = (draw_area.h - game_y * 2.) / w as f32;
+
         let mut render_lev = UiArena {
             // FIXME: Why does this work with landscape orientation?
             game_x,
             game_y,
-            sq_w: (draw_area.w - game_y * 2.) / w as f32,
-            sq_h: (draw_area.h - game_y * 2.) / w as f32,
+            sq_w: sq_sz,
+            sq_h: sq_sz,
             texture_cache,
             slide_pc: anim.slide_pc,
             anim_pc: anim.anim_pc,
