@@ -28,7 +28,10 @@ enum Dragging {
 }
 
 // NB: This approaches implementing a UI with nested controls inheriting from a control trait.
+#[derive(Default)]
 struct FrameCoords {
+    coding: bool,
+
     arena: PRect,
 
     supply_x: f32,
@@ -62,25 +65,7 @@ impl UiCodingArena
 {
     pub fn new() -> Self {
         Self {
-            fr_pos: FrameCoords {
-                arena: PRect::default(),
-                supply_x: 0.,
-                supply_y: 0.,
-                supply_w: 0.,
-                supply_h: 0.,
-                supply_op_w: 0.,
-                supply_op_h: 0.,
-                supply_op_font_sz: 0.,
-                supply_op_spacing: 0.,
-                prog_x: 0.,
-                prog_y: 0.,
-                prog_w: 0.,
-                prog_h: 0.,
-                prog_instr_w: 0.,
-                prog_instr_h: 0.,
-                prog_instr_font_sz: 0.,
-                prog_instr_spacing: 0.,
-            },
+            fr_pos: FrameCoords::default(),
             dragging: Dragging::No,
         }
 
@@ -130,6 +115,8 @@ impl UiCodingArena
         let prog_instr_spacing =  prog_instr_w * spacing_pc;
 
         self.fr_pos = FrameCoords {
+            coding,
+
             arena,
 
             supply_x,
@@ -205,7 +192,8 @@ impl UiCodingArena
     pub fn draw_prog(&mut self, coding: &mut Coding) {
         //// Draw prog. TODO: Move to sep fn
 
-        draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., WHITE);
+        let border_col = if self.fr_pos.coding {WHITE} else {SKYBLUE};
+        draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., border_col);
 
         // NB: Clone means that we draw the original instrs, even if one is dragged out.
         for (idx, instr) in coding.prog.instrs.clone().iter().enumerate() {
@@ -231,6 +219,19 @@ impl UiCodingArena
                 InstrRef::Supply{..} => self.draw_supply_op_at(x, y, &op.to_string()),
                 InstrRef::Prog{..} => self.draw_prog_instr_at(x, y, &op.to_string(), 1.),
             }
+        }
+    }
+
+    fn border_width_col(&self, highlight: bool) -> (f32, Color) {
+        // TODO: Settings for mouseover highlight, dragged-from highlight, mid-drag, normal...
+        if self.fr_pos.coding {
+            if highlight {
+                (4., YELLOW)
+            } else {
+                (2., WHITE)
+            }
+        } else {
+            (2., SKYBLUE)
         }
     }
 
@@ -272,15 +273,6 @@ impl UiCodingArena
     fn mouse_in(&self, x: f32, y: f32, w: f32, h: f32) -> bool {
         let (mx, my) = mouse_position();
         (x..x+w).contains(&mx) && (y..y+h).contains(&my)
-    }
-
-    fn border_width_col(&self, highlight: bool) -> (f32, Color) {
-        // TODO: Settings for mouseover highlight, dragged-from highlight, mid-drag, normal...
-        if highlight {
-            (4., YELLOW)
-        } else {
-            (2., WHITE)
-        }
     }
 
     fn drag_supply_op(&mut self, coding: &mut Coding, idx: usize, orig_offset_x: f32, orig_offset_y: f32) {
