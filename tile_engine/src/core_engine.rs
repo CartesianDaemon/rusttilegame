@@ -77,6 +77,7 @@ pub async fn run<Gamedata: gamedata::BaseGamedata>()
 {
     let mut log_builder = env_logger::Builder::new();
     log_builder.format_timestamp(None);
+    log_builder.format_target(false);
     for arg in std::env::args() {
         if let Some(log_opts) = arg.strip_prefix("--rust-log=") {
             log_builder.parse_filters(log_opts);
