@@ -73,7 +73,6 @@ impl BaseGameLogic for ProgpuzzGameLogic
                     // Conclude pane with failure if we reach the end of the program.
                     None => {
                         log::debug!("Bot reached end of program.");
-                        map[mov].logical_props.custom_props.ip = 0; // TODO: Move to coding_arena.
                         return PaneContinuation::Break(WidgetConclusion::ArenaDie);
                     }
                     // Move forward
