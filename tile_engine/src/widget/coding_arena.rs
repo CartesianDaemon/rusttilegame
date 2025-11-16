@@ -21,7 +21,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
     fn advance(&mut self, cmd: Option<MoveCmd>) -> PaneContinuation {
         match self.phase {
             SplitPhase::Coding => {
-                if let Some(move_cmd) = cmd {
+                if let Some(move_cmd) = cmd && move_cmd == MoveCmd::Stay {
                     log::debug!("CodingArena coding advance(): {:?}", move_cmd);
 
                     log::debug!("Start program running.");
@@ -33,7 +33,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
                 }
             },
             SplitPhase::Running => {
-                if let Some(move_cmd) = cmd {
+                if let Some(move_cmd) = cmd && move_cmd == MoveCmd::Stay {
                     log::debug!("CodingArena arena advance(): {:?}", move_cmd);
 
                     // log::debug!("Advance arena...");
