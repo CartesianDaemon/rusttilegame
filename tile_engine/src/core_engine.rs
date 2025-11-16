@@ -75,12 +75,15 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
 
 pub async fn run<Gamedata: gamedata::BaseGamedata>()
 {
+    let mut log_builder = env_logger::Builder::new();
     for arg in std::env::args() {
         if let Some(log_opts) = arg.strip_prefix("--rust-log=") {
-            env_logger::Builder::new().parse_filters(log_opts).init();
+            log_builder.parse_filters(log_opts);
+            break;
         }
     }
-    // TODO: Configure logging to have shorter prefix.
+    log_builder.init();
+    // WIP: Configure logging to have shorter prefix.
     log::info!("Started logging!");
 
     let mut engine = Engine::<Gamedata>::new();
