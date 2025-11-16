@@ -67,15 +67,9 @@ impl Bin {
 }
 
 // Breadcrumb: Derive for implementing default value?
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct Prog {
     pub instrs: Vec<Op>,
-}
-
-impl Default for Prog {
-    fn default() -> Self {
-        Prog::from("F,F,F,F,F")
-    }
 }
 
 impl Prog {
