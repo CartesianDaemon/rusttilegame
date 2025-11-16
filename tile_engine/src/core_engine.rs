@@ -51,7 +51,8 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
         }
     }
 
-    // NB: Move into Ui and Widget
+    // NB: Move into Widget. Need to move reset_tick into Ui. First need to move
+    // gamedata (ie levidx) into state widget?
     fn advance(&mut self, cmd: MoveCmd) {
         let widget_continuation = self.state.advance(cmd);
         if let PaneContinuation::Break(widget_ending) = widget_continuation {
@@ -61,6 +62,7 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
     }
 
     /// Collect input. Draw frame. Advance logical Engine state, if tick scheduled.
+    /// NB: Move into Ui
     pub async fn do_frame(&mut self) {
         self.input.read_input();
 
