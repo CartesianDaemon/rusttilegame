@@ -79,11 +79,15 @@ impl UiCodingArena
             texture_cache: &mut TextureCache,
             anim: AnimState,
         ) {
-        let _arena = &mut coding_arena.arena;
+        let _arena = &mut coding_arena.curr_arena;
 
         self.initialise_frame_coords(coding_arena.is_coding());
 
-        UiArena::render(&coding_arena.arena, texture_cache, self.fr_pos.arena, anim).await;
+        if self.is_coding {
+            UiArena::render(&coding_arena.init_arena, texture_cache, self.fr_pos.arena, anim).await;
+        } else {
+            UiArena::render(coding_arena.curr_arena.as_mut().unwrap(), texture_cache, self.fr_pos.arena, anim).await;
+        }
 
         self.draw_background(coding_arena);
         self.draw_prog(&mut coding_arena.coding);

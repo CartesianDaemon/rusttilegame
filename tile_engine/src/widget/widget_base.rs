@@ -91,7 +91,7 @@ impl<GameLogic: for_gamedata::BaseGameLogic> Widget<GameLogic> {
         match self {
             Self::Arena(arena) => &arena,
             Self::Splash(_splash) => panic!(),
-            Self::CodingArena(pane) => &pane.arena,
+            Self::CodingArena(pane) => &pane.init_arena,
         }
     }
 

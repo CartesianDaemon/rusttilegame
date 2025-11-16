@@ -12,7 +12,9 @@ pub enum CodingRunningPhase {
 // NB: Move into Prog Puzz. Or make into a general multi-widget widget.
 #[derive(Clone, Debug)]
 pub struct CodingArena<GameLogic : for_gamedata::BaseGameLogic> {
-    pub arena: Arena<GameLogic>,
+    pub init_arena: Arena<GameLogic>,
+    // Maybe move into Running state, not core data?
+    pub curr_arena: Option<Arena<GameLogic>>,
     pub coding: Coding,
     phase: CodingRunningPhase,
 }
@@ -23,10 +25,10 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
         match self.phase {
             CodingRunningPhase::Coding => {
                 if cmd == MoveCmd::Stay {
-                    // log::debug!("advance: {:?}", cmd);
-
                     log::debug!("Start program running.");
 
+                    // Init interactive arena
+                    self.curr_arena = Some(self.init_arena.clone());
                     // Run game-specific logic for sync'ing different panes at start of run.
                     GameLogic::harmonise(self);
 
@@ -37,7 +39,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
                 if cmd == MoveCmd::Stay {
                     log::debug!("Advance bot program.");
 
-                    let conclusion = self.arena.advance(cmd);
+                    let conclusion = self.curr_arena.as_mut().unwrap().advance(cmd);
                     if conclusion == std::ops::ControlFlow::Break(for_gamedata::WidgetConclusion::ArenaDie) {
                         log::debug!("Ran off end of program. Stopped.");
                         self.phase = CodingRunningPhase::Stopped;
@@ -53,7 +55,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
             CodingRunningPhase::Stopped => {
                 log::debug!("Returning to coding screen");
                 self.phase = CodingRunningPhase::Coding;
-                // TODO: Reset ip. Actually recreate whole arena from original template.
+                self.curr_arena = None;
             }
         }
 
@@ -77,7 +79,8 @@ impl<GameLogic: for_gamedata::BaseGameLogic> CodingArena<GameLogic>
         code: Coding,
     ) -> Self {
         Self {
-            arena,
+            init_arena: arena,
+            curr_arena: None,
             coding: code,
             phase: CodingRunningPhase::Coding,
         }

@@ -1,4 +1,4 @@
-use super::movement_logic::{ProgpuzzGameLogic, ProgpuzzCustomProps};
+use super::game_logic::{ProgpuzzGameLogic, ProgpuzzCustomProps};
 use super::levels;
 
 use tile_engine::for_gamedata::*;

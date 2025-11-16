@@ -51,16 +51,17 @@ pub enum ProgpuzzAI {
     Prog, // Controlled by program assembled by player.
 }
 
+#[derive(Clone)]
 pub struct ProgpuzzGameLogic;
 
 impl BaseGameLogic for ProgpuzzGameLogic
 {
     type CustomProps = ProgpuzzCustomProps;
 
-    fn harmonise(_split: &mut CodingArena<Self>) {
+    fn harmonise(coding_arena: &mut CodingArena<Self>) {
         // Set progbot's prog to the user-assembled prog.
-        let bot = _split.arena.hero();
-        _split.arena[bot].logical_props.custom_props.prog = _split.coding.prog.clone();
+        let bot = coding_arena.curr_arena.as_ref().unwrap().hero();
+        coding_arena.curr_arena.as_mut().unwrap()[bot].logical_props.custom_props.prog = coding_arena.coding.prog.clone();
     }
 
     fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, _cmd: MoveCmd) -> PaneContinuation {

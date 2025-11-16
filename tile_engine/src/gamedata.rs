@@ -27,7 +27,7 @@ use crate::for_gamedata::MoveCmd;
 use super::widget::PaneContinuation;
 
 // NB: Fns only applicable to some widgets. Should be in type related to those.
-pub trait BaseGameLogic : Sized {
+pub trait BaseGameLogic : Clone + Sized {
     type CustomProps : BaseCustomProps;
     fn harmonise(_split: &mut CodingArena<Self>) {
     }

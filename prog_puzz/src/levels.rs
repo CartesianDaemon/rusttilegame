@@ -30,7 +30,7 @@ impl ProgpuzzLevset {
         };
     }
 
-    pub fn load_pane(&self) -> Widget<super::movement_logic::ProgpuzzGameLogic> {
+    pub fn load_pane(&self) -> Widget<super::game_logic::ProgpuzzGameLogic> {
         let progpuzz_key = HashMap::from([
             // NB: Better to move this into obj? Combined with obj.char types?
             (' ', vec![ new_floor() ]),
