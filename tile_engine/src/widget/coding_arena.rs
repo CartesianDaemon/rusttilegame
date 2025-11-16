@@ -21,6 +21,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
     fn advance(&mut self, cmd: Option<Cmd>) -> PaneContinuation {
         match self.phase {
             SplitPhase::Coding => {
+                log::debug!("Start program running.");
                 // NB: Need to have some permanent debug logging.
                 // That is often more useful for "how it went wrong" than more detailed tests.
                 // For now ignore input and treat anything as "start running".
@@ -34,6 +35,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
                 let _ = &self.coding.prog;
             },
             SplitPhase::Running => {
+                // log::debug!("Advance arena...");
                 // For now ignore input and execute program.
                 // Once run off end will always return ConclusionDie.
                 let _conclusion = self.arena.advance(cmd);
