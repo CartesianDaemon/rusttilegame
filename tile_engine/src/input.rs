@@ -84,7 +84,4 @@ impl Input {
             false
         }
     }
-
 }
-
-

@@ -57,7 +57,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
 
     fn tick_based(&self) -> bool {
         // TODO: Need "stop" to happen at any time. But could trigger bot movement on key, or on tick?
-        false
+        self.is_running()
     }
 }
 
@@ -72,6 +72,10 @@ impl<GameLogic: for_gamedata::BaseGameLogic> CodingArena<GameLogic>
             coding: code,
             phase: CodingRunningPhase::Coding,
         }
+    }
+
+    pub fn is_running(&self) -> bool {
+        self.phase == CodingRunningPhase::Running
     }
 
     pub fn is_coding(&self) -> bool {
