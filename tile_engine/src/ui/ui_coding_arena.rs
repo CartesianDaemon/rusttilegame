@@ -318,8 +318,18 @@ impl UiCodingArena
     fn interact_dragging(&mut self, coding: &mut Coding) {
         // If mouse is released anywhere non-actionable, cancel any dragging.
         // Use "!is_mouse_button_down" not "is_mouse_buttom_released" to ensure dragging is stopped.
-        if !is_mouse_button_down(MouseButton::Left) && let Dragging::Yes {..} = self.dragging  {
-            self.drop_cancel(coding);
+        if !is_mouse_button_down(MouseButton::Left) {
+            match self.dragging {
+                Dragging::Yes { op:_op, op_ref: InstrRef::Supply { idx }, ..} => {
+                    log::debug!("INFO: Cancelling drag. Returning {:?} to supply idx {:?}", _op, idx);
+                    self.drop_to_supply_bin(coding, idx);
+                },
+                Dragging::Yes { op: _op, op_ref: InstrRef::Prog { idx }, ..} => {
+                    log::debug!("INFO: Cancelling drag. Returning {:?} to supply idx {:?}", _op, idx);
+                    self.drop_to_prog(coding, idx);
+                },
+                Dragging::No => (),
+            }
         }
     }
 
@@ -494,19 +504,4 @@ impl UiCodingArena
             self.dragging = Dragging::No;
         }
     }
-
-    fn drop_cancel(&mut self, coding: &mut Coding) {
-        match self.dragging {
-            Dragging::Yes { op, op_ref: InstrRef::Supply { idx }, ..} => {
-                log::debug!("INFO: Cancelling drag. Returning {:?} to supply idx {:?}", op, idx);
-                self.drop_to_supply_bin(coding, idx);
-            },
-            Dragging::Yes { op, op_ref: InstrRef::Prog { idx }, ..} => {
-                log::debug!("INFO: Cancelling drag. Returning {:?} to supply idx {:?}", op, idx);
-                self.drop_to_prog(coding, idx);
-            },
-            Dragging::No => (),
-        }
-    }
-
 }
