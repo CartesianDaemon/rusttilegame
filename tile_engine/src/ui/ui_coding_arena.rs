@@ -154,6 +154,7 @@ impl UiCodingArena
 
         self.draw_background(coding_arena);
         self.draw_prog(&mut coding_arena.coding);
+        self.interact_prog(&mut coding_arena.coding);
         if self.is_coding {
             self.draw_supply(&mut coding_arena.coding);
             self.draw_dragging(&mut coding_arena.coding);
@@ -250,17 +251,22 @@ impl UiCodingArena
 
     }
 
-    fn draw_prog(&mut self, coding: &mut Coding) {
-        //// Draw prog. TODO: Move to sep fn
-
+    fn draw_prog(&self, coding: &Coding) {
         let border_col = if self.is_coding {WHITE} else {SKYBLUE};
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., border_col);
 
         // NB: Clone means that we draw the original instrs, even if one is dragged out.
         for (idx, instr) in coding.prog.instrs.clone().iter().enumerate() {
-            self.draw_prog_instr(coding, idx, Some(instr));
+            self.draw_prog_instr(idx, Some(instr));
         }
-         self.draw_prog_instr(coding, coding.prog.instrs.len(), None);
+        self.draw_prog_instr(coding.prog.instrs.len(), None);
+    }
+
+    fn interact_prog(&mut self, coding: &mut Coding) {
+        for (idx, instr) in coding.prog.instrs.clone().iter().enumerate() {
+            self.interact_prog_instr(coding, idx, Some(instr));
+        }
+        self.interact_prog_instr(coding, coding.prog.instrs.len(), None);
     }
 
     fn draw_dragging(&mut self, coding: &mut Coding) {
@@ -314,18 +320,21 @@ impl UiCodingArena
         draw_text(&count_txt, x + 0.5*self.fr_pos.supply_op_w, y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, WHITE);
     }
 
-    fn draw_prog_instr(&mut self, coding: &mut Coding, idx: usize, instr: Option<&Op>)
+    fn draw_prog_instr(&self, idx: usize, instr: Option<&Op>)
     {
-        // TODO: Review when things are highlighted. Show placeholder for dragged thing?
-        // TODO: Still drawing too often on windows compared to pushpuzz??
         let txt = instr.map_or("".to_string(), Op::to_string);
 
         let coords = self.prog_instr_coords(idx);
 
         self.draw_prog_instr_at(coords, &txt, txt=="");
+    }
+
+    fn interact_prog_instr(&mut self, coding: &mut Coding, idx: usize, instr: Option<&Op>)
+    {
+        let coords = self.prog_instr_coords(idx);
 
         if self.is_coding && self.mouse_in(coords.x, coords.y, self.fr_pos.prog_instr_w, self.fr_pos.prog_instr_h) {
-            if txt!="" && is_mouse_button_pressed(MouseButton::Left) {
+            if instr.is_some() && is_mouse_button_pressed(MouseButton::Left) {
                 self.drag_prog_instr(coding, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
             } else if is_mouse_button_released(MouseButton::Left){
                 self.drop_to_prog(coding, idx);
@@ -333,7 +342,8 @@ impl UiCodingArena
         }
     }
 
-    fn border_width_col(&self, highlight: bool) -> (f32, Color) {
+    fn border_width_col(&self, highlight: bool) -> (f32, Color)
+    {
         // TODO: Settings for mouseover highlight, dragged-from highlight, mid-drag, normal...
         if self.is_coding {
             if highlight {
@@ -367,7 +377,7 @@ impl UiCodingArena
         PRect {x, y, w: self.fr_pos.prog_instr_w, h: self.fr_pos.prog_instr_h}
     }
 
-    fn draw_prog_instr_at(&mut self, coords: PRect, txt: &str, placeholder: bool) {
+    fn draw_prog_instr_at(&self, coords: PRect, txt: &str, placeholder: bool) {
         let mouse_in = self.mouse_in(coords.x, coords.y, coords.w, coords.h);
 
         let highlight = mouse_in && (!placeholder || matches!(self.dragging, Dragging::Yes{..}) );
