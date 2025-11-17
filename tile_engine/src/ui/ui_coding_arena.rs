@@ -322,7 +322,9 @@ impl UiCodingArena
             // TODO: get txt from original op via InstrRef
             match op_ref {
                 InstrRef::Supply{..} => {
-                    self.draw_supply_op_at(x, y, &op.to_string());
+                    let coords = OpCoords {x, y, w:self.fr_pos.prog_instr_w, h:self.fr_pos.prog_instr_h, v_spacing: 0.};
+                    let style = OpStyle::dragging();
+                    style.draw_at(coords, &op.to_string());
                 },
                 InstrRef::Prog{..} => {
                     let coords = OpCoords {x, y, w:self.fr_pos.prog_instr_w, h:self.fr_pos.prog_instr_h, v_spacing: 0.};
@@ -404,33 +406,6 @@ impl UiCodingArena
                 self.drop_to_prog(coding, idx);
             }
         }
-    }
-
-    fn border_width_col(&self, highlight: bool) -> (f32, Color)
-    {
-        // TODO: Settings for mouseover highlight, dragged-from highlight, mid-drag, normal...
-        if self.is_coding {
-            if highlight {
-                (4., YELLOW)
-            } else {
-                (2., WHITE)
-            }
-        } else {
-            (2., SKYBLUE)
-        }
-    }
-
-    fn draw_supply_op_at(&mut self, x: f32, y: f32, txt: &str) {
-        let (border_width, border_col) = self.border_width_col(self.mouse_in(x, y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h));
-
-        // Draw square interior. Covers over background when dragging, or excess connecting line.
-        draw_rectangle(x, y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h, Color{r: 0., g:0., b:0., a:0.5 });
-
-        // Draw outline
-        draw_rectangle_lines(x, y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h, border_width, border_col);
-
-        // Text
-        draw_text(txt, x + 0.2*self.fr_pos.supply_op_w, y+0.85*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz, WHITE);
     }
 
     fn prog_instr_coords(&self, idx: usize) -> OpCoords {
