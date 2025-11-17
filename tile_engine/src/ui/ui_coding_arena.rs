@@ -338,22 +338,11 @@ impl UiCodingArena
     // TODO: Get counts from coding, not from parameters
     fn draw_supply_op(&mut self, coding: &mut Coding, idx: usize, bin: &Bin)
     {
-        let fdx = idx as f32;
+        let coords = self.supply_op_coords(idx);
 
-        let x = self.fr_pos.supply_x + self.fr_pos.supply_op_spacing + fdx * (self.fr_pos.supply_op_w + self.fr_pos.supply_op_spacing);
-        let y = self.fr_pos.supply_y + self.fr_pos.supply_h/2. - self.fr_pos.supply_op_h*0.6;
-
-        let coords = OpCoords {
-            x,
-            y,
-            w: self.fr_pos.supply_op_h,
-            h: self.fr_pos.supply_op_h,
-            v_spacing: 0.,
-        };
-
-        if self.is_coding && self.mouse_in(x, y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h) {
+        if self.is_coding && self.mouse_in(coords.x, coords.y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h) {
             if is_mouse_button_pressed(MouseButton::Left) {
-                self.drag_supply_op(coding, idx, mouse_position().0 - x, mouse_position().1 - y);
+                self.drag_supply_op(coding, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
             } else if is_mouse_button_released(MouseButton::Left) {
                 self.drop_to_supply_bin(coding, idx);
             }
@@ -364,7 +353,7 @@ impl UiCodingArena
 
         // Draw count
         let count_txt = format!("{}/{}", bin.curr_count, bin.orig_count);
-        draw_text(&count_txt, x + 0.5*self.fr_pos.supply_op_w, y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, WHITE);
+        draw_text(&count_txt, coords.x + 0.5*self.fr_pos.supply_op_w, coords.y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, WHITE);
     }
 
     fn draw_prog_instr(&self, idx: usize, instr: Option<&Op>)
@@ -405,6 +394,17 @@ impl UiCodingArena
             } else if is_mouse_button_released(MouseButton::Left){
                 self.drop_to_prog(coding, idx);
             }
+        }
+    }
+
+    fn supply_op_coords(&self, idx: usize) -> OpCoords {
+        let fdx = idx as f32;
+        OpCoords {
+            x: self.fr_pos.supply_x + self.fr_pos.supply_op_spacing + fdx * (self.fr_pos.supply_op_w + self.fr_pos.supply_op_spacing),
+            y: self.fr_pos.supply_y + self.fr_pos.supply_h/2. - self.fr_pos.supply_op_h*0.6,
+            w: self.fr_pos.supply_op_h,
+            h: self.fr_pos.supply_op_h,
+            v_spacing: 0.,
         }
     }
 
