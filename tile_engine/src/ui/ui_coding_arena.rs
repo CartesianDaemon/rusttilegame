@@ -389,7 +389,13 @@ impl UiCodingArena
     {
         let coords = self.prog_instr_coords(idx);
         let has_op = instr.is_some();
-        let txt = instr.map_or("".to_string(), Op::to_string);
+        let txt = if let Some(op) = instr {
+            op.to_string()
+        } else if self.is_coding {
+            "...".to_string()
+        } else {
+            "X".to_string()
+        };
         coords.draw_in_style(self.calculate_style(coords, has_op), &txt);
     }
 
