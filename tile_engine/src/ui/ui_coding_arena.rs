@@ -134,20 +134,20 @@ impl OpStyle {
         }
     }
 
-    fn draw_at(self, orig_coords: OpCoords, txt: &str) {
-        let coords = orig_coords.scaled_down_to(self.scale);
+    fn draw_at(self, coords: OpCoords, txt: &str) {
+        let c = coords.scaled_down_to(self.scale);
 
-        draw_rectangle(coords.x, coords.y, coords.w, coords.h, self.fill_col);
-        draw_rectangle_lines(coords.x, coords.y, coords.w, coords.h, self.border_width, self.border_col);
-        let font_sz = coords.w * 1.35;
-        draw_text(txt, coords.x + 0.2*coords.w, coords.y+0.85*coords.h, font_sz, WHITE);
+        draw_rectangle(c.x, c.y, c.w, c.h, self.fill_col);
+        draw_rectangle_lines(c.x, c.y, c.w, c.h, self.border_width, self.border_col);
+        let font_sz = c.w * 1.35;
+        draw_text(txt, c.x + 0.2*c.w, c.y+0.85*c.h, font_sz, WHITE);
 
         if self.v_connector {
             draw_line(
-                coords.x + coords.w/2.,
-                coords.y + coords.h,
-                coords.x + coords.w/2.,
-                coords.y + coords.h + coords.v_spacing,
+                c.x + c.w/2.,
+                c.y + c.h,
+                c.x + c.w/2.,
+                c.y + c.h + c.v_spacing,
                 2.,
                 LIGHTGRAY
             );
@@ -341,17 +341,24 @@ impl UiCodingArena
         let x = self.fr_pos.supply_x + self.fr_pos.supply_op_spacing + fdx * (self.fr_pos.supply_op_w + self.fr_pos.supply_op_spacing);
         let y = self.fr_pos.supply_y + self.fr_pos.supply_h/2. - self.fr_pos.supply_op_h*0.6;
 
+        let coords = OpCoords {
+            x,
+            y,
+            w: self.fr_pos.supply_op_h,
+            h: self.fr_pos.supply_op_h,
+            v_spacing: 0.,
+        };
+
         if self.is_coding && self.mouse_in(x, y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h) {
             if is_mouse_button_pressed(MouseButton::Left) {
                 self.drag_supply_op(coding, idx, mouse_position().0 - x, mouse_position().1 - y);
             } else if is_mouse_button_released(MouseButton::Left) {
-                // TODO: Have render section do this for anywhere in supply region.
-                // TODO: Highlight appropriate bin, or all bins, not only bin mouse is over.
                 self.drop_to_supply_bin(coding, idx);
             }
         }
 
-        self.draw_supply_op_at(x, y, &bin.op.to_string());
+        let style = self.calculate_style(coords, bin.curr_count>0);
+        style.draw_at(coords, &bin.op.to_string());
 
         // Draw count
         let count_txt = format!("{}/{}", bin.curr_count, bin.orig_count);
