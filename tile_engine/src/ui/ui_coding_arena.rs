@@ -360,24 +360,30 @@ impl UiCodingArena
 
     fn draw_prog_instr(&self, idx: usize, instr: Option<&Op>)
     {
-        let txt = instr.map_or("".to_string(), Op::to_string);
-
         let coords = self.prog_instr_coords(idx);
+        let style = self.calculate_style(coords, instr.is_some());
+        let txt = instr.map_or("".to_string(), Op::to_string);
+        style.draw_at(coords, &txt);
+    }
 
-        let mut style = if !self.is_coding {
-            OpStyle::running()
-        } else if instr.is_none() {
-            OpStyle::placeholder()
+    fn calculate_style(&self, coords: OpCoords, has_op: bool) -> OpStyle
+    {
+        let mut style = if self.is_coding {
+            if has_op {
+                OpStyle::coding()
+            } else {
+                OpStyle::placeholder()
+            }
         } else {
-            OpStyle::coding()
+            OpStyle::running()
         };
 
         let mouse_in = self.mouse_in(coords.x, coords.y, coords.w, coords.h);
-        if mouse_in && (instr.is_some() || matches!(self.dragging, Dragging::Yes{..}) ) {
+        if mouse_in && (has_op || matches!(self.dragging, Dragging::Yes{..}) ) {
             style = OpStyle::highlighted(style);
-        }
+        };
 
-        style.draw_at(coords, &txt);
+        style
     }
 
     fn interact_prog_instr(&mut self, coding: &mut Coding, idx: usize, instr: Option<&Op>)
