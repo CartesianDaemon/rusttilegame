@@ -333,12 +333,21 @@ impl UiCodingArena
         }
     }
 
+    fn dragging_op_coords(&self) -> Option<OpCoords> {
+        match &self.dragging {
+            Dragging::Yes{orig_offset_x, orig_offset_y,..} => {
+                let (mx, my) = mouse_position();
+                let (x,y) = (mx - orig_offset_x, my - orig_offset_y);
+                Some(OpCoords {x, y, w:self.fr_pos.prog_instr_w, h:self.fr_pos.prog_instr_h, v_spacing: 0.})
+            },
+            _ => None,
+        }
+    }
+
     fn draw_dragging(&self)
     {
-        if let Dragging::Yes{op, orig_offset_x, orig_offset_y,..} = &self.dragging {
-            let (mx, my) = mouse_position();
-            let (x,y) = (mx - orig_offset_x, my - orig_offset_y);
-            let coords = OpCoords {x, y, w:self.fr_pos.prog_instr_w, h:self.fr_pos.prog_instr_h, v_spacing: 0.};
+        if let Dragging::Yes{op, ..} = &self.dragging {
+            let coords = self.dragging_op_coords().unwrap();
             let style = OpStyle::dragging();
             style.draw_at(coords, &op.to_string());
         }
