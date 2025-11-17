@@ -201,6 +201,58 @@ impl UiCodingArena
          self.draw_prog_instr(coding, coding.prog.instrs.len(), None);
     }
 
+
+    // TODO: Get counts from coding, not from parameters
+    fn draw_supply_op(&mut self, coding: &mut Coding, idx: usize, bin: &Bin)
+    {
+        let fdx = idx as f32;
+
+        let x = self.fr_pos.supply_x + self.fr_pos.supply_op_spacing + fdx * (self.fr_pos.supply_op_w + self.fr_pos.supply_op_spacing);
+        let y = self.fr_pos.supply_y + self.fr_pos.supply_h/2. - self.fr_pos.supply_op_h*0.6;
+
+        if self.is_coding && self.mouse_in(x, y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h) {
+            if is_mouse_button_pressed(MouseButton::Left) {
+                self.drag_supply_op(coding, idx, mouse_position().0 - x, mouse_position().1 - y);
+            } else if is_mouse_button_released(MouseButton::Left) {
+                // TODO: Have render section do this for anywhere in supply region.
+                // TODO: Highlight appropriate bin, or all bins, not only bin mouse is over.
+                self.drop_to_supply_bin(coding, idx);
+            }
+        }
+
+        self.draw_supply_op_at(x, y, &bin.op.to_string());
+
+        // Draw count
+        let count_txt = format!("{}/{}", bin.curr_count, bin.orig_count);
+        draw_text(&count_txt, x + 0.5*self.fr_pos.supply_op_w, y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, WHITE);
+    }
+
+    fn draw_prog_instr(&mut self, coding: &mut Coding, idx: usize, instr: Option<&Op>)
+    {
+        // TODO: Review when things are highlighted. Show placeholder for dragged thing?
+        // TODO: Still drawing too often on windows compared to pushpuzz??
+        let fdx = idx as f32;
+        let txt = instr.map_or("".to_string(), Op::to_string);
+
+        let x = self.fr_pos.prog_x + self.fr_pos.prog_w/2. - self.fr_pos.prog_instr_w/2.;
+        let y = self.fr_pos.prog_y + self.fr_pos.prog_instr_spacing + fdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
+
+        self.draw_prog_instr_at(x, y, &txt, txt=="");
+
+        if txt!="" {
+            // Connection to next op
+            draw_line(x+self.fr_pos.prog_instr_w/2., y+self.fr_pos.prog_instr_h, x+self.fr_pos.prog_instr_w/2., y+self.fr_pos.prog_instr_h+self.fr_pos.prog_instr_spacing, 2., LIGHTGRAY);
+        }
+
+        if self.is_coding && self.mouse_in(x, y, self.fr_pos.prog_w, self.fr_pos.prog_instr_h) {
+            if txt!="" && is_mouse_button_pressed(MouseButton::Left) {
+                self.drag_prog_instr(coding, idx, mouse_position().0 - x, mouse_position().1 - y);
+            } else if is_mouse_button_released(MouseButton::Left){
+                self.drop_to_prog(coding, idx);
+            }
+        }
+    }
+
     fn draw_dragging(&mut self, coding: &mut Coding) {
         //// Draw dragging
 
@@ -216,7 +268,7 @@ impl UiCodingArena
             // TODO: get txt from original op via InstrRef
             match op_ref {
                 InstrRef::Supply{..} => self.draw_supply_op_at(x, y, &op.to_string()),
-                InstrRef::Prog{..} => self.draw_prog_instr_at(x, y, &op.to_string(), 1.),
+                InstrRef::Prog{..} => self.draw_prog_instr_at(x, y, &op.to_string(), false),
             }
         }
     }
@@ -247,7 +299,9 @@ impl UiCodingArena
         draw_text(txt, x + 0.2*self.fr_pos.supply_op_w, y+0.85*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz, WHITE);
     }
 
-    fn draw_prog_instr_at(&mut self, orig_x: f32, orig_y: f32, txt: &str, scale: f32) {
+    fn draw_prog_instr_at(&mut self, orig_x: f32, orig_y: f32, txt: &str, placeholder: bool) {
+        let scale = if placeholder {0.6} else {1.};
+
         let shrink_by = 1. - scale;
         let x = orig_x + self.fr_pos.prog_instr_w * shrink_by / 2.;
         let y = orig_y - self.fr_pos.prog_instr_h * shrink_by / 2.;
@@ -255,7 +309,9 @@ impl UiCodingArena
         let h = self.fr_pos.prog_instr_h * scale;
 
         let mouse_in = self.mouse_in(x, y, w, h);
-        let highlight = mouse_in && (scale==1.0 || matches!(self.dragging, Dragging::Yes{..}) );
+
+        let highlight = mouse_in && (!placeholder || matches!(self.dragging, Dragging::Yes{..}) );
+
         let (border_width, border_col) = self.border_width_col(highlight);
 
         // Draw square interior. Covers over background when dragging, or excess connecting line.
@@ -350,56 +406,4 @@ impl UiCodingArena
         }
     }
 
-    // TODO: Get counts from coding, not from parameters
-    fn draw_supply_op(&mut self, coding: &mut Coding, idx: usize, bin: &Bin)
-    {
-        let fdx = idx as f32;
-
-        let x = self.fr_pos.supply_x + self.fr_pos.supply_op_spacing + fdx * (self.fr_pos.supply_op_w + self.fr_pos.supply_op_spacing);
-        let y = self.fr_pos.supply_y + self.fr_pos.supply_h/2. - self.fr_pos.supply_op_h*0.6;
-
-        if self.is_coding && self.mouse_in(x, y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h) {
-            if is_mouse_button_pressed(MouseButton::Left) {
-                self.drag_supply_op(coding, idx, mouse_position().0 - x, mouse_position().1 - y);
-            } else if is_mouse_button_released(MouseButton::Left) {
-                // TODO: Have render section do this for anywhere in supply region.
-                // TODO: Highlight appropriate bin, or all bins, not only bin mouse is over.
-                self.drop_to_supply_bin(coding, idx);
-            }
-        }
-
-        self.draw_supply_op_at(x, y, &bin.op.to_string());
-
-        // Draw count
-        let count_txt = format!("{}/{}", bin.curr_count, bin.orig_count);
-        draw_text(&count_txt, x + 0.5*self.fr_pos.supply_op_w, y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, WHITE);
-    }
-
-    fn draw_prog_instr(&mut self, coding: &mut Coding, idx: usize, instr: Option<&Op>)
-    {
-        // TODO: Review when things are highlighted. Show placeholder for dragged thing?
-        // TODO: Still drawing too often on windows compared to pushpuzz??
-        let fdx = idx as f32;
-        let txt = instr.map_or("".to_string(), Op::to_string);
-
-        let x = self.fr_pos.prog_x + self.fr_pos.prog_w/2. - self.fr_pos.prog_instr_w/2.;
-        let y = self.fr_pos.prog_y + self.fr_pos.prog_instr_spacing + fdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
-
-        let scale = if txt=="" {0.6} else {1.};
-
-        self.draw_prog_instr_at(x, y, &txt, scale);
-
-        if txt!="" {
-            // Connection to next op
-            draw_line(x+self.fr_pos.prog_instr_w/2., y+self.fr_pos.prog_instr_h, x+self.fr_pos.prog_instr_w/2., y+self.fr_pos.prog_instr_h+self.fr_pos.prog_instr_spacing, 2., LIGHTGRAY);
-        }
-
-        if self.is_coding && self.mouse_in(x, y, self.fr_pos.prog_w, self.fr_pos.prog_instr_h) {
-            if txt!="" && is_mouse_button_pressed(MouseButton::Left) {
-                self.drag_prog_instr(coding, idx, mouse_position().0 - x, mouse_position().1 - y);
-            } else if is_mouse_button_released(MouseButton::Left){
-                self.drop_to_prog(coding, idx);
-            }
-        }
-    }
 }
