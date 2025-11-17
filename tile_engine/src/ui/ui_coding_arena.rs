@@ -288,8 +288,8 @@ impl UiCodingArena
                 },
                 InstrRef::Prog{..} => {
                     let coords = PRect {x, y, w:self.fr_pos.prog_instr_w, h:self.fr_pos.prog_instr_h};
-                    let _style = OpStyle::dragging();
-                    self.draw_prog_instr_at(coords, &op.to_string(), false);
+                    let style = OpStyle::dragging();
+                    self.draw_prog_instr_at(coords, &op.to_string(), style);
                 },
             }
         }
@@ -326,7 +326,21 @@ impl UiCodingArena
 
         let coords = self.prog_instr_coords(idx);
 
-        self.draw_prog_instr_at(coords, &txt, txt=="");
+        let mouse_in = self.mouse_in(coords.x, coords.y, coords.w, coords.h);
+
+        let highlight = mouse_in && (instr.is_some() || matches!(self.dragging, Dragging::Yes{..}) );
+
+        let style = if !self.is_coding {
+            OpStyle::running()
+        } else if highlight {
+            OpStyle::highlighted()
+        } else if instr.is_none() {
+            OpStyle::placeholder()
+        } else {
+            OpStyle::coding()
+        };
+
+        self.draw_prog_instr_at(coords, &txt, style);
     }
 
     fn interact_prog_instr(&mut self, coding: &mut Coding, idx: usize, instr: Option<&Op>)
@@ -377,21 +391,7 @@ impl UiCodingArena
         PRect {x, y, w: self.fr_pos.prog_instr_w, h: self.fr_pos.prog_instr_h}
     }
 
-    fn draw_prog_instr_at(&self, coords: PRect, txt: &str, placeholder: bool) {
-        let mouse_in = self.mouse_in(coords.x, coords.y, coords.w, coords.h);
-
-        let highlight = mouse_in && (!placeholder || matches!(self.dragging, Dragging::Yes{..}) );
-
-        let style = if !self.is_coding {
-            OpStyle::running()
-        } else if highlight {
-            OpStyle::highlighted()
-        } else if placeholder {
-            OpStyle::placeholder()
-        } else {
-            OpStyle::coding()
-        };
-
+    fn draw_prog_instr_at(&self, coords: PRect, txt: &str, style: OpStyle) {
         let shrink_by = 1. - style.scale;
         let x = coords.x + coords.w * shrink_by/2.;
         let y = coords.y - coords.h * shrink_by/2.;
