@@ -80,7 +80,7 @@ impl OpStyle {
             // Covers over background when dragging
             fill_col: Color {r: 0., g:0., b:0., a:0.5 },
             scale: 1.0,
-            v_connector: true,
+            v_connector: false,
         }
     }
 
