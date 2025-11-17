@@ -125,7 +125,7 @@ impl OpStyle {
 
     pub fn placeholder() -> Self {
         Self {
-            border_width: 2.,
+            border_width: 1.,
             border_col: GRAY,
             // Covers over excess connecting line
             fill_col: BLACK,
