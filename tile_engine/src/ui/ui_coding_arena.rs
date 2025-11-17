@@ -231,22 +231,15 @@ impl UiCodingArena
     {
         // TODO: Review when things are highlighted. Show placeholder for dragged thing?
         // TODO: Still drawing too often on windows compared to pushpuzz??
-        let fdx = idx as f32;
         let txt = instr.map_or("".to_string(), Op::to_string);
 
-        let x = self.fr_pos.prog_x + self.fr_pos.prog_w/2. - self.fr_pos.prog_instr_w/2.;
-        let y = self.fr_pos.prog_y + self.fr_pos.prog_instr_spacing + fdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
+        let coords = self.prog_instr_coords(idx);
 
-        self.draw_prog_instr_at(x, y, &txt, txt=="");
+        self.draw_prog_instr_at(coords, &txt, txt=="");
 
-        if txt!="" {
-            // Connection to next op
-            draw_line(x+self.fr_pos.prog_instr_w/2., y+self.fr_pos.prog_instr_h, x+self.fr_pos.prog_instr_w/2., y+self.fr_pos.prog_instr_h+self.fr_pos.prog_instr_spacing, 2., LIGHTGRAY);
-        }
-
-        if self.is_coding && self.mouse_in(x, y, self.fr_pos.prog_w, self.fr_pos.prog_instr_h) {
+        if self.is_coding && self.mouse_in(coords.x, coords.y, self.fr_pos.prog_instr_w, self.fr_pos.prog_instr_h) {
             if txt!="" && is_mouse_button_pressed(MouseButton::Left) {
-                self.drag_prog_instr(coding, idx, mouse_position().0 - x, mouse_position().1 - y);
+                self.drag_prog_instr(coding, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
             } else if is_mouse_button_released(MouseButton::Left){
                 self.drop_to_prog(coding, idx);
             }
@@ -267,8 +260,13 @@ impl UiCodingArena
             let (x,y) = (mx - orig_offset_x, my - orig_offset_y);
             // TODO: get txt from original op via InstrRef
             match op_ref {
-                InstrRef::Supply{..} => self.draw_supply_op_at(x, y, &op.to_string()),
-                InstrRef::Prog{..} => self.draw_prog_instr_at(x, y, &op.to_string(), false),
+                InstrRef::Supply{..} => {
+                    self.draw_supply_op_at(x, y, &op.to_string());
+                },
+                InstrRef::Prog{..} => {
+                    let coords = PRect {x, y, w:self.fr_pos.prog_instr_w, h:self.fr_pos.prog_instr_h};
+                    self.draw_prog_instr_at(coords, &op.to_string(), false);
+                },
             }
         }
     }
@@ -299,14 +297,22 @@ impl UiCodingArena
         draw_text(txt, x + 0.2*self.fr_pos.supply_op_w, y+0.85*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz, WHITE);
     }
 
-    fn draw_prog_instr_at(&mut self, orig_x: f32, orig_y: f32, txt: &str, placeholder: bool) {
+    fn prog_instr_coords(&self, idx: usize) -> PRect {
+        let fdx = idx as f32;
+        let x = self.fr_pos.prog_x + self.fr_pos.prog_w/2. - self.fr_pos.prog_instr_w/2.;
+        let y = self.fr_pos.prog_y + self.fr_pos.prog_instr_spacing + fdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
+
+        PRect {x, y, w: self.fr_pos.prog_instr_w, h: self.fr_pos.prog_instr_h}
+    }
+
+    fn draw_prog_instr_at(&mut self, coords: PRect, txt: &str, placeholder: bool) {
         let scale = if placeholder {0.6} else {1.};
 
         let shrink_by = 1. - scale;
-        let x = orig_x + self.fr_pos.prog_instr_w * shrink_by / 2.;
-        let y = orig_y - self.fr_pos.prog_instr_h * shrink_by / 2.;
-        let w = self.fr_pos.prog_instr_w * scale;
-        let h = self.fr_pos.prog_instr_h * scale;
+        let x = coords.x + coords.w * shrink_by/2.;
+        let y = coords.y - coords.h * shrink_by/2.;
+        let w = coords.w * scale;
+        let h = coords.h * scale;
 
         let mouse_in = self.mouse_in(x, y, w, h);
 
@@ -323,6 +329,11 @@ impl UiCodingArena
 
         // Draw text
         draw_text(txt, x + 0.2*w, y+0.85*h, self.fr_pos.prog_instr_font_sz, WHITE);
+
+        if !placeholder {
+            // Connection to next op
+            draw_line(x+self.fr_pos.prog_instr_w/2., y+self.fr_pos.prog_instr_h, x+self.fr_pos.prog_instr_w/2., y+self.fr_pos.prog_instr_h+self.fr_pos.prog_instr_spacing, 2., LIGHTGRAY);
+        }
     }
 
     fn mouse_in(&self, x: f32, y: f32, w: f32, h: f32) -> bool {
