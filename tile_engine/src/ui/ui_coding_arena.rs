@@ -73,6 +73,26 @@ impl OpCoords {
             v_spacing: self.v_spacing,
         }
     }
+
+    fn draw_in_style(self, style: OpStyle, txt: &str) {
+        let c = self.scaled_down_to(style.scale);
+
+        draw_rectangle(c.x, c.y, c.w, c.h, style.fill_col);
+        draw_rectangle_lines(c.x, c.y, c.w, c.h, style.border_width, style.border_col);
+        let font_sz = c.w * 1.35;
+        draw_text(txt, c.x + 0.2*c.w, c.y+0.85*c.h, font_sz, WHITE);
+
+        if style.v_connector {
+            draw_line(
+                c.x + c.w/2.,
+                c.y + c.h,
+                c.x + c.w/2.,
+                c.y + c.h + c.v_spacing,
+                2.,
+                LIGHTGRAY
+            );
+        }
+    }
 }
 
 struct OpStyle {
@@ -131,26 +151,6 @@ impl OpStyle {
             fill_col: BLACK,
             scale: 1.0,
             v_connector: false,
-        }
-    }
-
-    fn draw_at(self, coords: OpCoords, txt: &str) {
-        let c = coords.scaled_down_to(self.scale);
-
-        draw_rectangle(c.x, c.y, c.w, c.h, self.fill_col);
-        draw_rectangle_lines(c.x, c.y, c.w, c.h, self.border_width, self.border_col);
-        let font_sz = c.w * 1.35;
-        draw_text(txt, c.x + 0.2*c.w, c.y+0.85*c.h, font_sz, WHITE);
-
-        if self.v_connector {
-            draw_line(
-                c.x + c.w/2.,
-                c.y + c.h,
-                c.x + c.w/2.,
-                c.y + c.h + c.v_spacing,
-                2.,
-                LIGHTGRAY
-            );
         }
     }
 }
@@ -348,8 +348,7 @@ impl UiCodingArena
     {
         if let Dragging::Yes{op, ..} = &self.dragging {
             let coords = self.dragging_op_coords().unwrap();
-            let style = OpStyle::dragging();
-            style.draw_at(coords, &op.to_string());
+            coords.draw_in_style(OpStyle::dragging(), &op.to_string());
         }
     }
 
@@ -369,8 +368,8 @@ impl UiCodingArena
     fn draw_supply_op(&self, idx: usize, bin: &Bin)
     {
         let coords = self.supply_op_coords(idx);
-        let style = self.calculate_style(coords, bin.curr_count>0);
-        style.draw_at(coords, &bin.op.to_string());
+        let has_op = bin.curr_count>0;
+        coords.draw_in_style(self.calculate_style(coords, has_op), &bin.op.to_string());
 
         // Draw count
         let count_txt = format!("{}/{}", bin.curr_count, bin.orig_count);
@@ -380,9 +379,9 @@ impl UiCodingArena
     fn draw_prog_instr(&self, idx: usize, instr: Option<&Op>)
     {
         let coords = self.prog_instr_coords(idx);
-        let style = self.calculate_style(coords, instr.is_some());
+        let has_op = instr.is_some();
         let txt = instr.map_or("".to_string(), Op::to_string);
-        style.draw_at(coords, &txt);
+        coords.draw_in_style(self.calculate_style(coords, has_op), &txt);
     }
 
     fn interact_prog_instr(&mut self, coding: &mut Coding, idx: usize, instr: Option<&Op>)
