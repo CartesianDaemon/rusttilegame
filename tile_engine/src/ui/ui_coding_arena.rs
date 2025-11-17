@@ -263,6 +263,31 @@ impl UiCodingArena
          self.draw_prog_instr(coding, coding.prog.instrs.len(), None);
     }
 
+    fn draw_dragging(&mut self, coding: &mut Coding) {
+        //// Draw dragging
+
+        // If mouse is released anywhere non-actionable, cancel any dragging.
+        // Use "!is_mouse_button_down" not "is_mouse_buttom_released" to ensure dragging is stopped.
+        if !is_mouse_button_down(MouseButton::Left) && let Dragging::Yes {..} = self.dragging  {
+            self.drop_cancel(coding);
+        }
+
+        if let Dragging::Yes{op, orig_offset_x, orig_offset_y, op_ref,..} = &self.dragging {
+            let (mx, my) = mouse_position();
+            let (x,y) = (mx - orig_offset_x, my - orig_offset_y);
+            // TODO: get txt from original op via InstrRef
+            match op_ref {
+                InstrRef::Supply{..} => {
+                    self.draw_supply_op_at(x, y, &op.to_string());
+                },
+                InstrRef::Prog{..} => {
+                    let coords = PRect {x, y, w:self.fr_pos.prog_instr_w, h:self.fr_pos.prog_instr_h};
+                    let _style = OpStyle::dragging();
+                    self.draw_prog_instr_at(coords, &op.to_string(), false);
+                },
+            }
+        }
+    }
 
     // TODO: Get counts from coding, not from parameters
     fn draw_supply_op(&mut self, coding: &mut Coding, idx: usize, bin: &Bin)
@@ -304,31 +329,6 @@ impl UiCodingArena
                 self.drag_prog_instr(coding, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
             } else if is_mouse_button_released(MouseButton::Left){
                 self.drop_to_prog(coding, idx);
-            }
-        }
-    }
-
-    fn draw_dragging(&mut self, coding: &mut Coding) {
-        //// Draw dragging
-
-        // If mouse is released anywhere non-actionable, cancel any dragging.
-        // Use "!is_mouse_button_down" not "is_mouse_buttom_released" to ensure dragging is stopped.
-        if !is_mouse_button_down(MouseButton::Left) && let Dragging::Yes {..} = self.dragging  {
-            self.drop_cancel(coding);
-        }
-
-        if let Dragging::Yes{op, orig_offset_x, orig_offset_y, op_ref,..} = &self.dragging {
-            let (mx, my) = mouse_position();
-            let (x,y) = (mx - orig_offset_x, my - orig_offset_y);
-            // TODO: get txt from original op via InstrRef
-            match op_ref {
-                InstrRef::Supply{..} => {
-                    self.draw_supply_op_at(x, y, &op.to_string());
-                },
-                InstrRef::Prog{..} => {
-                    let coords = PRect {x, y, w:self.fr_pos.prog_instr_w, h:self.fr_pos.prog_instr_h};
-                    self.draw_prog_instr_at(coords, &op.to_string(), false);
-                },
             }
         }
     }
@@ -388,17 +388,11 @@ impl UiCodingArena
         let w = coords.w * style.scale;
         let h = coords.h * style.scale;
 
-        // Draw square interior.
         draw_rectangle(x, y, w, h, style.fill_col);
-
-        // Draw outline
         draw_rectangle_lines(x, y, w, h, style.border_width, style.border_col);
-
-        // Draw text
         draw_text(txt, x + 0.2*w, y+0.85*h, self.fr_pos.prog_instr_font_sz, WHITE);
 
-        if !placeholder {
-            // Connection to next op
+        if style.v_connector {
             draw_line(x+self.fr_pos.prog_instr_w/2., y+self.fr_pos.prog_instr_h, x+self.fr_pos.prog_instr_w/2., y+self.fr_pos.prog_instr_h+self.fr_pos.prog_instr_spacing, 2., LIGHTGRAY);
         }
     }
