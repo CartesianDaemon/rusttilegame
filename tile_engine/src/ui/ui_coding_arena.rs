@@ -54,6 +54,68 @@ struct FrameCoords {
     prog_instr_spacing: f32,
 }
 
+struct OpStyle {
+    border_width: f32,
+    border_col: Color,
+    fill_col: Color,
+    scale: f32,
+    v_connector: bool,
+}
+
+impl OpStyle {
+    pub fn coding() -> Self {
+        Self {
+            border_width: 2.,
+            border_col: WHITE,
+            fill_col: Color {r: 0., g:0., b:0., a:0. },
+            scale: 1.0,
+            v_connector: true,
+        }
+    }
+
+    pub fn dragging() -> Self {
+        Self {
+            border_width: 2.,
+            border_col: WHITE,
+            // Covers over background when dragging
+            fill_col: Color {r: 0., g:0., b:0., a:0.5 },
+            scale: 1.0,
+            v_connector: true,
+        }
+    }
+
+    pub fn highlighted() -> Self {
+        Self {
+            border_width: 4.,
+            border_col: YELLOW,
+            fill_col: Color {r: 0., g:0., b:0., a:0. },
+            scale: 1.0,
+            v_connector: true,
+        }
+    }
+
+    pub fn running() -> Self {
+        Self {
+            border_width: 2.,
+            border_col: SKYBLUE,
+            fill_col: Color {r: 0., g:0., b:0., a:0. },
+            scale: 1.0,
+            v_connector: true,
+        }
+    }
+
+    pub fn placeholder() -> Self {
+        Self {
+            border_width: 2.,
+            border_col: WHITE,
+            // Covers over excess connecting line
+            fill_col: BLACK,
+            scale: 0.6,
+            v_connector: false,
+        }
+    }
+}
+
 // NB Original intention was to split this into a parent struct and UiCoding struct.
 pub struct UiCodingArena {
     is_coding: bool,
@@ -306,26 +368,31 @@ impl UiCodingArena
     }
 
     fn draw_prog_instr_at(&mut self, coords: PRect, txt: &str, placeholder: bool) {
-        let scale = if placeholder {0.6} else {1.};
-
-        let shrink_by = 1. - scale;
-        let x = coords.x + coords.w * shrink_by/2.;
-        let y = coords.y - coords.h * shrink_by/2.;
-        let w = coords.w * scale;
-        let h = coords.h * scale;
-
-        let mouse_in = self.mouse_in(x, y, w, h);
+        let mouse_in = self.mouse_in(coords.x, coords.y, coords.w, coords.h);
 
         let highlight = mouse_in && (!placeholder || matches!(self.dragging, Dragging::Yes{..}) );
 
-        let (border_width, border_col) = self.border_width_col(highlight);
+        let style = if !self.is_coding {
+            OpStyle::running()
+        } else if highlight {
+            OpStyle::highlighted()
+        } else if placeholder {
+            OpStyle::placeholder()
+        } else {
+            OpStyle::coding()
+        };
 
-        // Draw square interior. Covers over background when dragging, or excess connecting line.
-        let fill_col = if scale==1.0 {Color{r: 0., g:0., b:0., a:0.5 }} else {BLACK};
-        draw_rectangle(x, y, w, h, fill_col);
+        let shrink_by = 1. - style.scale;
+        let x = coords.x + coords.w * shrink_by/2.;
+        let y = coords.y - coords.h * shrink_by/2.;
+        let w = coords.w * style.scale;
+        let h = coords.h * style.scale;
+
+        // Draw square interior.
+        draw_rectangle(x, y, w, h, style.fill_col);
 
         // Draw outline
-        draw_rectangle_lines(x, y, w, h, border_width, border_col);
+        draw_rectangle_lines(x, y, w, h, style.border_width, style.border_col);
 
         // Draw text
         draw_text(txt, x + 0.2*w, y+0.85*h, self.fr_pos.prog_instr_font_sz, WHITE);
