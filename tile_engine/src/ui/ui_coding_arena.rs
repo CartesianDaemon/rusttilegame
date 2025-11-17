@@ -84,13 +84,11 @@ impl OpStyle {
         }
     }
 
-    pub fn highlighted() -> Self {
+    pub fn highlighted(orig_style: Self) -> Self {
         Self {
             border_width: 4.,
             border_col: YELLOW,
-            fill_col: Color {r: 0., g:0., b:0., a:0. },
-            scale: 1.0,
-            v_connector: true,
+            ..orig_style
         }
     }
 
@@ -107,10 +105,10 @@ impl OpStyle {
     pub fn placeholder() -> Self {
         Self {
             border_width: 2.,
-            border_col: WHITE,
+            border_col: GRAY,
             // Covers over excess connecting line
             fill_col: BLACK,
-            scale: 0.6,
+            scale: 1.0,
             v_connector: false,
         }
     }
@@ -326,19 +324,18 @@ impl UiCodingArena
 
         let coords = self.prog_instr_coords(idx);
 
-        let mouse_in = self.mouse_in(coords.x, coords.y, coords.w, coords.h);
-
-        let highlight = mouse_in && (instr.is_some() || matches!(self.dragging, Dragging::Yes{..}) );
-
-        let style = if !self.is_coding {
+        let mut style = if !self.is_coding {
             OpStyle::running()
-        } else if highlight {
-            OpStyle::highlighted()
         } else if instr.is_none() {
             OpStyle::placeholder()
         } else {
             OpStyle::coding()
         };
+
+        let mouse_in = self.mouse_in(coords.x, coords.y, coords.w, coords.h);
+        if mouse_in && (instr.is_some() || matches!(self.dragging, Dragging::Yes{..}) ) {
+            style = OpStyle::highlighted(style);
+        }
 
         self.draw_prog_instr_at(coords, &txt, style);
     }
