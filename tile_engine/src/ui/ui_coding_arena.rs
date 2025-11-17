@@ -62,6 +62,19 @@ pub struct OpCoords {
     pub v_spacing: f32,
 }
 
+impl OpCoords {
+    pub fn scaled_down_to(self, scale: f32) -> OpCoords {
+        let shrink_in_by = (1. - scale)/2.;
+        OpCoords {
+            x: self.x + self.w * shrink_in_by,
+            y: self.y - self.h * shrink_in_by,
+            w: self.w * scale,
+            h: self.h * scale,
+            v_spacing: self.v_spacing,
+        }
+    }
+}
+
 struct OpStyle {
     border_width: f32,
     border_col: Color,
@@ -121,20 +134,23 @@ impl OpStyle {
         }
     }
 
-    fn draw_at(self, coords: OpCoords, txt: &str) {
-        let shrink_by = 1. - self.scale;
-        let x = coords.x + coords.w * shrink_by/2.;
-        let y = coords.y - coords.h * shrink_by/2.;
-        let w = coords.w * self.scale;
-        let h = coords.h * self.scale;
+    fn draw_at(self, orig_coords: OpCoords, txt: &str) {
+        let coords = orig_coords.scaled_down_to(self.scale);
 
-        draw_rectangle(x, y, w, h, self.fill_col);
-        draw_rectangle_lines(x, y, w, h, self.border_width, self.border_col);
-        let font_sz = w * 1.35;
-        draw_text(txt, x + 0.2*w, y+0.85*h, font_sz, WHITE);
+        draw_rectangle(coords.x, coords.y, coords.w, coords.h, self.fill_col);
+        draw_rectangle_lines(coords.x, coords.y, coords.w, coords.h, self.border_width, self.border_col);
+        let font_sz = coords.w * 1.35;
+        draw_text(txt, coords.x + 0.2*coords.w, coords.y+0.85*coords.h, font_sz, WHITE);
 
         if self.v_connector {
-            draw_line(x + w/2., y + h, x + w/2., y + h + coords.v_spacing, 2., LIGHTGRAY);
+            draw_line(
+                coords.x + coords.w/2.,
+                coords.y + coords.h,
+                coords.x + coords.w/2.,
+                coords.y + coords.h + coords.v_spacing,
+                2.,
+                LIGHTGRAY
+            );
         }
     }
 }
