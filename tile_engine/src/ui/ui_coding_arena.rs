@@ -120,7 +120,25 @@ impl OpStyle {
             v_connector: false,
         }
     }
+
+    fn draw_at(self, coords: OpCoords, txt: &str) {
+        let shrink_by = 1. - self.scale;
+        let x = coords.x + coords.w * shrink_by/2.;
+        let y = coords.y - coords.h * shrink_by/2.;
+        let w = coords.w * self.scale;
+        let h = coords.h * self.scale;
+
+        draw_rectangle(x, y, w, h, self.fill_col);
+        draw_rectangle_lines(x, y, w, h, self.border_width, self.border_col);
+        let font_sz = w * 1.35;
+        draw_text(txt, x + 0.2*w, y+0.85*h, font_sz, WHITE);
+
+        if self.v_connector {
+            draw_line(x + w/2., y + h, x + w/2., y + h + coords.v_spacing, 2., LIGHTGRAY);
+        }
+    }
 }
+
 
 // NB Original intention was to split this into a parent struct and UiCoding struct.
 pub struct UiCodingArena {
@@ -293,7 +311,7 @@ impl UiCodingArena
                 InstrRef::Prog{..} => {
                     let coords = OpCoords {x, y, w:self.fr_pos.prog_instr_w, h:self.fr_pos.prog_instr_h, v_spacing: 0.};
                     let style = OpStyle::dragging();
-                    self.draw_prog_instr_at(coords, &op.to_string(), style);
+                    style.draw_at(coords, &op.to_string());
                 },
             }
         }
@@ -343,7 +361,7 @@ impl UiCodingArena
             style = OpStyle::highlighted(style);
         }
 
-        self.draw_prog_instr_at(coords, &txt, style);
+        style.draw_at(coords, &txt);
     }
 
     fn interact_prog_instr(&mut self, coding: &mut Coding, idx: usize, instr: Option<&Op>)
@@ -392,23 +410,6 @@ impl UiCodingArena
         let y = self.fr_pos.prog_y + self.fr_pos.prog_instr_spacing + fdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
 
         OpCoords {x, y, w: self.fr_pos.prog_instr_w, h: self.fr_pos.prog_instr_h, v_spacing: self.fr_pos.prog_instr_spacing}
-    }
-
-    fn draw_prog_instr_at(&self, coords: OpCoords, txt: &str, style: OpStyle) {
-        let shrink_by = 1. - style.scale;
-        let x = coords.x + coords.w * shrink_by/2.;
-        let y = coords.y - coords.h * shrink_by/2.;
-        let w = coords.w * style.scale;
-        let h = coords.h * style.scale;
-
-        draw_rectangle(x, y, w, h, style.fill_col);
-        draw_rectangle_lines(x, y, w, h, style.border_width, style.border_col);
-        let font_sz = w * 1.35;
-        draw_text(txt, x + 0.2*w, y+0.85*h, font_sz, WHITE);
-
-        if style.v_connector {
-            draw_line(x + w/2., y + h, x + w/2., y + h + coords.v_spacing, 2., LIGHTGRAY);
-        }
     }
 
     fn mouse_in(&self, x: f32, y: f32, w: f32, h: f32) -> bool {
