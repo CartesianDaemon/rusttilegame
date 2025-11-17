@@ -163,7 +163,7 @@ impl OpStyle {
         }
     }
 
-    pub fn placeholder() -> Self {
+    pub fn coding_placeholder() -> Self {
         Self {
             border_width: 1.,
             border_col: GRAY,
@@ -173,8 +173,14 @@ impl OpStyle {
             v_connector: false,
         }
     }
-}
 
+    pub fn running_placeholder() -> Self {
+        Self {
+            v_connector: false,
+            ..Self::running()
+        }
+    }
+}
 
 // NB Original intention was to split this into a parent struct and UiCoding struct.
 pub struct UiCodingArena {
@@ -419,10 +425,14 @@ impl UiCodingArena
             if has_op {
                 OpStyle::coding()
             } else {
-                OpStyle::placeholder()
+                OpStyle::coding_placeholder()
             }
         } else {
-            OpStyle::running()
+            if has_op {
+                OpStyle::running()
+            } else {
+                OpStyle::running_placeholder()
+            }
         };
 
         if has_op && self.mouse_in(coords) {
