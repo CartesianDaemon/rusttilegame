@@ -153,6 +153,17 @@ impl OpStyle {
         }
     }
 
+    pub fn coding_placeholder() -> Self {
+        Self {
+            border_width: 1.,
+            border_col: GRAY,
+            // Covers over excess connecting line
+            fill_col: BLACK,
+            scale: 1.0,
+            v_connector: false,
+        }
+    }
+
     pub fn running() -> Self {
         Self {
             border_width: 2.,
@@ -163,14 +174,10 @@ impl OpStyle {
         }
     }
 
-    pub fn coding_placeholder() -> Self {
+    pub fn running_active(orig_style: Self) -> Self {
         Self {
-            border_width: 1.,
-            border_col: GRAY,
-            // Covers over excess connecting line
-            fill_col: BLACK,
-            scale: 1.0,
-            v_connector: false,
+            border_col: RED,
+            ..orig_style
         }
     }
 
@@ -185,6 +192,7 @@ impl OpStyle {
 // NB Original intention was to split this into a parent struct and UiCoding struct.
 pub struct UiCodingArena {
     is_coding: bool,
+    active_idx: Option<usize>,
 
     fr_pos: FrameCoords,
 
@@ -196,6 +204,7 @@ impl UiCodingArena
     pub fn new() -> Self {
         Self {
             is_coding: false,
+            active_idx: None,
             fr_pos: FrameCoords::default(),
             dragging: Dragging::No,
         }
@@ -208,8 +217,7 @@ impl UiCodingArena
             texture_cache: &mut TextureCache,
             anim: AnimState,
         ) {
-        let _arena = &mut coding_arena.curr_arena;
-
+        // self.active_idx = coding_arena.curr_arena.map(|curr_arena| curr_arena[curr_arena.hero()].logical_props.custom_props.ip);
         self.initialise_frame_coords(coding_arena.is_coding());
 
         if self.is_coding {
@@ -377,8 +385,9 @@ impl UiCodingArena
     fn draw_supply_op(&self, idx: usize, bin: &Bin)
     {
         let coords = self.supply_op_coords(idx);
+        let active = false;
         let has_op = bin.curr_count>0;
-        coords.draw_in_style(self.calculate_style(coords, has_op), &bin.op.to_string());
+        coords.draw_in_style(self.calculate_style(coords, active, has_op), &bin.op.to_string());
 
         // Draw count
         let count_txt = format!("{}/{}", bin.curr_count, bin.orig_count);
@@ -388,6 +397,7 @@ impl UiCodingArena
     fn draw_prog_instr(&self, idx: usize, instr: Option<&Op>)
     {
         let coords = self.prog_instr_coords(idx);
+        let active = Some(idx) == self.active_idx;
         let has_op = instr.is_some();
         let txt = if let Some(op) = instr {
             op.to_string()
@@ -396,7 +406,7 @@ impl UiCodingArena
         } else {
             "X".to_string()
         };
-        coords.draw_in_style(self.calculate_style(coords, has_op), &txt);
+        coords.draw_in_style(self.calculate_style(coords, active, has_op), &txt);
     }
 
     fn interact_supply_op(&mut self, coding: &mut Coding, idx: usize)
@@ -425,29 +435,34 @@ impl UiCodingArena
         }
     }
 
-    fn calculate_style(&self, coords: OpCoords, has_op: bool) -> OpStyle
+    fn calculate_style(&self, coords: OpCoords, active: bool, has_op: bool) -> OpStyle
     {
-        let mut style = if self.is_coding {
-            if has_op {
+        let mut style;
+        if self.is_coding {
+            style = if has_op {
                 OpStyle::coding()
             } else {
                 OpStyle::coding_placeholder()
+            };
+
+            if has_op && self.mouse_in(coords) {
+                // Available to pick up
+                style = OpStyle::highlighted(style);
+            } else if self.is_dragging_over(coords) {
+                // Available to drop onto
+                style = OpStyle::highlighted(style);
             }
         } else {
-            if has_op {
+            style = if has_op {
                 OpStyle::running()
             } else {
                 OpStyle::running_placeholder()
+            };
+
+            if active {
+                style = OpStyle::running_active(style);
             }
         };
-
-        if has_op && self.mouse_in(coords) {
-            // Available to pick up
-            style = OpStyle::highlighted(style);
-        } else if self.is_dragging_over(coords) {
-            // Available to drop onto
-            style = OpStyle::highlighted(style);
-        }
 
         style
     }
