@@ -53,6 +53,15 @@ struct FrameCoords {
     prog_instr_spacing: f32,
 }
 
+#[derive(Copy, Clone, Default)]
+pub struct OpCoords {
+    pub x: f32,
+    pub y: f32,
+    pub w: f32,
+    pub h: f32,
+    pub v_spacing: f32,
+}
+
 struct OpStyle {
     border_width: f32,
     border_col: Color,
@@ -282,7 +291,7 @@ impl UiCodingArena
                     self.draw_supply_op_at(x, y, &op.to_string());
                 },
                 InstrRef::Prog{..} => {
-                    let coords = PRect {x, y, w:self.fr_pos.prog_instr_w, h:self.fr_pos.prog_instr_h};
+                    let coords = OpCoords {x, y, w:self.fr_pos.prog_instr_w, h:self.fr_pos.prog_instr_h, v_spacing: 0.};
                     let style = OpStyle::dragging();
                     self.draw_prog_instr_at(coords, &op.to_string(), style);
                 },
@@ -377,15 +386,15 @@ impl UiCodingArena
         draw_text(txt, x + 0.2*self.fr_pos.supply_op_w, y+0.85*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz, WHITE);
     }
 
-    fn prog_instr_coords(&self, idx: usize) -> PRect {
+    fn prog_instr_coords(&self, idx: usize) -> OpCoords {
         let fdx = idx as f32;
         let x = self.fr_pos.prog_x + self.fr_pos.prog_w/2. - self.fr_pos.prog_instr_w/2.;
         let y = self.fr_pos.prog_y + self.fr_pos.prog_instr_spacing + fdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
 
-        PRect {x, y, w: self.fr_pos.prog_instr_w, h: self.fr_pos.prog_instr_h}
+        OpCoords {x, y, w: self.fr_pos.prog_instr_w, h: self.fr_pos.prog_instr_h, v_spacing: self.fr_pos.prog_instr_spacing}
     }
 
-    fn draw_prog_instr_at(&self, coords: PRect, txt: &str, style: OpStyle) {
+    fn draw_prog_instr_at(&self, coords: OpCoords, txt: &str, style: OpStyle) {
         let shrink_by = 1. - style.scale;
         let x = coords.x + coords.w * shrink_by/2.;
         let y = coords.y - coords.h * shrink_by/2.;
@@ -398,7 +407,7 @@ impl UiCodingArena
         draw_text(txt, x + 0.2*w, y+0.85*h, font_sz, WHITE);
 
         if style.v_connector {
-            draw_line(x+w/2., y+h, x+w/2., y+h+self.fr_pos.prog_instr_spacing, 2., LIGHTGRAY);
+            draw_line(x + w/2., y + h, x + w/2., y + h + coords.v_spacing, 2., LIGHTGRAY);
         }
     }
 
