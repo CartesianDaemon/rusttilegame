@@ -50,7 +50,6 @@ struct FrameCoords {
 
     prog_instr_w: f32,
     prog_instr_h: f32,
-    prog_instr_font_sz: f32,
     prog_instr_spacing: f32,
 }
 
@@ -193,7 +192,6 @@ impl UiCodingArena
         let prog_n = 6.;
         let prog_instr_h = (prog_w * 0.8).min(prog_h / (spacing_pc + prog_n*(1.+spacing_pc)));
         let prog_instr_w = prog_instr_h;
-        let prog_instr_font_sz = prog_instr_w * 1.35;
         let prog_instr_spacing =  prog_instr_w * spacing_pc;
 
         self.is_coding = coding;
@@ -217,7 +215,6 @@ impl UiCodingArena
 
             prog_instr_w,
             prog_instr_h,
-            prog_instr_font_sz,
             prog_instr_spacing,
         }
 
@@ -397,10 +394,11 @@ impl UiCodingArena
 
         draw_rectangle(x, y, w, h, style.fill_col);
         draw_rectangle_lines(x, y, w, h, style.border_width, style.border_col);
-        draw_text(txt, x + 0.2*w, y+0.85*h, self.fr_pos.prog_instr_font_sz, WHITE);
+        let font_sz = w * 1.35;
+        draw_text(txt, x + 0.2*w, y+0.85*h, font_sz, WHITE);
 
         if style.v_connector {
-            draw_line(x+self.fr_pos.prog_instr_w/2., y+self.fr_pos.prog_instr_h, x+self.fr_pos.prog_instr_w/2., y+self.fr_pos.prog_instr_h+self.fr_pos.prog_instr_spacing, 2., LIGHTGRAY);
+            draw_line(x+w/2., y+h, x+w/2., y+h+self.fr_pos.prog_instr_spacing, 2., LIGHTGRAY);
         }
     }
 
