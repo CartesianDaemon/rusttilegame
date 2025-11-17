@@ -93,6 +93,14 @@ impl OpCoords {
             );
         }
     }
+
+    fn middle(self) -> (f32, f32) {
+        (self.x + self.w/2., self.y + self.h/2.)
+    }
+
+    fn contains(self, pt: (f32, f32)) -> bool {
+        (self.x..self.x+self.w).contains(&pt.0) && (self.y..self.y+self.h).contains(&pt.1)
+    }
 }
 
 struct OpStyle {
@@ -289,12 +297,19 @@ impl UiCodingArena
             self.interact_supply_op(coding, idx);
         }
 
-        if self.mouse_in(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h) {
+        // NB: Actually a regular rect, not an opcoords.
+        let rect = PRect {
+            x: self.fr_pos.supply_x,
+            y: self.fr_pos.supply_y,
+            w: self.fr_pos.supply_w,
+            h: self.fr_pos.supply_h,
+        };
+
+        if self.mouse_in_rect(rect) {
             if is_mouse_button_released(MouseButton::Left) {
                 self.drop_to_supply(coding);
             }
         }
-
     }
 
     fn draw_prog(&self, coding: &Coding) {
@@ -316,7 +331,7 @@ impl UiCodingArena
     }
 
     fn interact_dragging(&mut self, coding: &mut Coding) {
-        // If mouse is released anywhere non-actionable, cancel any dragging.
+        // If mouse is released anywhere else, cancel drag, return dragged op to its origin.
         // Use "!is_mouse_button_down" not "is_mouse_buttom_released" to ensure dragging is stopped.
         if !is_mouse_button_down(MouseButton::Left) {
             match self.dragging {
@@ -333,35 +348,11 @@ impl UiCodingArena
         }
     }
 
-    fn dragging_op_coords(&self) -> Option<OpCoords> {
-        match &self.dragging {
-            Dragging::Yes{orig_offset_x, orig_offset_y,..} => {
-                let (mx, my) = mouse_position();
-                let (x,y) = (mx - orig_offset_x, my - orig_offset_y);
-                Some(OpCoords {x, y, w:self.fr_pos.prog_instr_w, h:self.fr_pos.prog_instr_h, v_spacing: 0.})
-            },
-            _ => None,
-        }
-    }
-
     fn draw_dragging(&self)
     {
         if let Dragging::Yes{op, ..} = &self.dragging {
             let coords = self.dragging_op_coords().unwrap();
             coords.draw_in_style(OpStyle::dragging(), &op.to_string());
-        }
-    }
-
-    fn interact_supply_op(&mut self, coding: &mut Coding, idx: usize)
-    {
-        let coords = self.supply_op_coords(idx);
-
-        if self.is_coding && self.mouse_in(coords.x, coords.y, self.fr_pos.supply_op_w, self.fr_pos.supply_op_h) {
-            if is_mouse_button_pressed(MouseButton::Left) {
-                self.drag_supply_op(coding, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
-            } else if is_mouse_button_released(MouseButton::Left) {
-                self.drop_to_supply_bin(coding, idx);
-            }
         }
     }
 
@@ -384,14 +375,27 @@ impl UiCodingArena
         coords.draw_in_style(self.calculate_style(coords, has_op), &txt);
     }
 
+    fn interact_supply_op(&mut self, coding: &mut Coding, idx: usize)
+    {
+        let coords = self.supply_op_coords(idx);
+
+        if self.is_coding {
+            if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(coords) {
+                self.drag_supply_op(coding, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
+            } else if self.is_dragging_over(coords) && is_mouse_button_released(MouseButton::Left) {
+                self.drop_to_supply_bin(coding, idx);
+            }
+        }
+    }
+
     fn interact_prog_instr(&mut self, coding: &mut Coding, idx: usize, instr: Option<&Op>)
     {
         let coords = self.prog_instr_coords(idx);
 
-        if self.is_coding && self.mouse_in(coords.x, coords.y, self.fr_pos.prog_instr_w, self.fr_pos.prog_instr_h) {
-            if instr.is_some() && is_mouse_button_pressed(MouseButton::Left) {
+        if self.is_coding {
+            if instr.is_some() && is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(coords) {
                 self.drag_prog_instr(coding, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
-            } else if is_mouse_button_released(MouseButton::Left){
+            } else if self.is_dragging_over(coords) && is_mouse_button_released(MouseButton::Left) {
                 self.drop_to_prog(coding, idx);
             }
         }
@@ -409,10 +413,13 @@ impl UiCodingArena
             OpStyle::running()
         };
 
-        let mouse_in = self.mouse_in(coords.x, coords.y, coords.w, coords.h);
-        if mouse_in && (has_op || matches!(self.dragging, Dragging::Yes{..}) ) {
+        if has_op && self.mouse_in(coords) {
+            // Available to pick up
             style = OpStyle::highlighted(style);
-        };
+        } else if self.is_dragging_over(coords) {
+            // Available to drop onto
+            style = OpStyle::highlighted(style);
+        }
 
         style
     }
@@ -436,9 +443,37 @@ impl UiCodingArena
         OpCoords {x, y, w: self.fr_pos.prog_instr_w, h: self.fr_pos.prog_instr_h, v_spacing: self.fr_pos.prog_instr_spacing}
     }
 
-    fn mouse_in(&self, x: f32, y: f32, w: f32, h: f32) -> bool {
-        let (mx, my) = mouse_position();
-        (x..x+w).contains(&mx) && (y..y+h).contains(&my)
+    fn dragging_op_coords(&self) -> Option<OpCoords> {
+        match &self.dragging {
+            Dragging::Yes{orig_offset_x, orig_offset_y,..} => {
+                let (mx, my) = mouse_position();
+                let (x,y) = (mx - orig_offset_x, my - orig_offset_y);
+                Some(OpCoords {x, y, w:self.fr_pos.prog_instr_w, h:self.fr_pos.prog_instr_h, v_spacing: 0.})
+            },
+            _ => None,
+        }
+    }
+
+    fn is_dragging_over(&self, coords: OpCoords) -> bool {
+        if let Some(dragging_coords) = self.dragging_op_coords() {
+            coords.contains(dragging_coords.middle())
+        } else {
+            false
+        }
+    }
+
+    fn mouse_in(&self, coords: OpCoords) -> bool {
+        coords.contains(mouse_position())
+    }
+
+    fn mouse_in_rect(&self, rect: PRect) -> bool {
+        OpCoords {
+            x: rect.x,
+            y: rect.y,
+            w: rect.w,
+            h: rect.h,
+            v_spacing: 0.,
+        }.contains(mouse_position())
     }
 
     fn drag_supply_op(&mut self, coding: &mut Coding, idx: usize, orig_offset_x: f32, orig_offset_y: f32) {
