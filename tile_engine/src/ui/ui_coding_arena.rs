@@ -63,11 +63,23 @@ pub struct OpCoords {
 }
 
 impl OpCoords {
+    /// Scale down near top of square
     pub fn scaled_down_to(self, scale: f32) -> OpCoords {
         let shrink_in_by = (1. - scale)/2.;
         OpCoords {
             x: self.x + self.w * shrink_in_by,
             y: self.y - self.h * shrink_in_by,
+            w: self.w * scale,
+            h: self.h * scale,
+            v_spacing: self.v_spacing,
+        }
+    }
+
+    /// Expand square to proportion
+    pub fn expand_to(self, scale: f32) -> OpCoords {
+        OpCoords {
+            x: self.x - self.w * (scale - 1.)/2.,
+            y: self.y - self.h * (scale - 1.)/2.,
             w: self.w * scale,
             h: self.h * scale,
             v_spacing: self.v_spacing,
@@ -454,9 +466,10 @@ impl UiCodingArena
         }
     }
 
+    // If dragged op is intersecting a specific op. Including padding.
     fn is_dragging_over(&self, coords: OpCoords) -> bool {
         if let Some(dragging_coords) = self.dragging_op_coords() {
-            coords.contains(dragging_coords.middle())
+            coords.expand_to(1.5).contains(dragging_coords.middle())
         } else {
             false
         }
