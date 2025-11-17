@@ -54,6 +54,7 @@ struct FrameCoords {
     prog_instr_spacing: f32,
 }
 
+// NB Original intention was to split this into a parent struct and UiCoding struct.
 pub struct UiCodingArena {
     is_coding: bool,
 
@@ -102,7 +103,7 @@ impl UiCodingArena
         let arena = PRect {
             x: 0.,
             y: 0.,
-            w: screen_height().min(screen_width() * if coding {0.6} else {0.8} ) ,
+            w: screen_height().min(screen_width() * if coding {0.8} else {0.9} ) ,
             h: screen_height(),
         };
         let arena_w = arena.w;
