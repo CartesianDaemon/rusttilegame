@@ -335,22 +335,12 @@ impl UiCodingArena
 
     fn draw_dragging(&self)
     {
-        if let Dragging::Yes{op, orig_offset_x, orig_offset_y, op_ref,..} = &self.dragging {
+        if let Dragging::Yes{op, orig_offset_x, orig_offset_y,..} = &self.dragging {
             let (mx, my) = mouse_position();
             let (x,y) = (mx - orig_offset_x, my - orig_offset_y);
-            // TODO: get txt from original op via InstrRef
-            match op_ref {
-                InstrRef::Supply{..} => {
-                    let coords = OpCoords {x, y, w:self.fr_pos.prog_instr_w, h:self.fr_pos.prog_instr_h, v_spacing: 0.};
-                    let style = OpStyle::dragging();
-                    style.draw_at(coords, &op.to_string());
-                },
-                InstrRef::Prog{..} => {
-                    let coords = OpCoords {x, y, w:self.fr_pos.prog_instr_w, h:self.fr_pos.prog_instr_h, v_spacing: 0.};
-                    let style = OpStyle::dragging();
-                    style.draw_at(coords, &op.to_string());
-                },
-            }
+            let coords = OpCoords {x, y, w:self.fr_pos.prog_instr_w, h:self.fr_pos.prog_instr_h, v_spacing: 0.};
+            let style = OpStyle::dragging();
+            style.draw_at(coords, &op.to_string());
         }
     }
 
