@@ -196,12 +196,13 @@ impl UiCodingArena
         self.draw_prog(&mut coding_arena.coding);
         if self.is_coding {
             self.draw_supply(&mut coding_arena.coding);
+            self.draw_dragging();
         }
 
         self.interact_prog(&mut coding_arena.coding);
         if self.is_coding {
             self.interact_supply(&mut coding_arena.coding);
-            self.draw_dragging(&mut coding_arena.coding);
+            self.interact_dragging(&mut coding_arena.coding);
         }
     }
 
@@ -314,15 +315,16 @@ impl UiCodingArena
         self.interact_prog_instr(coding, coding.prog.instrs.len(), None);
     }
 
-    fn draw_dragging(&mut self, coding: &mut Coding) {
-        //// Draw dragging
-
+    fn interact_dragging(&mut self, coding: &mut Coding) {
         // If mouse is released anywhere non-actionable, cancel any dragging.
         // Use "!is_mouse_button_down" not "is_mouse_buttom_released" to ensure dragging is stopped.
         if !is_mouse_button_down(MouseButton::Left) && let Dragging::Yes {..} = self.dragging  {
             self.drop_cancel(coding);
         }
+    }
 
+    fn draw_dragging(&self)
+    {
         if let Dragging::Yes{op, orig_offset_x, orig_offset_y, op_ref,..} = &self.dragging {
             let (mx, my) = mouse_position();
             let (x,y) = (mx - orig_offset_x, my - orig_offset_y);
