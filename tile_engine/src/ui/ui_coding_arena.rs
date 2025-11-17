@@ -272,13 +272,14 @@ impl UiCodingArena
     }
 
     fn draw_supply(&mut self, coding: &mut Coding) {
-        //// Draw supply. TODO: Move to sep fn
-
         draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., WHITE);
 
-        // TODO: Avoid clone, and work out how iteration should work if something is changed?
+        for idx in 0..coding.supply.len() {
+            self.interact_supply_op(coding, idx);
+        }
+
         for (idx, bin) in coding.supply.clone().iter().enumerate() {
-            self.draw_supply_op(coding, idx, bin);
+            self.draw_supply_op(idx, bin);
         }
 
         if self.mouse_in(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h) {
@@ -335,8 +336,7 @@ impl UiCodingArena
         }
     }
 
-    // TODO: Get counts from coding, not from parameters
-    fn draw_supply_op(&mut self, coding: &mut Coding, idx: usize, bin: &Bin)
+    fn interact_supply_op(&mut self, coding: &mut Coding, idx: usize)
     {
         let coords = self.supply_op_coords(idx);
 
@@ -347,7 +347,11 @@ impl UiCodingArena
                 self.drop_to_supply_bin(coding, idx);
             }
         }
+    }
 
+    fn draw_supply_op(&self, idx: usize, bin: &Bin)
+    {
+        let coords = self.supply_op_coords(idx);
         let style = self.calculate_style(coords, bin.curr_count>0);
         style.draw_at(coords, &bin.op.to_string());
 
@@ -362,6 +366,19 @@ impl UiCodingArena
         let style = self.calculate_style(coords, instr.is_some());
         let txt = instr.map_or("".to_string(), Op::to_string);
         style.draw_at(coords, &txt);
+    }
+
+    fn interact_prog_instr(&mut self, coding: &mut Coding, idx: usize, instr: Option<&Op>)
+    {
+        let coords = self.prog_instr_coords(idx);
+
+        if self.is_coding && self.mouse_in(coords.x, coords.y, self.fr_pos.prog_instr_w, self.fr_pos.prog_instr_h) {
+            if instr.is_some() && is_mouse_button_pressed(MouseButton::Left) {
+                self.drag_prog_instr(coding, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
+            } else if is_mouse_button_released(MouseButton::Left){
+                self.drop_to_prog(coding, idx);
+            }
+        }
     }
 
     fn calculate_style(&self, coords: OpCoords, has_op: bool) -> OpStyle
@@ -382,19 +399,6 @@ impl UiCodingArena
         };
 
         style
-    }
-
-    fn interact_prog_instr(&mut self, coding: &mut Coding, idx: usize, instr: Option<&Op>)
-    {
-        let coords = self.prog_instr_coords(idx);
-
-        if self.is_coding && self.mouse_in(coords.x, coords.y, self.fr_pos.prog_instr_w, self.fr_pos.prog_instr_h) {
-            if instr.is_some() && is_mouse_button_pressed(MouseButton::Left) {
-                self.drag_prog_instr(coding, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
-            } else if is_mouse_button_released(MouseButton::Left){
-                self.drop_to_prog(coding, idx);
-            }
-        }
     }
 
     fn supply_op_coords(&self, idx: usize) -> OpCoords {
