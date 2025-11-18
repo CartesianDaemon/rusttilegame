@@ -51,6 +51,8 @@ struct FrameCoords {
     prog_instr_w: f32,
     prog_instr_h: f32,
     prog_instr_spacing: f32,
+
+    highlighted_specific_droppable: bool,
 }
 
 #[derive(Copy, Clone, Default)]
@@ -299,6 +301,8 @@ impl UiCodingArena
             prog_instr_w,
             prog_instr_h,
             prog_instr_spacing,
+
+            highlighted_specific_droppable: false,
         }
 
     }
@@ -320,19 +324,33 @@ impl UiCodingArena
         }
     }
 
-    fn draw_supply(&self, coding: &mut Coding) {
-        let mut highlighted_specific_bin = false;
+    fn draw_supply(&mut self, coding: &mut Coding) {
         for (idx, bin) in coding.supply.clone().iter().enumerate() {
             self.draw_supply_op(idx, bin);
-            highlighted_specific_bin |= self.is_dragging_over(self.supply_op_coords(idx));
         }
 
-        let border_col = if matches!(self.dragging, Dragging::Yes{..}) && !highlighted_specific_bin {
-            GOLD
-        } else {
-            WHITE
-        };
+        // Droppable if dragging, and not highlighted any more specific bin/instr,
+        // and either mouse over supply, or dragged from supply (and mouse anywhere).
+        let droppable = matches!(self.dragging, Dragging::Yes{..}) &&
+            !self.fr_pos.highlighted_specific_droppable &&
+            (self.mouse_in_rect(self.supply_rect()) || matches!(self.dragging, Dragging::Yes{op_ref:InstrRef::Supply{..},..}));
+        let border_col = if droppable { GOLD } else { WHITE };
         draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., border_col);
+    }
+
+    fn draw_prog(&mut self, coding: &Coding) {
+        // Droppable if dragged from prog and mouse is not anywhere specific.
+        let droppable = matches!(self.dragging, Dragging::Yes{op_ref:InstrRef::Prog{..},..}) &&
+            !self.fr_pos.highlighted_specific_droppable &&
+            !self.mouse_in_rect(self.supply_rect());
+        let border_col = if !self.is_coding {SKYBLUE} else if droppable {GOLD} else {WHITE};
+        draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., border_col);
+
+        // NB: Clone means that we draw the original instrs, even if one is dragged out.
+        for (idx, instr) in coding.prog.instrs.clone().iter().enumerate() {
+            self.draw_prog_instr(idx, Some(instr));
+        }
+        self.draw_prog_instr(coding.prog.instrs.len(), None);
     }
 
     fn interact_supply(&mut self, coding: &mut Coding) {
@@ -345,17 +363,6 @@ impl UiCodingArena
                 self.drop_to_supply(coding);
             }
         }
-    }
-
-    fn draw_prog(&self, coding: &Coding) {
-        let border_col = if self.is_coding {WHITE} else {SKYBLUE};
-        draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., border_col);
-
-        // NB: Clone means that we draw the original instrs, even if one is dragged out.
-        for (idx, instr) in coding.prog.instrs.clone().iter().enumerate() {
-            self.draw_prog_instr(idx, Some(instr));
-        }
-        self.draw_prog_instr(coding.prog.instrs.len(), None);
     }
 
     fn interact_prog(&mut self, coding: &mut Coding) {
@@ -391,7 +398,7 @@ impl UiCodingArena
         }
     }
 
-    fn draw_supply_op(&self, idx: usize, bin: &Bin)
+    fn draw_supply_op(&mut self, idx: usize, bin: &Bin)
     {
         let coords = self.supply_op_coords(idx);
         let active = false;
@@ -404,7 +411,7 @@ impl UiCodingArena
         draw_text(&count_txt, coords.x + 0.5*self.fr_pos.supply_op_w, coords.y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, WHITE);
     }
 
-    fn draw_prog_instr(&self, idx: usize, instr: Option<&Op>)
+    fn draw_prog_instr(&mut self, idx: usize, instr: Option<&Op>)
     {
         let coords = self.prog_instr_coords(idx);
         let active = Some(idx) == self.active_idx;
@@ -454,7 +461,7 @@ impl UiCodingArena
         }
     }
 
-    fn calculate_style(&self, coords: OpCoords, active: bool, has_op: bool, droppable: bool) -> OpStyle
+    fn calculate_style(&mut self, coords: OpCoords, active: bool, has_op: bool, droppable: bool) -> OpStyle
     {
         let mut style;
         if self.is_coding {
@@ -470,6 +477,7 @@ impl UiCodingArena
             } else if droppable {
                 // Available to drop onto
                 style = OpStyle::highlighted(style);
+                self.fr_pos.highlighted_specific_droppable = true;
             }
         } else {
             style = if has_op {
