@@ -311,12 +311,28 @@ impl UiCodingArena
         draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
     }
 
-    fn draw_supply(&self, coding: &mut Coding) {
-        draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., WHITE);
+    fn supply_rect(&self) -> PRect {
+        PRect {
+            x: self.fr_pos.supply_x,
+            y: self.fr_pos.supply_y,
+            w: self.fr_pos.supply_w,
+            h: self.fr_pos.supply_h,
+        }
+    }
 
+    fn draw_supply(&self, coding: &mut Coding) {
+        let mut highlighted_specific_bin = false;
         for (idx, bin) in coding.supply.clone().iter().enumerate() {
             self.draw_supply_op(idx, bin);
+            highlighted_specific_bin |= self.is_dragging_over(self.supply_op_coords(idx));
         }
+
+        let border_col = if matches!(self.dragging, Dragging::Yes{..}) && !highlighted_specific_bin {
+            GOLD
+        } else {
+            WHITE
+        };
+        draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., border_col);
     }
 
     fn interact_supply(&mut self, coding: &mut Coding) {
@@ -324,15 +340,7 @@ impl UiCodingArena
             self.interact_supply_op(coding, idx);
         }
 
-        // NB: Actually a regular rect, not an opcoords.
-        let rect = PRect {
-            x: self.fr_pos.supply_x,
-            y: self.fr_pos.supply_y,
-            w: self.fr_pos.supply_w,
-            h: self.fr_pos.supply_h,
-        };
-
-        if self.mouse_in_rect(rect) {
+        if self.mouse_in_rect(self.supply_rect()) {
             if is_mouse_button_released(MouseButton::Left) {
                 self.drop_to_supply(coding);
             }
@@ -388,7 +396,8 @@ impl UiCodingArena
         let coords = self.supply_op_coords(idx);
         let active = false;
         let has_op = bin.curr_count>0;
-        coords.draw_in_style(self.calculate_style(coords, active, has_op), &bin.op.to_string());
+        let droppable = self.is_droppable_on_supply_bin(idx, bin.op);
+        coords.draw_in_style(self.calculate_style(coords, active, has_op, droppable), &bin.op.to_string());
 
         // Draw count
         let count_txt = format!("{}/{}", bin.curr_count, bin.orig_count);
@@ -407,7 +416,8 @@ impl UiCodingArena
         } else {
             "X".to_string()
         };
-        coords.draw_in_style(self.calculate_style(coords, active, has_op), &txt);
+        let droppable = self.is_dragging_over(coords);
+        coords.draw_in_style(self.calculate_style(coords, active, has_op, droppable), &txt);
     }
 
     fn interact_supply_op(&mut self, coding: &mut Coding, idx: usize)
@@ -436,7 +446,15 @@ impl UiCodingArena
         }
     }
 
-    fn calculate_style(&self, coords: OpCoords, active: bool, has_op: bool) -> OpStyle
+    fn is_droppable_on_supply_bin(&self, idx: usize, op_type: Op) -> bool {
+        let coords = self.supply_op_coords(idx);
+        match self.dragging {
+            Dragging::Yes { op, ..} => self.is_dragging_over(coords) && op == op_type,
+            _ => false,
+        }
+    }
+
+    fn calculate_style(&self, coords: OpCoords, active: bool, has_op: bool, droppable: bool) -> OpStyle
     {
         let mut style;
         if self.is_coding {
@@ -449,7 +467,7 @@ impl UiCodingArena
             if has_op && self.mouse_in(coords) {
                 // Available to pick up
                 style = OpStyle::highlighted(style);
-            } else if self.is_dragging_over(coords) {
+            } else if droppable {
                 // Available to drop onto
                 style = OpStyle::highlighted(style);
             }
