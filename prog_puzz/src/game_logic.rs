@@ -64,6 +64,10 @@ impl BaseGameLogic for ProgpuzzGameLogic
         coding_arena.curr_arena.as_mut().unwrap()[bot].logical_props.custom_props.prog = coding_arena.coding.prog.clone();
     }
 
+    fn get_active_idx(coding_arena: &CodingArena<Self>) -> Option<usize> {
+        coding_arena.curr_arena.as_ref().map(|curr_arena| curr_arena[curr_arena.hero()].logical_props.custom_props.ip)
+    }
+
     fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, _cmd: MoveCmd) -> PaneContinuation {
         let props = &map[mov].logical_props.custom_props;
         match props.ai {

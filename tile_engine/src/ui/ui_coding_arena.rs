@@ -217,7 +217,7 @@ impl UiCodingArena
             texture_cache: &mut TextureCache,
             anim: AnimState,
         ) {
-        // self.active_idx = coding_arena.curr_arena.map(|curr_arena| curr_arena[curr_arena.hero()].logical_props.custom_props.ip);
+        self.active_idx = GameLogic::get_active_idx(coding_arena);
         self.initialise_frame_coords(coding_arena.is_coding());
 
         if self.is_coding {

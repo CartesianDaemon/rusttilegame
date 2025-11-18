@@ -28,10 +28,20 @@ use super::widget::PaneContinuation;
 
 // NB: Fns only applicable to some widgets. Should be in type related to those.
 pub trait BaseGameLogic : Clone + Sized {
+    // For games with an Arena, game-specific data stored in each obj.
     type CustomProps : BaseCustomProps;
-    fn harmonise(_split: &mut CodingArena<Self>) {
-    }
+
+    // For games with an Arena, the logic for moving a movable obj.
     fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, cmd: MoveCmd) -> PaneContinuation;
+
+    // For games with a CodingArena, coordinate the Arena with the Coding on advance.
+    fn harmonise(_coding_arena: &mut CodingArena<Self>) {
+    }
+
+    // For games with a CodingArena, get which instr if any is currently executing.
+    fn get_active_idx(_coding_arena: &CodingArena<Self>) -> Option<usize> {
+        None
+    }
 }
 
 /// Manages game-specific state, e.g. which level to go to next.
