@@ -65,14 +65,30 @@ impl BaseGameLogic for ProgpuzzGameLogic
     }
 
     fn get_active_idx(coding_arena: &CodingArena<Self>) -> Option<usize> {
-        coding_arena.curr_arena.as_ref().map(|curr_arena| curr_arena[curr_arena.hero()].logical_props.custom_props.ip)
+        if let Some(arena) = &coding_arena.curr_arena {
+            let ip = arena[arena.hero()].logical_props.custom_props.ip;
+            if ip ==0 {
+                Some(0)
+            } else {
+                // Highlight ip-1, as advance will move ip to *next* instruction than the one executing.
+                // NB: In advance, need to save prev ip directly, for when execution isn't linear.
+                Some(ip-1)
+            }
+        } else {
+            None
+        }
+        // coding_arena.curr_arena.as_ref().map(|curr_arena| curr_arena[curr_arena.hero()].logical_props.custom_props.ip)
     }
 
     fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, _cmd: MoveCmd) -> PaneContinuation {
         let props = &map[mov].logical_props.custom_props;
         match props.ai {
             ProgpuzzAI::Prog => {
-                let instr = props.prog.instrs.get(props.ip);
+                let instr = props.prog.instrs.get(props.ip).cloned();
+
+                // Advance to next instr for next time.
+                map[mov].logical_props.custom_props.ip +=1;
+
                 match instr {
                     // Conclude pane with failure if we reach the end of the program.
                     None => {
@@ -100,9 +116,6 @@ impl BaseGameLogic for ProgpuzzGameLogic
                     //     unimplemented!();
                     // },
                 }
-
-                // Advance to next instr for next time.
-                map[mov].logical_props.custom_props.ip +=1;
 
                 // Conclude pane successfully if hero finds with goal.
                 if map.any_has_effect(map[mov].pos(), Effect::Win) {
