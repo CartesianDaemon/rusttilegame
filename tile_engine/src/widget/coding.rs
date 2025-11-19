@@ -139,7 +139,17 @@ mod tests {
     use super::*;
 
     #[test]
-    fn foo() {
-        assert_eq!(Prog::from("F,R,F,L"),Prog{instrs:vec![Op::F, Op::R, Op::F, Op::L]});
+    fn basic_prog() {
+        use Op::*;
+        assert_eq!(Prog::from("F,R,F,L"),Prog{instrs:vec![F, R, F, L]});
+        // use Instr::*;
+        // assert_eq!(Prog::from("F,R,F,L"),Prog{instrs:vec![Instr::F, Op::R, Op::F, Op::L]});
+    }
+
+    #[test]
+    #[ignore]
+    fn nested_prog() {
+        assert_eq!(Prog::from("F,x2(R),F,L"),Prog{instrs:vec![Op::F, Op::x2, Op::F, Op::L]});
+        // assert_eq!(Prog::from("F,x2(R),F,L"),Prog{instrs:vec![Instr::F, Instr::x2, Instr::F, Instr::L]});
     }
 }
