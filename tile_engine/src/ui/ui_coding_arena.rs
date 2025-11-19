@@ -222,7 +222,7 @@ impl UiCodingArena
         self.active_idx = GameLogic::get_active_idx(coding_arena);
         self.initialise_frame_coords(coding_arena.is_coding());
 
-        let is_droppable_on_any_specific =
+        self.fr_pos.highlighted_specific_droppable = // let is_droppable_on_any_specific
             self.is_droppable_on_any_supply_specific(&coding_arena.coding) ||
             self.is_droppable_on_any_prog_specific(&coding_arena.coding);
 
@@ -244,8 +244,6 @@ impl UiCodingArena
             self.interact_supply(&mut coding_arena.coding);
             self.interact_dragging(&mut coding_arena.coding);
         }
-
-        assert_eq!(self.fr_pos.highlighted_specific_droppable, is_droppable_on_any_specific);
     }
 
     fn initialise_frame_coords(&mut self, coding: bool) {
@@ -313,7 +311,7 @@ impl UiCodingArena
 
     }
 
-    fn draw_background<GameLogic: BaseGameLogic>(&mut self, _coding_arena: &mut CodingArena<GameLogic>) {
+    fn draw_background<GameLogic: BaseGameLogic>(&self, _coding_arena: &mut CodingArena<GameLogic>) {
         // Clear background if necessary.
         crate::ui::clear_background_for_current_platform(LIGHTGRAY);
 
@@ -330,7 +328,7 @@ impl UiCodingArena
         }
     }
 
-    fn draw_supply(&mut self, coding: &mut Coding) {
+    fn draw_supply(&self, coding: &mut Coding) {
         for (idx, bin) in coding.supply.clone().iter().enumerate() {
             self.draw_supply_op(idx, bin);
         }
@@ -344,7 +342,7 @@ impl UiCodingArena
         draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., border_col);
     }
 
-    fn draw_prog(&mut self, coding: &Coding) {
+    fn draw_prog(&self, coding: &Coding) {
         // Droppable if dragged from prog and mouse is not anywhere specific.
         let droppable = matches!(self.dragging, Dragging::Yes{op_ref:InstrRef::Prog{..},..}) &&
             !self.fr_pos.highlighted_specific_droppable &&
@@ -416,7 +414,7 @@ impl UiCodingArena
         }
     }
 
-    fn draw_supply_op(&mut self, idx: usize, bin: &Bin)
+    fn draw_supply_op(&self, idx: usize, bin: &Bin)
     {
         let coords = self.supply_op_coords(idx);
         let active = false;
@@ -429,7 +427,7 @@ impl UiCodingArena
         draw_text(&count_txt, coords.x + 0.5*self.fr_pos.supply_op_w, coords.y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, WHITE);
     }
 
-    fn draw_prog_instr(&mut self, idx: usize, instr: Option<&Op>)
+    fn draw_prog_instr(&self, idx: usize, instr: Option<&Op>)
     {
         let coords = self.prog_instr_coords(idx);
         let active = Some(idx) == self.active_idx;
@@ -482,7 +480,7 @@ impl UiCodingArena
         }
     }
 
-    fn calculate_style(&mut self, coords: OpCoords, active: bool, has_op: bool, droppable: bool) -> OpStyle
+    fn calculate_style(&self, coords: OpCoords, active: bool, has_op: bool, droppable: bool) -> OpStyle
     {
         let mut style;
         if self.is_coding {
@@ -498,7 +496,7 @@ impl UiCodingArena
             } else if droppable {
                 // Available to drop onto
                 style = OpStyle::highlighted(style);
-                self.fr_pos.highlighted_specific_droppable = true;
+                // self.fr_pos.highlighted_specific_droppable = true;
             }
         } else {
             style = if has_op {
