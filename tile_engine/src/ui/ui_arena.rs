@@ -148,6 +148,7 @@ impl<'a> UiArena<'a> {
                 self.texture_cache.get(tex_path).unwrap()
             };
 
+            // log::debug!("{:?}, {:?}", logical_props.prev_dir, logical_props.dir);
             let prev_rotation = logical_props.prev_dir.as_angle();
             let curr_rotation = logical_props.dir.as_angle();
             let rotation = prev_rotation + (curr_rotation-prev_rotation)*self.slide_pc;

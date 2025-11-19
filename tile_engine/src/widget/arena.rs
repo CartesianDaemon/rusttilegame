@@ -48,9 +48,10 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Arena<GameLogic>
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.
         self[hero].refs.prev_pos = self[hero].refs.pos;
-        self[hero].logical_props.prev_dir = self[hero].logical_props.prev_dir;
+        self[hero].logical_props.prev_dir = self[hero].logical_props.dir;
 
         GameLogic::move_mov(self, hero, cmd)?;
+        log::debug!("{:?} -> {:?}", self[hero].logical_props.prev_dir, self[hero].logical_props.dir);
 
         for mov in self.roster.all_movs() {
             // Before movement, reset "prev". Will be overwritten if movement happens.
