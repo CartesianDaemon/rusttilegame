@@ -421,7 +421,6 @@ impl UiCodingArena
         let active = false;
         let has_op = bin.curr_count > 0;
         let droppable = self.is_droppable_on_supply_bin(idx, bin.op) ||
-            !self.fr_pos.highlighted_specific_droppable &&
             matches!(self.dragging, Dragging::Yes{op_ref:InstrRef::Supply{idx: orig_idx},..} if orig_idx == idx);
         coords.draw_in_style(self.calculate_style(coords, active, has_op, droppable), &bin.op.to_string());
 
@@ -443,7 +442,6 @@ impl UiCodingArena
             "X".to_string()
         };
         let droppable = self.is_droppable_on_prog_instr(idx) ||
-            !self.fr_pos.highlighted_specific_droppable &&
             matches!(self.dragging, Dragging::Yes{op_ref:InstrRef::Prog{idx: orig_idx},..} if orig_idx == idx);
         coords.draw_in_style(self.calculate_style(coords, active, has_op, droppable), &txt);
     }
