@@ -36,7 +36,7 @@ fn get_lev(n: i32) -> Widget<super::game_logic::ProgpuzzGameLogic> {
                     ("F", 1),
                     ("L", 1),
                     ("R", 1),
-                    ("Loop", 1),
+                    ("x2", 1),
                 ].into_iter().collect()
             )
         )),

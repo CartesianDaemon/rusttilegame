@@ -55,7 +55,7 @@ impl From<&str> for Op {
             "L" => Op::L,
             "R" => Op::R,
             "x2" => Op::x2,
-            _ => panic!("Unrecognised txt for instr")
+            _ => panic!("Unrecognised txt for instr: {}", txt)
         }
     }
 }
@@ -136,10 +136,10 @@ impl BaseWidget for Coding
 
 #[cfg(test)]
 mod tests {
-    // use super::*;
+    use super::*;
 
     #[test]
     fn foo() {
-        assert!(true);
+        assert_eq!(Prog::from("F,R,F,L"),Prog{instrs:vec![Op::F, Op::R, Op::F, Op::L]});
     }
 }
