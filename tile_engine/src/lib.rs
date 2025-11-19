@@ -33,3 +33,7 @@ pub mod for_gamedata {
     pub use super::widget::Arena;
     pub use super::widget::arena::RosterIndex;
 }
+
+pub mod infra {
+    pub use crate::core_engine::log_builder;
+}

@@ -3,6 +3,18 @@ use std::collections::HashMap;
 use tile_engine::for_gamedata::*;
 use super::objs::*;
 
+static INITIALISE_ONCE: std::sync::Once = std::sync::Once::new();
+
+fn initialise() {
+    INITIALISE_ONCE.call_once(|| {
+        tile_engine::infra::log_builder()
+            .filter_level(log::LevelFilter::Debug)
+            .target(env_logger::Target::Stdout)
+            .init();
+        log::info!("Initialised logging for tests.");
+    });
+}
+
 fn basic_test_key() -> HashMap<char, Vec<FreeObj<crate::game_logic::ProgpuzzCustomProps>>> {
     let prog = Prog::from("F,F,R,F");
     HashMap::from([
@@ -41,9 +53,11 @@ fn get_basic_lev() -> Widget<super::game_logic::ProgpuzzGameLogic> {
     ))
 }
 
-#[ignore]
+//#[ignore]
 #[test]
 fn basic_move() {
+    initialise();
+
     // TODO: Move assert line into function. With some way of seeing how many ticks have passed.
     // NB: Get away from as_play. Instead have initial map with 0123 in, and fn to say which is ^, or other mov.
     // Then check that state is exactly the Pane::Something(Something) we expect.
@@ -80,6 +94,8 @@ fn basic_move() {
 
 #[test]
 fn basic_move2() {
+    initialise();
+
     let mut state = get_basic_lev();
     assert!(matches!(state, Widget::CodingArena(CodingArena{phase: CodingRunningPhase::Coding, ..})));
     assert_eq!(state.as_ascii_rows(), get_basic_lev().as_ascii_rows());
