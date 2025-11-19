@@ -6,7 +6,7 @@ use crate::widget::*;
 
 use super::{TextureCache, PRect, AnimState, ui_arena::UiArena};
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq)]
 enum InstrRef {
     Supply {
         idx: usize
@@ -149,6 +149,14 @@ impl OpStyle {
         Self {
             border_width: 4.,
             border_col: YELLOW,
+            ..orig_style
+        }
+    }
+
+    pub fn drag_origin(orig_style: Self) -> Self {
+        Self {
+            border_width: 4.,
+            border_col: macroquad::prelude::BEIGE,
             ..orig_style
         }
     }
@@ -389,9 +397,7 @@ impl UiCodingArena
         let coords = self.supply_op_coords(idx);
         let active = false;
         let has_op = bin.curr_count > 0;
-        let droppable = self.is_droppable_on_supply_bin(idx, bin.op) ||
-            matches!(self.dragging, Dragging::Yes{op_ref:InstrRef::Supply{idx: orig_idx},..} if orig_idx == idx);
-        coords.draw_in_style(self.calculate_style(coords, active, has_op, droppable), &bin.op.to_string());
+        coords.draw_in_style(self.calculate_style(coords, active, has_op, InstrRef::Supply {idx}, Some(bin.op)), &bin.op.to_string());
 
         // Draw count
         let count_txt = format!("{}/{}", bin.curr_count, bin.orig_count);
@@ -410,9 +416,7 @@ impl UiCodingArena
         } else {
             "X".to_string()
         };
-        let droppable = self.is_droppable_on_prog_instr(idx) ||
-            matches!(self.dragging, Dragging::Yes{op_ref:InstrRef::Prog{idx: orig_idx},..} if orig_idx == idx);
-        coords.draw_in_style(self.calculate_style(coords, active, has_op, droppable), &txt);
+        coords.draw_in_style(self.calculate_style(coords, active, has_op, InstrRef::Prog {idx}, instr.copied()), &txt);
     }
 
     fn interact_supply_op(&mut self, coding: &mut Coding, idx: usize)
@@ -453,8 +457,14 @@ impl UiCodingArena
         self.is_dragging_over(self.prog_instr_coords(idx))
     }
 
-    fn calculate_style(&self, coords: OpCoords, active: bool, has_op: bool, droppable: bool) -> OpStyle
+    fn calculate_style(&self, coords: OpCoords, active: bool, has_op: bool, instr_ref: InstrRef, op: Option<Op>) -> OpStyle
     {
+        let droppable = match instr_ref {
+            InstrRef::Supply { idx } => op.is_some() && self.is_droppable_on_supply_bin(idx, op.unwrap()),
+            InstrRef::Prog { idx } => self.is_droppable_on_prog_instr(idx),
+        };
+        let drag_origin = matches!(self.dragging, Dragging::Yes{op_ref: orig_op_ref, ..} if orig_op_ref == instr_ref);
+
         let mut style;
         if self.is_coding {
             style = if has_op {
@@ -463,12 +473,17 @@ impl UiCodingArena
                 OpStyle::coding_placeholder()
             };
 
-            if has_op && self.mouse_in(coords) {
+            if matches!(self.dragging, Dragging::No) && has_op && self.mouse_in(coords) {
                 // Available to pick up
                 style = OpStyle::highlighted(style);
-            } else if droppable {
+            }
+
+            if droppable {
                 // Available to drop onto
                 style = OpStyle::highlighted(style);
+            } else if drag_origin {
+                // Where drop will snap back to
+                style = OpStyle::drag_origin(style);
             }
         } else {
             style = if has_op {
