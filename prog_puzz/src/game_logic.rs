@@ -111,10 +111,9 @@ impl BaseGameLogic for ProgpuzzGameLogic
                         log::debug!("Bot rotate R.");
                         map[mov].logical_props.dir.rotate_r();
                     },
-                    // Loop through contained instructions. NB: Placeholder.
-                    // Some(Op::Loop(_)) => {
-                    //     unimplemented!();
-                    // },
+                    Some(Op::x2) => {
+                        unimplemented!();
+                    },
                 }
 
                 // Conclude pane successfully if hero finds with goal.
