@@ -222,6 +222,10 @@ impl UiCodingArena
         self.active_idx = GameLogic::get_active_idx(coding_arena);
         self.initialise_frame_coords(coding_arena.is_coding());
 
+        let is_droppable_on_any_specific =
+            self.is_droppable_on_any_supply_specific(&coding_arena.coding) ||
+            self.is_droppable_on_any_prog_specific(&coding_arena.coding);
+
         if self.is_coding {
             UiArena::render(&coding_arena.init_arena, texture_cache, self.fr_pos.arena, anim).await;
         } else {
@@ -240,6 +244,8 @@ impl UiCodingArena
             self.interact_supply(&mut coding_arena.coding);
             self.interact_dragging(&mut coding_arena.coding);
         }
+
+        assert_eq!(self.fr_pos.highlighted_specific_droppable, is_droppable_on_any_specific);
     }
 
     fn initialise_frame_coords(&mut self, coding: bool) {
@@ -353,6 +359,18 @@ impl UiCodingArena
         self.draw_prog_instr(coding.prog.instrs.len(), None);
     }
 
+    fn is_droppable_on_any_supply_specific(&self, coding: &Coding) -> bool {
+        coding.supply.clone().iter().enumerate().any(|(idx, bin)| {
+            self.is_droppable_on_supply_bin(idx, bin.op)
+        })
+    }
+
+    fn is_droppable_on_any_prog_specific(&self, coding: &Coding) -> bool {
+        (0..=coding.prog.instrs.len()).any(|idx| {
+            self.is_droppable_on_prog_instr(idx)
+        })
+    }
+
     fn interact_supply(&mut self, coding: &mut Coding) {
         for idx in 0..coding.supply.len() {
             self.interact_supply_op(coding, idx);
@@ -423,11 +441,11 @@ impl UiCodingArena
         } else {
             "X".to_string()
         };
-        coords.draw_in_style(self.calculate_style(coords, active, has_op, self.is_droppable_on_prog_instr(coords)), &txt);
+        coords.draw_in_style(self.calculate_style(coords, active, has_op, self.is_droppable_on_prog_instr(idx)), &txt);
     }
 
-    fn is_droppable_on_prog_instr(&self, coords: OpCoords) -> bool {
-        self.is_dragging_over(coords)
+    fn is_droppable_on_prog_instr(&self, idx: usize) -> bool {
+        self.is_dragging_over(self.prog_instr_coords(idx))
     }
 
     fn interact_supply_op(&mut self, coding: &mut Coding, idx: usize)
