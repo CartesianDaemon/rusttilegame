@@ -133,3 +133,13 @@ impl BaseWidget for Coding
         crate::ui::TickStyle::Continuous
     }
 }
+
+#[cfg(test)]
+mod tests {
+    // use super::*;
+
+    #[test]
+    fn foo() {
+        assert!(true);
+    }
+}
