@@ -335,19 +335,20 @@ impl UiCodingArena
 
         // Droppable if dragging, and not highlighted any more specific bin/instr,
         // and either mouse over supply, or dragged from supply (and mouse anywhere).
-        let droppable = matches!(self.dragging, Dragging::Yes{..}) &&
-            !self.fr_pos.highlighted_specific_droppable &&
-            (self.mouse_in_rect(self.supply_rect()) || matches!(self.dragging, Dragging::Yes{op_ref:InstrRef::Supply{..},..}));
-        let border_col = if droppable { GOLD } else { WHITE };
-        draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., border_col);
+        // let droppable = matches!(self.dragging, Dragging::Yes{..}) &&
+        //     !self.fr_pos.highlighted_specific_droppable &&
+        //     (self.mouse_in_rect(self.supply_rect()) || matches!(self.dragging, Dragging::Yes{op_ref:InstrRef::Supply{..},..}));
+        // let border_col = if droppable { GOLD } else { WHITE };
+        draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., WHITE);
     }
 
     fn draw_prog(&self, coding: &Coding) {
         // Droppable if dragged from prog and mouse is not anywhere specific.
-        let droppable = matches!(self.dragging, Dragging::Yes{op_ref:InstrRef::Prog{..},..}) &&
-            !self.fr_pos.highlighted_specific_droppable &&
-            !self.mouse_in_rect(self.supply_rect());
-        let border_col = if !self.is_coding {SKYBLUE} else if droppable {GOLD} else {WHITE};
+        // let droppable = matches!(self.dragging, Dragging::Yes{op_ref:InstrRef::Prog{..},..}) &&
+        //     !self.fr_pos.highlighted_specific_droppable &&
+        //     !self.mouse_in_rect(self.supply_rect());
+        // let border_col = if !self.is_coding {SKYBLUE} else if droppable {GOLD} else {WHITE};
+        let border_col = if self.is_coding {WHITE} else {SKYBLUE};
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., border_col);
 
         // NB: Clone means that we draw the original instrs, even if one is dragged out.
@@ -418,8 +419,10 @@ impl UiCodingArena
     {
         let coords = self.supply_op_coords(idx);
         let active = false;
-        let has_op = bin.curr_count>0;
-        let droppable = self.is_droppable_on_supply_bin(idx, bin.op);
+        let has_op = bin.curr_count > 0;
+        let droppable = self.is_droppable_on_supply_bin(idx, bin.op) ||
+            !self.fr_pos.highlighted_specific_droppable &&
+            matches!(self.dragging, Dragging::Yes{op_ref:InstrRef::Supply{idx: orig_idx},..} if orig_idx == idx);
         coords.draw_in_style(self.calculate_style(coords, active, has_op, droppable), &bin.op.to_string());
 
         // Draw count
@@ -439,7 +442,10 @@ impl UiCodingArena
         } else {
             "X".to_string()
         };
-        coords.draw_in_style(self.calculate_style(coords, active, has_op, self.is_droppable_on_prog_instr(idx)), &txt);
+        let droppable = self.is_droppable_on_prog_instr(idx) ||
+            !self.fr_pos.highlighted_specific_droppable &&
+            matches!(self.dragging, Dragging::Yes{op_ref:InstrRef::Prog{idx: orig_idx},..} if orig_idx == idx);
+        coords.draw_in_style(self.calculate_style(coords, active, has_op, droppable), &txt);
     }
 
     fn is_droppable_on_prog_instr(&self, idx: usize) -> bool {
