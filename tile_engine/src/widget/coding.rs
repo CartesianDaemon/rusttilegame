@@ -90,6 +90,7 @@ impl Bin {
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Prog {
     pub instrs: Vec<Op>,
+    // pub instrs: Vec<Instr>,
 }
 
 impl Prog {
