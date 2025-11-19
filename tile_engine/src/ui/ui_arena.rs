@@ -2,7 +2,6 @@ use macroquad::prelude::*;
 
 use assrt::rsst;
 use crate::widget::arena::MapObj;
-use crate::map_coords::CoordDelta;
 use crate::widget::Arena;
 use crate::gamedata::BaseGameLogic;
 
@@ -149,12 +148,9 @@ impl<'a> UiArena<'a> {
                 self.texture_cache.get(tex_path).unwrap()
             };
 
-            let rotation = match logical_props.dir {
-                CoordDelta{dx:1, dy:0} => std::f32::consts::PI / 2.,
-                CoordDelta{dx:0, dy: 1} => std::f32::consts::PI,
-                CoordDelta{dx:-1, dy: 0} => std::f32::consts::PI * 1.5,
-                _ => 0.
-            };
+            let prev_rotation = logical_props.prev_dir.as_angle();
+            let curr_rotation = logical_props.dir.as_angle();
+            let rotation = prev_rotation + (curr_rotation-prev_rotation)*self.slide_pc;
             draw_texture_ex(
                 &tex_data,
                 px - w * (visual_props.tex_scale-1.0) / 2.,

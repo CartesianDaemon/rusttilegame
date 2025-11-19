@@ -94,6 +94,16 @@ impl CoordDelta {
     pub fn rotate_l(&mut self) {
         *self = self.rotated_l()
     }
+
+    // If one square U, R, D or L, return repr as angle in radians.
+    pub fn as_angle(&self) ->f32 {
+        match self {
+                CoordDelta{dx:1, dy:0} => std::f32::consts::PI / 2.,
+                CoordDelta{dx:0, dy: 1} => std::f32::consts::PI,
+                CoordDelta{dx:-1, dy: 0} => std::f32::consts::PI * 1.5,
+                _ => 0.
+            }
+    }
 }
 
 // Translation of Key or Mouse into attempted movement of hero.

@@ -31,6 +31,10 @@ pub struct LogicalProps<CustomProps: BaseCustomProps> {
     // Also used to calculate current facing direction, to rotate texture.
     pub dir: CoordDelta,
 
+    // Internal status for ents which have a current movement direction.
+    // Also used to calculate current facing direction, to rotate texture.
+    pub prev_dir: CoordDelta,
+
     // Custom properties used by movement logic.
     pub custom_props: CustomProps,
 
@@ -49,6 +53,8 @@ impl<CustomProps: BaseCustomProps> LogicalProps<CustomProps> {
             name: "????".to_string(),
 
             dir: CoordDelta::from_xy(0, 0),
+
+            prev_dir: CoordDelta::from_xy(0, 0),
 
             custom_props: CustomProps::default(),
 

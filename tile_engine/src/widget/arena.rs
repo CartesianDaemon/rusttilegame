@@ -48,6 +48,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Arena<GameLogic>
         // Before movement, reset "prev". Will be overwritten if movement happens.
         // Should be moved into obj_move*() fn.
         self[hero].refs.prev_pos = self[hero].refs.pos;
+        self[hero].logical_props.prev_dir = self[hero].logical_props.prev_dir;
 
         GameLogic::move_mov(self, hero, cmd)?;
 
@@ -57,6 +58,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Arena<GameLogic>
             // NOTE: If map is RefCell needs to be done in two steps else runtime panic.
             // NOTE: And obj_at() is also incompatible with RefCell.
             self[mov].refs.prev_pos = self[mov].refs.pos;
+            self[mov].logical_props.prev_dir = self[mov].logical_props.prev_dir;
 
             GameLogic::move_mov(self, mov, cmd)?;
         }
