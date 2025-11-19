@@ -3,18 +3,23 @@ use crate::map_coords::MoveCmd;
 
 use std::collections::HashMap;
 
-// NB: Nice to move to progpuzz if we can.
-// NB: Could be combined with putative AttemptedAction defined for Cmd.
-// Breadcrumb: Could implement to_txt and txt_to in terms of common trait.
-// NB: Need enum to be Instr including subsiduary values, and then define
-// Op in terms of that, in terms of pure index.
-#[derive(Copy, Clone, Debug, Hash, PartialEq, Eq)]
+// NB: Can we move the specifics ops to ProgPuzz?
+#[allow(non_camel_case_types)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Op {
     F,
     L,
     R,
-    // NB: We're going to need to box this before we instantiate it anywhere, right?
-    // Loop(Vec<Instr>),
+    x2,
+}
+
+#[allow(non_camel_case_types)]
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Instr {
+    F,
+    L,
+    R,
+    x2(Box<[Instr;2]>),
 }
 
 impl ToString for Op {
@@ -23,7 +28,7 @@ impl ToString for Op {
             Op::F => "F",
             Op::L => "L",
             Op::R => "R",
-            // Op::Loop(_) => "Loop",
+            Op::x2 => "x2",
         }.to_string()
     }
 }
@@ -34,7 +39,7 @@ impl From<&str> for Op {
             "F" => Op::F,
             "L" => Op::L,
             "R" => Op::R,
-            // "Loop" => Op::Loop(vec![]),
+            "x2" => Op::x2,
             _ => panic!("Unrecognised txt for instr")
         }
     }
