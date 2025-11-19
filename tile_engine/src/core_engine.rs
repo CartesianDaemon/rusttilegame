@@ -92,25 +92,11 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
     }
 }
 
-pub fn log_builder() -> env_logger::Builder {
-    let mut log_builder = env_logger::Builder::new();
-    log_builder.format_timestamp(None);
-    log_builder.format_target(false);
-    log_builder
-}
-
-fn enable_logging(log_opts: &str) {
-    let mut log_builder = log_builder();
-    log_builder.parse_filters(log_opts);
-    log_builder.init();
-    log::info!("Started logging!");
-}
-
 pub async fn run<Gamedata: gamedata::BaseGamedata>()
 {
     for arg in std::env::args() {
         if let Some(log_opts) = arg.strip_prefix("--rust-log=") {
-            enable_logging(log_opts);
+            crate::logging::enable_logging(log_opts);
             break;
         }
     }

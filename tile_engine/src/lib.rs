@@ -12,6 +12,7 @@
 
 mod core_engine;
 mod gamedata;
+mod logging;
 mod map_coords;
 pub mod input; // For engine_tests in push_puzz??
 mod widget;
@@ -35,5 +36,5 @@ pub mod for_gamedata {
 }
 
 pub mod infra {
-    pub use crate::core_engine::log_builder;
+    pub use crate::logging::log_builder;
 }
