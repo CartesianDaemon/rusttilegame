@@ -51,8 +51,6 @@ struct FrameCoords {
     prog_instr_w: f32,
     prog_instr_h: f32,
     prog_instr_spacing: f32,
-
-    highlighted_specific_droppable: bool,
 }
 
 #[derive(Copy, Clone, Default)]
@@ -222,10 +220,6 @@ impl UiCodingArena
         self.active_idx = GameLogic::get_active_idx(coding_arena);
         self.initialise_frame_coords(coding_arena.is_coding());
 
-        self.fr_pos.highlighted_specific_droppable = // let is_droppable_on_any_specific
-            self.is_droppable_on_any_supply_specific(&coding_arena.coding) ||
-            self.is_droppable_on_any_prog_specific(&coding_arena.coding);
-
         if self.is_coding {
             UiArena::render(&coding_arena.init_arena, texture_cache, self.fr_pos.arena, anim).await;
         } else {
@@ -305,8 +299,6 @@ impl UiCodingArena
             prog_instr_w,
             prog_instr_h,
             prog_instr_spacing,
-
-            highlighted_specific_droppable: false,
         }
 
     }
@@ -333,21 +325,10 @@ impl UiCodingArena
             self.draw_supply_op(idx, bin);
         }
 
-        // Droppable if dragging, and not highlighted any more specific bin/instr,
-        // and either mouse over supply, or dragged from supply (and mouse anywhere).
-        // let droppable = matches!(self.dragging, Dragging::Yes{..}) &&
-        //     !self.fr_pos.highlighted_specific_droppable &&
-        //     (self.mouse_in_rect(self.supply_rect()) || matches!(self.dragging, Dragging::Yes{op_ref:InstrRef::Supply{..},..}));
-        // let border_col = if droppable { GOLD } else { WHITE };
         draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., WHITE);
     }
 
     fn draw_prog(&self, coding: &Coding) {
-        // Droppable if dragged from prog and mouse is not anywhere specific.
-        // let droppable = matches!(self.dragging, Dragging::Yes{op_ref:InstrRef::Prog{..},..}) &&
-        //     !self.fr_pos.highlighted_specific_droppable &&
-        //     !self.mouse_in_rect(self.supply_rect());
-        // let border_col = if !self.is_coding {SKYBLUE} else if droppable {GOLD} else {WHITE};
         let border_col = if self.is_coding {WHITE} else {SKYBLUE};
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., border_col);
 
@@ -356,18 +337,6 @@ impl UiCodingArena
             self.draw_prog_instr(idx, Some(instr));
         }
         self.draw_prog_instr(coding.prog.instrs.len(), None);
-    }
-
-    fn is_droppable_on_any_supply_specific(&self, coding: &Coding) -> bool {
-        coding.supply.clone().iter().enumerate().any(|(idx, bin)| {
-            self.is_droppable_on_supply_bin(idx, bin.op)
-        })
-    }
-
-    fn is_droppable_on_any_prog_specific(&self, coding: &Coding) -> bool {
-        (0..=coding.prog.instrs.len()).any(|idx| {
-            self.is_droppable_on_prog_instr(idx)
-        })
     }
 
     fn interact_supply(&mut self, coding: &mut Coding) {
@@ -500,7 +469,6 @@ impl UiCodingArena
             } else if droppable {
                 // Available to drop onto
                 style = OpStyle::highlighted(style);
-                // self.fr_pos.highlighted_specific_droppable = true;
             }
         } else {
             style = if has_op {
