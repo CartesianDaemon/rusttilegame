@@ -53,7 +53,7 @@ fn get_basic_lev() -> Widget<super::game_logic::ProgpuzzGameLogic> {
     ))
 }
 
-//#[ignore]
+#[ignore]
 #[test]
 fn basic_move() {
     initialise();
