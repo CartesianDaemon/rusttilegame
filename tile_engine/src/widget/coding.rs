@@ -22,14 +22,9 @@ pub enum Instr {
     x2(Box<[Instr;2]>),
 }
 
-impl ToString for Op {
-    fn to_string(&self) -> String {
-        match self {
-            Op::F => "F",
-            Op::L => "L",
-            Op::R => "R",
-            Op::x2 => "x2",
-        }.to_string()
+impl std::fmt::Display for Op {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
     }
 }
 
