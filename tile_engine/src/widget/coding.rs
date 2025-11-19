@@ -13,6 +13,26 @@ pub enum Op {
     x2,
 }
 
+impl Op {
+    pub fn _d_connector(self) -> bool {
+        match self {
+            Self::F => true,
+            Self::L => true,
+            Self::R => true,
+            Self::x2 => true,
+        }
+    }
+
+    pub fn _r_connector(self) -> usize {
+        match self {
+            Self::F => 0,
+            Self::L => 0,
+            Self::R => 0,
+            Self::x2 => 1,
+        }
+    }
+}
+
 #[allow(non_camel_case_types)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Instr {
