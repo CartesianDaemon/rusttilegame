@@ -8,8 +8,8 @@ static INITIALISE_ONCE: std::sync::Once = std::sync::Once::new();
 fn initialise() {
     INITIALISE_ONCE.call_once(|| {
         tile_engine::infra::log_builder()
-            .filter_level(log::LevelFilter::Debug)
-            .target(env_logger::Target::Stdout)
+            .filter_level(log::LevelFilter::Trace)
+            .is_test(true)
             .init();
         log::info!("Initialised logging for tests.");
     });
