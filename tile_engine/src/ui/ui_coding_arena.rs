@@ -423,8 +423,11 @@ impl UiCodingArena
         } else {
             "X".to_string()
         };
-        let droppable = self.is_dragging_over(coords);
-        coords.draw_in_style(self.calculate_style(coords, active, has_op, droppable), &txt);
+        coords.draw_in_style(self.calculate_style(coords, active, has_op, self.is_droppable_on_prog_instr(coords)), &txt);
+    }
+
+    fn is_droppable_on_prog_instr(&self, coords: OpCoords) -> bool {
+        self.is_dragging_over(coords)
     }
 
     fn interact_supply_op(&mut self, coding: &mut Coding, idx: usize)
