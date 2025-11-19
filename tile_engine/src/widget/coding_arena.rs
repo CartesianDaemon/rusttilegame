@@ -16,7 +16,7 @@ pub struct CodingArena<GameLogic : for_gamedata::BaseGameLogic> {
     // Maybe move into Running state, not core data?
     pub curr_arena: Option<Arena<GameLogic>>,
     pub coding: Coding,
-    phase: CodingRunningPhase,
+    pub phase: CodingRunningPhase,
 }
 
 impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLogic>

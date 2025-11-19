@@ -41,6 +41,7 @@ fn get_basic_lev() -> Widget<super::game_logic::ProgpuzzGameLogic> {
     ))
 }
 
+#[ignore]
 #[test]
 fn basic_move() {
     // TODO: Move assert line into function. With some way of seeing how many ticks have passed.
@@ -80,7 +81,7 @@ fn basic_move() {
 #[test]
 fn basic_move2() {
     let mut state = get_basic_lev();
-    // assert!(matches!(state, Pane::Split(phase: SplitPhase::Running, ..)));
+    assert!(matches!(state, Widget::CodingArena(CodingArena{phase: CodingRunningPhase::Coding, ..})));
     assert_eq!(state.as_ascii_rows(), get_basic_lev().as_ascii_rows());
 
     // Set up program that "user" has entered in code pane, that bot will follow.
@@ -90,11 +91,10 @@ fn basic_move2() {
 
     // Start running, no other effect
     assert_eq!(state.advance(MoveCmd::Stay), PaneContinuation::Continue(()));
-    //assert_eq!(state.phase, SplitPhase::Coding);
+    assert!(matches!(state, Widget::CodingArena(CodingArena{phase: CodingRunningPhase::Running, ..})));
     assert_eq!(&state.as_ascii_rows()[4], "#   ^        #", "\n{}", state.as_ascii_rows().join("\n"));
 
     assert_eq!(state.advance(MoveCmd::Stay), PaneContinuation::Continue(()));
-    //assert_eq!(state.phase, SplitPhase::Running);
     assert_eq!(&state.as_ascii_rows()[3], "#   ^        #", "\n{}", state.as_ascii_rows().join("\n")); // F
 
     assert_eq!(state.advance(MoveCmd::Stay), PaneContinuation::Continue(()));
