@@ -415,10 +415,6 @@ impl UiCodingArena
         coords.draw_in_style(self.calculate_style(coords, active, has_op, droppable), &txt);
     }
 
-    fn is_droppable_on_prog_instr(&self, idx: usize) -> bool {
-        self.is_dragging_over(self.prog_instr_coords(idx))
-    }
-
     fn interact_supply_op(&mut self, coding: &mut Coding, idx: usize)
     {
         let coords = self.supply_op_coords(idx);
@@ -451,6 +447,10 @@ impl UiCodingArena
             Dragging::Yes { op, ..} => self.is_dragging_over(coords) && op == op_type,
             _ => false,
         }
+    }
+
+    fn is_droppable_on_prog_instr(&self, idx: usize) -> bool {
+        self.is_dragging_over(self.prog_instr_coords(idx))
     }
 
     fn calculate_style(&self, coords: OpCoords, active: bool, has_op: bool, droppable: bool) -> OpStyle
