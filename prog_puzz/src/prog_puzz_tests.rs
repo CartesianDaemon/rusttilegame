@@ -28,20 +28,30 @@ fn basic_test_key() -> HashMap<char, Vec<FreeObj<crate::game_logic::ProgpuzzCust
     ])
 }
 
-fn basic_map(turn: usize, face: char) -> Arena<super::game_logic::ProgpuzzGameLogic> {
+fn basic_map(turn: usize) -> Arena<super::game_logic::ProgpuzzGameLogic> {
+    let face = match turn {
+        0..=2 => '^',
+        3..=5 => '>',
+        _ => '?',
+    };
+    let pos = match turn {
+        3 => '2',
+        0..5 => turn.to_string().chars().nth(0).unwrap(),
+        _ => '?',
+    };
     let mut ascii = [
         "##############",
         "#            #",
-        "#      w     #",
-        "#            #",
-        "#   ^        #",
+        "#   245w     #",
+        "#   1        #",
+        "#   0        #",
         "#            #",
         "##############",
     ].map(|row| row.to_string());
     for row in &mut ascii {
         *row = row.chars().map(|char|
             match char {
-                '0'..='9' if char==turn.to_string().chars().nth(0).unwrap() => face,
+                '0'..='9' if char==pos => face,
                 '0'..='9' => ' ',
                 _ => char,
             }
