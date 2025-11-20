@@ -93,12 +93,19 @@ pub struct Prog {
     // pub instrs: Vec<Instr>,
 }
 
-impl Prog {
+impl From<&str> for Prog {
     // E.g. from("F,F,R,Loop")
-    pub fn from(prog_txt: &str) -> Prog {
+    fn from(prog_txt: &str) -> Prog {
         Prog {
-            // NB: Try using my chain crate
             instrs: prog_txt.split_terminator(',').map(|op_txt| Op::from(op_txt)).collect()
+        }
+    }
+}
+
+impl From<Vec<Op>> for Prog {
+    fn from(vec: Vec<Op>) -> Prog {
+        Prog {
+            instrs: vec
         }
     }
 }

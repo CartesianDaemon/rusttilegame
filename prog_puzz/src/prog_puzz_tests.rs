@@ -101,8 +101,9 @@ fn basic_move2() {
     assert_eq!(state.as_ascii_rows(), get_basic_lev().as_ascii_rows());
 
     // Set up program that "user" has entered in code pane, that bot will follow.
-    if let Widget::CodingArena(split)= &mut state {
-        split.coding.prog =  Prog::from("F,F,R,F");
+    if let Widget::CodingArena(coding_arena)= &mut state {
+        use Op::*;
+        coding_arena.coding.prog =  Prog::from(vec![F,F,R,F]);
     }
 
     // Start running, no other effect
