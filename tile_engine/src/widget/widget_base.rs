@@ -64,7 +64,7 @@ impl<GameLogic: for_gamedata::BaseGameLogic> Widget<GameLogic> {
         ascii_map: &[&str; HEIGHT],
         map_key: HashMap<char, Vec<FreeObj<GameLogic::CustomProps>>>,
     ) -> Self {
-        Widget::Arena(Arena::from_ascii(ascii_map, map_key))
+        Widget::Arena(Arena::from_map_and_key(ascii_map, map_key))
     }
 
     // Does current pane act on user input immediately (not governed by a game tick)?

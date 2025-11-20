@@ -72,14 +72,6 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Arena<GameLogic>
 }
 
 impl<GameLogic: BaseGameLogic> Arena<GameLogic> {
-    // TODO: Remove again, redundant.
-    pub fn from_ascii<const HEIGHT: usize>(
-        ascii_map: &[&str; HEIGHT],
-        map_key: HashMap<char, Vec<FreeObj<GameLogic::CustomProps>>>,
-    ) -> Self {
-        Self::from_map_and_key(ascii_map, map_key)
-    }
-
     /////////////////
     /// Initialisers
     pub fn empty(w: u16, h: u16) -> Self {
@@ -90,17 +82,19 @@ impl<GameLogic: BaseGameLogic> Arena<GameLogic> {
         }
     }
 
-    pub fn from_map_and_key<const HEIGHT: usize>(
-        ascii_map: &[&str; HEIGHT],
+    pub fn from_map_and_key<const HEIGHT: usize, StrLike>(
+        ascii_map: &[StrLike; HEIGHT],
         map_key: HashMap<char, Vec<FreeObj<GameLogic::CustomProps>>>,
-    ) -> Self {
+    ) -> Self
+        where StrLike: Into<String> + Clone
+    {
         let mut map = Self {
             map_key: map_key.clone(),
-            ..Self::empty(ascii_map[0].len() as u16, HEIGHT as u16)
+            ..Self::empty(StrLike::into(ascii_map[0].clone()).len() as u16, HEIGHT as u16)
         };
 
         for (y, line) in ascii_map.iter().enumerate() {
-            for (x, ch) in line.chars().enumerate() {
+            for (x, ch) in StrLike::into(line.clone()).chars().enumerate() {
                 for ent in map_key.get(&ch).unwrap() {
                     map.spawn_obj_at(x as i16, y as i16, ent.clone());
                 }

@@ -28,10 +28,33 @@ fn basic_test_key() -> HashMap<char, Vec<FreeObj<crate::game_logic::ProgpuzzCust
     ])
 }
 
+fn basic_map(turn: usize, face: char) -> Arena<super::game_logic::ProgpuzzGameLogic> {
+    let mut ascii = [
+        "##############",
+        "#            #",
+        "#      w     #",
+        "#            #",
+        "#   ^        #",
+        "#            #",
+        "##############",
+    ].map(|row| row.to_string());
+    for row in &mut ascii {
+        *row = row.chars().map(|char|
+            match char {
+                '0'..='9' if char==turn.to_string().chars().nth(0).unwrap() => face,
+                '0'..='9' => ' ',
+                _ => char,
+            }
+        ).collect::<String>()
+    }
+    let key = basic_test_key();
+    Arena::from_map_and_key(&ascii, key)
+}
+
 fn get_basic_lev() -> Widget<super::game_logic::ProgpuzzGameLogic> {
     // NB: Use progpuzz key directly``
     Widget::CodingArena(CodingArena::new::<16>(
-        Arena::from_ascii(&[
+        Arena::from_map_and_key(&[
         "##############",
         "#            #",
         "#      w     #",

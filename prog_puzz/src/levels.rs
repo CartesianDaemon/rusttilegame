@@ -48,7 +48,7 @@ impl ProgpuzzLevset {
         match self.current_paneid {
             // TODO: Avoid needing to specify HEIGHT explicitly.
             ProgpuzzPaneId::LevCodingArena(1) => Widget::CodingArena(CodingArena::new::<16>(
-                Arena::from_ascii(&[
+                Arena::from_map_and_key(&[
                     "################",
                     "#              #",
                     "#              #",
