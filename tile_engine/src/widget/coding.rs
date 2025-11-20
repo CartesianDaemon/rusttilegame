@@ -1,7 +1,7 @@
 use super::*;
 use crate::map_coords::MoveCmd;
 
-use std::collections::HashMap;
+use std::{collections::HashMap};
 
 // NB: Can we move the specifics ops to ProgPuzz?
 #[allow(non_camel_case_types)]
@@ -122,6 +122,15 @@ impl Coding {
         Coding {
             supply: supplies.iter().map(|(txt,count)|
                 Bin::new(Op::from(*txt), *count)
+            ).collect(),
+            prog: Prog::default(),
+        }
+    }
+
+    pub fn from_hashmap(supplies: &[(Op, u16)]) -> Coding {
+        Coding {
+            supply: supplies.iter().map(|(op,count)|
+            Bin::new(*op, *count)
             ).collect(),
             prog: Prog::default(),
         }

@@ -62,19 +62,10 @@ fn basic_map(turn: usize) -> Arena<super::game_logic::ProgpuzzGameLogic> {
 }
 
 fn get_basic_lev() -> Widget<super::game_logic::ProgpuzzGameLogic> {
-    // NB: Use progpuzz key directly``
+    use Op::*;
     Widget::CodingArena(CodingArena::new::<16>(
         basic_map(0),
-        Coding::from_ascii(
-            // NB: Consider crate macro to initialise vec
-            // NB: Consider my iteration macro here and elsewhere I collect'ed.
-            [
-                ("F", 1),
-                ("L", 1),
-                ("R", 1),
-                ("x2", 1),
-            ].into_iter().collect()
-        )
+        Coding::from_hashmap( &[(F, 1), (L, 1), (R, 1), (x2, 1)] )
     ))
 }
 
