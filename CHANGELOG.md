@@ -1,5 +1,20 @@
 ## Unreleased
 
+## 20 Nov: tile_engine 1.5.1, prog_puzz 1.5.1
+
+- Prog puzzle towards Instr with nested Instrs, separate to Op.
+- Prog puzzle towards simpler tests of moving round Arena.
+
+## 19 Nov: tile_engine 1.5.0, prog_puzz 1.5.0 # Not necessarily in sync. Should have been prog puzz 0.5.
+
+- Prog puzzle drags and drops between supply and prog.
+- Prog puzzle displays arena.
+- Prog puzzle executes program, switches back and forth into running mode, and moves to next level.
+- Prog puzzle using crab graphics, yay.
+- Logging.
+- Refactoring.
+- Rotating objs when drawing.
+
 10 Nov 2025
 
 - Add Prog Puzzle.

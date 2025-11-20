@@ -553,7 +553,7 @@ dependencies = [
 
 [[package]]
 name = "prog_puzz"
-version = "1.0.2"
+version = "1.5.1"
 dependencies = [
  "env_logger",
  "log",
@@ -662,7 +662,7 @@ dependencies = [
 
 [[package]]
 name = "tile_engine"
-version = "1.0.2"
+version = "1.5.1"
 dependencies = [
  "assrt",
  "culpa",
