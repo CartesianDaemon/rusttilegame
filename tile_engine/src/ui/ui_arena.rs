@@ -77,9 +77,9 @@ impl<'a> UiArena<'a> {
 
     fn draw_backdrop(&self)
     {
-        clear_background_for_current_platform(LIGHTGRAY);
+        // clear_background_for_current_platform(LIGHTGRAY);
 
-        draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
+        // draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
     }
 
     fn alpha_col(col: Color, alpha: f32) -> Color

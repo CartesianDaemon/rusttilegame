@@ -291,13 +291,14 @@ impl UiCodingArena
         self.active_idx = GameLogic::get_active_idx(coding_arena);
         self.initialise_frame_coords(coding_arena.is_coding());
 
+        self.draw_background(coding_arena);
+
         if self.is_coding {
             UiArena::render(&coding_arena.init_arena, texture_cache, self.fr_pos.arena, anim).await;
         } else {
             UiArena::render(coding_arena.curr_arena.as_mut().unwrap(), texture_cache, self.fr_pos.arena, anim).await;
         }
 
-        self.draw_background(coding_arena);
         self.draw_prog(&mut coding_arena.coding);
         if self.is_coding {
             self.draw_supply(&mut coding_arena.coding);
