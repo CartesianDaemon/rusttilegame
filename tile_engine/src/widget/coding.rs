@@ -100,7 +100,6 @@ impl From<Vec<Op>> for Prog {
 
 #[derive(Clone, Debug)]
 pub struct Coding {
-    // TODO: Need IndexMap or Vec to maintain order.
     pub supply: Vec<Bin>,
     pub prog: Prog,
 }
