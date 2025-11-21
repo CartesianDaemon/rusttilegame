@@ -139,7 +139,7 @@ impl OpStyle {
             border_width: 2.,
             border_col: DARKGRAY,
             // Covers over background when dragging
-            fill_col: Color {r: 0., g:0., b:0., a:0.5 },
+            fill_col: Color {r: 1.0, g: 1.0, b: 1.0, a:0.5 },
             scale: 1.0,
             v_connector: None,
         }
@@ -155,8 +155,8 @@ impl OpStyle {
 
     pub fn drag_origin(orig_style: Self) -> Self {
         Self {
-            border_width: 4.,
-            border_col: macroquad::prelude::BEIGE,
+            border_width: 6.,
+            border_col: BEIGE,
             ..orig_style
         }
     }
