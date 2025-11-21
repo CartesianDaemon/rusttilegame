@@ -174,11 +174,11 @@ impl OpStyle {
 
     pub fn running() -> Self {
         Self {
-            border_width: 2.,
+            border_width: 8.,
             border_col: SKYBLUE,
             fill_col: WHITE,
             scale: 1.0,
-            v_connector: None,
+            v_connector: Some(DARKGRAY),
         }
     }
 
