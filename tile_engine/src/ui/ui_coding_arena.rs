@@ -176,7 +176,7 @@ impl OpStyle {
         Self {
             border_width: 2.,
             border_col: SKYBLUE,
-            fill_col: Color {r: 0., g:0., b:0., a:0. },
+            fill_col: WHITE,
             scale: 1.0,
             v_connector: None,
         }
