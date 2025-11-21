@@ -92,7 +92,7 @@ impl OpCoords {
         draw_rectangle(c.x, c.y, c.w, c.h, style.fill_col);
         draw_rectangle_lines(c.x, c.y, c.w, c.h, style.border_width, style.border_col);
         let font_sz = c.w * if txt.len() <= 1 { 1.35 } else { 0.5 };
-        draw_text(txt, c.x + 0.2 * c.w, c.y + 0.85 * c.h, font_sz, WHITE);
+        draw_text(txt, c.x + 0.2 * c.w, c.y + 0.85 * c.h, font_sz, BLACK);
 
         if let Some(col) = style.v_connector {
             draw_line(
@@ -127,8 +127,8 @@ impl OpStyle {
     pub fn coding() -> Self {
         Self {
             border_width: 2.,
-            border_col: WHITE,
-            fill_col: Color {r: 0., g:0., b:0., a:0. },
+            border_col: DARKGRAY,
+            fill_col: WHITE,
             scale: 1.0,
             v_connector: Some(DARKGRAY),
         }
@@ -137,7 +137,7 @@ impl OpStyle {
     pub fn dragging() -> Self {
         Self {
             border_width: 2.,
-            border_col: WHITE,
+            border_col: DARKGRAY,
             // Covers over background when dragging
             fill_col: Color {r: 0., g:0., b:0., a:0.5 },
             scale: 1.0,
@@ -224,11 +224,11 @@ impl UiCodingArena
     }
 
     pub fn border_cols(&self) -> Color {
-        if self.is_coding {WHITE} else {SKYBLUE}
+        if self.is_coding {DARKGRAY} else {SKYBLUE}
     }
 
-    pub fn text_col(&self) -> Color {
-        DARKGRAY
+    pub fn font_col(&self) -> Color {
+        BLACK
     }
 
     fn initialise_frame_coords(&mut self, coding: bool) {
@@ -329,7 +329,7 @@ impl UiCodingArena
         crate::ui::clear_background_for_current_platform(self.background_col());
 
         // Draw lev info. TODO: Move to sep fn
-        draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., self.text_col());
+        draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., self.font_col());
     }
 
     fn supply_rect(&self) -> PRect {
@@ -346,7 +346,7 @@ impl UiCodingArena
             self.draw_supply_op(idx, bin);
         }
 
-        draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., WHITE);
+        draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., self.border_cols());
     }
 
     fn draw_prog(&self, coding: &Coding) {
@@ -413,7 +413,7 @@ impl UiCodingArena
 
         // Draw count
         let count_txt = format!("{}/{}", bin.curr_count, bin.orig_count);
-        draw_text(&count_txt, coords.x + 0.5*self.fr_pos.supply_op_w, coords.y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, WHITE);
+        draw_text(&count_txt, coords.x + 0.5*self.fr_pos.supply_op_w, coords.y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, self.font_col());
     }
 
     fn draw_prog_instr(&self, idx: usize, instr: Option<&Op>)
