@@ -44,7 +44,6 @@ impl UiBase {
                 self.render_split.render(state, &mut self.texture_cache, anim).await;
             }
         }
-        println!("{}", get_frame_time());
     }
 }
 
