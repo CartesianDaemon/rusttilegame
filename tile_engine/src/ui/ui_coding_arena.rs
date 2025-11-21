@@ -92,7 +92,7 @@ impl OpCoords {
         draw_rectangle(c.x, c.y, c.w, c.h, style.fill_col);
         draw_rectangle_lines(c.x, c.y, c.w, c.h, style.border_width, style.border_col);
         let font_sz = c.w * if txt.len() <= 1 { 1.35 } else { 0.5 };
-        draw_text(txt, c.x + 0.2 * c.w, c.y + 0.85 * c.h, font_sz, BLACK);
+        draw_text(txt, c.x + 0.2 * c.w, c.y + 0.85 * c.h, font_sz, DARKGRAY);
 
         if let Some(col) = style.v_connector {
             draw_line(
@@ -228,7 +228,7 @@ impl UiCodingArena
     }
 
     pub fn font_col(&self) -> Color {
-        BLACK
+        DARKGRAY
     }
 
     fn initialise_frame_coords(&mut self, coding: bool) {
