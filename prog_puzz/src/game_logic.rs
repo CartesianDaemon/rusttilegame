@@ -84,7 +84,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
         let props = &map[mov].logical_props.custom_props;
         match props.ai {
             ProgpuzzAI::Prog => {
-                let instr = props.prog.instrs.get(props.ip).cloned();
+                let instr = props.prog.ops.get(props.ip).cloned();
 
                 // Advance to next instr for next time.
                 map[mov].logical_props.custom_props.ip +=1;

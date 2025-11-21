@@ -33,15 +33,6 @@ impl Op {
     }
 }
 
-#[allow(non_camel_case_types)]
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum Instr {
-    F,
-    L,
-    R,
-    x2(Box<[Instr;2]>),
-}
-
 impl std::fmt::Display for Op {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         std::fmt::Debug::fmt(self, f)
@@ -58,6 +49,13 @@ impl From<&str> for Op {
             _ => panic!("Unrecognised txt for instr: {}", txt)
         }
     }
+}
+
+#[allow(non_camel_case_types)]
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Instr {
+    op: Op,
+    subnodes: Vec<Instr>,
 }
 
 #[derive(Clone, Debug)]
@@ -89,15 +87,16 @@ impl Bin {
 // Breadcrumb: Derive for implementing default value?
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Prog {
-    pub instrs: Vec<Op>,
-    // pub instrs: Vec<Instr>,
+    pub ops: Vec<Op>,
+    pub instrs: Vec<Instr>,
 }
 
 impl From<&str> for Prog {
     // E.g. from("F,F,R,Loop")
     fn from(prog_txt: &str) -> Prog {
         Prog {
-            instrs: prog_txt.split_terminator(',').map(|op_txt| Op::from(op_txt)).collect()
+            ops: prog_txt.split_terminator(',').map(|op_txt| Op::from(op_txt)).collect(),
+            instrs: vec![],
         }
     }
 }
@@ -105,7 +104,8 @@ impl From<&str> for Prog {
 impl From<Vec<Op>> for Prog {
     fn from(vec: Vec<Op>) -> Prog {
         Prog {
-            instrs: vec
+            ops: vec,
+            instrs: vec![],
         }
     }
 }
@@ -157,7 +157,7 @@ mod tests {
     #[test]
     fn basic_prog() {
         use Op::*;
-        assert_eq!(Prog::from("F,R,F,L"),Prog{instrs:vec![F, R, F, L]});
+        assert_eq!(Prog::from("F,R,F,L"),Prog{ops:vec![F, R, F, L], instrs: vec![],});
         // use Instr::*;
         // assert_eq!(Prog::from("F,R,F,L"),Prog{instrs:vec![Instr::F, Op::R, Op::F, Op::L]});
     }
@@ -165,7 +165,7 @@ mod tests {
     #[test]
     #[ignore]
     fn nested_prog() {
-        assert_eq!(Prog::from("F,x2(R),F,L"),Prog{instrs:vec![Op::F, Op::x2, Op::F, Op::L]});
+        assert_eq!(Prog::from("F,x2(R),F,L"),Prog{ops:vec![Op::F, Op::x2, Op::F, Op::L], instrs: vec![]});
         // assert_eq!(Prog::from("F,x2(R),F,L"),Prog{instrs:vec![Instr::F, Instr::x2, Instr::F, Instr::L]});
     }
 }
