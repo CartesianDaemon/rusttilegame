@@ -44,6 +44,7 @@ impl UiBase {
                 self.render_split.render(state, &mut self.texture_cache, anim).await;
             }
         }
+        sleep_between_frames_on_linux_windows();
     }
 }
 

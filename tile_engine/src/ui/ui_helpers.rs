@@ -83,3 +83,13 @@ pub fn clear_background_for_current_platform(color: Color) {
         _ => clear_background(color),
     }
 }
+
+/// Seems like clear_background is mandatory for wasm, broken for windows.
+/// Don't know about linux or android.
+/// Don't know if fixed in more recent macroquad.
+pub fn sleep_between_frames_on_linux_windows() {
+    match std::env::consts::OS {
+        "windows" | "linux" => std::thread::sleep(std::time::Duration::from_millis(25)),
+        _ => (),
+    }
+}
