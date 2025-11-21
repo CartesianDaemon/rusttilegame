@@ -51,9 +51,9 @@ impl From<&str> for Op {
 
 #[allow(non_camel_case_types)]
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Instr {
+pub struct Node {
     op: Op,
-    subnodes: Vec<Instr>,
+    subnodes: Vec<Node>,
 }
 
 #[derive(Clone, Debug)]
@@ -86,14 +86,14 @@ impl Bin {
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Prog {
     pub ops: Vec<Op>,
-    pub instrs: Vec<Instr>,
+    pub instrs: Vec<Node>,
 }
 
 impl From<Vec<Op>> for Prog {
-    fn from(vec: Vec<Op>) -> Prog {
+    fn from(ops:Vec<Op>) -> Prog {
         Prog {
-            ops: vec,
-            instrs: vec![],
+            instrs: ops.iter().map(|op| Node{op:*op, subnodes:vec![] }).collect(),
+            ops: ops,
         }
     }
 }
