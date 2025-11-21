@@ -353,10 +353,10 @@ impl UiCodingArena
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., self.border_cols());
 
         // NB: Clone means that we draw the original instrs, even if one is dragged out.
-        for (idx, instr) in coding.prog.ops.clone().iter().enumerate() {
-            self.draw_prog_instr(idx, Some(instr));
+        for (idx, instr) in coding.prog.instrs.clone().iter().enumerate() {
+            self.draw_prog_instr(idx, Some(&instr.op));
         }
-        self.draw_prog_instr(coding.prog.ops.len(), None);
+        self.draw_prog_instr(coding.prog.instrs.len(), None);
     }
 
     fn interact_supply(&mut self, coding: &mut Coding) {
@@ -372,10 +372,10 @@ impl UiCodingArena
     }
 
     fn interact_prog(&mut self, coding: &mut Coding) {
-        for (idx, instr) in coding.prog.ops.clone().iter().enumerate() {
-            self.interact_prog_instr(coding, idx, Some(instr));
+        for (idx, instr) in coding.prog.instrs.clone().iter().enumerate() {
+            self.interact_prog_instr(coding, idx, Some(&instr.op));
         }
-        self.interact_prog_instr(coding, coding.prog.ops.len(), None);
+        self.interact_prog_instr(coding, coding.prog.instrs.len(), None);
     }
 
     fn interact_dragging(&mut self, coding: &mut Coding) {
@@ -584,7 +584,7 @@ impl UiCodingArena
 
     fn drag_prog_instr(&mut self, coding: &mut Coding, idx: usize, orig_offset_x: f32, orig_offset_y: f32) {
         // TODO: Test not already dragging?
-        let op = coding.prog.ops.remove(idx);
+        let op = coding.prog.instrs.remove(idx).op;
         log::debug!("INFO: Dragging {:?} from prog", op);
         self.dragging = Dragging::Yes {
             op: op,
@@ -622,7 +622,7 @@ impl UiCodingArena
     fn drop_to_prog(&mut self, coding: &mut Coding, idx: usize) {
         if let Dragging::Yes { op, .. } = self.dragging {
             log::debug!("INFO: Dropping {:?} to prog", op);
-            coding.prog.ops.insert(idx, op);
+            coding.prog.instrs.insert(idx, Node{op, subnodes:vec![]});
             self.dragging = Dragging::No;
         }
     }

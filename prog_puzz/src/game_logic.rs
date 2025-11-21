@@ -84,7 +84,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
         let props = &map[mov].logical_props.custom_props;
         match props.ai {
             ProgpuzzAI::Prog => {
-                let instr = props.prog.ops.get(props.ip).cloned();
+                let instr = props.prog.instrs.get(props.ip).cloned();
 
                 // Advance to next instr for next time.
                 map[mov].logical_props.custom_props.ip +=1;
@@ -95,25 +95,27 @@ impl BaseGameLogic for ProgpuzzGameLogic
                         log::debug!("Bot reached end of program.");
                         return PaneContinuation::Break(WidgetConclusion::Die);
                     }
-                    // Move forward
-                    Some(Op::F) => {
-                        log::debug!("Bot move F.");
-                        let target_pos = map[mov].pos() + map[mov].logical_props.dir;
-                        if map.passable(target_pos) {
-                            map.move_obj_to(mov, target_pos);
-                        }
-                    },
-                    Some(Op::L) => {
-                        log::debug!("Bot rotate L.");
-                        map[mov].logical_props.dir.rotate_l();
-                    },
-                    Some(Op::R) => {
-                        log::debug!("Bot rotate R.");
-                        map[mov].logical_props.dir.rotate_r();
-                    },
-                    Some(Op::x2) => {
-                        unimplemented!();
-                    },
+                    Some(Node{op, ..}) => match op {
+                        // Move forward
+                        Op::F => {
+                            log::debug!("Bot move F.");
+                            let target_pos = map[mov].pos() + map[mov].logical_props.dir;
+                            if map.passable(target_pos) {
+                                map.move_obj_to(mov, target_pos);
+                            }
+                        },
+                        Op::L => {
+                            log::debug!("Bot rotate L.");
+                            map[mov].logical_props.dir.rotate_l();
+                        },
+                        Op::R => {
+                            log::debug!("Bot rotate R.");
+                            map[mov].logical_props.dir.rotate_r();
+                        },
+                        Op::x2 => {
+                            unimplemented!();
+                        },
+                    }
                 }
 
                 // Conclude pane successfully if hero finds with goal.

@@ -49,13 +49,6 @@ impl From<&str> for Op {
     }
 }
 
-#[allow(non_camel_case_types)]
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Node {
-    op: Op,
-    subnodes: Vec<Node>,
-}
-
 #[derive(Clone, Debug)]
 pub struct Bin {
     pub op: Op,
@@ -82,10 +75,15 @@ impl Bin {
     }
 }
 
-// Breadcrumb: Derive for implementing default value?
+#[allow(non_camel_case_types)]
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Node {
+    pub op: Op,
+    pub subnodes: Vec<Node>,
+}
+
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Prog {
-    pub ops: Vec<Op>,
     pub instrs: Vec<Node>,
 }
 
@@ -93,7 +91,6 @@ impl From<Vec<Op>> for Prog {
     fn from(ops:Vec<Op>) -> Prog {
         Prog {
             instrs: ops.iter().map(|op| Node{op:*op, subnodes:vec![] }).collect(),
-            ops: ops,
         }
     }
 }
