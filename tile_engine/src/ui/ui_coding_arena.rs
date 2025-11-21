@@ -219,35 +219,6 @@ impl UiCodingArena
 
     }
 
-    pub async fn render<GameLogic: BaseGameLogic>(
-            &mut self,
-            coding_arena: &mut CodingArena<GameLogic>,
-            texture_cache: &mut TextureCache,
-            anim: AnimState,
-        ) {
-        self.active_idx = GameLogic::get_active_idx(coding_arena);
-        self.initialise_frame_coords(coding_arena.is_coding());
-
-        if self.is_coding {
-            UiArena::render(&coding_arena.init_arena, texture_cache, self.fr_pos.arena, anim).await;
-        } else {
-            UiArena::render(coding_arena.curr_arena.as_mut().unwrap(), texture_cache, self.fr_pos.arena, anim).await;
-        }
-
-        self.draw_background(coding_arena);
-        self.draw_prog(&mut coding_arena.coding);
-        if self.is_coding {
-            self.draw_supply(&mut coding_arena.coding);
-            self.draw_dragging();
-        }
-
-        self.interact_prog(&mut coding_arena.coding);
-        if self.is_coding {
-            self.interact_supply(&mut coding_arena.coding);
-            self.interact_dragging(&mut coding_arena.coding);
-        }
-    }
-
     fn initialise_frame_coords(&mut self, coding: bool) {
         // Arena
         let arena = PRect {
@@ -309,6 +280,35 @@ impl UiCodingArena
             prog_instr_spacing,
         }
 
+    }
+
+    pub async fn render<GameLogic: BaseGameLogic>(
+            &mut self,
+            coding_arena: &mut CodingArena<GameLogic>,
+            texture_cache: &mut TextureCache,
+            anim: AnimState,
+        ) {
+        self.active_idx = GameLogic::get_active_idx(coding_arena);
+        self.initialise_frame_coords(coding_arena.is_coding());
+
+        if self.is_coding {
+            UiArena::render(&coding_arena.init_arena, texture_cache, self.fr_pos.arena, anim).await;
+        } else {
+            UiArena::render(coding_arena.curr_arena.as_mut().unwrap(), texture_cache, self.fr_pos.arena, anim).await;
+        }
+
+        self.draw_background(coding_arena);
+        self.draw_prog(&mut coding_arena.coding);
+        if self.is_coding {
+            self.draw_supply(&mut coding_arena.coding);
+            self.draw_dragging();
+        }
+
+        self.interact_prog(&mut coding_arena.coding);
+        if self.is_coding {
+            self.interact_supply(&mut coding_arena.coding);
+            self.interact_dragging(&mut coding_arena.coding);
+        }
     }
 
     fn draw_background<GameLogic: BaseGameLogic>(&self, _coding_arena: &mut CodingArena<GameLogic>) {
