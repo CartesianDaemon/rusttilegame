@@ -16,7 +16,8 @@ fn initialise() {
 }
 
 fn basic_test_key() -> HashMap<char, Vec<FreeObj<crate::game_logic::ProgpuzzCustomProps>>> {
-    let prog = Prog::from("F,F,R,F");
+    use Op::*;
+    let prog = Prog::from(vec![F,F,R,F]);
     HashMap::from([
         (' ', vec![ new_floor() ]),
         ('#', vec![ new_floor(), new_wall() ]),
@@ -86,7 +87,8 @@ fn basic_move() {
 
     // Set up program that "user" has entered in code pane, that bot will follow.
     if let Widget::CodingArena(split)= &mut state {
-        split.coding.prog =  Prog::from("F,F,R,F");
+        use Op::*;
+        split.coding.prog =  Prog::from(vec![F,F,R,F]);
     }
 
     // Start running, no other effect

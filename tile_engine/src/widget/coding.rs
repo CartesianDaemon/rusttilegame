@@ -91,16 +91,6 @@ pub struct Prog {
     pub instrs: Vec<Instr>,
 }
 
-impl From<&str> for Prog {
-    // E.g. from("F,F,R,Loop")
-    fn from(prog_txt: &str) -> Prog {
-        Prog {
-            ops: prog_txt.split_terminator(',').map(|op_txt| Op::from(op_txt)).collect(),
-            instrs: vec![],
-        }
-    }
-}
-
 impl From<Vec<Op>> for Prog {
     fn from(vec: Vec<Op>) -> Prog {
         Prog {
@@ -147,25 +137,5 @@ impl BaseWidget for Coding
 
     fn tick_based(&self) -> crate::ui::TickStyle {
         crate::ui::TickStyle::Continuous
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn basic_prog() {
-        use Op::*;
-        assert_eq!(Prog::from("F,R,F,L"),Prog{ops:vec![F, R, F, L], instrs: vec![],});
-        // use Instr::*;
-        // assert_eq!(Prog::from("F,R,F,L"),Prog{instrs:vec![Instr::F, Op::R, Op::F, Op::L]});
-    }
-
-    #[test]
-    #[ignore]
-    fn nested_prog() {
-        assert_eq!(Prog::from("F,x2(R),F,L"),Prog{ops:vec![Op::F, Op::x2, Op::F, Op::L], instrs: vec![]});
-        // assert_eq!(Prog::from("F,x2(R),F,L"),Prog{instrs:vec![Instr::F, Instr::x2, Instr::F, Instr::L]});
     }
 }
