@@ -44,7 +44,7 @@ impl UiBase {
                 self.render_split.render(state, &mut self.texture_cache, anim).await;
             }
         }
-        draw_text(&format!("{}", get_frame_time()), 10., 20., 30., BLUE);
+        println!("{}", get_frame_time());
     }
 }
 
