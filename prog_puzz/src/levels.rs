@@ -44,6 +44,7 @@ impl ProgpuzzLevset {
             */
         ]);
 
+        use Op::*;
         // NB: Would like to implement thin walls between squares, not walls filling whole squares.
         match self.current_paneid {
             // TODO: Avoid needing to specify HEIGHT explicitly.
@@ -66,17 +67,17 @@ impl ProgpuzzLevset {
                     "#              #",
                     "################",
                 ], progpuzz_key),
-                Coding::from_ascii(
+                Coding::from_hashmap(
                     // NB: Consider crate macro to initialise vec
                     // NB: Consider my iteration macro here and elsewhere I collect'ed.
-                    [
-                        ("F", 6),
-                        ("R", 1),
+                    &[
+                        (F, 6),
+                        (R, 1),
                         // ("F", 1),
                         // ("L", 1),
                         // ("R", 1),
                         // ("Loop", 1),
-                    ].into_iter().collect()
+                    ]
                 )
             )),
             ProgpuzzPaneId::Win => {
