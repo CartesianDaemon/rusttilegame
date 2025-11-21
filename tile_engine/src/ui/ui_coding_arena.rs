@@ -27,10 +27,6 @@ enum Dragging {
     },
 }
 
-pub fn background_col() -> Color {
-    LIGHTGRAY
-}
-
 // NB: This approaches implementing a UI with nested controls inheriting from a control trait.
 #[derive(Default)]
 struct FrameCoords {
@@ -165,12 +161,12 @@ impl OpStyle {
         }
     }
 
-    pub fn coding_placeholder() -> Self {
+    pub fn coding_placeholder(background_col: Color) -> Self {
         Self {
             border_width: 1.,
             border_col: GRAY,
             // Covers over excess connecting line
-            fill_col: background_col(),
+            fill_col: background_col,
             scale: 1.0,
             v_connector: false,
         }
@@ -221,6 +217,10 @@ impl UiCodingArena
             dragging: Dragging::No,
         }
 
+    }
+
+    pub fn background_col(&self) -> Color {
+        LIGHTGRAY
     }
 
     fn initialise_frame_coords(&mut self, coding: bool) {
@@ -318,7 +318,7 @@ impl UiCodingArena
 
     fn draw_background<GameLogic: BaseGameLogic>(&self, _coding_arena: &mut CodingArena<GameLogic>) {
         // Clear background if necessary.
-        crate::ui::clear_background_for_current_platform(background_col());
+        crate::ui::clear_background_for_current_platform(self.background_col());
 
         // Draw lev info. TODO: Move to sep fn
         draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
@@ -475,7 +475,7 @@ impl UiCodingArena
             style = if has_op {
                 OpStyle::coding()
             } else {
-                OpStyle::coding_placeholder()
+                OpStyle::coding_placeholder(self.background_col())
             };
 
             if matches!(self.dragging, Dragging::No) && has_op && self.mouse_in(coords) {
