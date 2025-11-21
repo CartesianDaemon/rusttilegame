@@ -94,14 +94,14 @@ impl OpCoords {
         let font_sz = c.w * if txt.len() <= 1 { 1.35 } else { 0.5 };
         draw_text(txt, c.x + 0.2 * c.w, c.y + 0.85 * c.h, font_sz, WHITE);
 
-        if style.v_connector {
+        if let Some(col) = style.v_connector {
             draw_line(
                 c.x + c.w/2.,
                 c.y + c.h,
                 c.x + c.w/2.,
                 c.y + c.h + c.v_spacing,
                 2.,
-                DARKGRAY
+                col
             );
         }
     }
@@ -120,7 +120,7 @@ struct OpStyle {
     border_col: Color,
     fill_col: Color,
     scale: f32,
-    v_connector: bool,
+    v_connector: Option<Color>,
 }
 
 impl OpStyle {
@@ -130,7 +130,7 @@ impl OpStyle {
             border_col: WHITE,
             fill_col: Color {r: 0., g:0., b:0., a:0. },
             scale: 1.0,
-            v_connector: true,
+            v_connector: Some(DARKGRAY),
         }
     }
 
@@ -141,7 +141,7 @@ impl OpStyle {
             // Covers over background when dragging
             fill_col: Color {r: 0., g:0., b:0., a:0.5 },
             scale: 1.0,
-            v_connector: false,
+            v_connector: None,
         }
     }
 
@@ -168,7 +168,7 @@ impl OpStyle {
             // Covers over excess connecting line
             fill_col: background_col,
             scale: 1.0,
-            v_connector: false,
+            v_connector: None,
         }
     }
 
@@ -178,7 +178,7 @@ impl OpStyle {
             border_col: SKYBLUE,
             fill_col: Color {r: 0., g:0., b:0., a:0. },
             scale: 1.0,
-            v_connector: true,
+            v_connector: None,
         }
     }
 
@@ -191,7 +191,7 @@ impl OpStyle {
 
     pub fn running_placeholder() -> Self {
         Self {
-            v_connector: false,
+            v_connector: None,
             ..Self::running()
         }
     }
@@ -221,6 +221,14 @@ impl UiCodingArena
 
     pub fn background_col(&self) -> Color {
         LIGHTGRAY
+    }
+
+    pub fn border_cols(&self) -> Color {
+        if self.is_coding {WHITE} else {SKYBLUE}
+    }
+
+    pub fn text_col(&self) -> Color {
+        DARKGRAY
     }
 
     fn initialise_frame_coords(&mut self, coding: bool) {
@@ -321,7 +329,7 @@ impl UiCodingArena
         crate::ui::clear_background_for_current_platform(self.background_col());
 
         // Draw lev info. TODO: Move to sep fn
-        draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
+        draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., self.text_col());
     }
 
     fn supply_rect(&self) -> PRect {
@@ -342,8 +350,7 @@ impl UiCodingArena
     }
 
     fn draw_prog(&self, coding: &Coding) {
-        let border_col = if self.is_coding {WHITE} else {SKYBLUE};
-        draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., border_col);
+        draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., self.border_cols());
 
         // NB: Clone means that we draw the original instrs, even if one is dragged out.
         for (idx, instr) in coding.prog.instrs.clone().iter().enumerate() {
