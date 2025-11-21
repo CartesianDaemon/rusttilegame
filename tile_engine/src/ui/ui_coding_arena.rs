@@ -306,9 +306,9 @@ impl UiCodingArena
         self.draw_background(coding_arena);
 
         if self.is_coding {
-            // UiArena::render(&coding_arena.init_arena, texture_cache, self.fr_pos.arena, anim).await;
+            UiArena::render(&coding_arena.init_arena, texture_cache, self.fr_pos.arena, anim).await;
         } else {
-            // UiArena::render(coding_arena.curr_arena.as_mut().unwrap(), texture_cache, self.fr_pos.arena, anim).await;
+            UiArena::render(coding_arena.curr_arena.as_mut().unwrap(), texture_cache, self.fr_pos.arena, anim).await;
         }
 
         self.draw_prog(&mut coding_arena.coding);
