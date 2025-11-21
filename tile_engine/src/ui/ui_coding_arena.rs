@@ -178,7 +178,7 @@ impl OpStyle {
             border_col: SKYBLUE,
             fill_col: WHITE,
             scale: 1.0,
-            v_connector: Some(DARKGRAY),
+            v_connector: Some(BLUE),
         }
     }
 
