@@ -66,7 +66,7 @@ fn get_basic_lev() -> Widget<super::game_logic::ProgpuzzGameLogic> {
     use Op::*;
     Widget::CodingArena(CodingArena::new::<16>(
         basic_map(0),
-        Coding::from_hashmap( &[(F, 1), (L, 1), (R, 1), (x2, 1)] )
+        Coding::from_vec( &[(F, 1), (L, 1), (R, 1), (x2, 1)] )
     ))
 }
 

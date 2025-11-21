@@ -67,7 +67,7 @@ impl ProgpuzzLevset {
                     "#              #",
                     "################",
                 ], progpuzz_key),
-                Coding::from_hashmap(
+                Coding::from_vec(
                     // NB: Consider crate macro to initialise vec
                     // NB: Consider my iteration macro here and elsewhere I collect'ed.
                     &[

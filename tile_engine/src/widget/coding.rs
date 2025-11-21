@@ -105,7 +105,7 @@ pub struct Coding {
 }
 
 impl Coding {
-    pub fn from_hashmap(supplies: &[(Op, u16)]) -> Coding {
+    pub fn from_vec(supplies: &[(Op, u16)]) -> Coding {
         Coding {
             supply: supplies.iter().map(|(op,count)|
             Bin::new(*op, *count)
