@@ -27,6 +27,10 @@ enum Dragging {
     },
 }
 
+pub fn background_col() -> Color {
+    LIGHTGRAY
+}
+
 // NB: This approaches implementing a UI with nested controls inheriting from a control trait.
 #[derive(Default)]
 struct FrameCoords {
@@ -101,7 +105,7 @@ impl OpCoords {
                 c.x + c.w/2.,
                 c.y + c.h + c.v_spacing,
                 2.,
-                LIGHTGRAY
+                DARKGRAY
             );
         }
     }
@@ -166,7 +170,7 @@ impl OpStyle {
             border_width: 1.,
             border_col: GRAY,
             // Covers over excess connecting line
-            fill_col: BLACK,
+            fill_col: background_col(),
             scale: 1.0,
             v_connector: false,
         }
@@ -314,7 +318,7 @@ impl UiCodingArena
 
     fn draw_background<GameLogic: BaseGameLogic>(&self, _coding_arena: &mut CodingArena<GameLogic>) {
         // Clear background if necessary.
-        crate::ui::clear_background_for_current_platform(LIGHTGRAY);
+        crate::ui::clear_background_for_current_platform(background_col());
 
         // Draw lev info. TODO: Move to sep fn
         draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., DARKGRAY);
