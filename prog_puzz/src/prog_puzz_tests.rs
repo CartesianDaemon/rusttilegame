@@ -285,3 +285,43 @@ fn repeat_x2_rotate() {
         assert!(hero_prog(&state).has_reached_end());
     }
 }
+
+#[test]
+fn nested_repeat() {
+    initialise();
+
+    use Op::*;
+    let mut prog = Prog::from(vec![R, x2]);
+    prog.instrs[1].subnodes = Some(Prog::from(vec![x2]));
+    prog.instrs[1].subnodes.as_mut().unwrap().instrs[0].subnodes = Some(Prog::from(vec![F]));
+    let mut state = get_basic_lev_with_prog(prog);
+
+    // Start running, no other effect
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 4));
+    assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, -1));
+
+    // R
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
+
+    // F
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert_eq!(hero(&state).pos(), MapCoord::from_xy(5, 4));
+
+    // F
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert_eq!(hero(&state).pos(), MapCoord::from_xy(6, 4));
+
+    // F
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert_eq!(hero(&state).pos(), MapCoord::from_xy(7, 4));
+
+    if false {
+        // F
+        assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+        assert_eq!(hero(&state).pos(), MapCoord::from_xy(8, 4));
+    }
+
+    assert!(hero_prog(&state).has_reached_end());
+}
