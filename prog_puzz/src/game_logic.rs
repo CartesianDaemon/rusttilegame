@@ -62,14 +62,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
 
     fn get_active_idx(coding_arena: &CodingArena<Self>) -> Option<usize> {
         if let Some(arena) = &coding_arena.curr_arena {
-            let ip = arena[arena.hero()].logical_props.custom_props.prog.next_ip;
-            if ip ==0 {
-                Some(0)
-            } else {
-                // Highlight ip-1, as advance will move ip to *next* instruction than the one executing.
-                // NB: In advance, need to save prev ip directly, for when execution isn't linear.
-                Some(ip-1)
-            }
+            Some(arena[arena.hero()].logical_props.custom_props.prog.prev_ip)
         } else {
             None
         }
@@ -86,7 +79,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
                 let external_op = prog.instrs.get(prog.next_ip).cloned();
 
                 // Advance to next instr for next time.
-                prog.next_ip += 1;
+                (prog.prev_ip, prog.next_ip) = (prog.next_ip, prog.next_ip + 1);
 
                 match external_op {
                     // Conclude pane with failure if we reach the end of the program.
