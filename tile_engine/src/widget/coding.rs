@@ -105,7 +105,7 @@ pub struct NodeParent {
     pub next_ip: usize,
     // Internal counter, used to implement loops and other stateful instructions.
     // When used for iteration, counts down. During last iteration it will have value 1.
-    pub count: usize,
+    pub repeat: usize,
     // Vector of one or more instrs to execute. Some parent ops have a specific number of nested instrs.
     pub instrs: Vec<Node>
 }
@@ -156,22 +156,11 @@ impl NodeParent {
     pub fn initialise(&mut self, control_flow_op: Op) {
         self.prev_ip = 0;
         self.next_ip = 0;
-        self.count = match control_flow_op {
+        self.repeat = match control_flow_op {
             Op::group => 1,
             Op::x2 => 2,
             _ => panic!(),
         }
-    }
-
-    /// Could fold this into reached_end() and advance()
-    pub fn next_iteration(&mut self) {
-        assert!(self.count >= 1);
-        self.count -= 1;
-        self.next_ip = 0;
-    }
-
-    fn iteration_available(&self) -> bool {
-        self.count > 1
     }
 
     fn advance_current_subprog(&mut self, beginning_current_instr: bool) {
@@ -194,16 +183,16 @@ impl NodeParent {
         subprog.advance_next_instr();
 
         if subprog.has_reached_end() {
-            if subprog.iteration_available() {
-                subprog.next_iteration();
-            } else {
-                self.advance_own_ip();
-            }
+            self.advance_own_ip();
         }
     }
 
     fn advance_own_ip(&mut self) {
         self.next_ip += 1;
+        if self.has_reached_end() && self.repeat > 1 {
+            self.repeat -= 1;
+            self.next_ip = 0;
+        }
     }
 
     // Advances control flow state. Use curr_op() to return basic external op, eg move, rotate.
