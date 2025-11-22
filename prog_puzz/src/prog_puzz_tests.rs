@@ -112,31 +112,41 @@ fn basic_move() {
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert!(matches!(state, Widget::CodingArena(CodingArena{phase: CodingRunningPhase::Running, ..})));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 4));
+    assert_eq!(hero_prog(&state).curr_op(), F);
+    assert_eq!(hero_prog(&state).next_op(), F);
     assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)).unwrap(), 0);
 
     // F
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    assert_eq!(hero_prog(&state).curr_op(), F);
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 3));
+
+    assert_eq!(hero_prog(&state).curr_op(), F);
+    assert_eq!(hero_prog(&state).next_op(), F);
     assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)).unwrap(), 0);
 
     // F
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    assert_eq!(hero_prog(&state).curr_op(), F);
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 2));
+
+    assert_eq!(hero_prog(&state).curr_op(), F);
+    assert_eq!(hero_prog(&state).next_op(), R);
     assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)).unwrap(), 1);
 
     // R
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    assert_eq!(hero_prog(&state).curr_op(), R);
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 2));
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
+
+    assert_eq!(hero_prog(&state).curr_op(), R);
+    assert_eq!(hero_prog(&state).next_op(), F);
     assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)).unwrap(), 2);
 
     // F
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    assert_eq!(hero_prog(&state).curr_op(), F);
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(5, 2));
+
+    assert_eq!(hero_prog(&state).curr_op(), F);
+    assert!(hero_prog(&state).has_reached_end());
     assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)).unwrap(), 3);
 }
 

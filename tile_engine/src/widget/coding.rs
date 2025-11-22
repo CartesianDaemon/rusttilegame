@@ -136,6 +136,17 @@ impl NodeParent {
         }
     }
 
+    // Next action op to execute. (Or panic.)
+    pub fn next_op(&self) -> Op {
+        let node = self.instrs.get(self.next_ip).unwrap();
+        if node.op.is_action_instr() {
+            node.op
+        } else {
+            assert!(node.op.is_parent_instr());
+            node.subnodes.as_ref().unwrap().next_op()
+        }
+    }
+
     pub fn has_reached_end(&self) -> bool {
         self.next_ip >= self.instrs.len()
     }
