@@ -133,6 +133,37 @@ fn basic_move() {
 }
 
 #[test]
+fn group() {
+    initialise();
+
+    use Op::*;
+    let mut prog = Prog::from(vec![R,group,R]);
+    prog.instrs[1].subnodes = Some(Prog::from(vec![F, F]));
+    let mut state = get_basic_lev_with_prog(prog);
+
+    // Start running, no other effect
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert!(matches!(state, Widget::CodingArena(CodingArena{phase: CodingRunningPhase::Running, ..})));
+    assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 4));
+
+    // R
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
+
+    // group:F, first F
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(())); // x2 instr unimplemented!()
+    assert_eq!(hero(&state).pos(), MapCoord::from_xy(5, 4));
+
+    // group:F, second F
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert_eq!(hero(&state).pos(), MapCoord::from_xy(6, 4));
+
+    // R
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
+}
+
+#[test]
 fn repeat() {
     initialise();
 
