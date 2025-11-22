@@ -112,22 +112,34 @@ impl NodeParent {
     //     self.instrs.get(idx).map(|node| node.op)
     // }
 
-    // Returns None if we run off end of program.
-    // Else advances control flow state and returns next basic external op, eg move, rotate.
-    pub fn advance_next_instr(&mut self) -> Option<Op> {
+    pub fn has_reached_end(&self) -> bool {
+        self.next_ip >= self.instrs.len()
+    }
+
+    // Advances control flow state and returns next basic external op, eg move, rotate.
+    // Will panic if we have reached the end of the program
+    pub fn advance_next_instr(&mut self) -> Op {
+        self.try_advance_next_instr().unwrap()
+    }
+
+    pub fn try_advance_next_instr(&mut self) -> Option<Op> {
         self.prev_ip = self.next_ip;
         use Op::*;
         match self.prev_node()?.op {
             // Control flow instrs
             group => {
-                let op = self.prev_node()?.subnodes.as_mut().unwrap().advance_next_instr();
-                match op {
-                    Some(_) => op,
-                    None => {
+                // [_*R ,  R,  [_*F,  F  ],  R  ] // do op at *, then advance to next line
+                // [ _R , *R,  [_*F,  F  ],  R  ]
+                // [  R , _R, *[_*F,  F  ],  R  ]
+                // [  R ,  R,_*[_*F,  F  ],  R  ]
+                // [  R ,  R,_*[ _F, *F  ],  R  ]
+                // [  R ,  R, _[  F, _F *], *R  ]
+                // [  R ,  R,  [  F, _F *], _R *]
+                let op = self.prev_node()?.subnodes.as_mut()?.try_advance_next_instr();
+                if self.prev_node()?.subnodes.as_ref()?.has_reached_end() {
                         self.next_ip += 1;
-                        self.advance_next_instr()
-                    }
                 }
+                op
             }
             // Regular instrs
             _ => {
@@ -135,9 +147,6 @@ impl NodeParent {
                 Some(self.prev_node()?.op)
             },
         }
-        // (self.prev_ip, self.next_ip) = (self.next_ip, self.next_ip + 1);
-
-        // self.instrs.get(self.prev_ip).map(|node| node.op)
     }
 }
 

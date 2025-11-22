@@ -74,37 +74,36 @@ impl BaseGameLogic for ProgpuzzGameLogic
         match props.ai {
             ProgpuzzAI::Prog => {
                 let prog = &mut map[mov].logical_props.custom_props.prog;
+
+                if prog.has_reached_end() {
+                        log::debug!("Bot reached end of program.");
+                        return WidgetContinuation::Break(WidgetConclusion::Die);
+                }
+
                 let external_op = prog.advance_next_instr();
 
                 match external_op {
-                    // Conclude pane with failure if we reach the end of the program.
-                    None => {
-                        log::debug!("Bot reached end of program.");
-                        return WidgetContinuation::Break(WidgetConclusion::Die);
-                    }
-                    Some(op) => match op {
-                        // Move forward
-                        Op::F => {
-                            let target_pos = map[mov].pos() + map[mov].logical_props.dir;
-                            if map.passable(target_pos) {
-                                log::debug!("Bot move F. {} -> {}", map[mov].pos(), target_pos);
-                                map.move_obj_to(mov, target_pos);
-                            } else {
-                                log::debug!("Bot blocked F. {} -/-> {}", map[mov].pos(), target_pos);
-                            }
-                        },
-                        Op::L => {
-                            map[mov].logical_props.dir.rotate_l();
-                            log::debug!("Bot rotate L. {} -> {}", map[mov].logical_props.prev_dir , map[mov].logical_props.dir);
-                        },
-                        Op::R => {
-                            map[mov].logical_props.dir.rotate_r();
-                            log::debug!("Bot rotate R. {} -> {}", map[mov].logical_props.prev_dir , map[mov].logical_props.dir);
-                        },
-                        Op::group => {
-                            unimplemented!();
-                        },
-                    }
+                    // Move forward
+                    Op::F => {
+                        let target_pos = map[mov].pos() + map[mov].logical_props.dir;
+                        if map.passable(target_pos) {
+                            log::debug!("Bot move F. {} -> {}", map[mov].pos(), target_pos);
+                            map.move_obj_to(mov, target_pos);
+                        } else {
+                            log::debug!("Bot blocked F. {} -/-> {}", map[mov].pos(), target_pos);
+                        }
+                    },
+                    Op::L => {
+                        map[mov].logical_props.dir.rotate_l();
+                        log::debug!("Bot rotate L. {} -> {}", map[mov].logical_props.prev_dir , map[mov].logical_props.dir);
+                    },
+                    Op::R => {
+                        map[mov].logical_props.dir.rotate_r();
+                        log::debug!("Bot rotate R. {} -> {}", map[mov].logical_props.prev_dir , map[mov].logical_props.dir);
+                    },
+                    Op::group => {
+                        unimplemented!();
+                    },
                 }
 
                 // Conclude pane successfully if hero finds with goal.
