@@ -266,7 +266,7 @@ fn repeat_x2_rotate() {
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
 
-    if false {
+    if true {
         // R
         assert_eq!(hero_prog(&state).next_op(), R);
         assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));

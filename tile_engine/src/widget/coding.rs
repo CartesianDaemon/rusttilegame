@@ -97,6 +97,16 @@ pub struct Node {
     pub subnodes: Option<NodeParent>,
 }
 
+impl std::fmt::Display for Node {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.op)?;
+        if let Some(subprog) = &self.subnodes {
+            write!(f, "[{}]", subprog)?;
+        }
+        Ok(())
+    }
+}
+
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct NodeParent {
     // Index of previous instruction executed. Used for display and knowing when we enter subnodes
@@ -116,6 +126,15 @@ impl From<Vec<Op>> for NodeParent {
             instrs: ops.iter().map(|op| Node{op:*op, subnodes:None }).collect(),
             ..Self::default()
         }
+    }
+}
+
+impl std::fmt::Display for NodeParent {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        for node in &self.instrs {
+            write!(f, "{},", node.op)?;
+        }
+        Ok(())
     }
 }
 
@@ -218,6 +237,7 @@ impl NodeParent {
             panic!("Unrecognised category of instr: {}", op);
         }
         assert!(self.curr_op().is_action_instr());
+        log::debug!("Advancing prog {} to #{}. Next: #{}.", self, self.prev_ip, self.next_ip);
     }
 }
 
