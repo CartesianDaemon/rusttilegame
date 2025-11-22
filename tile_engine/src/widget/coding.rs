@@ -78,32 +78,36 @@ impl Bin {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Node {
     pub op: Op,
-    pub subnodes: Vec<Node>,
+    pub subnodes: Option<NodeParent>,
 }
 
-
-
-pub fn nodes_from_ops(ops:Vec<Op>) -> Vec<Node> {
-    ops.iter().map(|op| Node{op:*op, subnodes:vec![] }).collect()
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct NodeParent {
+    // Index of previous instruction executed. Used for display and knowing when we enter subnodes
+    pub prev_ip: usize,
+    // Index of next instruction to execute.
+    pub next_ip: usize,
+    // Internal counter, used to implement loops and other stateful instructions.
+    pub count: usize,
+    // Vector of one or more instrs to execute. Some parent ops have a specific number of nested instrs.
+    pub instrs: Vec<Node>
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
-pub struct Prog {
-    pub instrs: Vec<Node>,
-}
-
-impl From<Vec<Op>> for Prog {
-    fn from(ops:Vec<Op>) -> Self {
+impl From<Vec<Op>> for NodeParent {
+    fn from(ops: Vec<Op>) -> Self {
         Self {
-            instrs: nodes_from_ops(ops),
+            instrs: ops.iter().map(|op| Node{op:*op, subnodes:None }).collect(),
+            ..Self::default()
         }
     }
 }
 
+pub use NodeParent as Prog;
+
 #[derive(Clone, Debug)]
 pub struct Coding {
     pub supply: Vec<Bin>,
-    pub prog: Prog,
+    pub prog: NodeParent,
 }
 
 impl Coding {
@@ -112,7 +116,7 @@ impl Coding {
             supply: supplies.iter().map(|(op,count)|
             Bin::new(*op, *count)
             ).collect(),
-            prog: Prog::default(),
+            prog: NodeParent::default(),
         }
     }
 }

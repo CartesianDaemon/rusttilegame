@@ -622,7 +622,7 @@ impl UiCodingArena
     fn drop_to_prog(&mut self, coding: &mut Coding, idx: usize) {
         if let Dragging::Yes { op, .. } = self.dragging {
             log::debug!("INFO: Dropping {:?} to prog", op);
-            coding.prog.instrs.insert(idx, Node{op, subnodes:vec![]});
+            coding.prog.instrs.insert(idx, Node{op, subnodes: None});
             self.dragging = Dragging::No;
         }
     }

@@ -125,7 +125,7 @@ fn repeat() {
 
     use Op::*;
     let mut prog = Prog::from(vec![R,x2,R]);
-    prog.instrs[1].subnodes = nodes_from_ops(vec![F]);
+    prog.instrs[1].subnodes = Some(Prog::from(vec![F]));
     let mut state = get_basic_lev_with_prog(prog);
 
     // Start running, no other effect
