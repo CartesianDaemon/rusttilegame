@@ -116,6 +116,12 @@ impl NodeParent {
         self.next_ip >= self.instrs.len()
     }
 
+    pub fn reset(&mut self) {
+        self.prev_ip = 0;
+        self.next_ip = 0;
+        self.count = 0;
+    }
+
     // Advances control flow state and returns next basic external op, eg move, rotate.
     // Will panic if we have reached the end of the program
     pub fn advance_next_instr(&mut self) -> Op {
@@ -123,6 +129,7 @@ impl NodeParent {
     }
 
     pub fn try_advance_next_instr(&mut self) -> Option<Op> {
+        let beginning_current_instr = self.next_ip != self.prev_ip;
         self.prev_ip = self.next_ip;
         use Op::*;
         match self.prev_node()?.op {
@@ -135,6 +142,9 @@ impl NodeParent {
                 // [  R ,  R,_*[ _F, *F  ],  R  ]
                 // [  R ,  R, _[  F, _F *], *R  ]
                 // [  R ,  R,  [  F, _F *], _R *]
+                if beginning_current_instr {
+                    self.prev_node()?.subnodes.as_mut()?.reset();
+                }
                 let op = self.prev_node()?.subnodes.as_mut()?.try_advance_next_instr();
                 if self.prev_node()?.subnodes.as_ref()?.has_reached_end() {
                         self.next_ip += 1;
