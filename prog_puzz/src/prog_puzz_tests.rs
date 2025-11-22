@@ -68,7 +68,7 @@ fn get_basic_lev() -> Widget<super::game_logic::ProgpuzzGameLogic> {
     use Op::*;
     Widget::CodingArena(CodingArena::new::<16>(
         basic_map(0),
-        Coding::from_vec( &[(F, 1), (L, 1), (R, 1), (x2, 1)] )
+        Coding::from_vec( &[(F, 1), (L, 1), (R, 1), (group, 1)] )
     ))
 }
 
@@ -137,7 +137,7 @@ fn repeat() {
     initialise();
 
     use Op::*;
-    let mut prog = Prog::from(vec![R,x2,R]);
+    let mut prog = Prog::from(vec![R,group,R]);
     prog.instrs[1].subnodes = Some(Prog::from(vec![F]));
     let mut state = get_basic_lev_with_prog(prog);
 

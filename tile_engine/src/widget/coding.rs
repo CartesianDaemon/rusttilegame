@@ -8,7 +8,7 @@ pub enum Op {
     F,
     L,
     R,
-    x2,
+    group,
 }
 
 impl Op {
@@ -17,7 +17,7 @@ impl Op {
             Self::F => true,
             Self::L => true,
             Self::R => true,
-            Self::x2 => true,
+            Self::group => true,
         }
     }
 
@@ -26,7 +26,7 @@ impl Op {
             Self::F => 0,
             Self::L => 0,
             Self::R => 0,
-            Self::x2 => 1,
+            Self::group => 1,
         }
     }
 }
@@ -43,7 +43,8 @@ impl From<&str> for Op {
             "F" => Op::F,
             "L" => Op::L,
             "R" => Op::R,
-            "x2" => Op::x2,
+            "{}" => Op::group,
+            // "x2" => Op::x2,
             _ => panic!("Unrecognised txt for instr: {}", txt)
         }
     }
@@ -103,11 +104,40 @@ impl From<Vec<Op>> for NodeParent {
 }
 
 impl NodeParent {
-    pub fn advance_next_instr(&mut self) -> Option<Op> {
-        // Advance to next instr for next time.
-        (self.prev_ip, self.next_ip) = (self.next_ip, self.next_ip + 1);
+    pub fn prev_node(&mut self) -> Option<&mut Node> {
+        self.instrs.get_mut(self.prev_ip)
+    }
 
-        self.instrs.get(self.prev_ip).map(|node| node.op)
+    // pub fn op(&self, idx: usize) -> Option<Op> {
+    //     self.instrs.get(idx).map(|node| node.op)
+    // }
+
+    // Returns None if we run off end of program.
+    // Else advances control flow state and returns next basic external op, eg move, rotate.
+    pub fn advance_next_instr(&mut self) -> Option<Op> {
+        self.prev_ip = self.next_ip;
+        use Op::*;
+        match self.prev_node()?.op {
+            // Control flow instrs
+            group => {
+                let op = self.prev_node()?.subnodes.as_mut().unwrap().advance_next_instr();
+                match op {
+                    Some(_) => op,
+                    None => {
+                        self.next_ip += 1;
+                        self.advance_next_instr()
+                    }
+                }
+            }
+            // Regular instrs
+            _ => {
+                self.next_ip += 1;
+                Some(self.prev_node()?.op)
+            },
+        }
+        // (self.prev_ip, self.next_ip) = (self.next_ip, self.next_ip + 1);
+
+        // self.instrs.get(self.prev_ip).map(|node| node.op)
     }
 }
 
