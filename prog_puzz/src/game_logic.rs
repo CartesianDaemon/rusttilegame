@@ -107,12 +107,12 @@ impl BaseGameLogic for ProgpuzzGameLogic
                             }
                         },
                         Op::L => {
-                            log::debug!("Bot rotate L.");
                             map[mov].logical_props.dir.rotate_l();
+                            log::debug!("Bot rotate L. {} -> {}", map[mov].logical_props.prev_dir , map[mov].logical_props.dir);
                         },
                         Op::R => {
-                            log::debug!("Bot rotate R.");
                             map[mov].logical_props.dir.rotate_r();
+                            log::debug!("Bot rotate R. {} -> {}", map[mov].logical_props.prev_dir , map[mov].logical_props.dir);
                         },
                         Op::x2 => {
                             unimplemented!();
