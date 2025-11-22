@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
-use tile_engine::for_gamedata::*;
+use tile_engine::for_gamedata::{arena::MapObj, *};
+use crate::game_logic::{ProgpuzzCustomProps, ProgpuzzGameLogic};
+
 use super::objs::*;
 
 static INITIALISE_ONCE: std::sync::Once = std::sync::Once::new();
@@ -70,6 +72,13 @@ fn get_basic_lev() -> Widget<super::game_logic::ProgpuzzGameLogic> {
     ))
 }
 
+fn hero<'a>(state: &'a Widget<ProgpuzzGameLogic>) -> &'a MapObj<ProgpuzzCustomProps> {
+    match state {
+        Widget::CodingArena(CodingArena {curr_arena: Some(arena), .. }) => &arena[arena.hero()],
+        _ => panic!("Can't find hero. Arena may not be running."),
+    }
+}
+
 #[test]
 fn basic_move2() {
     initialise();
@@ -88,20 +97,18 @@ fn basic_move2() {
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert!(matches!(state, Widget::CodingArena(CodingArena{phase: CodingRunningPhase::Running, ..})));
     assert_eq!(&state.as_ascii_rows()[4], "#   ^        #", "\n{}", state.as_ascii_rows().join("\n"));
+    assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 4));
 
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 3));
+
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 2));
+
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    panic!();
+    assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 2));
+    assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
 
-    // assert_eq!(&state.as_ascii_rows()[3], "#   ^        #", "\n{}", state.as_ascii_rows().join("\n")); // F
-
-    // assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    // assert_eq!(&state.as_ascii_rows()[2], "#   ^  w     #", "\n{}", state.as_ascii_rows().join("\n")); // F
-
-    // assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    // assert_eq!(&state.as_ascii_rows()[2], "#   >  w     #", "\n{}", state.as_ascii_rows().join("\n")); // R
-
-    // assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    // assert_eq!(&state.as_ascii_rows()[2], "#    > w     #", "\n{}", state.as_ascii_rows().join("\n")); // F
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert_eq!(hero(&state).pos(), MapCoord::from_xy(5, 2));
 }
