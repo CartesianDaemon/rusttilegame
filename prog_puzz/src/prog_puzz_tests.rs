@@ -72,6 +72,14 @@ fn get_basic_lev() -> Widget<super::game_logic::ProgpuzzGameLogic> {
     ))
 }
 
+fn get_basic_lev_with_prog(prog: Prog) -> Widget<super::game_logic::ProgpuzzGameLogic> {
+    let mut state = get_basic_lev();
+    if let Widget::CodingArena(coding_arena)= &mut state {
+        coding_arena.coding.prog =  prog;
+    };
+    state
+}
+
 fn hero<'a>(state: &'a Widget<ProgpuzzGameLogic>) -> &'a MapObj<ProgpuzzCustomProps> {
     match state {
         Widget::CodingArena(CodingArena {curr_arena: Some(arena), .. }) => &arena[arena.hero()],
@@ -83,15 +91,10 @@ fn hero<'a>(state: &'a Widget<ProgpuzzGameLogic>) -> &'a MapObj<ProgpuzzCustomPr
 fn basic_move2() {
     initialise();
 
-    let mut state = get_basic_lev();
+    use Op::*;
+    let mut state = get_basic_lev_with_prog(Prog::from(vec![F,F,R,F]));
     assert!(matches!(state, Widget::CodingArena(CodingArena{phase: CodingRunningPhase::Coding, ..})));
     assert_eq!(state.as_ascii_rows(), get_basic_lev().as_ascii_rows());
-
-    // Set up program that "user" has entered in code pane, that bot will follow.
-    if let Widget::CodingArena(coding_arena)= &mut state {
-        use Op::*;
-        coding_arena.coding.prog =  Prog::from(vec![F,F,R,F]);
-    }
 
     // Start running, no other effect
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
@@ -99,16 +102,20 @@ fn basic_move2() {
     assert_eq!(&state.as_ascii_rows()[4], "#   ^        #", "\n{}", state.as_ascii_rows().join("\n"));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 4));
 
+    // F
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 3));
 
+    // F
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 2));
 
+    // R
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 2));
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
 
+    // F
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(5, 2));
 }
