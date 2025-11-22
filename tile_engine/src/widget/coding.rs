@@ -165,16 +165,15 @@ impl NodeParent {
         self.count >= 1
     }
 
-    // Advances control flow state and returns next basic external op, eg move, rotate.
+    // Advances control flow state. Use curr_op() to return basic external op, eg move, rotate.
     // Will panic if we have reached the end of the program.
-    pub fn advance_next_instr(&mut self) -> Op {
+    pub fn advance_next_instr(&mut self) {
         let beginning_current_instr = self.next_ip != self.prev_ip;
         self.prev_ip = self.next_ip;
         let op = self.curr_node().op;
         if op.is_action_instr() {
             assert!(op.is_action_instr());
             self.next_ip += 1;
-            self.curr_node().op
         } else {
             assert!(op.is_parent_instr(), "Expected control flow op: {}", op);
             // Example sequence of prev and next ip executing through a group instr.
@@ -185,16 +184,20 @@ impl NodeParent {
             // [  R ,  R,_*[ _F, *F  ],  R  ]
             // [  R ,  R, _[  F, _F *], *R  ]
             // [  R ,  R,  [  F, _F *], _R *]
+
             let subprog = self.curr_node().subnodes.as_mut().unwrap();
+
             if beginning_current_instr {
                 subprog.initialise(op);
             }
-            let op = subprog.advance_next_instr();
+
+            subprog.advance_next_instr();
+
             if subprog.has_reached_end() {
                 self.next_ip += 1;
             }
-            op
         }
+        assert!(self.curr_op().is_action_instr());
     }
 }
 
