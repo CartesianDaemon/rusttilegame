@@ -75,12 +75,13 @@ impl Bin {
     }
 }
 
-#[allow(non_camel_case_types)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Node {
     pub op: Op,
     pub subnodes: Vec<Node>,
 }
+
+
 
 pub fn nodes_from_ops(ops:Vec<Op>) -> Vec<Node> {
     ops.iter().map(|op| Node{op:*op, subnodes:vec![] }).collect()
