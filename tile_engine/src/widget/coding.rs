@@ -130,6 +130,12 @@ impl NodeParent {
         self.instrs.get_mut(self.prev_ip).unwrap()
     }
 
+    // Next executing node. Either action instr, or parent instr.
+    // Panics if program has stopped.
+    fn next_node(&mut self) -> &mut Node {
+        self.instrs.get_mut(self.next_ip).unwrap()
+    }
+
     // Currently executing op. Action instr from list, or from a parent instr.
     // Panics if program has stopped.
     pub fn curr_op(&self) -> Op {
@@ -169,9 +175,16 @@ impl NodeParent {
             self.repeat -= 1;
             self.next_ip = 0;
         }
+
+        if !self.has_reached_end() {
+            let op = self.next_node().op;
+            if op.is_parent_instr() {
+                self.next_node().subnodes.as_mut().unwrap().initialise(op);
+            }
+        }
     }
 
-    fn advance_current_subprog(&mut self, beginning_current_instr: bool) {
+    fn advance_current_subprog(&mut self) {
         // Example sequence of prev and next ip executing through a group instr.
         // [_*R ,  R,  [_*F,  F  ],  R  ] // do op at *, then advance to next line
         // [ _R , *R,  [_*F,  F  ],  R  ]
@@ -181,12 +194,7 @@ impl NodeParent {
         // [  R ,  R, _[  F, _F *], *R  ]
         // [  R ,  R,  [  F, _F *], _R *]
 
-        let op = self.curr_node().op;
         let subprog = self.curr_node().subnodes.as_mut().unwrap();
-
-        if beginning_current_instr {
-            subprog.initialise(op);
-        }
 
         subprog.advance_next_instr();
 
@@ -198,7 +206,6 @@ impl NodeParent {
     // Advances control flow state. Use curr_op() to return basic external op, eg move, rotate.
     // Will panic if we have reached the end of the program.
     pub fn advance_next_instr(&mut self) {
-        let beginning_current_instr = self.next_ip != self.prev_ip;
         self.prev_ip = self.next_ip;
 
         let op = self.curr_node().op;
@@ -206,7 +213,7 @@ impl NodeParent {
             assert!(op.is_action_instr());
             self.advance_own_ip();
         } else if op.is_parent_instr() {
-            self.advance_current_subprog(beginning_current_instr);
+            self.advance_current_subprog();
         } else {
             panic!("Unrecognised category of instr: {}", op);
         }
