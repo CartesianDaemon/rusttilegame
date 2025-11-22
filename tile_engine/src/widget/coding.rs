@@ -27,11 +27,11 @@ impl Op {
     }
 
     pub fn is_action_instr(self) -> bool {
-        self.r_connector() ==0
+        self.r_connector() == 0
     }
 
     pub fn is_parent_instr(self) -> bool {
-        self.r_connector() ==0
+        !self.is_action_instr()
     }
 
     pub fn r_connector(self) -> usize {
@@ -155,7 +155,7 @@ impl NodeParent {
             self.next_ip += 1;
             self.prev_node().unwrap().op
         } else {
-            assert!(op.is_parent_instr());
+            assert!(op.is_parent_instr(), "Expected control flow op: {}", op);
             // Example sequence of prev and next ip executing through a group instr.
             // [_*R ,  R,  [_*F,  F  ],  R  ] // do op at *, then advance to next line
             // [ _R , *R,  [_*F,  F  ],  R  ]
