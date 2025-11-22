@@ -164,11 +164,12 @@ impl NodeParent {
             // [  R ,  R,_*[ _F, *F  ],  R  ]
             // [  R ,  R, _[  F, _F *], *R  ]
             // [  R ,  R,  [  F, _F *], _R *]
+            let subprog = self.prev_node().unwrap().subnodes.as_mut().unwrap();
             if beginning_current_instr {
-                self.prev_node().unwrap().subnodes.as_mut().unwrap().initialise(op);
+                subprog.initialise(op);
             }
-            let op = self.prev_node().unwrap().subnodes.as_mut().unwrap().advance_next_instr();
-            if self.prev_node().unwrap().subnodes.as_ref().unwrap().has_reached_end() {
+            let op = subprog.advance_next_instr();
+            if subprog.has_reached_end() {
                 self.next_ip += 1;
             }
             op
