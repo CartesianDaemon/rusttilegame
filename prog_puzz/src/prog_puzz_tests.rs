@@ -196,7 +196,7 @@ fn repeat() {
     initialise();
 
     use Op::*;
-    let mut prog = Prog::from(vec![R,group,R]);
+    let mut prog = Prog::from(vec![R,x2,R]);
     prog.instrs[1].subnodes = Some(Prog::from(vec![F]));
     let mut state = get_basic_lev_with_prog(prog);
 
@@ -210,14 +210,14 @@ fn repeat() {
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
 
     // x2 F, first time
-    // assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(())); // x2 instr unimplemented!()
-    // assert_eq!(hero(&state).pos(), MapCoord::from_xy(5, 4));
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert_eq!(hero(&state).pos(), MapCoord::from_xy(5, 4));
 
-    // x2 F, first time
-    // assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    // assert_eq!(hero(&state).pos(), MapCoord::from_xy(6, 4));
+    // x2 F, second time
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert_eq!(hero(&state).pos(), MapCoord::from_xy(6, 4));
 
     // R
-    // assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    // assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
 }
