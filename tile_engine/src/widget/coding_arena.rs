@@ -21,7 +21,7 @@ pub struct CodingArena<GameLogic : for_gamedata::BaseGameLogic> {
 
 impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLogic>
 {
-    fn advance(&mut self, cmd: MoveCmd) -> PaneContinuation {
+    fn advance(&mut self, cmd: MoveCmd) -> WidgetContinuation {
         match self.phase {
             CodingRunningPhase::Coding => {
                 if cmd == MoveCmd::Stay {
@@ -46,7 +46,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
                     } else if conclusion == std::ops::ControlFlow::Break(for_gamedata::WidgetConclusion::Win) {
                         // TODO: Put in a delay and win animation here.
                         log::debug!("Bot found target! Go to next level");
-                        return PaneContinuation::Break(WidgetConclusion::Win);
+                        return WidgetContinuation::Break(WidgetConclusion::Win);
                     } else if conclusion == std::ops::ControlFlow::Continue(()) {
                         log::trace!("Bot advanced normally. Continue executing program.");
                     }
@@ -59,7 +59,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
             }
         }
 
-        return PaneContinuation::Continue(());
+        return WidgetContinuation::Continue(());
     }
 
     fn tick_based(&self) -> crate::ui::TickStyle {

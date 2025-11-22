@@ -114,10 +114,10 @@ impl Coding {
 
 impl BaseWidget for Coding
 {
-    fn advance(&mut self, _cmd: MoveCmd) -> PaneContinuation {
+    fn advance(&mut self, _cmd: MoveCmd) -> WidgetContinuation {
         // TODO
 
-        return PaneContinuation::Continue(());
+        return WidgetContinuation::Continue(());
     }
 
     fn tick_based(&self) -> crate::ui::TickStyle {

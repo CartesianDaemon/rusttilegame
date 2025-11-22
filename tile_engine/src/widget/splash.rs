@@ -43,8 +43,8 @@ impl Splash
 }
 
 impl BaseWidget for Splash {
-    fn advance(&mut self, _cmd: MoveCmd) -> PaneContinuation {
-        PaneContinuation::Break(WidgetConclusion::SplashContinue)
+    fn advance(&mut self, _cmd: MoveCmd) -> WidgetContinuation {
+        WidgetContinuation::Break(WidgetConclusion::SplashContinue)
     }
 
     fn tick_based(&self) -> crate::ui::TickStyle {

@@ -80,7 +80,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
         // coding_arena.curr_arena.as_ref().map(|curr_arena| curr_arena[curr_arena.hero()].logical_props.custom_props.ip)
     }
 
-    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, _cmd: MoveCmd) -> PaneContinuation {
+    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, _cmd: MoveCmd) -> WidgetContinuation {
         let props = &map[mov].logical_props.custom_props;
         match props.ai {
             ProgpuzzAI::Prog => {
@@ -93,7 +93,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
                     // Conclude pane with failure if we reach the end of the program.
                     None => {
                         log::debug!("Bot reached end of program.");
-                        return PaneContinuation::Break(WidgetConclusion::Die);
+                        return WidgetContinuation::Break(WidgetConclusion::Die);
                     }
                     Some(Node{op, ..}) => match op {
                         // Move forward
@@ -120,17 +120,17 @@ impl BaseGameLogic for ProgpuzzGameLogic
 
                 // Conclude pane successfully if hero finds with goal.
                 if map.any_has_effect(map[mov].pos(), Effect::Win) {
-                    return PaneContinuation::Break(WidgetConclusion::Win)
+                    return WidgetContinuation::Break(WidgetConclusion::Win)
                 }
 
                 // Continue pane without concluding.
-                return PaneContinuation::Continue(());
+                return WidgetContinuation::Continue(());
             },
             ProgpuzzAI::Stay => {
                 log::trace!("ProgpuzzGameLogic::move_mov: Stay\n");
                 // Do nothing
             },
             }
-        return PaneContinuation::Continue(());
+        return WidgetContinuation::Continue(());
     }
 }

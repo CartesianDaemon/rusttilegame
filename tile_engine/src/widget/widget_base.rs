@@ -19,12 +19,12 @@ pub enum WidgetConclusion {
 }
 
 // After each tick, either Continue, or restart/start another level based on Conclusion.
-pub type PaneContinuation = ControlFlow<WidgetConclusion, ()>;
+pub type WidgetContinuation = ControlFlow<WidgetConclusion, ()>;
 
 // NB Breadcrumb: Need different name for Scene ("level part") than Pane ("screen part").
 pub trait BaseWidget {
     fn tick_based(&self) -> crate::ui::TickStyle;
-    fn advance(&mut self, cmd: MoveCmd) -> PaneContinuation;
+    fn advance(&mut self, cmd: MoveCmd) -> WidgetContinuation;
 }
 
 /// One unit of gameplay: one map layout, one splash screen, etc.
@@ -78,7 +78,7 @@ impl<GameLogic: for_gamedata::BaseGameLogic> Widget<GameLogic> {
     }
 
     // Advance game state. Called when clock ticks or when user inputs.
-    pub fn advance(&mut self, cmd: MoveCmd) -> PaneContinuation {
+    pub fn advance(&mut self, cmd: MoveCmd) -> WidgetContinuation {
         // NB: Use the crate that makes it easy to inherit behaviour between enum variants.
         match self {
             Self::Arena(widget) => widget.advance(cmd),

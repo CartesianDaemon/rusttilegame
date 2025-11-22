@@ -55,7 +55,7 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
     // gamedata (ie levidx) into state widget?
     fn advance(&mut self, cmd: MoveCmd) {
         let widget_continuation = self.state.advance(cmd);
-        if let PaneContinuation::Break(widget_ending) = widget_continuation {
+        if let WidgetContinuation::Break(widget_ending) = widget_continuation {
             self.state = self.gamedata.load_next_pane(widget_ending);
             self.ticker.reset_tick();
         }

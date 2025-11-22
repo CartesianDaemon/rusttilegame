@@ -8,7 +8,7 @@ impl BaseGameLogic for PushpuzzGameLogic {
     type CustomProps = tile_engine::simple_custom_props::SimpleCustomProps;
 
     // Would be nice for these to be a function of an enum/trait impls
-    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, cmd: MoveCmd) -> PaneContinuation {
+    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, cmd: MoveCmd) -> WidgetContinuation {
         let hero = map.hero();
         match map[mov].logical_props.custom_props.ai {
             SimpleAI::Stay => {
@@ -23,9 +23,9 @@ impl BaseGameLogic for PushpuzzGameLogic {
                 }
                 // TODO: Avoid needing to re-get the hero handle, make move function consume or update the rich_mov handle.
                 return if map.any_has_effect(map[mov].pos(), Effect::Win) {
-                    PaneContinuation::Break(WidgetConclusion::Win)
+                    WidgetContinuation::Break(WidgetConclusion::Win)
                 } else {
-                    PaneContinuation::Continue(())
+                    WidgetContinuation::Continue(())
                 }
                 // TODO: Also check if hero died? Usually superfluous if we don't allow moving into death.
             }
@@ -51,7 +51,7 @@ impl BaseGameLogic for PushpuzzGameLogic {
                 // Hero dies if mov moves onto hero
                 // TODO: Check at end of function? Or as part of obj?
                 if map[mov].logical_props.effect == Effect::Kill && map[mov].pos() == map[hero].pos() {
-                    return PaneContinuation::Break(WidgetConclusion::Die);
+                    return WidgetContinuation::Break(WidgetConclusion::Die);
                 }
             },
             SimpleAI::Drift => {
@@ -90,7 +90,7 @@ impl BaseGameLogic for PushpuzzGameLogic {
 
                 // Hero dies if mov moves onto hero
                 if map[mov].logical_props.effect == Effect::Kill && map[mov].pos() == map[hero].pos() {
-                    return PaneContinuation::Break(WidgetConclusion::Die);
+                    return WidgetContinuation::Break(WidgetConclusion::Die);
                 }
             },
             SimpleAI::Scuttle => {
@@ -131,10 +131,10 @@ impl BaseGameLogic for PushpuzzGameLogic {
 
                 // Hero dies if bot moves onto hero
                 if map[mov].logical_props.effect == Effect::Kill && map[mov].pos() == map[hero].pos() {
-                    return PaneContinuation::Break(WidgetConclusion::Die);
+                    return WidgetContinuation::Break(WidgetConclusion::Die);
                 }
             },
         }
-        return PaneContinuation::Continue(());
+        return WidgetContinuation::Continue(());
     }
 }
