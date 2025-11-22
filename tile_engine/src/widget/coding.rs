@@ -140,6 +140,10 @@ impl NodeParent {
         }
     }
 
+    pub fn iteration_available(&self) -> bool {
+        self.count >= 1
+    }
+
     // Advances control flow state and returns next basic external op, eg move, rotate.
     // Will panic if we have reached the end of the program.
     pub fn advance_next_instr(&mut self) -> Op {
@@ -152,6 +156,7 @@ impl NodeParent {
             self.prev_node().unwrap().op
         } else {
             assert!(op.is_parent_instr());
+            // Example sequence of prev and next ip executing through a group instr.
             // [_*R ,  R,  [_*F,  F  ],  R  ] // do op at *, then advance to next line
             // [ _R , *R,  [_*F,  F  ],  R  ]
             // [  R , _R, *[_*F,  F  ],  R  ]
@@ -164,7 +169,7 @@ impl NodeParent {
             }
             let op = self.prev_node().unwrap().subnodes.as_mut().unwrap().advance_next_instr();
             if self.prev_node().unwrap().subnodes.as_ref().unwrap().has_reached_end() {
-                    self.next_ip += 1;
+                self.next_ip += 1;
             }
             op
         }
