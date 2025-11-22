@@ -8,7 +8,7 @@ static INITIALISE_ONCE: std::sync::Once = std::sync::Once::new();
 fn initialise() {
     INITIALISE_ONCE.call_once(|| {
         tile_engine::infra::log_builder()
-            .filter_level(log::LevelFilter::Trace)
+            .filter_level(log::LevelFilter::Debug)
             .is_test(true)
             .init();
         log::info!("Initialised logging for tests.");
@@ -130,14 +130,18 @@ fn basic_move2() {
     assert_eq!(&state.as_ascii_rows()[4], "#   ^        #", "\n{}", state.as_ascii_rows().join("\n"));
 
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    assert_eq!(&state.as_ascii_rows()[3], "#   ^        #", "\n{}", state.as_ascii_rows().join("\n")); // F
-
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    assert_eq!(&state.as_ascii_rows()[2], "#   ^  w     #", "\n{}", state.as_ascii_rows().join("\n")); // F
-
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    assert_eq!(&state.as_ascii_rows()[2], "#   >  w     #", "\n{}", state.as_ascii_rows().join("\n")); // R
+    panic!();
 
-    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    assert_eq!(&state.as_ascii_rows()[2], "#    > w     #", "\n{}", state.as_ascii_rows().join("\n")); // F
+    // assert_eq!(&state.as_ascii_rows()[3], "#   ^        #", "\n{}", state.as_ascii_rows().join("\n")); // F
+
+    // assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    // assert_eq!(&state.as_ascii_rows()[2], "#   ^  w     #", "\n{}", state.as_ascii_rows().join("\n")); // F
+
+    // assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    // assert_eq!(&state.as_ascii_rows()[2], "#   >  w     #", "\n{}", state.as_ascii_rows().join("\n")); // R
+
+    // assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    // assert_eq!(&state.as_ascii_rows()[2], "#    > w     #", "\n{}", state.as_ascii_rows().join("\n")); // F
 }
