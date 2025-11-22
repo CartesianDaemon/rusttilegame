@@ -82,15 +82,19 @@ pub struct Node {
     pub subnodes: Vec<Node>,
 }
 
+pub fn nodes_from_ops(ops:Vec<Op>) -> Vec<Node> {
+    ops.iter().map(|op| Node{op:*op, subnodes:vec![] }).collect()
+}
+
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Prog {
     pub instrs: Vec<Node>,
 }
 
 impl From<Vec<Op>> for Prog {
-    fn from(ops:Vec<Op>) -> Prog {
-        Prog {
-            instrs: ops.iter().map(|op| Node{op:*op, subnodes:vec![] }).collect(),
+    fn from(ops:Vec<Op>) -> Self {
+        Self {
+            instrs: nodes_from_ops(ops),
         }
     }
 }
