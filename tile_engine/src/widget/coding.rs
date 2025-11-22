@@ -5,10 +5,14 @@ use crate::map_coords::MoveCmd;
 #[allow(non_camel_case_types)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Op {
+    // Action instrs
     F,
     L,
     R,
+
+    // Control flow instrs
     group,
+    x2,
 }
 
 impl Op {
@@ -18,15 +22,25 @@ impl Op {
             Self::L => true,
             Self::R => true,
             Self::group => true,
+            Self::x2 => true,
         }
     }
 
-    pub fn _r_connector(self) -> usize {
+    pub fn is_action_instr(self) -> bool {
+        self.r_connector() ==0
+    }
+
+    pub fn is_control_flow_instr(self) -> bool {
+        self.r_connector() ==0
+    }
+
+    pub fn r_connector(self) -> usize {
         match self {
-            Self::F => 0,
-            Self::L => 0,
+            Self::F |
+            Self::L |
             Self::R => 0,
-            Self::group => 1,
+            Self::group => 999,
+            Self::x2 => 1,
         }
     }
 }
@@ -116,10 +130,14 @@ impl NodeParent {
         self.next_ip >= self.instrs.len()
     }
 
-    pub fn initialise(&mut self) {
+    pub fn initialise(&mut self, control_flow_op: Op) {
         self.prev_ip = 0;
         self.next_ip = 0;
-        self.count = 0;
+        self.count = match control_flow_op {
+            Op::group => 1,
+            Op::x2 => 2,
+            _ => panic!(),
+        }
     }
 
     // Advances control flow state and returns next basic external op, eg move, rotate.
@@ -128,9 +146,11 @@ impl NodeParent {
         let beginning_current_instr = self.next_ip != self.prev_ip;
         self.prev_ip = self.next_ip;
         use Op::*;
-        match self.prev_node().unwrap().op {
+        let op = self.prev_node().unwrap().op;
+        match op {
             // Control flow instrs
-            group => {
+            group | x2 => {
+                assert!(op.is_control_flow_instr());
                 // [_*R ,  R,  [_*F,  F  ],  R  ] // do op at *, then advance to next line
                 // [ _R , *R,  [_*F,  F  ],  R  ]
                 // [  R , _R, *[_*F,  F  ],  R  ]
@@ -139,7 +159,7 @@ impl NodeParent {
                 // [  R ,  R, _[  F, _F *], *R  ]
                 // [  R ,  R,  [  F, _F *], _R *]
                 if beginning_current_instr {
-                    self.prev_node().unwrap().subnodes.as_mut().unwrap().initialise();
+                    self.prev_node().unwrap().subnodes.as_mut().unwrap().initialise(op);
                 }
                 let op = self.prev_node().unwrap().subnodes.as_mut().unwrap().advance_next_instr();
                 if self.prev_node().unwrap().subnodes.as_ref().unwrap().has_reached_end() {
@@ -147,8 +167,9 @@ impl NodeParent {
                 }
                 op
             }
-            // Regular instrs
+            // Action instrs
             _ => {
+                assert!(op.is_action_instr());
                 self.next_ip += 1;
                 self.prev_node().unwrap().op
             },
