@@ -192,7 +192,7 @@ fn group() {
 }
 
 #[test]
-fn repeat() {
+fn repeat_x2() {
     initialise();
 
     use Op::*;
@@ -220,4 +220,52 @@ fn repeat() {
     // R
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
+
+    assert!(hero_prog(&state).has_reached_end());
+}
+
+#[test]
+fn repeat_x2_rotate() {
+    initialise();
+
+    use Op::*;
+    let mut prog = Prog::from(vec![x2]);
+    prog.instrs[0].subnodes = Some(Prog::from(vec![R,R,L]));
+    let mut state = get_basic_lev_with_prog(prog);
+
+    // Start running, no other effect
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, -1));
+
+    // R
+    assert_eq!(hero_prog(&state).next_op(), R);
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
+
+    // R
+    assert_eq!(hero_prog(&state).next_op(), R);
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
+
+    // L
+    assert_eq!(hero_prog(&state).next_op(), L);
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
+
+    // R
+    // assert_eq!(hero_prog(&state).next_op(), R);
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    // assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
+
+    // R
+    // assert_eq!(hero_prog(&state).next_op(), R);
+    // assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    // assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(-1, 0));
+
+    // L
+    // assert_eq!(hero_prog(&state).next_op(), L);
+    // assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    // assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
+
+    // assert!(hero_prog(&state).has_reached_end());
 }
