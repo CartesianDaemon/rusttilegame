@@ -136,4 +136,16 @@ fn repeat() {
     // R
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
+
+    // x2 F, first time
+    // assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(())); // x2 instr unimplemented!()
+    // assert_eq!(hero(&state).pos(), MapCoord::from_xy(5, 4));
+
+    // x2 F, first time
+    // assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    // assert_eq!(hero(&state).pos(), MapCoord::from_xy(6, 4));
+
+    // R
+    // assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    // assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
 }
