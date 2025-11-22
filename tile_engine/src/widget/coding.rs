@@ -172,7 +172,11 @@ impl NodeParent {
     // Currently executing op. Action instr from list, or from a parent instr.
     // Panics if program hasn't started yet, or has stopped.
     pub fn curr_op(&self) -> Op {
-        let node = self.instrs.get(self.prev_ip).unwrap();
+        let node = if self.not_begun() {
+            self.instrs.get(0).unwrap()
+        } else {
+            self.instrs.get(self.prev_ip).unwrap()
+        };
         if node.op.is_action_instr() {
             node.op
         } else {
@@ -193,7 +197,7 @@ impl NodeParent {
     }
 
     pub fn initialise(&mut self, control_flow_op: Op) {
-        self.prev_ip = 0;
+        self.prev_ip = 9999;
         self.next_ip = 0;
         self.repeat = match control_flow_op {
             Op::group => 1,

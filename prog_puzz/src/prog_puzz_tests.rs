@@ -317,7 +317,7 @@ fn nested_repeat() {
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(7, 4));
 
-    if false {
+    if true {
         // F
         assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
         assert_eq!(hero(&state).pos(), MapCoord::from_xy(8, 4));
