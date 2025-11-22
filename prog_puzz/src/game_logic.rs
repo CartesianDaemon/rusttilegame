@@ -74,12 +74,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
         match props.ai {
             ProgpuzzAI::Prog => {
                 let prog = &mut map[mov].logical_props.custom_props.prog;
-
-                // Op to actually affect robot, as opposed to control flow
-                let external_op = prog.instrs.get(prog.next_ip).cloned();
-
-                // Advance to next instr for next time.
-                (prog.prev_ip, prog.next_ip) = (prog.next_ip, prog.next_ip + 1);
+                let external_op = prog.advance_next_instr();
 
                 match external_op {
                     // Conclude pane with failure if we reach the end of the program.
@@ -87,7 +82,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
                         log::debug!("Bot reached end of program.");
                         return WidgetContinuation::Break(WidgetConclusion::Die);
                     }
-                    Some(Node{op, ..}) => match op {
+                    Some(op) => match op {
                         // Move forward
                         Op::F => {
                             let target_pos = map[mov].pos() + map[mov].logical_props.dir;

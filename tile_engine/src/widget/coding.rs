@@ -102,6 +102,15 @@ impl From<Vec<Op>> for NodeParent {
     }
 }
 
+impl NodeParent {
+    pub fn advance_next_instr(&mut self) -> Option<Op> {
+        // Advance to next instr for next time.
+        (self.prev_ip, self.next_ip) = (self.next_ip, self.next_ip + 1);
+
+        self.instrs.get(self.prev_ip).map(|node| node.op)
+    }
+}
+
 pub use NodeParent as Prog;
 
 #[derive(Clone, Debug)]
