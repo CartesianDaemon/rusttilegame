@@ -70,46 +70,6 @@ fn get_basic_lev() -> Widget<super::game_logic::ProgpuzzGameLogic> {
     ))
 }
 
-#[ignore]
-#[test]
-fn basic_move() {
-    initialise();
-
-    // TODO: Move assert line into function. With some way of seeing how many ticks have passed.
-    // NB: Get away from as_play. Instead have initial map with 0123 in, and fn to say which is ^, or other mov.
-    // Then check that state is exactly the Pane::Something(Something) we expect.
-    // Need to have decent visualisation for Pane::Something(Something).
-    // Including checking that we move through level transitions ok.
-
-    let mut state = get_basic_lev();
-    // assert!(matches!(state, Pane::Split(phase: SplitPhase::Running, ..)));
-    assert_eq!(state.as_ascii_rows(), get_basic_lev().as_ascii_rows());
-
-    // Set up program that "user" has entered in code pane, that bot will follow.
-    if let Widget::CodingArena(split)= &mut state {
-        use Op::*;
-        split.coding.prog =  Prog::from(vec![F,F,R,F]);
-    }
-
-    // Start running, no other effect
-    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    //assert_eq!(state.phase, SplitPhase::Coding);
-    assert_eq!(&state.as_ascii_rows()[4], "#   ^        #", "\n{}", state.as_ascii_rows().join("\n"));
-
-    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    //assert_eq!(state.phase, SplitPhase::Running);
-    assert_eq!(&state.as_ascii_rows()[3], "#   ^        #", "\n{}", state.as_ascii_rows().join("\n")); // F
-
-    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    assert_eq!(&state.as_ascii_rows()[2], "#   ^  w     #", "\n{}", state.as_ascii_rows().join("\n")); // F
-
-    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    assert_eq!(&state.as_ascii_rows()[2], "#   >  w     #", "\n{}", state.as_ascii_rows().join("\n")); // R
-
-    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    assert_eq!(&state.as_ascii_rows()[2], "#    > w     #", "\n{}", state.as_ascii_rows().join("\n")); // F
-}
-
 #[test]
 fn basic_move2() {
     initialise();
