@@ -224,16 +224,16 @@ fn repeat_x2() {
     assert_eq!(hero_prog(&state).curr_op(), F);
 
     // x2 F, second time
-    // assert_eq!(hero_prog(&state).next_op(), F);
+    assert_eq!(hero_prog(&state).next_op(), F);
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(6, 4));
-    // assert_eq!(hero_prog(&state).curr_op(), F);
+    assert_eq!(hero_prog(&state).curr_op(), F);
 
     // R
-    // assert_eq!(hero_prog(&state).next_op(), F);
+    assert_eq!(hero_prog(&state).next_op(), R);
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
-    // assert_eq!(hero_prog(&state).curr_op(), F);
+    assert_eq!(hero_prog(&state).curr_op(), R);
 
     assert!(hero_prog(&state).has_reached_end());
 }
