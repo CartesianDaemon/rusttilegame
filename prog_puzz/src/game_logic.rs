@@ -6,9 +6,6 @@ use tile_engine::for_gamedata::*;
 pub struct ProgpuzzCustomProps {
     pub ai: ProgpuzzAI,
     pub prog: Prog,
-    // Next instruction to execute as index into vec.
-    // Later will need handle into branching object.
-    pub ip: usize,
 }
 
 impl ProgpuzzCustomProps {
@@ -32,7 +29,6 @@ impl BaseCustomProps for ProgpuzzCustomProps {
         Self {
             ai: ProgpuzzAI::Stay,
             prog: Prog::default(),
-            ip: 0,
         }
     }
 
@@ -66,7 +62,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
 
     fn get_active_idx(coding_arena: &CodingArena<Self>) -> Option<usize> {
         if let Some(arena) = &coding_arena.curr_arena {
-            let ip = arena[arena.hero()].logical_props.custom_props.ip;
+            let ip = arena[arena.hero()].logical_props.custom_props.prog.next_ip;
             if ip ==0 {
                 Some(0)
             } else {

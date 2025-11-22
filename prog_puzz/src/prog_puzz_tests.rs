@@ -80,6 +80,13 @@ fn get_basic_lev_with_prog(prog: Prog) -> Widget<super::game_logic::ProgpuzzGame
     state
 }
 
+fn coding_arena<'a>(state: &'a Widget<ProgpuzzGameLogic>) -> &'a CodingArena<ProgpuzzGameLogic> {
+    match state {
+        Widget::CodingArena(coding_arena) => &coding_arena,
+        _ => panic!("Can't find hero. Arena may not be running."),
+    }
+}
+
 fn hero<'a>(state: &'a Widget<ProgpuzzGameLogic>) -> &'a MapObj<ProgpuzzCustomProps> {
     match state {
         Widget::CodingArena(CodingArena {curr_arena: Some(arena), .. }) => &arena[arena.hero()],
@@ -95,28 +102,34 @@ fn basic_move() {
     let mut state = get_basic_lev_with_prog(Prog::from(vec![F,F,R,F]));
     assert!(matches!(state, Widget::CodingArena(CodingArena{phase: CodingRunningPhase::Coding, ..})));
     assert_eq!(state.as_ascii_rows(), get_basic_lev().as_ascii_rows());
+    assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)), None);
 
     // Start running, no other effect
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert!(matches!(state, Widget::CodingArena(CodingArena{phase: CodingRunningPhase::Running, ..})));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 4));
+    assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)), Some(0));
 
     // F
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 3));
+    assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)), Some(0));
 
     // F
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 2));
+    assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)), Some(1));
 
     // R
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 2));
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
+    assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)), Some(2));
 
     // F
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(5, 2));
+    assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)), Some(3));
 }
 
 #[test]
