@@ -118,13 +118,23 @@ impl From<Vec<Op>> for NodeParent {
 }
 
 impl NodeParent {
-    pub fn prev_node(&mut self) -> Option<&mut Node> {
-        self.instrs.get_mut(self.prev_ip)
+    // Currently executing node. Either action instr, or parent instr.
+    // Panics if program has stopped.
+    fn curr_node(&mut self) -> &mut Node {
+        self.instrs.get_mut(self.prev_ip).unwrap()
     }
 
-    // pub fn op(&self, idx: usize) -> Option<Op> {
-    //     self.instrs.get(idx).map(|node| node.op)
-    // }
+    // Currently executing op. Action instr from list, or from a parent instr.
+    // Panics if program has stopped.
+    pub fn curr_op(&self) -> Op {
+        let node = self.instrs.get(self.prev_ip).unwrap();
+        if node.op.is_action_instr() {
+            node.op
+        } else {
+            assert!(node.op.is_parent_instr());
+            node.subnodes.as_ref().unwrap().curr_op()
+        }
+    }
 
     pub fn has_reached_end(&self) -> bool {
         self.next_ip >= self.instrs.len()
@@ -149,11 +159,11 @@ impl NodeParent {
     pub fn advance_next_instr(&mut self) -> Op {
         let beginning_current_instr = self.next_ip != self.prev_ip;
         self.prev_ip = self.next_ip;
-        let op = self.prev_node().unwrap().op;
+        let op = self.curr_node().op;
         if op.is_action_instr() {
             assert!(op.is_action_instr());
             self.next_ip += 1;
-            self.prev_node().unwrap().op
+            self.curr_node().op
         } else {
             assert!(op.is_parent_instr(), "Expected control flow op: {}", op);
             // Example sequence of prev and next ip executing through a group instr.
@@ -164,7 +174,7 @@ impl NodeParent {
             // [  R ,  R,_*[ _F, *F  ],  R  ]
             // [  R ,  R, _[  F, _F *], *R  ]
             // [  R ,  R,  [  F, _F *], _R *]
-            let subprog = self.prev_node().unwrap().subnodes.as_mut().unwrap();
+            let subprog = self.curr_node().subnodes.as_mut().unwrap();
             if beginning_current_instr {
                 subprog.initialise(op);
             }
