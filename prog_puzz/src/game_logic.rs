@@ -80,9 +80,10 @@ impl BaseGameLogic for ProgpuzzGameLogic
                         return WidgetContinuation::Break(WidgetConclusion::Die);
                 }
 
-                let external_op = prog.advance_next_instr();
+                let action_op = prog.advance_next_instr();
+                assert!(action_op.is_action_instr());
 
-                match external_op {
+                match action_op {
                     // Move forward
                     Op::F => {
                         let target_pos = map[mov].pos() + map[mov].logical_props.dir;
@@ -101,8 +102,8 @@ impl BaseGameLogic for ProgpuzzGameLogic
                         map[mov].logical_props.dir.rotate_r();
                         log::debug!("Bot rotate R. {} -> {}", map[mov].logical_props.prev_dir , map[mov].logical_props.dir);
                     },
-                    Op::group => {
-                        unimplemented!();
+                    _ => {
+                        panic!("Unrecognised instr {:?}", action_op);
                     },
                 }
 

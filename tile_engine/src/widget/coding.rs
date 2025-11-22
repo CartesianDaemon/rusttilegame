@@ -30,7 +30,7 @@ impl Op {
         self.r_connector() ==0
     }
 
-    pub fn is_control_flow_instr(self) -> bool {
+    pub fn is_parent_instr(self) -> bool {
         self.r_connector() ==0
     }
 
@@ -145,34 +145,28 @@ impl NodeParent {
     pub fn advance_next_instr(&mut self) -> Op {
         let beginning_current_instr = self.next_ip != self.prev_ip;
         self.prev_ip = self.next_ip;
-        use Op::*;
         let op = self.prev_node().unwrap().op;
-        match op {
-            // Control flow instrs
-            group | x2 => {
-                assert!(op.is_control_flow_instr());
-                // [_*R ,  R,  [_*F,  F  ],  R  ] // do op at *, then advance to next line
-                // [ _R , *R,  [_*F,  F  ],  R  ]
-                // [  R , _R, *[_*F,  F  ],  R  ]
-                // [  R ,  R,_*[_*F,  F  ],  R  ]
-                // [  R ,  R,_*[ _F, *F  ],  R  ]
-                // [  R ,  R, _[  F, _F *], *R  ]
-                // [  R ,  R,  [  F, _F *], _R *]
-                if beginning_current_instr {
-                    self.prev_node().unwrap().subnodes.as_mut().unwrap().initialise(op);
-                }
-                let op = self.prev_node().unwrap().subnodes.as_mut().unwrap().advance_next_instr();
-                if self.prev_node().unwrap().subnodes.as_ref().unwrap().has_reached_end() {
-                        self.next_ip += 1;
-                }
-                op
+        if op.is_action_instr() {
+            assert!(op.is_action_instr());
+            self.next_ip += 1;
+            self.prev_node().unwrap().op
+        } else {
+            assert!(op.is_parent_instr());
+            // [_*R ,  R,  [_*F,  F  ],  R  ] // do op at *, then advance to next line
+            // [ _R , *R,  [_*F,  F  ],  R  ]
+            // [  R , _R, *[_*F,  F  ],  R  ]
+            // [  R ,  R,_*[_*F,  F  ],  R  ]
+            // [  R ,  R,_*[ _F, *F  ],  R  ]
+            // [  R ,  R, _[  F, _F *], *R  ]
+            // [  R ,  R,  [  F, _F *], _R *]
+            if beginning_current_instr {
+                self.prev_node().unwrap().subnodes.as_mut().unwrap().initialise(op);
             }
-            // Action instrs
-            _ => {
-                assert!(op.is_action_instr());
-                self.next_ip += 1;
-                self.prev_node().unwrap().op
-            },
+            let op = self.prev_node().unwrap().subnodes.as_mut().unwrap().advance_next_instr();
+            if self.prev_node().unwrap().subnodes.as_ref().unwrap().has_reached_end() {
+                    self.next_ip += 1;
+            }
+            op
         }
     }
 }
