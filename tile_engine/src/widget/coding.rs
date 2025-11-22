@@ -110,6 +110,7 @@ impl std::fmt::Display for Node {
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct NodeParent {
     // Index of previous instruction executed. Used for display and knowing when we enter subnodes
+    // Or 9999 for "not yet executed"
     pub prev_ip: usize,
     // Index of next instruction to execute.
     pub next_ip: usize,
@@ -124,6 +125,7 @@ impl From<Vec<Op>> for NodeParent {
     fn from(ops: Vec<Op>) -> Self {
         Self {
             instrs: ops.iter().map(|op| Node{op:*op, subnodes:None }).collect(),
+            prev_ip: 9999,
             ..Self::default()
         }
     }
@@ -230,6 +232,13 @@ impl NodeParent {
     // Advances control flow state. Use curr_op() to return basic external op, eg move, rotate.
     // Will panic if we have reached the end of the program.
     pub fn advance_next_instr(&mut self) {
+        if self.prev_ip == 9999 {
+            if let Some(node) = self.instrs.get_mut(0) {
+                if node.op.is_parent_instr() {
+                    node.subnodes.as_mut().unwrap().initialise(node.op);
+                }
+            }
+        }
         self.prev_ip = self.next_ip;
 
         let op = self.curr_node().op;
