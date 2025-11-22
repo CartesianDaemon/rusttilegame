@@ -1,10 +1,11 @@
 use super::*;
 use crate::map_coords::MoveCmd;
 
-// NB: Can we move the specifics ops to ProgPuzz?
+// Can we move the specifics ops to ProgPuzz?
 #[allow(non_camel_case_types)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Op {
+    // Could create a separate Enum for the different "types" of instr.
     // Action instrs
     F,
     L,
@@ -162,6 +163,7 @@ impl NodeParent {
         }
     }
 
+    /// Could fold this into reached_end() and advance()
     pub fn next_iteration(&mut self) {
         assert!(self.count >= 1);
         self.count -= 1;
