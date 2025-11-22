@@ -163,6 +163,14 @@ impl NodeParent {
         }
     }
 
+    fn advance_own_ip(&mut self) {
+        self.next_ip += 1;
+        if self.has_reached_end() && self.repeat > 1 {
+            self.repeat -= 1;
+            self.next_ip = 0;
+        }
+    }
+
     fn advance_current_subprog(&mut self, beginning_current_instr: bool) {
         // Example sequence of prev and next ip executing through a group instr.
         // [_*R ,  R,  [_*F,  F  ],  R  ] // do op at *, then advance to next line
@@ -184,14 +192,6 @@ impl NodeParent {
 
         if subprog.has_reached_end() {
             self.advance_own_ip();
-        }
-    }
-
-    fn advance_own_ip(&mut self) {
-        self.next_ip += 1;
-        if self.has_reached_end() && self.repeat > 1 {
-            self.repeat -= 1;
-            self.next_ip = 0;
         }
     }
 

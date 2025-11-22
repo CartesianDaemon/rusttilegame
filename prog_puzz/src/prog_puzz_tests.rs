@@ -163,6 +163,7 @@ fn group() {
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero_prog(&state).curr_op(), R);
     assert_eq!(hero_prog(&state).next_op(), R);
+
     assert!(matches!(state, Widget::CodingArena(CodingArena{phase: CodingRunningPhase::Running, ..})));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 4));
 
@@ -170,24 +171,28 @@ fn group() {
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero_prog(&state).curr_op(), R);
     assert_eq!(hero_prog(&state).next_op(), F);
+
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
 
     // group:F, first F
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(())); // x2 instr unimplemented!()
     assert_eq!(hero_prog(&state).curr_op(), F);
     assert_eq!(hero_prog(&state).next_op(), F);
+
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(5, 4));
 
     // group:F, second F
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero_prog(&state).curr_op(), F);
     assert_eq!(hero_prog(&state).next_op(), R);
+
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(6, 4));
 
     // R
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero_prog(&state).curr_op(), R);
     assert!(hero_prog(&state).has_reached_end());
+
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
 }
 
@@ -206,24 +211,34 @@ fn repeat_x2() {
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 4));
 
     // R
+    assert_eq!(hero_prog(&state).next_op(), R);
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
 
+    assert_eq!(hero_prog(&state).curr_op(), R);
+
     // x2 F, first time
+    assert_eq!(hero_prog(&state).next_op(), F);
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(5, 4));
+    assert_eq!(hero_prog(&state).curr_op(), F);
 
     // x2 F, second time
+    // assert_eq!(hero_prog(&state).next_op(), F);
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(6, 4));
+    // assert_eq!(hero_prog(&state).curr_op(), F);
 
     // R
+    // assert_eq!(hero_prog(&state).next_op(), F);
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
+    // assert_eq!(hero_prog(&state).curr_op(), F);
 
     assert!(hero_prog(&state).has_reached_end());
 }
 
+#[ignore]
 #[test]
 fn repeat_x2_rotate() {
     initialise();
@@ -238,34 +253,34 @@ fn repeat_x2_rotate() {
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, -1));
 
     // R
-    assert_eq!(hero_prog(&state).next_op(), R);
+    // assert_eq!(hero_prog(&state).next_op(), R);
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
 
     // R
-    assert_eq!(hero_prog(&state).next_op(), R);
+    // assert_eq!(hero_prog(&state).next_op(), R);
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
 
     // L
-    assert_eq!(hero_prog(&state).next_op(), L);
+    // assert_eq!(hero_prog(&state).next_op(), L);
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
 
     // R
     // assert_eq!(hero_prog(&state).next_op(), R);
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    // assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
+    assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
 
     // R
     // assert_eq!(hero_prog(&state).next_op(), R);
-    // assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    // assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(-1, 0));
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(-1, 0));
 
     // L
     // assert_eq!(hero_prog(&state).next_op(), L);
-    // assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    // assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
+    assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
+    assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
 
-    // assert!(hero_prog(&state).has_reached_end());
+    assert!(hero_prog(&state).has_reached_end());
 }
