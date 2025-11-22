@@ -131,10 +131,15 @@ impl From<Vec<Op>> for NodeParent {
 
 impl std::fmt::Display for NodeParent {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        for node in &self.instrs {
-            write!(f, "{},", node.op)?;
+        write!(f, "[")?;
+        for (idx, node) in self.instrs.iter().enumerate() {
+            if idx >0 {write!(f, ",")?}
+            if idx == self.prev_ip {write!(f, "_")?}
+            if idx == self.next_ip {write!(f, "*")?}
+            write!(f, "{}", node.op)?;
         }
-        Ok(())
+        if self.next_ip >= self.instrs.len() {write!(f, ",*")?}
+        write!(f, "]")
     }
 }
 
@@ -237,7 +242,7 @@ impl NodeParent {
             panic!("Unrecognised category of instr: {}", op);
         }
         assert!(self.curr_op().is_action_instr());
-        log::debug!("Advancing prog {} to #{}. Next: #{}.", self, self.prev_ip, self.next_ip);
+        log::debug!("Advanced prog to {}.", self); // to #{}. Next: #{}.", self, self.prev_ip, self.next_ip);
     }
 }
 
