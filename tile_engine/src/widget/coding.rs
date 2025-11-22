@@ -118,6 +118,10 @@ impl From<Vec<Op>> for NodeParent {
 }
 
 impl NodeParent {
+    pub fn has_reached_end(&self) -> bool {
+        self.next_ip >= self.instrs.len()
+    }
+
     // Currently executing node. Either action instr, or parent instr.
     // Panics if program has stopped.
     fn curr_node(&mut self) -> &mut Node {
@@ -145,10 +149,6 @@ impl NodeParent {
             assert!(node.op.is_parent_instr());
             node.subnodes.as_ref().unwrap().next_op()
         }
-    }
-
-    pub fn has_reached_end(&self) -> bool {
-        self.next_ip >= self.instrs.len()
     }
 
     pub fn initialise(&mut self, control_flow_op: Op) {
