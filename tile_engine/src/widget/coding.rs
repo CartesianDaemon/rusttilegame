@@ -103,6 +103,7 @@ pub struct NodeParent {
     // Index of next instruction to execute.
     pub next_ip: usize,
     // Internal counter, used to implement loops and other stateful instructions.
+    // When used for iteration, counts down. During last iteration it will have value 1.
     pub count: usize,
     // Vector of one or more instrs to execute. Some parent ops have a specific number of nested instrs.
     pub instrs: Vec<Node>
@@ -161,8 +162,14 @@ impl NodeParent {
         }
     }
 
-    pub fn iteration_available(&self) -> bool {
-        self.count >= 1
+    pub fn next_iteration(&mut self) {
+        assert!(self.count >= 1);
+        self.count -= 1;
+        self.next_ip = 0;
+    }
+
+    fn iteration_available(&self) -> bool {
+        self.count > 1
     }
 
     fn advance_current_subprog(&mut self, beginning_current_instr: bool) {
@@ -185,7 +192,11 @@ impl NodeParent {
         subprog.advance_next_instr();
 
         if subprog.has_reached_end() {
-            self.advance_own_ip();
+            if subprog.iteration_available() {
+                subprog.next_iteration();
+            } else {
+                self.advance_own_ip();
+            }
         }
     }
 
