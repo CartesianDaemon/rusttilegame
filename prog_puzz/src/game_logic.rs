@@ -62,7 +62,11 @@ impl BaseGameLogic for ProgpuzzGameLogic
 
     fn get_active_idx(coding_arena: &CodingArena<Self>) -> Option<usize> {
         if let Some(arena) = &coding_arena.curr_arena {
-            Some(arena[arena.hero()].logical_props.custom_props.prog.prev_ip)
+            if arena[arena.hero()].logical_props.custom_props.prog.not_begun() {
+                Some(0)
+            } else {
+                Some(arena[arena.hero()].logical_props.custom_props.prog.prev_ip)
+            }
         } else {
             None
         }

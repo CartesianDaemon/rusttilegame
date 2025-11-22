@@ -146,6 +146,10 @@ impl std::fmt::Display for NodeParent {
 }
 
 impl NodeParent {
+    pub fn not_begun(&self) -> bool {
+        self.prev_ip == 9999
+    }
+
     pub fn has_reached_end(&self) -> bool {
         self.next_ip >= self.instrs.len()
     }
@@ -163,7 +167,7 @@ impl NodeParent {
     }
 
     // Currently executing op. Action instr from list, or from a parent instr.
-    // Panics if program has stopped.
+    // Panics if program hasn't started yet, or has stopped.
     pub fn curr_op(&self) -> Op {
         let node = self.instrs.get(self.prev_ip).unwrap();
         if node.op.is_action_instr() {
