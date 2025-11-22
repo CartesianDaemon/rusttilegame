@@ -133,12 +133,15 @@ impl From<Vec<Op>> for NodeParent {
 
 impl std::fmt::Display for NodeParent {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "[")?;
+        write!(f, "{:.<1$}[", "", self.repeat)?;
         for (idx, node) in self.instrs.iter().enumerate() {
             if idx >0 {write!(f, ",")?}
             if idx == self.prev_ip {write!(f, "_")?}
             if idx == self.next_ip {write!(f, "*")?}
             write!(f, "{}", node.op)?;
+            if node.op.is_parent_instr() {
+                write!(f, "{}", node.subnodes.as_ref().unwrap())?;
+            }
         }
         if self.next_ip >= self.instrs.len() {write!(f, ",*")?}
         write!(f, "]")
