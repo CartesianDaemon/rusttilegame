@@ -51,7 +51,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Arena<GameLogic>
         self[hero].logical_props.prev_dir = self[hero].logical_props.dir;
 
         GameLogic::move_mov(self, hero, cmd)?;
-        log::debug!("{:?} -> {:?}", self[hero].logical_props.prev_dir, self[hero].logical_props.dir);
+        log::trace!("After mov, hero facing changed {} -> {}", self[hero].logical_props.prev_dir, self[hero].logical_props.dir);
 
         for mov in self.roster.all_movs() {
             // Before movement, reset "prev". Will be overwritten if movement happens.
