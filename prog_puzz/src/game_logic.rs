@@ -100,10 +100,10 @@ impl BaseGameLogic for ProgpuzzGameLogic
                         Op::F => {
                             let target_pos = map[mov].pos() + map[mov].logical_props.dir;
                             if map.passable(target_pos) {
-                                log::debug!("Bot move F. {:?} -> {:?}", map[mov].pos(), target_pos);
+                                log::debug!("Bot move F. {} -> {}", map[mov].pos(), target_pos);
                                 map.move_obj_to(mov, target_pos);
                             } else {
-                                log::debug!("Bot blocked F. {:?} -/-> {:?}", map[mov].pos(), target_pos);
+                                log::debug!("Bot blocked F. {} -/-> {}", map[mov].pos(), target_pos);
                             }
                         },
                         Op::L => {

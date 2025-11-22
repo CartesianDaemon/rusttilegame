@@ -47,11 +47,23 @@ impl Add<CoordDelta> for MapCoord {
     }
 }
 
+impl std::fmt::Display for MapCoord {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "({},{})", self.x, self.y)
+    }
+}
+
 // NB: Need separate "Facing" type which can easily be converted to a CoordDelta.
 #[derive(Add, Copy, Clone, PartialEq, Debug, Neg)] // , Add, Mul
 pub struct CoordDelta {
     pub dx: i16,
     pub dy: i16,
+}
+
+impl std::fmt::Display for CoordDelta {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "({},{})", self.dx, self.dy)
+    }
 }
 
 impl CoordDelta {
