@@ -45,18 +45,20 @@ impl ProgpuzzLevset {
         ]);
 
         let debug_coding = false;
-        let supply_vec = if debug_coding {
+        let coding = if debug_coding {
             use Op::*;
-            &vec![
+            let coding = Coding::from_vec(&[
                 (F, 1),
                 (L, 1),
                 (R, 1),
                 (group, 1),
                 (x2, 1),
-            ]
+            ]);
+            coding
         } else {
             use Op::*;
-            &vec![(F, 6), (R, 1)]
+            let coding = Coding::from_vec(&[(F, 6), (R, 1)]);
+            coding
         };
 
         // NB: Would like to implement thin walls between squares, not walls filling whole squares.
@@ -81,7 +83,7 @@ impl ProgpuzzLevset {
                     "#              #",
                     "################",
                 ], progpuzz_key),
-                Coding::from_vec(supply_vec),
+                coding,
             )),
             ProgpuzzPaneId::Win => {
                 Widget::from_splash_string("Congratulations. You've completed all the levels. Press [enter] to play through again".to_string())
