@@ -363,7 +363,7 @@ impl UiCodingArena
         for (idx, node) in prog.instrs.iter().enumerate() {
             self.draw_prog_instr(xidx, yidx + idx, Some(node));
         }
-        self.draw_prog_instr(0, prog.instrs.len(), None);
+        self.draw_prog_instr(xidx, yidx + prog.instrs.len(), None);
     }
 
     fn draw_prog_instr(&self, xidx: usize, yidx: usize, node: Option<&Node>)
@@ -375,9 +375,11 @@ impl UiCodingArena
         if let Some(op) = instr {
             coords.draw_in_style(self.calculate_style(coords, active, true, InstrRef::Prog {idx: yidx}, instr), &op.to_string());
 
-            if op.r_connector() > 0 {
-                self.draw_prog_instr(xidx + 1, yidx, None);
+            if op.is_parent_instr() {
+                self.draw_subprog(xidx + 1, yidx, &node.unwrap().subnodes.as_ref().unwrap());
             }
+
+            // TODO: Draw r_connector
         } else {
             let txt = if self.is_coding {
                 "...".to_string()
