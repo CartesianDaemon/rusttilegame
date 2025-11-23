@@ -107,7 +107,7 @@ impl std::fmt::Display for Node {
     }
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct NodeParent {
     // Index of previous instruction executed. Used for display and knowing when we enter subnodes
     // Or 9999 for "not yet executed"
@@ -121,11 +121,21 @@ pub struct NodeParent {
     pub instrs: Vec<Node>
 }
 
+impl Default for NodeParent {
+    fn default() -> Self {
+        Self {
+            prev_ip: 9999,
+            next_ip: 0,
+            repeat: 0,
+            instrs: vec![],
+        }
+    }
+}
+
 impl From<Vec<Op>> for NodeParent {
     fn from(ops: Vec<Op>) -> Self {
         Self {
             instrs: ops.iter().map(|op| Node{op:*op, subnodes:None }).collect(),
-            prev_ip: 9999,
             ..Self::default()
         }
     }
