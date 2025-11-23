@@ -370,18 +370,21 @@ impl UiCodingArena
     {
         let coords = self.prog_instr_coords(xidx, yidx);
         let active = Some(yidx) == self.active_idx;
-        let op = node.map(|node|node.op);
-        let txt = if let Some(op) = op {
-            op.to_string()
-        } else if self.is_coding {
-            "...".to_string()
-        } else {
-            "X".to_string()
-        };
-        coords.draw_in_style(self.calculate_style(coords, active, op.is_some(), InstrRef::Prog {idx: yidx}, op), &txt);
+        let instr = node.map(|node|node.op);
 
-        if let Some(op) = op && op.r_connector() > 0 {
-            self.draw_prog_instr(xidx + 1, yidx, None);
+        if let Some(op) = instr {
+            coords.draw_in_style(self.calculate_style(coords, active, true, InstrRef::Prog {idx: yidx}, instr), &op.to_string());
+
+            if op.r_connector() > 0 {
+                self.draw_prog_instr(xidx + 1, yidx, None);
+            }
+        } else {
+            let txt = if self.is_coding {
+                "...".to_string()
+            } else {
+                "X".to_string()
+            };
+            coords.draw_in_style(self.calculate_style(coords, active, false, InstrRef::Prog {idx: yidx}, instr), &txt);
         }
     }
 
