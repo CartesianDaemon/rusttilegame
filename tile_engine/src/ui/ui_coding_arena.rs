@@ -285,7 +285,7 @@ impl UiCodingArena
             UiArena::render(coding_arena.curr_arena.as_mut().unwrap(), texture_cache, self.fr_pos.arena, anim).await;
         }
 
-        self.draw_subprog(0, 0, &coding_arena.coding.prog);
+        self.draw_subprog(0, 0, &coding_arena.coding.prog, true);
         if self.is_coding {
             self.draw_supply(&mut coding_arena.coding);
             self.draw_dragging();
@@ -356,16 +356,18 @@ impl UiCodingArena
         draw_text(&count_txt, coords.x + 0.5*self.fr_pos.supply_op_w, coords.y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, self.font_col());
     }
 
-    fn draw_subprog(&self, xidx: usize, yidx: usize, prog: &Prog) {
+    fn draw_subprog(&self, xidx: usize, yidx: usize, prog: &Prog, v_placeholder: bool) {
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., self.border_cols());
 
         for (idx, node) in prog.instrs.iter().enumerate() {
-            self.draw_prog_instr(xidx, yidx + idx, Some(node));
+            self.draw_prog_instr(xidx, yidx + idx, Some(node), v_placeholder);
         }
-        self.draw_prog_instr(xidx, yidx + prog.instrs.len(), None);
+        if v_placeholder {
+            self.draw_prog_instr(xidx, yidx + prog.instrs.len(), None, false);
+        }
     }
 
-    fn draw_prog_instr(&self, xidx: usize, yidx: usize, node: Option<&Node>)
+    fn draw_prog_instr(&self, xidx: usize, yidx: usize, node: Option<&Node>, v_connector: bool)
     {
         let coords = self.prog_instr_coords(xidx, yidx);
         let active = Some(yidx) == self.active_idx;
@@ -373,12 +375,15 @@ impl UiCodingArena
 
         if let Some(op) = instr {
             self.draw_op_rect(coords, self.calculate_style(coords, active, true, InstrRef::Prog {idx: yidx}, instr), &op.to_string());
-            self.draw_v_connector(coords);
+            if v_connector {
+                self.draw_v_connector(coords);
+            }
 
             if op.is_parent_instr() {
                 self.draw_r_connector(coords);
 
-                self.draw_subprog(xidx + 1, yidx, &node.unwrap().subnodes.as_ref().unwrap());
+                let subprog = &node.unwrap().subnodes.as_ref().unwrap();
+                self.draw_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < op.r_connector());
             }
 
         } else {
