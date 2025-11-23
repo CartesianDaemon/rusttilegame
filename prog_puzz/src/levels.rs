@@ -44,8 +44,7 @@ impl ProgpuzzLevset {
             */
         ]);
 
-        let debug_coding = std::env::args().collect::<Vec<_>>().contains(&"--debug-coding".to_string());
-        let coding = if debug_coding {
+        let coding = if std::env::args().collect::<Vec<_>>().contains(&"--debug-coding=A".to_string()) {
             use Op::*;
             let mut coding = Coding::from_vec(&[
                 (F, 1),
@@ -60,6 +59,15 @@ impl ProgpuzzLevset {
             coding.prog.instrs[1].subnodes.as_mut().unwrap().instrs[0].subnodes = Some(Prog::from(vec![F]));
 
             coding
+        } else if std::env::args().collect::<Vec<_>>().contains(&"--debug-coding=B".to_string()) {
+            use Op::*;
+            Coding::from_vec(&[
+                (F, 2),
+                (L, 2),
+                (R, 2),
+                (group, 2),
+                (x2, 2),
+            ])
         } else {
             use Op::*;
             let coding = Coding::from_vec(&[(F, 6), (R, 1)]);
