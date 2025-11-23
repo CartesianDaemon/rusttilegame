@@ -424,6 +424,10 @@ impl UiCodingArena
             "X".to_string()
         };
         coords.draw_in_style(self.calculate_style(coords, active, has_op, InstrRef::Prog {idx: yidx}, instr.copied()), &txt);
+
+        if let Some(op) = instr && op.r_connector() > 0 {
+            self.draw_prog_instr(yidx, xidx + 1, None);
+        }
     }
 
     fn interact_supply_op(&mut self, coding: &mut Coding, idx: usize)
