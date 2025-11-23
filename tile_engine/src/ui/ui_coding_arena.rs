@@ -428,12 +428,12 @@ impl UiCodingArena
                     self.drag_prog_instr(prog, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
                 } else if self.is_dragging_over(coords) && is_mouse_button_released(MouseButton::Left) {
                     self.drop_to_prog(prog, idx);
-                }
-
-                let node: &mut Node  = prog.instrs.get_mut(idx).unwrap();
-                if node.op.is_parent_instr() {
-                    let subprog: &mut Prog = node.subnodes.as_mut().unwrap();
-                    self.interact_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.op.r_connect_max());
+                } else {
+                    let node: &mut Node  = prog.instrs.get_mut(idx).unwrap();
+                    if node.op.is_parent_instr() {
+                        let subprog: &mut Prog = node.subnodes.as_mut().unwrap();
+                        self.interact_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.op.r_connect_max());
+                    }
                 }
             } else {
                 // self.draw_op_rect(coords, self.calculate_style(coords, active, false, InstrRef::Prog {idx: yidx}, instr), &txt);
