@@ -349,9 +349,9 @@ impl UiCodingArena
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., self.border_cols());
 
         for (idx, instr) in coding.prog.instrs.iter().enumerate() {
-            self.draw_prog_instr(idx, Some(&instr.op));
+            self.draw_prog_instr(idx, 0, Some(&instr.op));
         }
-        self.draw_prog_instr(coding.prog.instrs.len(), None);
+        self.draw_prog_instr(coding.prog.instrs.len(), 0, None);
     }
 
     fn interact_supply(&mut self, coding: &mut Coding) {
@@ -411,10 +411,10 @@ impl UiCodingArena
         draw_text(&count_txt, coords.x + 0.5*self.fr_pos.supply_op_w, coords.y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, self.font_col());
     }
 
-    fn draw_prog_instr(&self, idx: usize, instr: Option<&Op>)
+    fn draw_prog_instr(&self, yidx: usize, xidx: usize, instr: Option<&Op>)
     {
-        let coords = self.prog_instr_coords(idx);
-        let active = Some(idx) == self.active_idx;
+        let coords = self.prog_instr_coords(yidx, xidx);
+        let active = Some(yidx) == self.active_idx;
         let has_op = instr.is_some();
         let txt = if let Some(op) = instr {
             op.to_string()
@@ -423,7 +423,7 @@ impl UiCodingArena
         } else {
             "X".to_string()
         };
-        coords.draw_in_style(self.calculate_style(coords, active, has_op, InstrRef::Prog {idx}, instr.copied()), &txt);
+        coords.draw_in_style(self.calculate_style(coords, active, has_op, InstrRef::Prog {idx: yidx}, instr.copied()), &txt);
     }
 
     fn interact_supply_op(&mut self, coding: &mut Coding, idx: usize)
@@ -441,7 +441,7 @@ impl UiCodingArena
 
     fn interact_prog_instr(&mut self, coding: &mut Coding, idx: usize, instr: Option<&Op>)
     {
-        let coords = self.prog_instr_coords(idx);
+        let coords = self.prog_instr_coords(idx, 0);
 
         if self.is_coding {
             if instr.is_some() && is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(coords) {
@@ -461,7 +461,7 @@ impl UiCodingArena
     }
 
     fn is_droppable_on_prog_instr(&self, idx: usize) -> bool {
-        self.is_dragging_over(self.prog_instr_coords(idx))
+        self.is_dragging_over(self.prog_instr_coords(idx, 0))
     }
 
     fn calculate_style(&self, coords: OpCoords, active: bool, has_op: bool, instr_ref: InstrRef, op: Option<Op>) -> OpStyle
@@ -518,10 +518,10 @@ impl UiCodingArena
         }
     }
 
-    fn prog_instr_coords(&self, idx: usize) -> OpCoords {
-        let fdx = idx as f32;
-        let x = self.fr_pos.prog_x + self.fr_pos.prog_w/2. - self.fr_pos.prog_instr_w/2.;
-        let y = self.fr_pos.prog_y + self.fr_pos.prog_instr_spacing + fdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
+    fn prog_instr_coords(&self, yidx: usize, xidx: usize) -> OpCoords {
+        let (xfdx, yfdx) = (xidx as f32, yidx as f32);
+        let x = self.fr_pos.prog_x + self.fr_pos.prog_instr_spacing + xfdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
+        let y = self.fr_pos.prog_y + self.fr_pos.prog_instr_spacing + yfdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
 
         OpCoords {x, y, w: self.fr_pos.prog_instr_w, h: self.fr_pos.prog_instr_h, v_spacing: self.fr_pos.prog_instr_spacing}
     }
