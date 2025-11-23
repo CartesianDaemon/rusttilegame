@@ -44,7 +44,7 @@ impl ProgpuzzLevset {
             */
         ]);
 
-        let debug_coding = false;
+        let debug_coding = std::env::args().collect::<Vec<_>>().contains(&"--debug-coding".to_string());
         let coding = if debug_coding {
             use Op::*;
             let mut coding = Coding::from_vec(&[

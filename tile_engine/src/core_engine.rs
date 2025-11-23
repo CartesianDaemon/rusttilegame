@@ -92,6 +92,9 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
     }
 }
 
+/// Arguments:
+///  --rust-log=...
+///  --debug-coding
 pub async fn run<Gamedata: gamedata::BaseGamedata>()
 {
     for arg in std::env::args() {
