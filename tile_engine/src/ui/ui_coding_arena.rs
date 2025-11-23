@@ -342,7 +342,7 @@ impl UiCodingArena
     }
 
     fn draw_supply(&self, coding: &mut Coding) {
-        for (idx, bin) in coding.supply.clone().iter().enumerate() {
+        for (idx, bin) in coding.supply.iter().enumerate() {
             self.draw_supply_op(idx, bin);
         }
 
@@ -352,8 +352,7 @@ impl UiCodingArena
     fn draw_prog(&self, coding: &Coding) {
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., self.border_cols());
 
-        // NB: Clone means that we draw the original instrs, even if one is dragged out.
-        for (idx, instr) in coding.prog.instrs.clone().iter().enumerate() {
+        for (idx, instr) in coding.prog.instrs.iter().enumerate() {
             self.draw_prog_instr(idx, Some(&instr.op));
         }
         self.draw_prog_instr(coding.prog.instrs.len(), None);
