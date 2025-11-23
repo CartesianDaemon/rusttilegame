@@ -28,14 +28,14 @@ impl Op {
     }
 
     pub fn is_action_instr(self) -> bool {
-        self.r_connector() == 0
+        self.r_connect_max() == 0
     }
 
     pub fn is_parent_instr(self) -> bool {
         !self.is_action_instr()
     }
 
-    pub fn r_connector(self) -> usize {
+    pub fn r_connect_max(self) -> usize {
         match self {
             Self::F |
             Self::L |

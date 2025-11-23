@@ -292,7 +292,7 @@ impl UiCodingArena
             self.draw_dragging();
         }
 
-        self.interact_subprog(&mut coding_arena.coding.prog);
+        self.interact_subprog(0, 0, &mut coding_arena.coding.prog, true);
         if self.is_coding {
             self.interact_supply(&mut coding_arena.coding);
             self.interact_dragging(&mut coding_arena.coding);
@@ -384,7 +384,7 @@ impl UiCodingArena
                 self.draw_r_connector(coords);
 
                 let subprog = &node.unwrap().subnodes.as_ref().unwrap();
-                self.draw_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < op.r_connector());
+                self.draw_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < op.r_connect_max());
             }
 
         } else {
@@ -409,24 +409,39 @@ impl UiCodingArena
         }
     }
 
-    fn interact_subprog(&mut self, prog: &mut Prog) {
-        for (idx, instr) in prog.instrs.clone().iter().enumerate() {
-            self.interact_prog_instr(prog, idx, Some(&instr.op));
+    fn interact_subprog(&mut self, xidx: usize, yidx: usize, prog: &mut Prog, v_placeholder: bool) {
+        for idx in 0..prog.instrs.len() {
+            self.interact_prog_instr(xidx, yidx + idx, prog, idx);
         }
-        self.interact_prog_instr(prog, prog.instrs.len(), None);
+        if v_placeholder {
+            // self.draw_prog_instr(xidx, yidx + prog.instrs.len(), None, false);
+        }
     }
 
-    fn interact_prog_instr(&mut self, prog: &mut Prog, idx: usize, instr: Option<&Op>)
+    fn interact_prog_instr(&mut self, xidx: usize, yidx: usize, prog: &mut Prog, idx: usize)
     {
-        let coords = self.prog_instr_coords(0, idx);
-
         if self.is_coding {
-            if instr.is_some() && is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(coords) {
-                self.drag_prog_instr(prog, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
-            } else if self.is_dragging_over(coords) && is_mouse_button_released(MouseButton::Left) {
-                self.drop_to_prog(prog, idx);
+            let coords = self.prog_instr_coords(xidx, yidx);
+
+            if idx < prog.instrs.len() {
+                if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(coords) {
+                    self.drag_prog_instr(prog, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
+                } else if self.is_dragging_over(coords) && is_mouse_button_released(MouseButton::Left) {
+                    self.drop_to_prog(prog, idx);
+                }
+
+                let node: &mut Node  = prog.instrs.get_mut(idx).unwrap();
+                if node.op.is_parent_instr() {
+                    let subprog: &mut Prog = node.subnodes.as_mut().unwrap();
+                    self.interact_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.op.r_connect_max());
+                }
+            } else {
+                // self.draw_op_rect(coords, self.calculate_style(coords, active, false, InstrRef::Prog {idx: yidx}, instr), &txt);
+                if self.is_dragging_over(coords) && is_mouse_button_released(MouseButton::Left) {
+                    self.drop_to_prog(prog, idx);
+                }
             }
-        }
+       }
     }
 
     fn interact_dragging(&mut self, coding: &mut Coding) {
