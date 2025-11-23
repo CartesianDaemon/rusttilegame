@@ -414,7 +414,7 @@ impl UiCodingArena
             self.interact_prog_instr(xidx, yidx + idx, prog, idx);
         }
         if v_placeholder {
-            // self.draw_prog_instr(xidx, yidx + prog.instrs.len(), None, false);
+            self.interact_prog_instr(xidx, yidx + prog.instrs.len(), prog, prog.instrs.len());
         }
     }
 
