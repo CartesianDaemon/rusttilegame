@@ -96,7 +96,6 @@ struct OpStyle {
     border_col: Color,
     fill_col: Color,
     scale: f32,
-    v_connector: Option<Color>,
 }
 
 impl OpStyle {
@@ -106,7 +105,6 @@ impl OpStyle {
             border_col: DARKGRAY,
             fill_col: WHITE,
             scale: 1.0,
-            v_connector: Some(DARKGRAY),
         }
     }
 
@@ -117,7 +115,6 @@ impl OpStyle {
             // Covers over background when dragging
             fill_col: Color {r: 1.0, g: 1.0, b: 1.0, a:0.5 },
             scale: 1.0,
-            v_connector: None,
         }
     }
 
@@ -144,7 +141,6 @@ impl OpStyle {
             // Covers over excess connecting line
             fill_col: background_col,
             scale: 1.0,
-            v_connector: None,
         }
     }
 
@@ -154,7 +150,6 @@ impl OpStyle {
             border_col: SKYBLUE,
             fill_col: WHITE,
             scale: 1.0,
-            v_connector: Some(BLUE),
         }
     }
 
@@ -167,7 +162,6 @@ impl OpStyle {
 
     pub fn running_placeholder() -> Self {
         Self {
-            v_connector: None,
             ..Self::running()
         }
     }
@@ -201,6 +195,10 @@ impl UiCodingArena
 
     pub fn border_cols(&self) -> Color {
         if self.is_coding {DARKGRAY} else {SKYBLUE}
+    }
+
+    pub fn connector_col(&self) -> Color {
+        if self.is_coding {DARKGRAY} else {BLUE}
     }
 
     pub fn font_col(&self) -> Color {
@@ -332,17 +330,14 @@ impl UiCodingArena
         draw_rectangle_lines(c.x, c.y, c.w, c.h, style.border_width, style.border_col);
         let font_sz = c.w * if txt.len() <= 1 { 1.35 } else { 0.5 };
         draw_text(txt, c.x + 0.2 * c.w, c.y + 0.85 * c.h, font_sz, DARKGRAY);
+    }
 
-        if let Some(col) = style.v_connector {
-            draw_line(
-                c.x + c.w/2.,
-                c.y + c.h,
-                c.x + c.w/2.,
-                c.y + c.h + c.v_spacing,
-                2.,
-                col
-            );
-        }
+    fn draw_v_connector(&self, c: OpCoords) {
+        draw_line(
+            c.x + c.w/2., c.y + c.h,
+            c.x + c.w/2., c.y + c.h + c.v_spacing,
+            2., self.connector_col(),
+        );
     }
 
     fn draw_supply_op(&self, idx: usize, bin: &Bin)
@@ -374,12 +369,14 @@ impl UiCodingArena
 
         if let Some(op) = instr {
             self.draw_op_rect(coords, self.calculate_style(coords, active, true, InstrRef::Prog {idx: yidx}, instr), &op.to_string());
+            self.draw_v_connector(coords);
 
             if op.is_parent_instr() {
+                // TODO: Draw r_connector
+
                 self.draw_subprog(xidx + 1, yidx, &node.unwrap().subnodes.as_ref().unwrap());
             }
 
-            // TODO: Draw r_connector
         } else {
             let txt = if self.is_coding {
                 "...".to_string()
