@@ -307,7 +307,7 @@ impl UiCodingArena
             UiArena::render(coding_arena.curr_arena.as_mut().unwrap(), texture_cache, self.fr_pos.arena, anim).await;
         }
 
-        self.draw_subprog(0, 0, &mut coding_arena.coding);
+        self.draw_subprog(0, 0, &coding_arena.coding.prog);
         if self.is_coding {
             self.draw_supply(&mut coding_arena.coding);
             self.draw_dragging();
@@ -345,13 +345,13 @@ impl UiCodingArena
         draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., self.border_cols());
     }
 
-    fn draw_subprog(&self, xidx: usize, yidx: usize, coding: &Coding) {
+    fn draw_subprog(&self, xidx: usize, yidx: usize, prog: &Prog) {
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., self.border_cols());
 
-        for (idx, instr) in coding.prog.instrs.iter().enumerate() {
+        for (idx, instr) in prog.instrs.iter().enumerate() {
             self.draw_prog_instr(xidx, yidx + idx, Some(instr));
         }
-        self.draw_prog_instr(0, coding.prog.instrs.len(), None);
+        self.draw_prog_instr(0, prog.instrs.len(), None);
     }
 
     fn interact_supply(&mut self, coding: &mut Coding) {
