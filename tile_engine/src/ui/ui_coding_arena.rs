@@ -345,13 +345,44 @@ impl UiCodingArena
         draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., self.border_cols());
     }
 
+    fn draw_supply_op(&self, idx: usize, bin: &Bin)
+    {
+        let coords = self.supply_op_coords(idx);
+        let active = false;
+        let has_op = bin.curr_count > 0;
+        coords.draw_in_style(self.calculate_style(coords, active, has_op, InstrRef::Supply {idx}, Some(bin.op)), &bin.op.to_string());
+
+        // Draw count
+        let count_txt = format!("{}/{}", bin.curr_count, bin.orig_count);
+        draw_text(&count_txt, coords.x + 0.5*self.fr_pos.supply_op_w, coords.y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, self.font_col());
+    }
+
     fn draw_subprog(&self, xidx: usize, yidx: usize, prog: &Prog) {
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., self.border_cols());
 
-        for (idx, instr) in prog.instrs.iter().enumerate() {
-            self.draw_prog_instr(xidx, yidx + idx, Some(instr));
+        for (idx, node) in prog.instrs.iter().enumerate() {
+            self.draw_prog_instr(xidx, yidx + idx, Some(node));
         }
         self.draw_prog_instr(0, prog.instrs.len(), None);
+    }
+
+    fn draw_prog_instr(&self, xidx: usize, yidx: usize, node: Option<&Node>)
+    {
+        let coords = self.prog_instr_coords(xidx, yidx);
+        let active = Some(yidx) == self.active_idx;
+        let op = node.map(|node|node.op);
+        let txt = if let Some(op) = op {
+            op.to_string()
+        } else if self.is_coding {
+            "...".to_string()
+        } else {
+            "X".to_string()
+        };
+        coords.draw_in_style(self.calculate_style(coords, active, op.is_some(), InstrRef::Prog {idx: yidx}, op), &txt);
+
+        if let Some(op) = op && op.r_connector() > 0 {
+            self.draw_prog_instr(xidx + 1, yidx, None);
+        }
     }
 
     fn interact_supply(&mut self, coding: &mut Coding) {
@@ -396,37 +427,6 @@ impl UiCodingArena
         if let Some(DragOrigin{op, ..}) = &self.dragging {
             let coords = self.dragging_op_coords().unwrap();
             coords.draw_in_style(OpStyle::dragging(), &op.to_string());
-        }
-    }
-
-    fn draw_supply_op(&self, idx: usize, bin: &Bin)
-    {
-        let coords = self.supply_op_coords(idx);
-        let active = false;
-        let has_op = bin.curr_count > 0;
-        coords.draw_in_style(self.calculate_style(coords, active, has_op, InstrRef::Supply {idx}, Some(bin.op)), &bin.op.to_string());
-
-        // Draw count
-        let count_txt = format!("{}/{}", bin.curr_count, bin.orig_count);
-        draw_text(&count_txt, coords.x + 0.5*self.fr_pos.supply_op_w, coords.y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, self.font_col());
-    }
-
-    fn draw_prog_instr(&self, xidx: usize, yidx: usize, node: Option<&Node>)
-    {
-        let coords = self.prog_instr_coords(xidx, yidx);
-        let active = Some(yidx) == self.active_idx;
-        let op = node.map(|node|node.op);
-        let txt = if let Some(op) = op {
-            op.to_string()
-        } else if self.is_coding {
-            "...".to_string()
-        } else {
-            "X".to_string()
-        };
-        coords.draw_in_style(self.calculate_style(coords, active, op.is_some(), InstrRef::Prog {idx: yidx}, op), &txt);
-
-        if let Some(op) = op && op.r_connector() > 0 {
-            self.draw_prog_instr(xidx + 1, yidx, None);
         }
     }
 
