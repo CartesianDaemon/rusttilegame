@@ -1,5 +1,9 @@
 ## Unreleased
 
+## 22 Nov: tile_engine 1.5.6, prog_puzz 1.5.3
+
+- Make playable release for prog_puzz.
+
 ## 22 Nov: tile_engine 1.5.5, prog_puzz 1.5.2
 
 - Engine for Prog Puzz: Implement nested and repeat instrs.
