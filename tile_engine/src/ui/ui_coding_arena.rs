@@ -307,7 +307,7 @@ impl UiCodingArena
             UiArena::render(coding_arena.curr_arena.as_mut().unwrap(), texture_cache, self.fr_pos.arena, anim).await;
         }
 
-        self.draw_prog(&mut coding_arena.coding);
+        self.draw_subprog(0, 0, &mut coding_arena.coding);
         if self.is_coding {
             self.draw_supply(&mut coding_arena.coding);
             self.draw_dragging();
@@ -345,13 +345,13 @@ impl UiCodingArena
         draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., self.border_cols());
     }
 
-    fn draw_prog(&self, coding: &Coding) {
+    fn draw_subprog(&self, xidx: usize, yidx: usize, coding: &Coding) {
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., self.border_cols());
 
         for (idx, instr) in coding.prog.instrs.iter().enumerate() {
-            self.draw_prog_instr(idx, 0, Some(instr));
+            self.draw_prog_instr(xidx, yidx + idx, Some(instr));
         }
-        self.draw_prog_instr(coding.prog.instrs.len(), 0, None);
+        self.draw_prog_instr(0, coding.prog.instrs.len(), None);
     }
 
     fn interact_supply(&mut self, coding: &mut Coding) {
@@ -411,9 +411,9 @@ impl UiCodingArena
         draw_text(&count_txt, coords.x + 0.5*self.fr_pos.supply_op_w, coords.y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, self.font_col());
     }
 
-    fn draw_prog_instr(&self, yidx: usize, xidx: usize, node: Option<&Node>)
+    fn draw_prog_instr(&self, xidx: usize, yidx: usize, node: Option<&Node>)
     {
-        let coords = self.prog_instr_coords(yidx, xidx);
+        let coords = self.prog_instr_coords(xidx, yidx);
         let active = Some(yidx) == self.active_idx;
         let op = node.map(|node|node.op);
         let txt = if let Some(op) = op {
@@ -426,7 +426,7 @@ impl UiCodingArena
         coords.draw_in_style(self.calculate_style(coords, active, op.is_some(), InstrRef::Prog {idx: yidx}, op), &txt);
 
         if let Some(op) = op && op.r_connector() > 0 {
-            self.draw_prog_instr(yidx, xidx + 1, None);
+            self.draw_prog_instr(xidx + 1, yidx, None);
         }
     }
 
@@ -445,7 +445,7 @@ impl UiCodingArena
 
     fn interact_prog_instr(&mut self, coding: &mut Coding, idx: usize, instr: Option<&Op>)
     {
-        let coords = self.prog_instr_coords(idx, 0);
+        let coords = self.prog_instr_coords(0, idx);
 
         if self.is_coding {
             if instr.is_some() && is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(coords) {
@@ -522,7 +522,7 @@ impl UiCodingArena
         }
     }
 
-    fn prog_instr_coords(&self, yidx: usize, xidx: usize) -> OpCoords {
+    fn prog_instr_coords(&self, xidx: usize, yidx: usize) -> OpCoords {
         let (xfdx, yfdx) = (xidx as f32, yidx as f32);
         let x = self.fr_pos.prog_x + self.fr_pos.prog_instr_spacing + xfdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
         let y = self.fr_pos.prog_y + self.fr_pos.prog_instr_spacing + yfdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
