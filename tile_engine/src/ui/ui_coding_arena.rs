@@ -82,26 +82,6 @@ impl OpCoords {
         }
     }
 
-    fn draw_in_style(self, style: OpStyle, txt: &str) {
-        let c = self.scaled_down_to(style.scale);
-
-        draw_rectangle(c.x, c.y, c.w, c.h, style.fill_col);
-        draw_rectangle_lines(c.x, c.y, c.w, c.h, style.border_width, style.border_col);
-        let font_sz = c.w * if txt.len() <= 1 { 1.35 } else { 0.5 };
-        draw_text(txt, c.x + 0.2 * c.w, c.y + 0.85 * c.h, font_sz, DARKGRAY);
-
-        if let Some(col) = style.v_connector {
-            draw_line(
-                c.x + c.w/2.,
-                c.y + c.h,
-                c.x + c.w/2.,
-                c.y + c.h + c.v_spacing,
-                2.,
-                col
-            );
-        }
-    }
-
     fn middle(self) -> (f32, f32) {
         (self.x + self.w/2., self.y + self.h/2.)
     }
@@ -345,12 +325,32 @@ impl UiCodingArena
         draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., self.border_cols());
     }
 
+    fn draw_op_rect(&self, coords: OpCoords, style: OpStyle, txt: &str) {
+        let c = coords.scaled_down_to(style.scale);
+
+        draw_rectangle(c.x, c.y, c.w, c.h, style.fill_col);
+        draw_rectangle_lines(c.x, c.y, c.w, c.h, style.border_width, style.border_col);
+        let font_sz = c.w * if txt.len() <= 1 { 1.35 } else { 0.5 };
+        draw_text(txt, c.x + 0.2 * c.w, c.y + 0.85 * c.h, font_sz, DARKGRAY);
+
+        if let Some(col) = style.v_connector {
+            draw_line(
+                c.x + c.w/2.,
+                c.y + c.h,
+                c.x + c.w/2.,
+                c.y + c.h + c.v_spacing,
+                2.,
+                col
+            );
+        }
+    }
+
     fn draw_supply_op(&self, idx: usize, bin: &Bin)
     {
         let coords = self.supply_op_coords(idx);
         let active = false;
         let has_op = bin.curr_count > 0;
-        coords.draw_in_style(self.calculate_style(coords, active, has_op, InstrRef::Supply {idx}, Some(bin.op)), &bin.op.to_string());
+        self.draw_op_rect(coords, self.calculate_style(coords, active, has_op, InstrRef::Supply {idx}, Some(bin.op)), &bin.op.to_string());
 
         // Draw count
         let count_txt = format!("{}/{}", bin.curr_count, bin.orig_count);
@@ -373,7 +373,7 @@ impl UiCodingArena
         let instr = node.map(|node|node.op);
 
         if let Some(op) = instr {
-            coords.draw_in_style(self.calculate_style(coords, active, true, InstrRef::Prog {idx: yidx}, instr), &op.to_string());
+            self.draw_op_rect(coords, self.calculate_style(coords, active, true, InstrRef::Prog {idx: yidx}, instr), &op.to_string());
 
             if op.is_parent_instr() {
                 self.draw_subprog(xidx + 1, yidx, &node.unwrap().subnodes.as_ref().unwrap());
@@ -386,7 +386,7 @@ impl UiCodingArena
             } else {
                 "X".to_string()
             };
-            coords.draw_in_style(self.calculate_style(coords, active, false, InstrRef::Prog {idx: yidx}, instr), &txt);
+            self.draw_op_rect(coords, self.calculate_style(coords, active, false, InstrRef::Prog {idx: yidx}, instr), &txt);
         }
     }
 
@@ -431,7 +431,7 @@ impl UiCodingArena
     {
         if let Some(DragOrigin{op, ..}) = &self.dragging {
             let coords = self.dragging_op_coords().unwrap();
-            coords.draw_in_style(OpStyle::dragging(), &op.to_string());
+            self.draw_op_rect(coords, OpStyle::dragging(), &op.to_string());
         }
     }
 
