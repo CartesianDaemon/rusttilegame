@@ -55,7 +55,7 @@ pub struct OpCoords {
     pub y: f32,
     pub w: f32,
     pub h: f32,
-    pub v_spacing: f32,
+    pub rect_spacing: f32,
 }
 
 impl OpCoords {
@@ -67,7 +67,7 @@ impl OpCoords {
             y: self.y - self.h * shrink_in_by,
             w: self.w * scale,
             h: self.h * scale,
-            v_spacing: self.v_spacing,
+            rect_spacing: self.rect_spacing,
         }
     }
 
@@ -78,7 +78,7 @@ impl OpCoords {
             y: self.y - self.h * (scale - 1.)/2.,
             w: self.w * scale,
             h: self.h * scale,
-            v_spacing: self.v_spacing,
+            rect_spacing: self.rect_spacing,
         }
     }
 
@@ -332,12 +332,16 @@ impl UiCodingArena
         draw_text(txt, c.x + 0.2 * c.w, c.y + 0.85 * c.h, font_sz, DARKGRAY);
     }
 
+    /// Draw connector from bottom edge of rect to top edge of next rect
     fn draw_v_connector(&self, c: OpCoords) {
-        draw_line(
-            c.x + c.w/2., c.y + c.h,
-            c.x + c.w/2., c.y + c.h + c.v_spacing,
-            2., self.connector_col(),
-        );
+        let (x,y) = (c.x + c.w/2., c.y + c.h);
+        draw_line(x, y,  x, y + c.rect_spacing,  2., self.connector_col());
+    }
+
+    /// Draw connector from right edge of rect to left edge of next rect
+    fn draw_r_connector(&self, c: OpCoords) {
+        let (x,y) = (c.x + c.w, c.y + c.h/2.);
+        draw_line(x, y,  x + c.rect_spacing, y,  2., self.connector_col());
     }
 
     fn draw_supply_op(&self, idx: usize, bin: &Bin)
@@ -372,7 +376,7 @@ impl UiCodingArena
             self.draw_v_connector(coords);
 
             if op.is_parent_instr() {
-                // TODO: Draw r_connector
+                self.draw_r_connector(coords);
 
                 self.draw_subprog(xidx + 1, yidx, &node.unwrap().subnodes.as_ref().unwrap());
             }
@@ -520,7 +524,7 @@ impl UiCodingArena
             y: self.fr_pos.supply_y + self.fr_pos.supply_h/2. - self.fr_pos.supply_op_h*0.6,
             w: self.fr_pos.supply_op_h,
             h: self.fr_pos.supply_op_h,
-            v_spacing: 0.,
+            rect_spacing: 0.,
         }
     }
 
@@ -529,7 +533,7 @@ impl UiCodingArena
         let x = self.fr_pos.prog_x + self.fr_pos.prog_instr_spacing + xfdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
         let y = self.fr_pos.prog_y + self.fr_pos.prog_instr_spacing + yfdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
 
-        OpCoords {x, y, w: self.fr_pos.prog_instr_w, h: self.fr_pos.prog_instr_h, v_spacing: self.fr_pos.prog_instr_spacing}
+        OpCoords {x, y, w: self.fr_pos.prog_instr_w, h: self.fr_pos.prog_instr_h, rect_spacing: self.fr_pos.prog_instr_spacing}
     }
 
     fn dragging_op_coords(&self) -> Option<OpCoords> {
@@ -537,7 +541,7 @@ impl UiCodingArena
             Some(DragOrigin{orig_offset_x, orig_offset_y,..}) => {
                 let (mx, my) = mouse_position();
                 let (x,y) = (mx - orig_offset_x, my - orig_offset_y);
-                Some(OpCoords {x, y, w:self.fr_pos.prog_instr_w, h:self.fr_pos.prog_instr_h, v_spacing: 0.})
+                Some(OpCoords {x, y, w:self.fr_pos.prog_instr_w, h:self.fr_pos.prog_instr_h, rect_spacing: 0.})
             },
             _ => None,
         }
@@ -562,7 +566,7 @@ impl UiCodingArena
             y: rect.y,
             w: rect.w,
             h: rect.h,
-            v_spacing: 0.,
+            rect_spacing: 0.,
         }.contains(mouse_position())
     }
 
