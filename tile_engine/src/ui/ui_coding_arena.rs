@@ -16,8 +16,9 @@ enum InstrRef {
     },
 }
 
+#[derive(Clone)]
 struct DragOrigin {
-    op: Op,
+    instr: Node,
     op_ref: InstrRef,
     orig_offset_x: f32,
     orig_offset_y: f32,
@@ -291,7 +292,7 @@ impl UiCodingArena
             self.draw_dragging();
         }
 
-        self.interact_prog(&mut coding_arena.coding);
+        self.interact_subprog(&mut coding_arena.coding.prog);
         if self.is_coding {
             self.interact_supply(&mut coding_arena.coding);
             self.interact_dragging(&mut coding_arena.coding);
@@ -408,25 +409,39 @@ impl UiCodingArena
         }
     }
 
-    fn interact_prog(&mut self, coding: &mut Coding) {
-        for (idx, instr) in coding.prog.instrs.clone().iter().enumerate() {
-            self.interact_prog_instr(coding, idx, Some(&instr.op));
+    fn interact_subprog(&mut self, prog: &mut Prog) {
+        for (idx, instr) in prog.instrs.clone().iter().enumerate() {
+            self.interact_prog_instr(prog, idx, Some(&instr.op));
         }
-        self.interact_prog_instr(coding, coding.prog.instrs.len(), None);
+        self.interact_prog_instr(prog, prog.instrs.len(), None);
+    }
+
+    fn interact_prog_instr(&mut self, prog: &mut Prog, idx: usize, instr: Option<&Op>)
+    {
+        let coords = self.prog_instr_coords(0, idx);
+
+        if self.is_coding {
+            if instr.is_some() && is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(coords) {
+                self.drag_prog_instr(prog, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
+            } else if self.is_dragging_over(coords) && is_mouse_button_released(MouseButton::Left) {
+                self.drop_to_prog(prog, idx);
+            }
+        }
     }
 
     fn interact_dragging(&mut self, coding: &mut Coding) {
         // If mouse is released anywhere else, cancel drag, return dragged op to its origin.
         // Use "!is_mouse_button_down" not "is_mouse_buttom_released" to ensure dragging is stopped.
         if !is_mouse_button_down(MouseButton::Left) {
-            match self.dragging {
-                Some(DragOrigin { op:_op, op_ref: InstrRef::Supply { idx }, ..}) => {
-                    log::debug!("INFO: Cancelling drag. Returning {:?} to supply idx {:?}", _op, idx);
-                    self.drop_to_supply_bin(coding, idx);
+            match &self.dragging {
+                Some(DragOrigin { instr:_instr, op_ref: InstrRef::Supply { idx }, ..}) => {
+                    log::debug!("INFO: Cancelling drag. Returning {:?} to supply idx {:?}", _instr, idx);
+                    self.drop_to_supply_bin(coding, *idx);
                 },
-                Some(DragOrigin { op: _op, op_ref: InstrRef::Prog { idx }, ..}) => {
-                    log::debug!("INFO: Cancelling drag. Returning {:?} to supply idx {:?}", _op, idx);
-                    self.drop_to_prog(coding, idx);
+                Some(DragOrigin { instr: _instr, op_ref: InstrRef::Prog { idx }, ..}) => {
+                    log::debug!("INFO: Cancelling drag. Returning {:?} to supply idx {:?}", _instr, idx);
+                    // TODO: !!
+                    self.drop_to_prog(&mut coding.prog, *idx);
                 },
                 None => (),
             }
@@ -435,9 +450,9 @@ impl UiCodingArena
 
     fn draw_dragging(&self)
     {
-        if let Some(DragOrigin{op, ..}) = &self.dragging {
+        if let Some(DragOrigin{instr, ..}) = &self.dragging {
             let coords = self.dragging_op_coords().unwrap();
-            self.draw_op_rect(coords, OpStyle::dragging(), &op.to_string());
+            self.draw_op_rect(coords, OpStyle::dragging(), &instr.op.to_string());
         }
     }
 
@@ -454,23 +469,10 @@ impl UiCodingArena
         }
     }
 
-    fn interact_prog_instr(&mut self, coding: &mut Coding, idx: usize, instr: Option<&Op>)
-    {
-        let coords = self.prog_instr_coords(0, idx);
-
-        if self.is_coding {
-            if instr.is_some() && is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(coords) {
-                self.drag_prog_instr(coding, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
-            } else if self.is_dragging_over(coords) && is_mouse_button_released(MouseButton::Left) {
-                self.drop_to_prog(coding, idx);
-            }
-        }
-    }
-
     fn is_droppable_on_supply_bin(&self, idx: usize, op_type: Op) -> bool {
         let coords = self.supply_op_coords(idx);
-        match self.dragging {
-            Some(DragOrigin { op, ..}) => self.is_dragging_over(coords) && op == op_type,
+        match &self.dragging {
+            Some(DragOrigin { instr, ..}) => self.is_dragging_over(coords) && instr.op == op_type,
             _ => false,
         }
     }
@@ -582,7 +584,7 @@ impl UiCodingArena
         self.dragging = if bin.curr_count > 0 {
             bin.curr_count -= 1;
             Some(DragOrigin {
-                op: bin.op,
+                instr: Node {op: bin.op, subnodes: None},
                 op_ref: InstrRef::Supply { idx },
                 orig_offset_x,
                 orig_offset_y
@@ -592,12 +594,12 @@ impl UiCodingArena
         }
     }
 
-    fn drag_prog_instr(&mut self, coding: &mut Coding, idx: usize, orig_offset_x: f32, orig_offset_y: f32) {
+    fn drag_prog_instr(&mut self, prog: &mut Prog, idx: usize, orig_offset_x: f32, orig_offset_y: f32) {
         // TODO: Test not already dragging?
-        let op = coding.prog.instrs.remove(idx).op;
-        log::debug!("INFO: Dragging {:?} from prog", op);
+        let node = prog.instrs.remove(idx);
+        log::debug!("INFO: Dragging {:?} from prog", node);
         self.dragging = Some(DragOrigin {
-            op: op,
+            instr: node,
             op_ref: InstrRef::Prog { idx },
             orig_offset_x,
             orig_offset_y
@@ -605,10 +607,10 @@ impl UiCodingArena
     }
 
     fn drop_to_supply_bin(&mut self, coding: &mut Coding, idx: usize) {
-        if let Some(DragOrigin {op: dragged_op, ..}) = self.dragging {
-            log::debug!("INFO: Dropping {:?} to supply bin", dragged_op);
+        if let Some(DragOrigin {instr, ..}) = &self.dragging {
+            log::debug!("INFO: Dropping {:?} to supply bin", instr);
             let bin = &mut coding.supply.get_mut(idx).unwrap();
-            if bin.op == dragged_op && bin.curr_count < bin.orig_count {
+            if bin.op == instr.op && bin.curr_count < bin.orig_count {
                 bin.curr_count += 1;
                 self.dragging = None;
             }
@@ -618,10 +620,10 @@ impl UiCodingArena
     fn drop_to_supply(&mut self, coding: &mut Coding) {
         // TODO: For loop to find correct bin.
         // TODO: Handle index errors, or bin overflow errors, without panicking.
-        if let Some(DragOrigin {op: dragged_op, ..}) = self.dragging {
-            log::debug!("INFO: Dropping {:?} to supply", dragged_op);
+        if let Some(DragOrigin {instr: Node{op, ..}, ..}) = self.dragging.clone() {
+            log::debug!("INFO: Dropping {:?} to supply", op);
             for bin in &mut coding.supply {
-                if bin.op == dragged_op && bin.curr_count < bin.orig_count {
+                if bin.op == op && bin.curr_count < bin.orig_count {
                     bin.curr_count += 1;
                     self.dragging = None;
                 }
@@ -629,10 +631,10 @@ impl UiCodingArena
         }
     }
 
-    fn drop_to_prog(&mut self, coding: &mut Coding, idx: usize) {
-        if let Some(DragOrigin { op, .. }) = self.dragging {
-            log::debug!("INFO: Dropping {:?} to prog", op);
-            coding.prog.instrs.insert(idx, Node{op, subnodes: None});
+    fn drop_to_prog(&mut self, prog: &mut Prog, idx: usize) {
+        if let Some(DragOrigin { instr: node, .. }) = &self.dragging {
+            log::debug!("INFO: Dropping {:?} to prog", node);
+            prog.instrs.insert(idx, node.clone());
             self.dragging = None;
         }
     }
