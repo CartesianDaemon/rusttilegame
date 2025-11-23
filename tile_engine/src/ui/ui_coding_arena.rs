@@ -349,7 +349,7 @@ impl UiCodingArena
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., self.border_cols());
 
         for (idx, instr) in coding.prog.instrs.iter().enumerate() {
-            self.draw_prog_instr(idx, 0, Some(&instr.op));
+            self.draw_prog_instr(idx, 0, Some(instr));
         }
         self.draw_prog_instr(coding.prog.instrs.len(), 0, None);
     }
@@ -411,21 +411,21 @@ impl UiCodingArena
         draw_text(&count_txt, coords.x + 0.5*self.fr_pos.supply_op_w, coords.y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, self.font_col());
     }
 
-    fn draw_prog_instr(&self, yidx: usize, xidx: usize, instr: Option<&Op>)
+    fn draw_prog_instr(&self, yidx: usize, xidx: usize, node: Option<&Node>)
     {
         let coords = self.prog_instr_coords(yidx, xidx);
         let active = Some(yidx) == self.active_idx;
-        let has_op = instr.is_some();
-        let txt = if let Some(op) = instr {
+        let op = node.map(|node|node.op);
+        let txt = if let Some(op) = op {
             op.to_string()
         } else if self.is_coding {
             "...".to_string()
         } else {
             "X".to_string()
         };
-        coords.draw_in_style(self.calculate_style(coords, active, has_op, InstrRef::Prog {idx: yidx}, instr.copied()), &txt);
+        coords.draw_in_style(self.calculate_style(coords, active, op.is_some(), InstrRef::Prog {idx: yidx}, op), &txt);
 
-        if let Some(op) = instr && op.r_connector() > 0 {
+        if let Some(op) = op && op.r_connector() > 0 {
             self.draw_prog_instr(yidx, xidx + 1, None);
         }
     }
