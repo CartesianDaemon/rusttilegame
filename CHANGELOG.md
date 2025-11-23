@@ -1,5 +1,15 @@
 ## Unreleased
 
+## 22 Nov: tile_engine 1.5.5, prog_puzz 1.5.2
+
+- Engine for Prog Puzz: Implement nested and repeat instrs.
+- Prog puzz for engine: Streamline tests, add logging of instr execution during tests.
+
+21 Nov
+
+- Engine: Fixed rendering of map on wasm.
+- Engine: Fixed screen blacking and flickering on windows.
+
 ## 20 Nov: tile_engine 1.5.1, prog_puzz 1.5.1
 
 - Prog puzzle towards Instr with nested Instrs, separate to Op.

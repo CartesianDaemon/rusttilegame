@@ -1,6 +1,6 @@
 [package]
 name = "tile_engine"
-version = "1.5.1"
+version = "1.5.5"
 edition = "2024"
 
 [dependencies]
