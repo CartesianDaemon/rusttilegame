@@ -47,13 +47,18 @@ impl ProgpuzzLevset {
         let debug_coding = false;
         let coding = if debug_coding {
             use Op::*;
-            let coding = Coding::from_vec(&[
+            let mut coding = Coding::from_vec(&[
                 (F, 1),
                 (L, 1),
                 (R, 1),
                 (group, 1),
                 (x2, 1),
             ]);
+
+            coding.prog = Prog::from(vec![R, x2]);
+            coding.prog.instrs[1].subnodes = Some(Prog::from(vec![x2]));
+            coding.prog.instrs[1].subnodes.as_mut().unwrap().instrs[0].subnodes = Some(Prog::from(vec![F]));
+
             coding
         } else {
             use Op::*;
