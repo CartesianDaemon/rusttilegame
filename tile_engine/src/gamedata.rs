@@ -53,10 +53,10 @@ pub trait BaseGamedata {
 
     fn advance_pane(&mut self, continuation: WidgetConclusion);
 
-    fn load_pane(&self) -> Widget<Self::GameLogic>;
+    fn load_scene(&self) -> Widget<Self::GameLogic>;
 
     fn load_next_pane(&mut self, continuation: WidgetConclusion) -> Widget<Self::GameLogic> {
         self.advance_pane(continuation);
-        self.load_pane()
+        self.load_scene()
     }
 }
