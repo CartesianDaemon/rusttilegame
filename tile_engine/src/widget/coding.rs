@@ -323,4 +323,20 @@ mod tests {
         prog.advance_next_instr(); assert_eq!(prog.curr_op(),F);
         assert!(prog.has_reached_end());
     }
+
+    #[test]
+    fn test_simple_repeat() {
+        assert!(true);
+
+        use Op::*;
+        let mut prog = Prog::from(vec![L, x2, L]);
+        prog.instrs[1].subnodes = Some(Prog::from(vec![F, R]));
+        prog.advance_next_instr(); assert_eq!(prog.curr_op(),L);
+        prog.advance_next_instr(); assert_eq!(prog.curr_op(),F);
+        prog.advance_next_instr(); assert_eq!(prog.curr_op(),R);
+        prog.advance_next_instr(); assert_eq!(prog.curr_op(),F);
+        prog.advance_next_instr(); assert_eq!(prog.curr_op(),R);
+        prog.advance_next_instr(); assert_eq!(prog.curr_op(),L);
+        assert!(prog.has_reached_end());
+    }
 }
