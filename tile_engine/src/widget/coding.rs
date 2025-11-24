@@ -107,6 +107,20 @@ impl std::fmt::Display for Node {
     }
 }
 
+impl std::ops::Index<usize> for Node {
+    type Output = Node;
+
+    fn index(&self, idx: usize) -> &Self::Output {
+        &self.subnodes.as_ref().unwrap()[idx]
+    }
+}
+
+impl std::ops::IndexMut<usize> for Node {
+    fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
+        &mut self.subnodes.as_mut().unwrap()[idx]
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct NodeParent {
     // Index of previous instruction executed. Used for display and knowing when we enter subnodes
@@ -155,6 +169,20 @@ impl std::fmt::Display for NodeParent {
         }
         if self.next_ip >= self.instrs.len() {write!(f, ",*")?}
         write!(f, "]")
+    }
+}
+
+impl std::ops::Index<usize> for NodeParent {
+    type Output = Node;
+
+    fn index(&self, idx: usize) -> &Self::Output {
+        self.instrs.get(idx).unwrap()
+    }
+}
+
+impl std::ops::IndexMut<usize> for NodeParent {
+    fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
+        self.instrs.get_mut(idx).unwrap()
     }
 }
 
