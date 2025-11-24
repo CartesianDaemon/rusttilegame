@@ -308,18 +308,22 @@ impl BaseWidget for Coding
     }
 }
 
+#[cfg(test)]
 mod tests {
     use super::*;
     use Op::*;
 
-    #[test]
-    fn test_linear_prog() {
-        let mut prog = Prog::from(vec![F,F,R,F]);
-        for (idx, expected_op) in [F, F, R, F].iter().enumerate() {
+    fn run_prog_and_test(mut prog: Prog, expected_ops: &[Op]) {
+        for (idx, expected_op) in expected_ops.iter().enumerate() {
             prog.advance_next_instr();
-            assert_eq!(prog.curr_op(), *expected_op, "At idx {}", idx);
+            assert_eq!(prog.curr_op(), *expected_op, "At idx {} of {}", idx, prog);
         }
         assert!(prog.has_reached_end());
+    }
+
+    #[test]
+    fn test_linear_prog() {
+        run_prog_and_test(Prog::from(vec![F,F,R,F]), &[F, F, R, F]);
     }
 
     #[test]
