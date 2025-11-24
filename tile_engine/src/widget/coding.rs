@@ -330,12 +330,30 @@ mod tests {
     fn test_simple_repeat() {
         let mut prog = Prog::from(vec![L, x2, L]);
         prog.instrs[1].subnodes = Some(Prog::from(vec![F, R]));
-        prog.advance_next_instr(); assert_eq!(prog.curr_op(),L);
-        prog.advance_next_instr(); assert_eq!(prog.curr_op(),F);
-        prog.advance_next_instr(); assert_eq!(prog.curr_op(),R);
-        prog.advance_next_instr(); assert_eq!(prog.curr_op(),F);
-        prog.advance_next_instr(); assert_eq!(prog.curr_op(),R);
-        prog.advance_next_instr(); assert_eq!(prog.curr_op(),L);
-        assert!(prog.has_reached_end());
+        run_prog_and_test(prog, &[L,F,R,F,R,L]);
+    }
+
+    #[test]
+    fn test_bare_repeat() {
+        let mut prog = Prog::from(vec![x2]);
+        prog.instrs[0].subnodes = Some(Prog::from(vec![F]));
+        run_prog_and_test(prog, &[F, F]);
+    }
+
+    #[test]
+    fn test_bare_nested_repeat() {
+        let mut prog = Prog::from(vec![x2]);
+        prog.instrs[0].subnodes = Some(Prog::from(vec![x2]));
+        prog.instrs[0].subnodes.as_mut().unwrap().instrs[0].subnodes = Some(Prog::from(vec![F]));
+        run_prog_and_test(prog, &[F, F, F, F]);
+    }
+
+    #[test]
+    fn test_twice_nested_repeat() {
+        let mut prog = Prog::from(vec![x2]);
+        prog.instrs[0].subnodes = Some(Prog::from(vec![x2, x2]));
+        prog.instrs[0].subnodes.as_mut().unwrap().instrs[0].subnodes = Some(Prog::from(vec![F]));
+        prog.instrs[0].subnodes.as_mut().unwrap().instrs[1].subnodes = Some(Prog::from(vec![R]));
+        run_prog_and_test(prog, &[F, F, R, R, F, F, R, R]);
     }
 }
