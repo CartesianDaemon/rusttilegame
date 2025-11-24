@@ -310,25 +310,20 @@ impl BaseWidget for Coding
 
 mod tests {
     use super::*;
+    use Op::*;
 
     #[test]
     fn test_linear_prog() {
-        assert!(true);
-
-        use Op::*;
         let mut prog = Prog::from(vec![F,F,R,F]);
-        prog.advance_next_instr(); assert_eq!(prog.curr_op(),F);
-        prog.advance_next_instr(); assert_eq!(prog.curr_op(),F);
-        prog.advance_next_instr(); assert_eq!(prog.curr_op(),R);
-        prog.advance_next_instr(); assert_eq!(prog.curr_op(),F);
+        for (idx, expected_op) in [F, F, R, F].iter().enumerate() {
+            prog.advance_next_instr();
+            assert_eq!(prog.curr_op(), *expected_op, "At idx {}", idx);
+        }
         assert!(prog.has_reached_end());
     }
 
     #[test]
     fn test_simple_repeat() {
-        assert!(true);
-
-        use Op::*;
         let mut prog = Prog::from(vec![L, x2, L]);
         prog.instrs[1].subnodes = Some(Prog::from(vec![F, R]));
         prog.advance_next_instr(); assert_eq!(prog.curr_op(),L);
