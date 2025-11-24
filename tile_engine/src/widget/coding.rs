@@ -307,3 +307,20 @@ impl BaseWidget for Coding
         crate::ui::TickStyle::Continuous
     }
 }
+
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_linear_prog() {
+        assert!(true);
+
+        use Op::*;
+        let mut prog = Prog::from(vec![F,F,R,F]);
+        prog.advance_next_instr(); assert_eq!(prog.curr_op(),F);
+        prog.advance_next_instr(); assert_eq!(prog.curr_op(),F);
+        prog.advance_next_instr(); assert_eq!(prog.curr_op(),R);
+        prog.advance_next_instr(); assert_eq!(prog.curr_op(),F);
+        assert!(prog.has_reached_end());
+    }
+}
