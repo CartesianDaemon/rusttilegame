@@ -239,10 +239,10 @@ impl NodeParent {
         }
     }
 
-    pub fn initialise(&mut self, control_flow_op: Op) {
-        self.prev_ip = 9999;
+    pub fn initialise(&mut self, parent_control_flow_op: Op) {
+        // self.prev_ip = 9999;
         self.next_ip = 0;
-        self.repeat = match control_flow_op {
+        self.repeat = match parent_control_flow_op {
             Op::group => 1,
             Op::x2 => 2,
             Op::loop5 => 5,
@@ -287,7 +287,7 @@ impl NodeParent {
     // Advances control flow state. Use curr_op() to return basic external op, eg move, rotate.
     // Will panic if we have reached the end of the program.
     pub fn advance_next_instr(&mut self) {
-        if self.prev_ip == 9999 {
+        if self.prev_ip == 9999 || self.prev_ip > self.next_ip { // self.prev_ip == self.instrs.len() + 1 {
             if let Some(node) = self.instrs.get_mut(0) {
                 if node.op.is_parent_instr() {
                     node.subnodes.as_mut().unwrap().initialise(node.op);
