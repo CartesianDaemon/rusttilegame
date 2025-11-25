@@ -18,3 +18,15 @@ pub fn enable_logging(log_opts: &str) {
     log_builder.init();
     log::info!("Started logging!");
 }
+
+static INITIALISE_ONCE: std::sync::Once = std::sync::Once::new();
+
+pub fn initialise_logging_for_tests() {
+    INITIALISE_ONCE.call_once(|| {
+        crate::infra::log_builder()
+            .filter_level(log::LevelFilter::Debug)
+            .is_test(true)
+            .init();
+        log::info!("Initialised logging for tests.");
+    });
+}

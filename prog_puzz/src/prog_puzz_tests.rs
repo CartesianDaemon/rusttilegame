@@ -1,21 +1,10 @@
 use std::collections::HashMap;
 
 use tile_engine::for_gamedata::{arena::MapObj, *};
+use tile_engine::infra::initialise_logging_for_tests;
 use crate::game_logic::{ProgpuzzCustomProps, ProgpuzzGameLogic};
 
 use super::objs::*;
-
-static INITIALISE_ONCE: std::sync::Once = std::sync::Once::new();
-
-fn initialise() {
-    INITIALISE_ONCE.call_once(|| {
-        tile_engine::infra::log_builder()
-            .filter_level(log::LevelFilter::Debug)
-            .is_test(true)
-            .init();
-        log::info!("Initialised logging for tests.");
-    });
-}
 
 fn basic_test_key() -> HashMap<char, Vec<FreeObj<crate::game_logic::ProgpuzzCustomProps>>> {
     use Op::*;
@@ -100,7 +89,7 @@ fn hero_prog<'a>(state: &'a Widget<ProgpuzzGameLogic>) -> &'a Prog {
 
 #[test]
 fn basic_move() {
-    initialise();
+    initialise_logging_for_tests();
 
     use Op::*;
     let mut state = get_basic_lev_with_prog(Prog::from(vec![F,F,R,F]));
@@ -152,7 +141,7 @@ fn basic_move() {
 
 #[test]
 fn group() {
-    initialise();
+    initialise_logging_for_tests();
 
     use Op::*;
     let mut prog = Prog::from(vec![R,group,R]);
@@ -198,7 +187,7 @@ fn group() {
 
 #[test]
 fn repeat_x2() {
-    initialise();
+    initialise_logging_for_tests();
 
     use Op::*;
     let mut prog = Prog::from(vec![R,x2,R]);
@@ -240,7 +229,7 @@ fn repeat_x2() {
 
 #[test]
 fn repeat_x2_rotate() {
-    initialise();
+    initialise_logging_for_tests();
 
     use Op::*;
     let mut prog = Prog::from(vec![x2]);
@@ -286,7 +275,7 @@ fn repeat_x2_rotate() {
 
 #[test]
 fn nested_repeat() {
-    initialise();
+    initialise_logging_for_tests();
 
     use Op::*;
     let mut prog = Prog::from(vec![R, x2]);

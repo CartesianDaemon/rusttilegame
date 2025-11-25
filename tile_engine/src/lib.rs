@@ -37,4 +37,5 @@ pub mod for_gamedata {
 
 pub mod infra {
     pub use crate::logging::log_builder;
+    pub use crate::logging::initialise_logging_for_tests;
 }

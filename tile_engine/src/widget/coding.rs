@@ -344,6 +344,7 @@ impl BaseWidget for Coding
 
 #[cfg(test)]
 mod tests {
+    use crate::infra::initialise_logging_for_tests;
     use super::*;
     use Op::*;
 
@@ -357,11 +358,13 @@ mod tests {
 
     #[test]
     fn test_linear_prog() {
+        initialise_logging_for_tests();
         run_prog_and_test(Prog::from(vec![F,F,R,F]), &[F, F, R, F]);
     }
 
     #[test]
     fn test_simple_repeat() {
+        initialise_logging_for_tests();
         let mut prog = Prog::from(vec![L, x2, L]);
         prog[1].subnodes = Some(Prog::from(vec![F, R]));
         run_prog_and_test(prog, &[L,F,R,F,R,L]);
@@ -369,6 +372,7 @@ mod tests {
 
     #[test]
     fn test_bare_repeat() {
+        initialise_logging_for_tests();
         let mut prog = Prog::from(vec![x2]);
         prog[0].subnodes = Some(Prog::from(vec![F]));
         run_prog_and_test(prog, &[F, F]);
@@ -376,6 +380,7 @@ mod tests {
 
     #[test]
     fn test_bare_nested_repeat() {
+        initialise_logging_for_tests();
         let mut prog = Prog::from(vec![x2]);
         prog[0].subnodes = Some(Prog::from(vec![x2]));
         prog[0][0].subnodes = Some(Prog::from(vec![F]));
@@ -384,6 +389,7 @@ mod tests {
 
     #[test]
     fn test_twice_nested_repeat() {
+        initialise_logging_for_tests();
         let mut prog = Prog::from(vec![x2]);
         prog[0].subnodes = Some(Prog::from(vec![x2, x2]));
         prog[0][0].subnodes = Some(Prog::from(vec![F]));
@@ -393,6 +399,7 @@ mod tests {
 
     #[test]
     fn test_nested_repeat_two_instr() {
+        initialise_logging_for_tests();
         let mut prog = Prog::from(vec![x2]);
         prog[0].subnodes = Some(Prog::from(vec![x2]));
         prog[0][0].subnodes = Some(Prog::from(vec![L, R]));
@@ -402,6 +409,7 @@ mod tests {
     #[cfg(any())]
     #[test]
     fn test_f_then_nested_repeat_two_instr() {
+        initialise_logging_for_tests();
         let mut prog = Prog::from(vec![F, x2]);
         prog[1].subnodes = Some(Prog::from(vec![x2]));
         prog[1][0].subnodes = Some(Prog::from(vec![L, R]));
