@@ -390,4 +390,21 @@ mod tests {
         prog[0][1].subnodes = Some(Prog::from(vec![R]));
         run_prog_and_test(prog, &[F, F, R, R, F, F, R, R]);
     }
+
+    #[test]
+    fn test_nested_repeat_two_instr() {
+        let mut prog = Prog::from(vec![x2]);
+        prog[0].subnodes = Some(Prog::from(vec![x2]));
+        prog[0][0].subnodes = Some(Prog::from(vec![L, R]));
+        run_prog_and_test(prog, &[L, R, L, R, L, R, L, R, ]);
+    }
+
+    #[cfg(any())]
+    #[test]
+    fn test_f_then_nested_repeat_two_instr() {
+        let mut prog = Prog::from(vec![F, x2]);
+        prog[1].subnodes = Some(Prog::from(vec![x2]));
+        prog[1][0].subnodes = Some(Prog::from(vec![L, R]));
+        run_prog_and_test(prog, &[F, L, R, L, R, L, R, L, R, ]);
+    }
 }
