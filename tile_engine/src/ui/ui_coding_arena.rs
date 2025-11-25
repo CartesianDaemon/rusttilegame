@@ -625,7 +625,7 @@ impl UiCodingArena
         if let Some(DragOrigin {instr, ..}) = &self.dragging {
             log::debug!("INFO: Dropping {:?} to supply bin", instr);
             let bin = &mut coding.supply.get_mut(idx).unwrap();
-            if bin.op == instr.op && bin.curr_count < bin.orig_count {
+            if bin.op == instr.op {
                 bin.curr_count += 1;
                 self.dragging = None;
             }
@@ -633,16 +633,16 @@ impl UiCodingArena
     }
 
     fn drop_to_supply(&mut self, coding: &mut Coding) {
-        // TODO: For loop to find correct bin.
-        // TODO: Handle index errors, or bin overflow errors, without panicking.
+        // TODO: Handle node with subnodes
         if let Some(DragOrigin {instr: Node{op, ..}, ..}) = self.dragging.clone() {
             log::debug!("INFO: Dropping {:?} to supply", op);
             for bin in &mut coding.supply {
-                if bin.op == op && bin.curr_count < bin.orig_count {
+                if bin.op == op {
                     bin.curr_count += 1;
-                    self.dragging = None;
+                    break;
                 }
             }
+            self.dragging = None;
         }
     }
 
