@@ -67,6 +67,7 @@ impl ProgpuzzLevset {
                 (R, 2),
                 (group, 2),
                 (x2, 2),
+                (loop5, 2),
             ])
         } else {
             use Op::*;

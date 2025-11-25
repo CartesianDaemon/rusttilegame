@@ -14,6 +14,7 @@ pub enum Op {
     // Control flow instrs
     group,
     x2,
+    loop5,
 }
 
 impl Op {
@@ -24,15 +25,16 @@ impl Op {
             Self::R => true,
             Self::group => true,
             Self::x2 => true,
+            Self::loop5 => true,
         }
     }
 
     pub fn is_action_instr(self) -> bool {
-        self.r_connect_max() == 0
+        !self.is_parent_instr()
     }
 
     pub fn is_parent_instr(self) -> bool {
-        !self.is_action_instr()
+        self.r_connect_max() > 0
     }
 
     pub fn r_connect_max(self) -> usize {
@@ -42,6 +44,7 @@ impl Op {
             Self::R => 0,
             Self::group => 999,
             Self::x2 => 1,
+            Self::loop5 => 5,
         }
     }
 }
@@ -52,6 +55,7 @@ impl std::fmt::Display for Op {
     }
 }
 
+#[cfg(any())]
 impl From<&str> for Op {
     fn from(txt: &str) -> Self {
         match txt {
@@ -59,7 +63,8 @@ impl From<&str> for Op {
             "L" => Op::L,
             "R" => Op::R,
             "{}" => Op::group,
-            // "x2" => Op::x2,
+            "x2" => Op::x2,
+            "loop" => Op::loop5,
             _ => panic!("Unrecognised txt for instr: {}", txt)
         }
     }
@@ -240,6 +245,7 @@ impl NodeParent {
         self.repeat = match control_flow_op {
             Op::group => 1,
             Op::x2 => 2,
+            Op::loop5 => 5,
             _ => panic!(),
         }
     }
