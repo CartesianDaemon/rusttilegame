@@ -406,7 +406,6 @@ mod tests {
         run_prog_and_test(prog, &[L, R, L, R, L, R, L, R, ]);
     }
 
-    #[cfg(any())]
     #[test]
     fn test_f_then_nested_repeat_two_instr() {
         initialise_logging_for_tests();
