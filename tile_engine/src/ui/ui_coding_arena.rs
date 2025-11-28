@@ -363,7 +363,7 @@ impl UiCodingArena
         let coords = self.supply_op_coords(idx);
         let active = false;
         let has_op = bin.curr_count > 0;
-        self.draw_op_rect(coords, self.calculate_style(coords, active, has_op, InstrRef::Supply {idx}, Some(bin.op)), &bin.op.to_string());
+        self.draw_op_rect(coords, self.calculate_op_style(coords, active, has_op, InstrRef::Supply {idx}, self.is_droppable_on_supply_bin(idx, bin.op)), &bin.op.to_string());
 
         // Draw count
         let count_txt = format!("{}/{}", bin.curr_count, bin.orig_count);
@@ -423,7 +423,7 @@ impl UiCodingArena
     {
         let coords = self.prog_instr_coords(xidx, yidx);
         let txt = "...".to_string();
-        self.draw_op_rect(coords, self.calculate_style(coords, false, false, InstrRef::Prog {idx: yidx}, None), &txt);
+        self.draw_op_rect(coords, self.calculate_op_style(coords, false, false, InstrRef::Prog {idx: yidx}, self.is_droppable_on_prog_instr(0)), &txt);
     }
 
     /// Draw instr node in program, recursing into subprog if a parent instr.
@@ -432,7 +432,9 @@ impl UiCodingArena
         let coords = self.prog_instr_coords(xidx, yidx);
         let active = Some(yidx) == self.active_idx;
 
-        self.draw_op_rect(coords, self.calculate_style(coords, active, true, InstrRef::Prog {idx: yidx}, Some(node.op)), &node.op.to_string());
+        // TODO: Use idx to calculate droppable more consistently.
+        let idx = yidx;
+        self.draw_op_rect(coords, self.calculate_op_style(coords, active, true, InstrRef::Prog {idx: yidx}, self.is_droppable_on_prog_instr(idx)), &node.op.to_string());
         if v_connector {
             self.draw_v_connector(coords);
         }
@@ -525,12 +527,8 @@ impl UiCodingArena
         self.is_dragging_over(self.prog_instr_coords(idx, 0))
     }
 
-    fn calculate_style(&self, coords: OpCoords, active: bool, has_op: bool, instr_ref: InstrRef, op: Option<Op>) -> OpStyle
+    fn calculate_op_style(&self, coords: OpCoords, active: bool, has_op: bool, instr_ref: InstrRef, droppable: bool) -> OpStyle
     {
-        let droppable = match instr_ref {
-            InstrRef::Supply { idx } => op.is_some() && self.is_droppable_on_supply_bin(idx, op.unwrap()),
-            InstrRef::Prog { idx } => self.is_droppable_on_prog_instr(idx),
-        };
         let drag_origin = matches!(self.dragging, Some(DragOrigin{op_ref: orig_op_ref, ..}) if orig_op_ref == instr_ref);
 
         let mut style;
