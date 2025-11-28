@@ -10,7 +10,9 @@ use crate::map_coords::MoveCmd;
 use crate::obj::FreeObj;
 use crate::for_gamedata;
 
-// TODO: Move into game-specific info if possible?
+// How scene ended, used to determine next scene/lev to go to.
+//
+// Could be more game-specific.
 #[derive(Debug, PartialEq)]
 pub enum WidgetConclusion {
     SplashContinue,
@@ -29,19 +31,10 @@ pub trait BaseWidget {
 
 /// One unit of gameplay: one map layout, one splash screen, etc.
 ///
-/// NB Breadcrumb: Refactor:
-/// * Game state (dialogue, map, etc) stored in Pane is renamed Widget and
-///   become (optional) parts of Gamedata.
-/// * Gamedata maybe renamed State.
-/// * LevID becomes entirely internal to Gamestate. How does encapsulation
-///   for reusing widgets work? Maybe GameLogic for Gamestate interprets
-///   Conclusions returned by GameLogic(s) for Widgets?
-/// * Maybe "Screen" is a collection of "Panes", panes roughly corresponding
-///   to renderers associated with one or more widgets?
-/// * Components like Widgets, Renderers, etc become more mix and match
-///   with some widely used ones implemented by Engine and others as add-ons
-///   or in individual games??
-/// Breadcrumb: Implement PaneBase using spire_enum or similar crate?
+/// Often but not always one UI is a way to draw one corresponding widget.
+///
+/// Could make game-specific state more modularly include which widgets it
+/// wants to use.
 #[derive(Clone, Debug)]
 pub enum Widget<GameLogic: for_gamedata::BaseGameLogic> {
     Arena(Arena<GameLogic>),
