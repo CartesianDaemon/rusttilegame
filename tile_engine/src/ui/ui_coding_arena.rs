@@ -196,7 +196,8 @@ impl UiCodingArena
     }
 
     fn background_col(&self) -> Color {
-        LIGHTGRAY
+        LIGHTGRAY // Currently on web?
+        // BLACK // Currently on windows?
     }
 
     fn border_cols(&self) -> Color {
