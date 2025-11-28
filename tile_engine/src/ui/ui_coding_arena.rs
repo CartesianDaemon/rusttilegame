@@ -76,9 +76,29 @@ impl OpCoords {
     pub fn expand_to(self, scale: f32) -> OpCoords {
         OpCoords {
             x: self.x - self.w * (scale - 1.)/2.,
-            y: self.y - self.h * (scale - 1.)/2.,
+            y: self.y - self.h * (scale - 1.)*0.75,
             w: self.w * scale,
-            h: self.h * scale,
+            h: self.h * scale + self.h * (scale -1.)*0.25,
+            rect_spacing: self.rect_spacing,
+        }
+    }
+
+    pub fn expand_up_and_sides(self, scale: f32) -> OpCoords {
+        OpCoords {
+            x: self.x - self.w * (scale - 1.)/2.,
+            y: self.y - self.h * (scale - 1.)*0.75,
+            w: self.w + self.w * (scale - 1.),
+            h: self.h + self.h * (scale - 1.)*0.75,
+            rect_spacing: self.rect_spacing,
+        }
+    }
+
+    pub fn expand_down_and_sides(self, scale: f32) -> OpCoords {
+        OpCoords {
+            x: self.x - self.w * (scale - 1.)/2.,
+            y: self.y,
+            w: self.w + self.w * (scale - 1.),
+            h: self.h + self.h * (scale - 1.)/2.,
             rect_spacing: self.rect_spacing,
         }
     }
@@ -444,7 +464,7 @@ impl UiCodingArena
         if self.is_coding {
             if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in_coords(coords) {
                 self.drag_supply_op(coding, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
-            } else if self.is_droppable_on_coords(coords) && is_mouse_button_released(MouseButton::Left) {
+            } else if self.is_droppable_on_coords(coords.expand_to(1.5)) && is_mouse_button_released(MouseButton::Left) {
                 self.drop_to_supply_bin(coding, idx);
             }
         }
@@ -616,7 +636,7 @@ impl UiCodingArena
     fn is_droppable_on_supply_bin(&self, idx: usize, op_type: Op) -> bool {
         let coords = self.supply_op_coords(idx);
         match &self.dragging {
-            Some(DragOrigin { instr, ..}) => self.is_droppable_on_coords(coords) && instr.op == op_type,
+            Some(DragOrigin { instr, ..}) => self.is_droppable_on_coords(coords.expand_to(1.5)) && instr.op == op_type,
             _ => false,
         }
     }
@@ -714,21 +734,21 @@ impl UiCodingArena
     }
 
     fn is_droppable_before_prog_instr(&self, xidx: usize, yidx: usize) -> bool {
-        self.is_droppable_on_coords(self.prog_instr_coords(xidx, yidx))
+        self.is_droppable_on_coords(self.prog_instr_coords(xidx, yidx).expand_up_and_sides(1.5))
     }
 
     fn is_droppable_onto_prog_instr(&self, xidx: usize, yidx: usize) -> bool {
-        self.is_droppable_on_coords(self.prog_instr_coords(xidx, yidx))
+        self.is_droppable_on_coords(self.prog_instr_coords(xidx, yidx).expand_up_and_sides(1.5))
     }
 
     fn is_droppable_on_placeholder_below(&self, xidx: usize, yidx: usize) -> bool {
-        self.is_droppable_on_coords(self.placeholder_below_coords(xidx, yidx))
+        self.is_droppable_on_coords(self.placeholder_below_coords(xidx, yidx).expand_down_and_sides(1.5))
     }
 
     // If dragged op is intersecting a specific op. Including padding.
     fn is_droppable_on_coords(&self, op_coords: OpCoords) -> bool {
         if let Some(dragging_coords) = self.dragging_op_coords() {
-            op_coords.expand_to(1.5).contains(dragging_coords.middle())
+            op_coords.contains(dragging_coords.middle())
         } else {
             false
         }
