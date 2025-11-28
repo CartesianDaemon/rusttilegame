@@ -451,7 +451,7 @@ impl UiCodingArena
         }
     }
 
-    /// Draw program, or subprog inside a parent instr, at specified instr coords.
+    /// Interact program, or subprog inside a parent instr, at specified instr coords.
     ///
     /// Recurses between interact_subprog and interact_prog_instr, with the same recursion as interact_subprog.
     fn interact_subprog(&mut self, subprog_xidx: usize, subprog_yidx: usize, prog: &mut Prog, v_placeholder: bool) {
