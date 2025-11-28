@@ -286,7 +286,7 @@ impl UiCodingArena
             UiArena::render(coding_arena.curr_arena.as_mut().unwrap(), texture_cache, self.fr_pos.arena, anim).await;
         }
 
-        self.draw_subprog(0, 0, &coding_arena.coding.prog, true);
+        self.draw_prog(&coding_arena.coding);
         if self.is_coding {
             self.draw_supply(&mut coding_arena.coding);
             self.draw_dragging();
@@ -385,12 +385,16 @@ impl UiCodingArena
         }
     }
 
-    /// Draw program, or subprog inside a parent instr, at specified instr coords.
+    fn draw_prog(&self, coding: &Coding) {
+        draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., self.border_cols());
+
+        self.draw_subprog(0, 0, &coding.prog, true);
+    }
+
+    /// Draw subprog, either top-level prog, or inside a parent instr. At specified instr coords.
     ///
     /// Recurses between draw_subprog and draw_prog_instr, with the same recursion as interact_subprog.
     fn draw_subprog(&self, xidx: usize, yidx: usize, prog: &Prog, v_placeholder: bool) {
-        draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., self.border_cols());
-
         for (idx, node) in prog.instrs.iter().enumerate() {
             self.draw_prog_instr(xidx, yidx + idx, Some(node), v_placeholder);
         }
