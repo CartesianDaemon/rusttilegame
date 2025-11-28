@@ -399,7 +399,11 @@ impl UiCodingArena
     fn draw_prog(&self, coding: &Coding) {
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., self.border_cols());
 
-        self.draw_subprog(0, 0, &coding.prog, true);
+        if coding.prog.instrs.len() == 0 {
+            self.draw_start(0, 0);
+        } else {
+            self.draw_subprog(0, 0, &coding.prog, true);
+        }
     }
 
     /// Draw subprog, either top-level prog, or inside a parent instr. At specified instr coords.
@@ -419,7 +423,7 @@ impl UiCodingArena
         }
     }
 
-    fn _draw_start(&self, xidx: usize, yidx: usize)
+    fn draw_start(&self, xidx: usize, yidx: usize)
     {
         let coords = self.prog_instr_coords(xidx, yidx);
         let txt = "...".to_string();
