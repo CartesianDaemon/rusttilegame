@@ -99,7 +99,7 @@ impl Bin {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Node {
     pub op: Op,
-    pub subnodes: Option<NodeParent>,
+    pub subnodes: Option<Subprog>,
 }
 
 impl std::fmt::Display for Node {
@@ -135,9 +135,8 @@ impl Node {
     }
 }
 
-// TODO: Maybe rename "Subprog"?
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct NodeParent {
+pub struct Subprog {
     // Index of previous instruction executed. Used for display and knowing when we enter subnodes
     // Or 9999 for "not yet executed"
     pub prev_ip: usize,
@@ -150,7 +149,7 @@ pub struct NodeParent {
     pub instrs: Vec<Node>
 }
 
-impl Default for NodeParent {
+impl Default for Subprog {
     fn default() -> Self {
         Self {
             // TODO: Could set to last instr, as we would have before wrapping round.
@@ -165,7 +164,7 @@ impl Default for NodeParent {
     }
 }
 
-impl From<Vec<Op>> for NodeParent {
+impl From<Vec<Op>> for Subprog {
     fn from(ops: Vec<Op>) -> Self {
         Self {
             instrs: ops.iter().map(|op| Node{op:*op, subnodes:None }).collect(),
@@ -174,7 +173,7 @@ impl From<Vec<Op>> for NodeParent {
     }
 }
 
-impl std::fmt::Display for NodeParent {
+impl std::fmt::Display for Subprog {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{:.<1$}[", "", self.repeat)?;
         for (idx, node) in self.instrs.iter().enumerate() {
@@ -191,7 +190,7 @@ impl std::fmt::Display for NodeParent {
     }
 }
 
-impl std::ops::Index<usize> for NodeParent {
+impl std::ops::Index<usize> for Subprog {
     type Output = Node;
 
     fn index(&self, idx: usize) -> &Self::Output {
@@ -199,13 +198,13 @@ impl std::ops::Index<usize> for NodeParent {
     }
 }
 
-impl std::ops::IndexMut<usize> for NodeParent {
+impl std::ops::IndexMut<usize> for Subprog {
     fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
         self.instrs.get_mut(idx).unwrap()
     }
 }
 
-impl NodeParent {
+impl Subprog {
     // Number of instructions within if laid out vertically. Used for drawing.
     pub fn v_len(&self) -> usize {
         self.instrs.iter().map(|node| node.v_len()).sum()
@@ -329,12 +328,12 @@ impl NodeParent {
     }
 }
 
-pub use NodeParent as Prog;
+pub use Subprog as Prog;
 
 #[derive(Clone, Debug)]
 pub struct Coding {
     pub supply: Vec<Bin>,
-    pub prog: NodeParent,
+    pub prog: Subprog,
 }
 
 impl Coding {
@@ -343,7 +342,7 @@ impl Coding {
             supply: supplies.iter().map(|(op,count)|
             Bin::new(*op, *count)
             ).collect(),
-            prog: NodeParent::default(),
+            prog: Subprog::default(),
         }
     }
 }

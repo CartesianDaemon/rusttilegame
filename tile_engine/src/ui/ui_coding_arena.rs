@@ -614,7 +614,7 @@ impl UiCodingArena
         self.dragging = if bin.curr_count > 0 {
             bin.curr_count -= 1;
             Some(DragOrigin {
-                instr: Node {op: bin.op, subnodes: if bin.op.is_parent_instr() {Some(NodeParent::default())} else {None} },
+                instr: Node {op: bin.op, subnodes: if bin.op.is_parent_instr() {Some(Subprog::default())} else {None} },
                 op_ref: InstrRef::Supply { idx },
                 orig_offset_x,
                 orig_offset_y
