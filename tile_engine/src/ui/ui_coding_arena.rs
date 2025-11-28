@@ -242,6 +242,10 @@ impl UiCodingArena
         DARKGRAY
     }
 
+    fn prog_instr_sz(&self, prog_w: f32, prog_h: f32, spacing_pc: f32, prog_n: f32) -> f32 {
+        (prog_w * 0.8).min(prog_h / (spacing_pc + prog_n*(1.+spacing_pc)))
+    }
+
     fn initialise_frame_coords(&mut self, coding: bool, prog_n: usize) {
         // Arena
         let arena = PRect {
@@ -267,14 +271,14 @@ impl UiCodingArena
 
         // Prog instrs
         let prog_n = prog_n.max(6) as f32;
-        let prog_instr_h = (prog_w * 0.8).min(prog_h / (spacing_pc + prog_n*(1.+spacing_pc)));
+        let prog_instr_h = self.prog_instr_sz(prog_w, prog_h, spacing_pc, prog_n);
         let prog_instr_w = prog_instr_h;
         let prog_instr_spacing =  prog_instr_w * spacing_pc;
 
         // Supply op
         let flow_n = 2.;
         let supply_op_w_max = (supply_h * 0.8).min(supply_w / (spacing_pc + flow_n*(1.+spacing_pc)));
-        let supply_op_w = supply_op_w_max.min(prog_instr_w);
+        let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog_w, prog_h, spacing_pc, 6.));
         let supply_op_h = supply_op_w;
         let supply_op_font_sz = supply_op_h * 1.35;
         let supply_op_spacing = supply_op_w * spacing_pc;
