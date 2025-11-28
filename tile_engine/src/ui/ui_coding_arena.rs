@@ -454,14 +454,16 @@ impl UiCodingArena
     fn draw_subprog(&self, subprog_xidx: usize, subprog_yidx: usize, prog: &Prog, v_placeholder: bool) {
         let mut prev_instr_yidx = None;
         let mut instr_yidx = subprog_yidx;
+
         for node in &prog.instrs {
             self.draw_prog_instr(subprog_xidx, prev_instr_yidx, instr_yidx, node);
             prev_instr_yidx = Some(instr_yidx);
             instr_yidx += node.v_len();
         }
+
         if v_placeholder && let Some(placeholder_yidx) = prev_instr_yidx {
             let coords = self.prog_instr_coords(subprog_xidx, placeholder_yidx);
-            let highlight = self.is_pickable_from_prog_instr(subprog_xidx, placeholder_yidx+1) || self.is_droppable_on_placeholder_below(subprog_xidx, placeholder_yidx);
+            let highlight = self.is_pickable_from_placeholder_below(subprog_xidx, placeholder_yidx+1) || self.is_droppable_on_placeholder_below(subprog_xidx, placeholder_yidx);
             self.draw_v_placeholder_below(coords, highlight);
         }
     }
@@ -471,7 +473,7 @@ impl UiCodingArena
     {
         let coords = self.prog_instr_coords(xidx, yidx);
         let active = Some(yidx) == self.active_idx;
-        let highlight_above = self.is_droppable_above_prog_instr(xidx, yidx);
+        let highlight_above = self.is_droppable_before_prog_instr(xidx, yidx);
 
         self.draw_op_rect(coords, self.calculate_op_style(coords, active, true, InstrRef::Prog {idx: yidx}, highlight_above), &node.op.to_string());
 
@@ -531,7 +533,7 @@ impl UiCodingArena
             let coords = self.prog_instr_coords(xidx, yidx);
             if self.is_pickable_from_prog_instr(xidx, yidx) && is_mouse_button_pressed(MouseButton::Left) {
                 self.drag_prog_instr(prog, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
-            } else if self.is_droppable_above_prog_instr(xidx, yidx) && is_mouse_button_released(MouseButton::Left) {
+            } else if self.is_droppable_before_prog_instr(xidx, yidx) && is_mouse_button_released(MouseButton::Left) {
                 self.drop_to_prog(prog, idx);
             } else {
                 let node: &mut Node  = prog.instrs.get_mut(idx).unwrap();
@@ -656,11 +658,30 @@ impl UiCodingArena
         }
     }
 
-    fn is_pickable_from_prog_instr(&self, xidx: usize, yidx: usize) -> bool {
-        self.dragging.is_none() && self.mouse_in_coords(self.prog_instr_coords(xidx, yidx))
+    fn placeholder_coords(&self, xidx: usize, yidx: usize) -> OpCoords {
+        let instr_coords = self.prog_instr_coords(xidx, yidx+1);
+        OpCoords {
+            x: instr_coords.x,
+            y: instr_coords.y + instr_coords.h,
+            w: instr_coords.w,
+            h: instr_coords.rect_spacing,
+            rect_spacing: instr_coords.rect_spacing,
+        }
     }
 
-    fn is_droppable_above_prog_instr(&self, xidx: usize, yidx: usize) -> bool {
+    fn is_pickable_from_prog_instr(&self, xidx: usize, yidx: usize) -> bool {
+        self.is_pickable_from_coords(self.prog_instr_coords(xidx, yidx))
+    }
+
+    fn is_pickable_from_placeholder_below(&self, xidx: usize, yidx: usize) -> bool {
+        self.is_pickable_from_coords(self.placeholder_coords(xidx, yidx))
+    }
+
+    fn is_pickable_from_coords(&self, coords: OpCoords) -> bool {
+        self.dragging.is_none() && self.mouse_in_coords(coords)
+    }
+
+    fn is_droppable_before_prog_instr(&self, xidx: usize, yidx: usize) -> bool {
         self.is_droppable_on_coords(self.prog_instr_coords(xidx, yidx))
     }
 
@@ -669,7 +690,7 @@ impl UiCodingArena
     }
 
     fn is_droppable_on_placeholder_below(&self, xidx: usize, yidx: usize) -> bool {
-        self.is_droppable_on_coords(self.prog_instr_coords(xidx, yidx+1))
+        self.is_droppable_on_coords(self.placeholder_coords(xidx, yidx))
     }
 
     // If dragged op is intersecting a specific op. Including padding.
