@@ -316,6 +316,7 @@ impl UiCodingArena
         }
     }
 
+    /// Draw supply area and all supply bins
     fn draw_supply(&self, coding: &mut Coding) {
         for (idx, bin) in coding.supply.iter().enumerate() {
             self.draw_supply_op(idx, bin);
@@ -324,6 +325,7 @@ impl UiCodingArena
         draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., self.border_cols());
     }
 
+    /// Draw a prog or supply instr outline and content, at given coords in given style.
     fn draw_op_rect(&self, coords: OpCoords, style: OpStyle, txt: &str) {
         let c = coords.scaled_down_to(style.scale);
 
@@ -357,6 +359,9 @@ impl UiCodingArena
         draw_text(&count_txt, coords.x + 0.5*self.fr_pos.supply_op_w, coords.y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, self.font_col());
     }
 
+    /// Draw program, or subprog inside a parent instr, at specified instr coords.
+    ///
+    /// Recurses between draw_subprog and draw_prog_instr, with the same recursion as interact_subprog.
     fn draw_subprog(&self, xidx: usize, yidx: usize, prog: &Prog, v_placeholder: bool) {
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., self.border_cols());
 
@@ -368,6 +373,7 @@ impl UiCodingArena
         }
     }
 
+    /// Draw instr node in program, recursing into subprog if a parent instr.
     fn draw_prog_instr(&self, xidx: usize, yidx: usize, node: Option<&Node>, v_connector: bool)
     {
         let coords = self.prog_instr_coords(xidx, yidx);
@@ -397,6 +403,7 @@ impl UiCodingArena
         }
     }
 
+    /// Interact supply area and all supply bins
     fn interact_supply(&mut self, coding: &mut Coding) {
         for idx in 0..coding.supply.len() {
             self.interact_supply_op(coding, idx);
@@ -409,6 +416,9 @@ impl UiCodingArena
         }
     }
 
+    /// Draw program, or subprog inside a parent instr, at specified instr coords.
+    ///
+    /// Recurses between draw_subprog and draw_prog_instr, with the same recursion as interact_subprog.
     fn interact_subprog(&mut self, xidx: usize, yidx: usize, prog: &mut Prog, v_placeholder: bool) {
         for idx in 0..prog.instrs.len() {
             self.interact_prog_instr(xidx, yidx + idx, prog, idx);
@@ -418,6 +428,7 @@ impl UiCodingArena
         }
     }
 
+    /// Interact dragging/dropping with an instr in program. Including subprog.
     fn interact_prog_instr(&mut self, xidx: usize, yidx: usize, prog: &mut Prog, idx: usize)
     {
         if self.is_coding {
