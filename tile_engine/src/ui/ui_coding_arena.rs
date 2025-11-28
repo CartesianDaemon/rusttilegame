@@ -390,7 +390,7 @@ impl UiCodingArena
         if self.is_coding {
             if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in_coords(coords) {
                 self.drag_supply_op(coding, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
-            } else if self.is_droppable_on_op_rect(coords) && is_mouse_button_released(MouseButton::Left) {
+            } else if self.is_droppable_on_coords(coords) && is_mouse_button_released(MouseButton::Left) {
                 self.drop_to_supply_bin(coding, idx);
             }
         }
@@ -453,6 +453,7 @@ impl UiCodingArena
     ///
     /// Recurses between interact_subprog and interact_prog_instr, with the same recursion as interact_subprog.
     fn interact_subprog(&mut self, subprog_xidx: usize, subprog_yidx: usize, prog: &mut Prog, v_placeholder: bool) {
+        let mut prev_instr_yidx = None;
         let mut instr_yidx = subprog_yidx;
         for idx in 0..prog.instrs.len() {
             self.interact_prog_instr(subprog_xidx, instr_yidx, prog, idx);
@@ -461,10 +462,11 @@ impl UiCodingArena
                 // Either use calculations based on original. Or bail out when finding first pick-up.
                 break;
             }
+            prev_instr_yidx = Some(instr_yidx);
             instr_yidx += prog.instrs[idx].v_len();
         }
-        if v_placeholder {
-            self.interact_placeholder(subprog_xidx, instr_yidx, prog, prog.instrs.len());
+        if v_placeholder && let Some(placeholder_yidx) = prev_instr_yidx {
+            self.interact_placeholder_below(subprog_xidx, placeholder_yidx, prog, prog.instrs.len());
         }
     }
 
@@ -492,10 +494,10 @@ impl UiCodingArena
        }
     }
 
-    fn interact_placeholder(&mut self, xidx: usize, yidx: usize, prog: &mut Prog, idx: usize)
+    fn interact_placeholder_below(&mut self, xidx: usize, yidx: usize, prog: &mut Prog, idx: usize)
     {
         if self.is_coding {
-            if self.is_droppable_on_placeholder_at(xidx, yidx) && is_mouse_button_released(MouseButton::Left) {
+            if self.is_droppable_on_placeholder_below(xidx, yidx) && is_mouse_button_released(MouseButton::Left) {
                 self.drop_to_prog(prog, idx);
             }
        }
@@ -531,7 +533,7 @@ impl UiCodingArena
     fn is_droppable_on_supply_bin(&self, idx: usize, op_type: Op) -> bool {
         let coords = self.supply_op_coords(idx);
         match &self.dragging {
-            Some(DragOrigin { instr, ..}) => self.is_droppable_on_op_rect(coords) && instr.op == op_type,
+            Some(DragOrigin { instr, ..}) => self.is_droppable_on_coords(coords) && instr.op == op_type,
             _ => false,
         }
     }
@@ -610,17 +612,17 @@ impl UiCodingArena
     }
 
     fn is_droppable_on_prog_instr(&self, xidx: usize, yidx: usize) -> bool {
-        self.is_droppable_on_op_rect(self.prog_instr_coords(xidx, yidx))
+        self.is_droppable_on_coords(self.prog_instr_coords(xidx, yidx))
     }
 
-    fn is_droppable_on_placeholder_at(&self, xidx: usize, yidx: usize) -> bool {
-        self.is_droppable_on_op_rect(self.prog_instr_coords(xidx, yidx))
+    fn is_droppable_on_placeholder_below(&self, xidx: usize, yidx: usize) -> bool {
+        self.is_droppable_on_coords(self.prog_instr_coords(xidx, yidx+1))
     }
 
     // If dragged op is intersecting a specific op. Including padding.
-    fn is_droppable_on_op_rect(&self, coords: OpCoords) -> bool {
+    fn is_droppable_on_coords(&self, op_coords: OpCoords) -> bool {
         if let Some(dragging_coords) = self.dragging_op_coords() {
-            coords.expand_to(1.5).contains(dragging_coords.middle())
+            op_coords.expand_to(1.5).contains(dragging_coords.middle())
         } else {
             false
         }
