@@ -506,6 +506,9 @@ impl UiCodingArena
     /// Interact program, or subprog inside a parent instr, at specified instr coords.
     ///
     /// Recurses between interact_subprog and interact_prog_instr, with the same recursion as interact_subprog.
+    ///
+    /// If idx is equal to prog len, treats an instr-rect sized placeholder at that index. Currently only used
+    /// when both are 0.
     fn interact_subprog(&mut self, subprog_xidx: usize, subprog_yidx: usize, prog: &mut Prog, v_placeholder: bool) {
         let mut prev_instr_yidx = None;
         let mut instr_yidx = subprog_yidx;
@@ -543,7 +546,11 @@ impl UiCodingArena
                 let node: &mut Node  = prog.instrs.get_mut(idx).unwrap();
                 if node.op.is_parent_instr() {
                     let subprog: &mut Prog = node.subnodes.as_mut().unwrap();
-                    self.interact_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.op.r_connect_max());
+                    if subprog.instrs.len() > 0 {
+                        self.interact_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.op.r_connect_max());
+                    } else {
+                        self.interact_prog_instr(xidx + 1, yidx, subprog, 0);
+                    }
                 }
             }
         }
