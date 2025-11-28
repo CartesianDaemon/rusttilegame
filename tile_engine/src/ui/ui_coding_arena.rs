@@ -495,8 +495,7 @@ impl UiCodingArena
     fn interact_placeholder(&mut self, xidx: usize, yidx: usize, prog: &mut Prog, idx: usize)
     {
         if self.is_coding {
-            let coords = self.prog_instr_coords(xidx, yidx);
-            if self.is_droppable_on_op_rect(coords) && is_mouse_button_released(MouseButton::Left) {
+            if self.is_droppable_on_placeholder_at(xidx, yidx) && is_mouse_button_released(MouseButton::Left) {
                 self.drop_to_prog(prog, idx);
             }
        }
@@ -614,7 +613,7 @@ impl UiCodingArena
         self.is_droppable_on_op_rect(self.prog_instr_coords(xidx, yidx))
     }
 
-    fn _is_droppable_on_placeholder_at(&self, xidx: usize, yidx: usize) -> bool {
+    fn is_droppable_on_placeholder_at(&self, xidx: usize, yidx: usize) -> bool {
         self.is_droppable_on_op_rect(self.prog_instr_coords(xidx, yidx))
     }
 
