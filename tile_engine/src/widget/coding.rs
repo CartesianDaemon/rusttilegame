@@ -96,6 +96,9 @@ impl Bin {
     }
 }
 
+/// An instruction as it exists in a specific program, including subprog and current state.
+///
+/// Could go back to calling this "Instr" not "Node".
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Node {
     pub op: Op,
