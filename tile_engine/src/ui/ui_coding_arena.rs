@@ -92,6 +92,11 @@ impl OpCoords {
     }
 }
 
+struct LineStyle {
+    border_width: f32,
+    border_col: Color,
+}
+
 struct OpStyle {
     border_width: f32,
     border_col: Color,
@@ -190,19 +195,36 @@ impl UiCodingArena
 
     }
 
-    pub fn background_col(&self) -> Color {
+    fn background_col(&self) -> Color {
         LIGHTGRAY
     }
 
-    pub fn border_cols(&self) -> Color {
+    fn border_cols(&self) -> Color {
         if self.is_coding {DARKGRAY} else {SKYBLUE}
     }
 
-    pub fn connector_col(&self) -> Color {
-        if self.is_coding {DARKGRAY} else {BLUE}
+    fn connector_col(&self, highlight: bool) -> LineStyle {
+        if self.is_coding {
+            if highlight {
+                LineStyle {
+                    border_col: YELLOW,
+                    border_width: 4.,
+                }
+            } else {
+                LineStyle {
+                    border_col: DARKGRAY,
+                    border_width: 2.,
+                }
+            }
+        } else {
+            LineStyle {
+                border_col: BLUE,
+                border_width: 2.,
+            }
+        }
     }
 
-    pub fn font_col(&self) -> Color {
+    fn font_col(&self) -> Color {
         DARKGRAY
     }
 
@@ -327,26 +349,29 @@ impl UiCodingArena
     }
 
     /// Draw connector from bottom edge of given rect to top edge of next rect
-    fn draw_v_connector(&self, prev: OpCoords, next: OpCoords) {
+    fn draw_v_connector(&self, prev: OpCoords, next: OpCoords, highlight_above: bool) {
         let (top_x, top_y) = (prev.x + prev.w/2., prev.y + prev.h);
         let (bottom_x, bottom_y) = (next.x + next.w/2., next.y);
-        draw_line(top_x, top_y,  bottom_x, bottom_y,  2., self.connector_col());
+        let line_style = self.connector_col(highlight_above);
+        draw_line(top_x, top_y,  bottom_x, bottom_y,  line_style.border_width, line_style.border_col);
     }
 
     /// Draw open connector from bottom edge of given rect.
-    fn draw_v_placeholder_below(&self, c: OpCoords) {
+    fn draw_v_placeholder_below(&self, c: OpCoords, highlight: bool) {
         let r = c.rect_spacing/6.;
         let (top_x, top_y) = (c.x + c.w/2., c.y + c.h);
         let (centre_x, centre_y) = (top_x, top_y + c.rect_spacing/2.);
         let (join_x, join_y) = (top_x, centre_y - r);
-        draw_line(top_x, top_y,  join_x, join_y,  2., self.connector_col());
-        draw_circle_lines(centre_x, centre_y, r, 2., self.connector_col());
+        let line_style = self.connector_col(highlight);
+        draw_line(top_x, top_y,  join_x, join_y,  line_style.border_width, line_style.border_col);
+        draw_circle_lines(centre_x, centre_y, r, line_style.border_width, line_style.border_col);
     }
 
     /// Draw connector from right edge of rect to left edge of next rect
-    fn draw_r_connector(&self, c: OpCoords) {
+    fn draw_r_connector(&self, c: OpCoords, highlight: bool) {
         let (x,y) = (c.x + c.w, c.y + c.h/2.);
-        draw_line(x, y,  x + c.rect_spacing, y,  2., self.connector_col());
+        let line_style = self.connector_col(highlight);
+        draw_line(x, y,  x + c.rect_spacing, y, line_style.border_width, line_style.border_col);
     }
 
     /// Draw supply area and all supply bins
@@ -422,7 +447,8 @@ impl UiCodingArena
         }
         if v_placeholder && let Some(placeholder_yidx) = prev_instr_yidx {
             let coords = self.prog_instr_coords(subprog_xidx, placeholder_yidx);
-            self.draw_v_placeholder_below(coords);
+            let highlight = false;
+            self.draw_v_placeholder_below(coords, highlight);
         }
     }
 
@@ -431,14 +457,17 @@ impl UiCodingArena
     {
         let coords = self.prog_instr_coords(xidx, yidx);
         let active = Some(yidx) == self.active_idx;
+        let highlight_above = self.is_droppable_above_prog_instr(xidx, yidx);
 
-        self.draw_op_rect(coords, self.calculate_op_style(coords, active, true, InstrRef::Prog {idx: yidx}, self.is_droppable_above_prog_instr(xidx, yidx)), &node.op.to_string());
-        if let Some(prev_yidx) = prev_yidx {
-            self.draw_v_connector(self.prog_instr_coords(xidx, prev_yidx), coords);
+        self.draw_op_rect(coords, self.calculate_op_style(coords, active, true, InstrRef::Prog {idx: yidx}, highlight_above), &node.op.to_string());
+
+        if let Some(connector_yidx) = prev_yidx {
+            self.draw_v_connector(self.prog_instr_coords(xidx, connector_yidx), coords, highlight_above);
         }
 
         if node.op.is_parent_instr() {
-            self.draw_r_connector(coords);
+            let highlight = false;
+            self.draw_r_connector(coords, highlight);
 
             let subprog = &node.subnodes.as_ref().unwrap();
             self.draw_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.op.r_connect_max());
