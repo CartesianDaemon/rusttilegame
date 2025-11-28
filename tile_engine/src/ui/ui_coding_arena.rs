@@ -394,12 +394,14 @@ impl UiCodingArena
     /// Draw subprog, either top-level prog, or inside a parent instr. At specified instr coords.
     ///
     /// Recurses between draw_subprog and draw_prog_instr, with the same recursion as interact_subprog.
-    fn draw_subprog(&self, xidx: usize, yidx: usize, prog: &Prog, v_placeholder: bool) {
-        for (idx, node) in prog.instrs.iter().enumerate() {
-            self.draw_prog_instr(xidx, yidx + idx, Some(node), v_placeholder);
+    fn draw_subprog(&self, subprog_xidx: usize, subprog_yidx: usize, prog: &Prog, v_placeholder: bool) {
+        let mut instr_yidx = subprog_yidx;
+        for node in &prog.instrs {
+            self.draw_prog_instr(subprog_xidx, instr_yidx, Some(node), v_placeholder);
+            instr_yidx += node.v_len();
         }
         if v_placeholder {
-            self.draw_prog_instr(xidx, yidx + prog.instrs.len(), None, false);
+            self.draw_prog_instr(subprog_xidx, instr_yidx, None, false);
         }
     }
 
@@ -436,12 +438,14 @@ impl UiCodingArena
     /// Draw program, or subprog inside a parent instr, at specified instr coords.
     ///
     /// Recurses between draw_subprog and draw_prog_instr, with the same recursion as interact_subprog.
-    fn interact_subprog(&mut self, xidx: usize, yidx: usize, prog: &mut Prog, v_placeholder: bool) {
+    fn interact_subprog(&mut self, subprog_xidx: usize, subprog_yidx: usize, prog: &mut Prog, v_placeholder: bool) {
+        let mut instr_yidx = subprog_yidx;
         for idx in 0..prog.instrs.len() {
-            self.interact_prog_instr(xidx, yidx + idx, prog, idx);
+            self.interact_prog_instr(subprog_xidx, instr_yidx, prog, idx);
+            instr_yidx += prog.instrs[idx].v_len();
         }
         if v_placeholder {
-            self.interact_prog_instr(xidx, yidx + prog.instrs.len(), prog, prog.instrs.len());
+            self.interact_prog_instr(subprog_xidx, instr_yidx, prog, prog.instrs.len());
         }
     }
 
