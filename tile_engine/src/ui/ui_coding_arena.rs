@@ -381,6 +381,15 @@ impl UiCodingArena
         draw_circle_lines(centre_x, centre_y, r, line_style.border_width, line_style.border_col);
     }
 
+    /// Draw open connector from bottom edge of given rect.
+    fn draw_r_placeholder_right(&self, xidx: usize, yidx: usize) {
+        let parent_coords = self.prog_instr_coords(xidx, yidx);
+        let highlight = false;
+        self.draw_r_connector(parent_coords, highlight);
+
+        self.draw_placeholder_rect(xidx + 1, yidx);
+    }
+
     /// Draw connector from right edge of rect to left edge of next rect
     fn draw_r_connector(&self, c: OpCoords, highlight: bool) {
         let (x,y) = (c.x + c.w, c.y + c.h/2.);
@@ -487,13 +496,13 @@ impl UiCodingArena
 
         if node.op.is_parent_instr() {
             let highlight = false;
-            self.draw_r_connector(coords, highlight);
 
             let subprog = &node.subnodes.as_ref().unwrap();
             if subprog.instrs.len() > 0 {
+                self.draw_r_connector(coords, highlight);
                 self.draw_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.op.r_connect_max());
             } else {
-                self.draw_placeholder_rect(xidx + 1, yidx);
+                self.draw_r_placeholder_right(xidx, yidx);
             }
         }
     }
