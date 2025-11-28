@@ -292,7 +292,7 @@ impl UiCodingArena
             self.draw_dragging();
         }
 
-        self.interact_subprog(0, 0, &mut coding_arena.coding.prog, true);
+        self.interact_prog(&mut coding_arena.coding);
         if self.is_coding {
             self.interact_supply(&mut coding_arena.coding);
             self.interact_dragging(&mut coding_arena.coding);
@@ -400,17 +400,13 @@ impl UiCodingArena
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., self.border_cols());
 
         if coding.prog.instrs.len() == 0 {
-            self.draw_start(0, 0);
+            let (xidx, yidx) = (0, 0);
+            let coords = self.prog_instr_coords(xidx, yidx);
+            let txt = "...".to_string();
+            self.draw_op_rect(coords, self.calculate_op_style(coords, false, false, InstrRef::Prog {idx: 0}, self.is_droppable_onto_prog_instr(xidx, yidx)), &txt);
         } else {
             self.draw_subprog(0, 0, &coding.prog, true);
         }
-    }
-
-    fn draw_start(&self, xidx: usize, yidx: usize)
-    {
-        let coords = self.prog_instr_coords(xidx, yidx);
-        let txt = "...".to_string();
-        self.draw_op_rect(coords, self.calculate_op_style(coords, false, false, InstrRef::Prog {idx: yidx}, self.is_droppable_on_prog_instr(xidx, yidx)), &txt);
     }
 
     /// Draw subprog, either top-level prog, or inside a parent instr. At specified instr coords.
@@ -436,7 +432,7 @@ impl UiCodingArena
         let coords = self.prog_instr_coords(xidx, yidx);
         let active = Some(yidx) == self.active_idx;
 
-        self.draw_op_rect(coords, self.calculate_op_style(coords, active, true, InstrRef::Prog {idx: yidx}, self.is_droppable_on_prog_instr(xidx, yidx)), &node.op.to_string());
+        self.draw_op_rect(coords, self.calculate_op_style(coords, active, true, InstrRef::Prog {idx: yidx}, self.is_droppable_above_prog_instr(xidx, yidx)), &node.op.to_string());
         if let Some(prev_yidx) = prev_yidx {
             self.draw_v_connector(self.prog_instr_coords(xidx, prev_yidx), coords);
         }
@@ -447,6 +443,11 @@ impl UiCodingArena
             let subprog = &node.subnodes.as_ref().unwrap();
             self.draw_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.op.r_connect_max());
         }
+    }
+
+    fn interact_prog(&mut self, coding: &mut Coding)
+    {
+        self.interact_subprog(0, 0, &mut coding.prog, true);
     }
 
     /// Interact program, or subprog inside a parent instr, at specified instr coords.
@@ -482,7 +483,7 @@ impl UiCodingArena
             let coords = self.prog_instr_coords(xidx, yidx);
             if self.is_pickable_from_prog_instr(xidx, yidx) && is_mouse_button_pressed(MouseButton::Left) {
                 self.drag_prog_instr(prog, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
-            } else if self.is_droppable_on_prog_instr(xidx, yidx) && is_mouse_button_released(MouseButton::Left) {
+            } else if self.is_droppable_above_prog_instr(xidx, yidx) && is_mouse_button_released(MouseButton::Left) {
                 self.drop_to_prog(prog, idx);
             } else {
                 let node: &mut Node  = prog.instrs.get_mut(idx).unwrap();
@@ -611,7 +612,11 @@ impl UiCodingArena
         self.dragging.is_none() && self.mouse_in_coords(self.prog_instr_coords(xidx, yidx))
     }
 
-    fn is_droppable_on_prog_instr(&self, xidx: usize, yidx: usize) -> bool {
+    fn is_droppable_above_prog_instr(&self, xidx: usize, yidx: usize) -> bool {
+        self.is_droppable_on_coords(self.prog_instr_coords(xidx, yidx))
+    }
+
+    fn is_droppable_onto_prog_instr(&self, xidx: usize, yidx: usize) -> bool {
         self.is_droppable_on_coords(self.prog_instr_coords(xidx, yidx))
     }
 
