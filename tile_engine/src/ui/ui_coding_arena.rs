@@ -447,7 +447,7 @@ impl UiCodingArena
         }
         if v_placeholder && let Some(placeholder_yidx) = prev_instr_yidx {
             let coords = self.prog_instr_coords(subprog_xidx, placeholder_yidx);
-            let highlight = false;
+            let highlight = self.is_pickable_from_prog_instr(subprog_xidx, placeholder_yidx+1) || self.is_droppable_on_placeholder_below(subprog_xidx, placeholder_yidx);
             self.draw_v_placeholder_below(coords, highlight);
         }
     }
