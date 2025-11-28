@@ -409,7 +409,7 @@ impl UiCodingArena
         let mut prev_instr_yidx = None;
         let mut instr_yidx = subprog_yidx;
         for node in &prog.instrs {
-            self.draw_prog_instr(subprog_xidx, instr_yidx, Some(node), v_placeholder);
+            self.draw_prog_instr(subprog_xidx, instr_yidx, node, v_placeholder);
             prev_instr_yidx = Some(instr_yidx);
             instr_yidx += node.v_len();
         }
@@ -427,27 +427,21 @@ impl UiCodingArena
     }
 
     /// Draw instr node in program, recursing into subprog if a parent instr.
-    fn draw_prog_instr(&self, xidx: usize, yidx: usize, node: Option<&Node>, v_connector: bool)
+    fn draw_prog_instr(&self, xidx: usize, yidx: usize, node: &Node, v_connector: bool)
     {
         let coords = self.prog_instr_coords(xidx, yidx);
         let active = Some(yidx) == self.active_idx;
-        let instr = node.map(|node|node.op);
 
-        if let Some(op) = instr {
-            self.draw_op_rect(coords, self.calculate_style(coords, active, true, InstrRef::Prog {idx: yidx}, instr), &op.to_string());
-            if v_connector {
-                self.draw_v_connector(coords);
-            }
+        self.draw_op_rect(coords, self.calculate_style(coords, active, true, InstrRef::Prog {idx: yidx}, Some(node.op)), &node.op.to_string());
+        if v_connector {
+            self.draw_v_connector(coords);
+        }
 
-            if op.is_parent_instr() {
-                self.draw_r_connector(coords);
+        if node.op.is_parent_instr() {
+            self.draw_r_connector(coords);
 
-                let subprog = &node.unwrap().subnodes.as_ref().unwrap();
-                self.draw_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < op.r_connect_max());
-            }
-
-        } else {
-            unimplemented!();
+            let subprog = &node.subnodes.as_ref().unwrap();
+            self.draw_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.op.r_connect_max());
         }
     }
 
