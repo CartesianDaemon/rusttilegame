@@ -447,6 +447,11 @@ impl UiCodingArena
 
     fn interact_prog(&mut self, coding: &mut Coding)
     {
+        // Specially treat START or first instr as dropping anywhere? TODO: Need to specify interact_anywhere_on.
+        let (xidx, yidx) = (0, 0);
+        self.interact_prog_instr(xidx, yidx, &mut coding.prog, 0);
+
+        // Deal with all subsequent instr normally. Ie. Dropped onto top or bottom of instr for before or after.
         self.interact_subprog(0, 0, &mut coding.prog, true);
     }
 
