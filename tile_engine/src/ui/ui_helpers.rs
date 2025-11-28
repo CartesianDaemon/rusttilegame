@@ -79,7 +79,7 @@ impl Ticker {
 /// Don't know if fixed in more recent macroquad.
 pub fn clear_background_for_current_platform(color: Color) {
     match std::env::consts::OS {
-        "windows" => (),
+        "windows" => draw_rectangle(0., 0., screen_width(), screen_height(), color),
         _ => clear_background(color),
     }
 }
