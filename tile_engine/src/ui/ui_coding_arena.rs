@@ -458,6 +458,11 @@ impl UiCodingArena
         let mut instr_yidx = subprog_yidx;
         for idx in 0..prog.instrs.len() {
             self.interact_prog_instr(subprog_xidx, instr_yidx, prog, idx);
+            if idx >= prog.instrs.len() {
+                // TODO: More explicltly deal with prog changing while recursing.
+                // Either use calculations based on original. Or bail out when finding first pick-up.
+                break;
+            }
             instr_yidx += prog.instrs[idx].v_len();
         }
         if v_placeholder {
