@@ -316,15 +316,6 @@ impl UiCodingArena
         }
     }
 
-    /// Draw supply area and all supply bins
-    fn draw_supply(&self, coding: &mut Coding) {
-        for (idx, bin) in coding.supply.iter().enumerate() {
-            self.draw_supply_op(idx, bin);
-        }
-
-        draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., self.border_cols());
-    }
-
     /// Draw a prog or supply instr outline and content, at given coords in given style.
     fn draw_op_rect(&self, coords: OpCoords, style: OpStyle, txt: &str) {
         let c = coords.scaled_down_to(style.scale);
@@ -347,6 +338,15 @@ impl UiCodingArena
         draw_line(x, y,  x + c.rect_spacing, y,  2., self.connector_col());
     }
 
+    /// Draw supply area and all supply bins
+    fn draw_supply(&self, coding: &mut Coding) {
+        for (idx, bin) in coding.supply.iter().enumerate() {
+            self.draw_supply_op(idx, bin);
+        }
+
+        draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., self.border_cols());
+    }
+
     fn draw_supply_op(&self, idx: usize, bin: &Bin)
     {
         let coords = self.supply_op_coords(idx);
@@ -357,6 +357,32 @@ impl UiCodingArena
         // Draw count
         let count_txt = format!("{}/{}", bin.curr_count, bin.orig_count);
         draw_text(&count_txt, coords.x + 0.5*self.fr_pos.supply_op_w, coords.y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, self.font_col());
+    }
+
+    /// Interact supply area and all supply bins
+    fn interact_supply(&mut self, coding: &mut Coding) {
+        for idx in 0..coding.supply.len() {
+            self.interact_supply_op(coding, idx);
+        }
+
+        if self.mouse_in_rect(self.supply_rect()) {
+            if is_mouse_button_released(MouseButton::Left) {
+                self.drop_to_supply(coding);
+            }
+        }
+    }
+
+    fn interact_supply_op(&mut self, coding: &mut Coding, idx: usize)
+    {
+        let coords = self.supply_op_coords(idx);
+
+        if self.is_coding {
+            if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(coords) {
+                self.drag_supply_op(coding, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
+            } else if self.is_dragging_over(coords) && is_mouse_button_released(MouseButton::Left) {
+                self.drop_to_supply_bin(coding, idx);
+            }
+        }
     }
 
     /// Draw program, or subprog inside a parent instr, at specified instr coords.
@@ -400,19 +426,6 @@ impl UiCodingArena
                 "X".to_string()
             };
             self.draw_op_rect(coords, self.calculate_style(coords, active, false, InstrRef::Prog {idx: yidx}, instr), &txt);
-        }
-    }
-
-    /// Interact supply area and all supply bins
-    fn interact_supply(&mut self, coding: &mut Coding) {
-        for idx in 0..coding.supply.len() {
-            self.interact_supply_op(coding, idx);
-        }
-
-        if self.mouse_in_rect(self.supply_rect()) {
-            if is_mouse_button_released(MouseButton::Left) {
-                self.drop_to_supply(coding);
-            }
         }
     }
 
@@ -479,19 +492,6 @@ impl UiCodingArena
         if let Some(DragOrigin{instr, ..}) = &self.dragging {
             let coords = self.dragging_op_coords().unwrap();
             self.draw_op_rect(coords, OpStyle::dragging(), &instr.op.to_string());
-        }
-    }
-
-    fn interact_supply_op(&mut self, coding: &mut Coding, idx: usize)
-    {
-        let coords = self.supply_op_coords(idx);
-
-        if self.is_coding {
-            if is_mouse_button_pressed(MouseButton::Left) && self.mouse_in(coords) {
-                self.drag_supply_op(coding, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
-            } else if self.is_dragging_over(coords) && is_mouse_button_released(MouseButton::Left) {
-                self.drop_to_supply_bin(coding, idx);
-            }
         }
     }
 
