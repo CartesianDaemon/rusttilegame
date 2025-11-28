@@ -439,13 +439,17 @@ impl UiCodingArena
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., self.border_cols());
 
         if coding.prog.instrs.len() == 0 {
-            let (xidx, yidx) = (0, 0);
-            let coords = self.prog_instr_coords(xidx, yidx);
-            let txt = "...".to_string();
-            self.draw_op_rect(coords, self.calculate_op_style(coords, false, false, InstrRef::Prog {idx: 0}, self.is_droppable_onto_prog_instr(xidx, yidx)), &txt);
+            // Draw "Start" instr.
+            self.draw_placeholder_rect(0, 0);
         } else {
             self.draw_subprog(0, 0, &coding.prog, true);
         }
+    }
+
+    fn draw_placeholder_rect(&self, xidx: usize, yidx: usize) {
+        let coords = self.prog_instr_coords(xidx, yidx);
+        let txt = "...".to_string();
+        self.draw_op_rect(coords, self.calculate_op_style(coords, false, false, InstrRef::Prog {idx: 0}, self.is_droppable_onto_prog_instr(xidx, yidx)), &txt);
     }
 
     /// Draw subprog, either top-level prog, or inside a parent instr. At specified instr coords.
@@ -486,7 +490,11 @@ impl UiCodingArena
             self.draw_r_connector(coords, highlight);
 
             let subprog = &node.subnodes.as_ref().unwrap();
-            self.draw_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.op.r_connect_max());
+            if subprog.instrs.len() > 0 {
+                self.draw_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.op.r_connect_max());
+            } else {
+                self.draw_placeholder_rect(xidx + 1, yidx);
+            }
         }
     }
 
