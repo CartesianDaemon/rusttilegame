@@ -242,7 +242,7 @@ impl UiCodingArena
         DARKGRAY
     }
 
-    fn initialise_frame_coords(&mut self, coding: bool) {
+    fn initialise_frame_coords(&mut self, coding: bool, prog_n: usize) {
         // Arena
         let arena = PRect {
             x: 0.,
@@ -266,7 +266,7 @@ impl UiCodingArena
         let prog_h = screen_height() - supply_h;
 
         // Prog instrs
-        let prog_n = 6.;
+        let prog_n = prog_n.max(6) as f32;
         let prog_instr_h = (prog_w * 0.8).min(prog_h / (spacing_pc + prog_n*(1.+spacing_pc)));
         let prog_instr_w = prog_instr_h;
         let prog_instr_spacing =  prog_instr_w * spacing_pc;
@@ -311,8 +311,9 @@ impl UiCodingArena
             texture_cache: &mut TextureCache,
             anim: AnimState,
         ) {
+        // TODO: Get prog from arena or from coding pane as appropriate?
         self.active_idx = GameLogic::get_active_idx(coding_arena);
-        self.initialise_frame_coords(coding_arena.is_coding());
+        self.initialise_frame_coords(coding_arena.is_coding(), coding_arena.coding.prog.v_len());
 
         self.draw_background(coding_arena);
 
