@@ -326,10 +326,21 @@ impl UiCodingArena
         draw_text(txt, c.x + 0.2 * c.w, c.y + 0.85 * c.h, font_sz, DARKGRAY);
     }
 
-    /// Draw connector from bottom edge of rect to top edge of next rect
+    /// Draw connector from bottom edge of given rect to top edge of next rect
     fn draw_v_connector(&self, c: OpCoords) {
-        let (x,y) = (c.x + c.w/2., c.y + c.h);
-        draw_line(x, y,  x, y + c.rect_spacing,  2., self.connector_col());
+        let (top_x, top_y) = (c.x + c.w/2., c.y + c.h);
+        let (bottom_x, bottom_y) = (top_x, top_y + c.rect_spacing);
+        draw_line(top_x, top_y,  bottom_x, bottom_y,  2., self.connector_col());
+    }
+
+    /// Draw open connector from bottom edge of given rect.
+    fn draw_v_placeholder(&self, c: OpCoords) {
+        let r = c.rect_spacing/6.;
+        let (top_x, top_y) = (c.x + c.w/2., c.y + c.h);
+        let (centre_x, centre_y) = (top_x, top_y + c.rect_spacing/2.);
+        let (join_x, join_y) = (top_x, centre_y - r);
+        draw_line(top_x, top_y,  join_x, join_y,  2., self.connector_col());
+        draw_circle_lines(centre_x, centre_y, r, 2., self.connector_col());
     }
 
     /// Draw connector from right edge of rect to left edge of next rect
@@ -395,13 +406,16 @@ impl UiCodingArena
     ///
     /// Recurses between draw_subprog and draw_prog_instr, with the same recursion as interact_subprog.
     fn draw_subprog(&self, subprog_xidx: usize, subprog_yidx: usize, prog: &Prog, v_placeholder: bool) {
+        let mut prev_instr_yidx = None;
         let mut instr_yidx = subprog_yidx;
         for node in &prog.instrs {
             self.draw_prog_instr(subprog_xidx, instr_yidx, Some(node), v_placeholder);
+            prev_instr_yidx = Some(instr_yidx);
             instr_yidx += node.v_len();
         }
-        if v_placeholder {
-            self.draw_prog_instr(subprog_xidx, instr_yidx, None, false);
+        if v_placeholder && let Some(placeholder_yidx) = prev_instr_yidx {
+            let coords = self.prog_instr_coords(subprog_xidx, placeholder_yidx);
+            self.draw_v_placeholder(coords);
         }
     }
 
