@@ -527,21 +527,24 @@ impl UiCodingArena
     /// Interact dragging/dropping with an instr in program. Including subprog.
     fn interact_prog_instr(&mut self, xidx: usize, yidx: usize, prog: &mut Prog, idx: usize)
     {
-        if idx >= prog.instrs.len()
-        {
-            // TODO: Better guards for altered program.
-            return;
-        }
+        // TODO: Better guards for altered program.
         let coords = self.prog_instr_coords(xidx, yidx);
         if self.is_pickable_from_prog_instr(xidx, yidx) && is_mouse_button_pressed(MouseButton::Left) {
-            self.drag_prog_instr(prog, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
+            if idx < prog.instrs.len() {
+                self.drag_prog_instr(prog, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
+            }
         } else if self.is_droppable_before_prog_instr(xidx, yidx) && is_mouse_button_released(MouseButton::Left) {
-            self.drop_to_prog(prog, idx);
+            if idx <= prog.instrs.len() {
+                self.drop_to_prog(prog, idx);
+            }
         } else {
-            let node: &mut Node  = prog.instrs.get_mut(idx).unwrap();
-            if node.op.is_parent_instr() {
-                let subprog: &mut Prog = node.subnodes.as_mut().unwrap();
-                self.interact_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.op.r_connect_max());
+            // Recurse to detect interaction in subprog
+            if idx < prog.instrs.len() {
+                let node: &mut Node  = prog.instrs.get_mut(idx).unwrap();
+                if node.op.is_parent_instr() {
+                    let subprog: &mut Prog = node.subnodes.as_mut().unwrap();
+                    self.interact_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.op.r_connect_max());
+                }
             }
         }
     }
