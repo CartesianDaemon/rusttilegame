@@ -203,12 +203,26 @@ impl UiCodingArena
         if self.is_coding {DARKGRAY} else {SKYBLUE}
     }
 
-    fn connector_col(&self, highlight: bool) -> LineStyle {
+    fn connector_col(&self, _highlight: bool) -> LineStyle {
+        if self.is_coding {
+            LineStyle {
+                border_col: DARKGRAY,
+                border_width: 2.,
+            }
+        } else {
+            LineStyle {
+                border_col: BLUE,
+                border_width: 2.,
+            }
+        }
+    }
+
+    fn placeholder_col(&self, highlight: bool) -> LineStyle {
         if self.is_coding {
             if highlight {
                 LineStyle {
                     border_col: YELLOW,
-                    border_width: 4.,
+                    border_width: 2.,
                 }
             } else {
                 LineStyle {
@@ -362,7 +376,7 @@ impl UiCodingArena
         let (top_x, top_y) = (c.x + c.w/2., c.y + c.h);
         let (centre_x, centre_y) = (top_x, top_y + c.rect_spacing/2.);
         let (join_x, join_y) = (top_x, centre_y - r);
-        let line_style = self.connector_col(highlight);
+        let line_style = self.placeholder_col(highlight);
         draw_line(top_x, top_y,  join_x, join_y,  line_style.border_width, line_style.border_col);
         draw_circle_lines(centre_x, centre_y, r, line_style.border_width, line_style.border_col);
     }
