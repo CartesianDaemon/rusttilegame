@@ -327,9 +327,9 @@ impl UiCodingArena
     }
 
     /// Draw connector from bottom edge of given rect to top edge of next rect
-    fn draw_v_connector(&self, c: OpCoords) {
-        let (top_x, top_y) = (c.x + c.w/2., c.y + c.h);
-        let (bottom_x, bottom_y) = (top_x, top_y + c.rect_spacing);
+    fn draw_v_connector(&self, prev: OpCoords, next: OpCoords) {
+        let (top_x, top_y) = (prev.x + prev.w/2., prev.y + prev.h);
+        let (bottom_x, bottom_y) = (next.x + next.w/2., next.y);
         draw_line(top_x, top_y,  bottom_x, bottom_y,  2., self.connector_col());
     }
 
@@ -406,6 +406,13 @@ impl UiCodingArena
         }
     }
 
+    fn draw_start(&self, xidx: usize, yidx: usize)
+    {
+        let coords = self.prog_instr_coords(xidx, yidx);
+        let txt = "...".to_string();
+        self.draw_op_rect(coords, self.calculate_op_style(coords, false, false, InstrRef::Prog {idx: yidx}, self.is_droppable_on_prog_instr(0)), &txt);
+    }
+
     /// Draw subprog, either top-level prog, or inside a parent instr. At specified instr coords.
     ///
     /// Recurses between draw_subprog and draw_prog_instr, with the same recursion as interact_subprog.
@@ -413,7 +420,7 @@ impl UiCodingArena
         let mut prev_instr_yidx = None;
         let mut instr_yidx = subprog_yidx;
         for node in &prog.instrs {
-            self.draw_prog_instr(subprog_xidx, instr_yidx, node, v_placeholder);
+            self.draw_prog_instr(subprog_xidx, prev_instr_yidx, instr_yidx, node);
             prev_instr_yidx = Some(instr_yidx);
             instr_yidx += node.v_len();
         }
@@ -423,15 +430,8 @@ impl UiCodingArena
         }
     }
 
-    fn draw_start(&self, xidx: usize, yidx: usize)
-    {
-        let coords = self.prog_instr_coords(xidx, yidx);
-        let txt = "...".to_string();
-        self.draw_op_rect(coords, self.calculate_op_style(coords, false, false, InstrRef::Prog {idx: yidx}, self.is_droppable_on_prog_instr(0)), &txt);
-    }
-
     /// Draw instr node in program, recursing into subprog if a parent instr.
-    fn draw_prog_instr(&self, xidx: usize, yidx: usize, node: &Node, v_connector: bool)
+    fn draw_prog_instr(&self, xidx: usize, prev_yidx: Option<usize>, yidx: usize, node: &Node)
     {
         let coords = self.prog_instr_coords(xidx, yidx);
         let active = Some(yidx) == self.active_idx;
@@ -439,8 +439,8 @@ impl UiCodingArena
         // TODO: Use idx to calculate droppable more consistently.
         let idx = yidx;
         self.draw_op_rect(coords, self.calculate_op_style(coords, active, true, InstrRef::Prog {idx: yidx}, self.is_droppable_on_prog_instr(idx)), &node.op.to_string());
-        if v_connector {
-            self.draw_v_connector(coords);
+        if let Some(prev_yidx) = prev_yidx {
+            self.draw_v_connector(self.prog_instr_coords(xidx, prev_yidx), coords);
         }
 
         if node.op.is_parent_instr() {
@@ -453,7 +453,7 @@ impl UiCodingArena
 
     /// Draw program, or subprog inside a parent instr, at specified instr coords.
     ///
-    /// Recurses between draw_subprog and draw_prog_instr, with the same recursion as interact_subprog.
+    /// Recurses between interact_subprog and interact_prog_instr, with the same recursion as interact_subprog.
     fn interact_subprog(&mut self, subprog_xidx: usize, subprog_yidx: usize, prog: &mut Prog, v_placeholder: bool) {
         let mut instr_yidx = subprog_yidx;
         for idx in 0..prog.instrs.len() {
