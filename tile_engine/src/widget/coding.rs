@@ -126,6 +126,16 @@ impl std::ops::IndexMut<usize> for Node {
     }
 }
 
+impl Node {
+    pub fn v_len(&self) -> usize {
+        match &self.subnodes {
+            None => 1,
+            Some(subprog) => subprog.v_len(),
+        }
+    }
+}
+
+// TODO: Maybe rename "Subprog"?
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct NodeParent {
     // Index of previous instruction executed. Used for display and knowing when we enter subnodes
@@ -196,6 +206,11 @@ impl std::ops::IndexMut<usize> for NodeParent {
 }
 
 impl NodeParent {
+    // Number of instructions within if laid out vertically. Used for drawing.
+    pub fn v_len(&self) -> usize {
+        self.instrs.iter().map(|node| node.v_len()).sum()
+    }
+
     pub fn not_begun(&self) -> bool {
         self.prev_ip == 9999
     }
