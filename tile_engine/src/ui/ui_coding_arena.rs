@@ -334,7 +334,7 @@ impl UiCodingArena
     }
 
     /// Draw open connector from bottom edge of given rect.
-    fn draw_v_placeholder(&self, c: OpCoords) {
+    fn draw_v_placeholder_below(&self, c: OpCoords) {
         let r = c.rect_spacing/6.;
         let (top_x, top_y) = (c.x + c.w/2., c.y + c.h);
         let (centre_x, centre_y) = (top_x, top_y + c.rect_spacing/2.);
@@ -410,7 +410,7 @@ impl UiCodingArena
     {
         let coords = self.prog_instr_coords(xidx, yidx);
         let txt = "...".to_string();
-        self.draw_op_rect(coords, self.calculate_op_style(coords, false, false, InstrRef::Prog {idx: yidx}, self.is_droppable_on_prog_instr(0)), &txt);
+        self.draw_op_rect(coords, self.calculate_op_style(coords, false, false, InstrRef::Prog {idx: yidx}, self.is_droppable_on_prog_instr(xidx, yidx)), &txt);
     }
 
     /// Draw subprog, either top-level prog, or inside a parent instr. At specified instr coords.
@@ -426,7 +426,7 @@ impl UiCodingArena
         }
         if v_placeholder && let Some(placeholder_yidx) = prev_instr_yidx {
             let coords = self.prog_instr_coords(subprog_xidx, placeholder_yidx);
-            self.draw_v_placeholder(coords);
+            self.draw_v_placeholder_below(coords);
         }
     }
 
@@ -436,9 +436,7 @@ impl UiCodingArena
         let coords = self.prog_instr_coords(xidx, yidx);
         let active = Some(yidx) == self.active_idx;
 
-        // TODO: Use idx to calculate droppable more consistently.
-        let idx = yidx;
-        self.draw_op_rect(coords, self.calculate_op_style(coords, active, true, InstrRef::Prog {idx: yidx}, self.is_droppable_on_prog_instr(idx)), &node.op.to_string());
+        self.draw_op_rect(coords, self.calculate_op_style(coords, active, true, InstrRef::Prog {idx: yidx}, self.is_droppable_on_prog_instr(xidx, yidx)), &node.op.to_string());
         if let Some(prev_yidx) = prev_yidx {
             self.draw_v_connector(self.prog_instr_coords(xidx, prev_yidx), coords);
         }
@@ -477,7 +475,7 @@ impl UiCodingArena
             let coords = self.prog_instr_coords(xidx, yidx);
             if self.is_pickable_from_prog_instr(xidx, yidx) && is_mouse_button_pressed(MouseButton::Left) {
                 self.drag_prog_instr(prog, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
-            } else if self.is_droppable_on_op_rect(coords) && is_mouse_button_released(MouseButton::Left) {
+            } else if self.is_droppable_on_prog_instr(xidx, yidx) && is_mouse_button_released(MouseButton::Left) {
                 self.drop_to_prog(prog, idx);
             } else {
                 let node: &mut Node  = prog.instrs.get_mut(idx).unwrap();
@@ -607,8 +605,12 @@ impl UiCodingArena
         self.dragging.is_none() && self.mouse_in_coords(self.prog_instr_coords(xidx, yidx))
     }
 
-    fn is_droppable_on_prog_instr(&self, idx: usize) -> bool {
-        self.is_droppable_on_op_rect(self.prog_instr_coords(idx, 0))
+    fn is_droppable_on_prog_instr(&self, xidx: usize, yidx: usize) -> bool {
+        self.is_droppable_on_op_rect(self.prog_instr_coords(xidx, yidx))
+    }
+
+    fn _is_droppable_on_placeholder_at(&self, xidx: usize, yidx: usize) -> bool {
+        self.is_droppable_on_op_rect(self.prog_instr_coords(xidx, yidx))
     }
 
     // If dragged op is intersecting a specific op. Including padding.
