@@ -471,6 +471,11 @@ impl UiCodingArena
     /// Interact dragging/dropping with an instr in program. Including subprog.
     fn interact_prog_instr(&mut self, xidx: usize, yidx: usize, prog: &mut Prog, idx: usize)
     {
+        if idx >= prog.instrs.len()
+        {
+            // TODO: Better guards for altered program.
+            return;
+        }
         if self.is_coding {
             let coords = self.prog_instr_coords(xidx, yidx);
             if self.is_pickable_from_prog_instr(xidx, yidx) && is_mouse_button_pressed(MouseButton::Left) {
