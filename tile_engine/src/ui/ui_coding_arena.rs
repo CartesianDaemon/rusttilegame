@@ -492,12 +492,15 @@ impl UiCodingArena
 
     fn interact_prog(&mut self, coding: &mut Coding)
     {
-        // Specially treat START or first instr as dropping anywhere? TODO: Need to specify interact_anywhere_on.
-        let (xidx, yidx) = (0, 0);
-        self.interact_prog_instr(xidx, yidx, &mut coding.prog, 0);
+        if self.is_coding
+        {
+            // Specially treat START or first instr as dropping anywhere? TODO: Need to specify interact_anywhere_on.
+            let (xidx, yidx) = (0, 0);
+            self.interact_prog_instr(xidx, yidx, &mut coding.prog, 0);
 
-        // Deal with all subsequent instr normally. Ie. Dropped onto top or bottom of instr for before or after.
-        self.interact_subprog(0, 0, &mut coding.prog, true);
+            // Deal with all subsequent instr normally. Ie. Dropped onto top or bottom of instr for before or after.
+            self.interact_subprog(0, 0, &mut coding.prog, true);
+        }
     }
 
     /// Interact program, or subprog inside a parent instr, at specified instr coords.
@@ -529,29 +532,25 @@ impl UiCodingArena
             // TODO: Better guards for altered program.
             return;
         }
-        if self.is_coding {
-            let coords = self.prog_instr_coords(xidx, yidx);
-            if self.is_pickable_from_prog_instr(xidx, yidx) && is_mouse_button_pressed(MouseButton::Left) {
-                self.drag_prog_instr(prog, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
-            } else if self.is_droppable_before_prog_instr(xidx, yidx) && is_mouse_button_released(MouseButton::Left) {
-                self.drop_to_prog(prog, idx);
-            } else {
-                let node: &mut Node  = prog.instrs.get_mut(idx).unwrap();
-                if node.op.is_parent_instr() {
-                    let subprog: &mut Prog = node.subnodes.as_mut().unwrap();
-                    self.interact_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.op.r_connect_max());
-                }
+        let coords = self.prog_instr_coords(xidx, yidx);
+        if self.is_pickable_from_prog_instr(xidx, yidx) && is_mouse_button_pressed(MouseButton::Left) {
+            self.drag_prog_instr(prog, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
+        } else if self.is_droppable_before_prog_instr(xidx, yidx) && is_mouse_button_released(MouseButton::Left) {
+            self.drop_to_prog(prog, idx);
+        } else {
+            let node: &mut Node  = prog.instrs.get_mut(idx).unwrap();
+            if node.op.is_parent_instr() {
+                let subprog: &mut Prog = node.subnodes.as_mut().unwrap();
+                self.interact_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.op.r_connect_max());
             }
-       }
+        }
     }
 
     fn interact_placeholder_below(&mut self, xidx: usize, yidx: usize, prog: &mut Prog, idx: usize)
     {
-        if self.is_coding {
-            if self.is_droppable_on_placeholder_below(xidx, yidx) && is_mouse_button_released(MouseButton::Left) {
-                self.drop_to_prog(prog, idx);
-            }
-       }
+        if self.is_droppable_on_placeholder_below(xidx, yidx) && is_mouse_button_released(MouseButton::Left) {
+            self.drop_to_prog(prog, idx);
+        }
     }
 
     fn interact_dragging(&mut self, coding: &mut Coding) {
