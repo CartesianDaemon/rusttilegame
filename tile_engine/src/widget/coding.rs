@@ -209,8 +209,9 @@ impl std::ops::IndexMut<usize> for Subprog {
 
 impl Subprog {
     // Number of instructions within if laid out vertically. Used for drawing.
+    // Always at least 1.
     pub fn v_len(&self) -> usize {
-        self.instrs.iter().map(|node| node.v_len()).sum()
+        std::cmp::max(1, self.instrs.iter().map(|node| node.v_len()).sum())
     }
 
     pub fn not_begun(&self) -> bool {
