@@ -463,7 +463,7 @@ impl UiCodingArena
 
         if v_placeholder && let Some(placeholder_yidx) = prev_instr_yidx {
             let coords = self.prog_instr_coords(subprog_xidx, placeholder_yidx);
-            let highlight = self.is_pickable_from_placeholder_below(subprog_xidx, placeholder_yidx+1) || self.is_droppable_on_placeholder_below(subprog_xidx, placeholder_yidx);
+            let highlight = self.is_pickable_from_placeholder_below(subprog_xidx, placeholder_yidx) || self.is_droppable_on_placeholder_below(subprog_xidx, placeholder_yidx);
             self.draw_v_placeholder_below(coords, highlight);
         }
     }
@@ -658,8 +658,8 @@ impl UiCodingArena
         }
     }
 
-    fn placeholder_coords(&self, xidx: usize, yidx: usize) -> OpCoords {
-        let instr_coords = self.prog_instr_coords(xidx, yidx+1);
+    fn placeholder_below_coords(&self, xidx: usize, yidx: usize) -> OpCoords {
+        let instr_coords = self.prog_instr_coords(xidx, yidx);
         OpCoords {
             x: instr_coords.x,
             y: instr_coords.y + instr_coords.h,
@@ -674,7 +674,7 @@ impl UiCodingArena
     }
 
     fn is_pickable_from_placeholder_below(&self, xidx: usize, yidx: usize) -> bool {
-        self.is_pickable_from_coords(self.placeholder_coords(xidx, yidx))
+        self.is_pickable_from_coords(self.placeholder_below_coords(xidx, yidx))
     }
 
     fn is_pickable_from_coords(&self, coords: OpCoords) -> bool {
@@ -690,7 +690,7 @@ impl UiCodingArena
     }
 
     fn is_droppable_on_placeholder_below(&self, xidx: usize, yidx: usize) -> bool {
-        self.is_droppable_on_coords(self.placeholder_coords(xidx, yidx))
+        self.is_droppable_on_coords(self.placeholder_below_coords(xidx, yidx))
     }
 
     // If dragged op is intersecting a specific op. Including padding.
