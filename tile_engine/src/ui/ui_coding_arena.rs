@@ -419,6 +419,13 @@ impl UiCodingArena
         }
     }
 
+    fn _draw_start(&self, xidx: usize, yidx: usize)
+    {
+        let coords = self.prog_instr_coords(xidx, yidx);
+        let txt = "...".to_string();
+        self.draw_op_rect(coords, self.calculate_style(coords, false, false, InstrRef::Prog {idx: yidx}, None), &txt);
+    }
+
     /// Draw instr node in program, recursing into subprog if a parent instr.
     fn draw_prog_instr(&self, xidx: usize, yidx: usize, node: Option<&Node>, v_connector: bool)
     {
@@ -440,12 +447,7 @@ impl UiCodingArena
             }
 
         } else {
-            let txt = if self.is_coding {
-                "...".to_string()
-            } else {
-                "X".to_string()
-            };
-            self.draw_op_rect(coords, self.calculate_style(coords, active, false, InstrRef::Prog {idx: yidx}, instr), &txt);
+            unimplemented!();
         }
     }
 
