@@ -70,16 +70,16 @@ impl std::fmt::Display for Op {
     }
 }
 
-#[cfg(any())]
+// #[cfg(any())]
 impl From<&str> for Op {
     fn from(txt: &str) -> Self {
         match txt {
-            "F" => Op::A(F),
-            "L" => Op::A(L),
-            "R" => Op::A(R),
-            "{}" => Op::P(group),
-            "x2" => Op::P(x2),
-            "loop" => Op::loop5,
+            "F" => Op::Action(ActionOp::F),
+            "L" => Op::Action(ActionOp::L),
+            "R" => Op::Action(ActionOp::R),
+            "{}" => Op::Parent(ParentOp::group),
+            "x2" => Op::Parent(ParentOp::x2),
+            "loop" => Op::Parent(ParentOp::loop5),
             _ => panic!("Unrecognised txt for instr: {}", txt)
         }
     }
@@ -170,6 +170,24 @@ impl From<Vec<Op>> for Subprog {
             instrs: ops.iter().map(|op| Node{op:*op, subnodes:None }).collect(),
             ..Self::default()
         }
+    }
+}
+
+#[cfg(any())]
+impl<T: Iterator<Item=Op>> From<T> for Subprog {
+    fn from(ops: T) -> Self {
+        Self {
+            instrs: ops.map(|op| Node{op:*op, subnodes:None }).collect(),
+            ..Self::default()
+        }
+    }
+}
+
+// #[cfg(any())]
+impl From<&str> for Subprog {
+    fn from(txt: &str) -> Self {
+        let ops : Vec<Op> = txt.split(",").map(|s| s.trim().into()).collect();
+        Self::from(ops)
     }
 }
 
@@ -325,6 +343,12 @@ mod tests {
     use ParentOp::*;
     use Op::Action as A;
     use Op::Parent as P;
+
+    #[test]
+    fn parse() {
+        assert_eq!(Prog::from("F"), Prog::from(vec![A(F)]));
+        assert_eq!(Prog::from("F "), Prog::from(vec![A(F)]));
+    }
 
     fn run_prog_and_test(mut prog: Prog, expected_ops: &[Op]) {
         for (idx, expected_op) in expected_ops.iter().enumerate() {
