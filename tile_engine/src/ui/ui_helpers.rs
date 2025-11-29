@@ -46,7 +46,7 @@ pub struct Ticker {
 impl Ticker {
     pub fn new() -> Ticker {
         Ticker {
-            tick_interval: 0.3,
+            tick_interval: 0.5,
             last_tick_time: get_time(),
         }
     }
