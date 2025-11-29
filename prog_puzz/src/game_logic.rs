@@ -94,7 +94,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
 
                 match op.unwrap() {
                     // Move forward
-                    Op::F => {
+                    Op::Action(ActionOp::F) => {
                         let target_pos = map[mov].pos() + map[mov].logical_props.dir;
                         if map.passable(target_pos) {
                             log::debug!("Bot move F. {} -> {}", map[mov].pos(), target_pos);
@@ -103,15 +103,15 @@ impl BaseGameLogic for ProgpuzzGameLogic
                             log::debug!("Bot blocked F. {} -/-> {}", map[mov].pos(), target_pos);
                         }
                     },
-                    Op::L => {
+                    Op::Action(ActionOp::L) => {
                         map[mov].logical_props.dir.rotate_l();
                         log::debug!("Bot rotate L. {} -> {}", map[mov].logical_props.prev_dir , map[mov].logical_props.dir);
                     },
-                    Op::R => {
+                    Op::Action(ActionOp::R) => {
                         map[mov].logical_props.dir.rotate_r();
                         log::debug!("Bot rotate R. {} -> {}", map[mov].logical_props.prev_dir , map[mov].logical_props.dir);
                     },
-                    _ => {
+                    Op::Parent(_) => {
                         panic!("Unrecognised instr {:?}", props.prog.curr_op());
                     },
                 }

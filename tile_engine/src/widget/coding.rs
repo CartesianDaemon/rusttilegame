@@ -1,31 +1,34 @@
 use super::*;
 use crate::map_coords::MoveCmd;
 
-// Can we move the specifics ops to ProgPuzz?
-#[allow(non_camel_case_types)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum Op {
-    // Could create a separate Enum for the different "types" of instr.
-    // Action instrs
+pub enum ActionOp {
     F,
     L,
     R,
+}
 
-    // Control flow instrs
+#[allow(non_camel_case_types)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum ParentOp {
     group,
     x2,
     loop5,
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum Op {
+    Action(ActionOp),
+    // TODO: Could merge Subprog into here, not in separate node type?
+    Parent(ParentOp),
+}
+
 impl Op {
     pub fn _d_connector(self) -> bool {
+        use Op::*;
         match self {
-            Self::F => true,
-            Self::L => true,
-            Self::R => true,
-            Self::group => true,
-            Self::x2 => true,
-            Self::loop5 => true,
+            Action(_) => true,
+            Parent(_) => true,
         }
     }
 
@@ -38,22 +41,25 @@ impl Op {
     }
 
     pub fn r_connect_max(self) -> usize {
+        use Op::*;
+        use ParentOp::*;
         match self {
-            Self::F |
-            Self::L |
-            Self::R => 0,
-            Self::group => 999,
-            Self::x2 => 1,
-            Self::loop5 => 5,
+            Action(_) => 0,
+            Parent(group) => 999,
+            Parent(x2) => 1,
+            Parent(loop5) => 5,
         }
     }
 
+    // TODO: Move to fn of ControlFlowOp not Op.
     pub fn repeat_count(self) -> usize {
+        use Op::*;
+        use ParentOp::*;
         match self {
-            Op::group => 1,
-            Op::x2 => 2,
-            Op::loop5 => 5,
-            _ => panic!("Repeat count not specified for non-parent instr"),
+            Action(_) => panic!("Repeat count not specified for non-parent instr"),
+            Parent(group) => 1,
+            Parent(x2) => 2,
+            Parent(loop5) => 5,
         }
     }
 }
@@ -68,11 +74,11 @@ impl std::fmt::Display for Op {
 impl From<&str> for Op {
     fn from(txt: &str) -> Self {
         match txt {
-            "F" => Op::F,
-            "L" => Op::L,
-            "R" => Op::R,
-            "{}" => Op::group,
-            "x2" => Op::x2,
+            "F" => Op::A(F),
+            "L" => Op::A(L),
+            "R" => Op::A(R),
+            "{}" => Op::P(group),
+            "x2" => Op::P(x2),
             "loop" => Op::loop5,
             _ => panic!("Unrecognised txt for instr: {}", txt)
         }
@@ -151,7 +157,7 @@ impl Node {
 pub struct Subprog {
     // Index of instruction currently executing. 0 when program has not started.
     pub curr_ip: usize,
-    // Internal counter, used to implement loops and other stateful instructions.
+    // Internal counteA(R), used to implement loops and other stateful instructions.
     // When used for iteration, counts number of times current execution of parent instr has executed this subprog.
     pub counter: usize,
     // Vector of one or more instrs to execute. Some parent ops have a specific number of nested instrs.
@@ -315,7 +321,10 @@ impl BaseWidget for Coding
 mod tests {
     use crate::infra::initialise_logging_for_tests;
     use super::*;
-    use Op::*;
+    use ActionOp::*;
+    use ParentOp::*;
+    use Op::Action as A;
+    use Op::Parent as P;
 
     fn run_prog_and_test(mut prog: Prog, expected_ops: &[Op]) {
         for (idx, expected_op) in expected_ops.iter().enumerate() {
@@ -329,69 +338,69 @@ mod tests {
     #[test]
     fn test_linear_prog() {
         initialise_logging_for_tests();
-        run_prog_and_test(Prog::from(vec![F,F,R,F]), &[F, F, R, F]);
+        run_prog_and_test(Prog::from(vec![A(F),A(F),A(R),A(F)]), &[A(F), A(F), A(R), A(F)]);
     }
 
     #[test]
     fn test_simple_repeat() {
         initialise_logging_for_tests();
-        let mut prog = Prog::from(vec![L, x2, L]);
-        prog[1].subnodes = Some(Prog::from(vec![F, R]));
-        run_prog_and_test(prog, &[L,F,R,F,R,L]);
+        let mut prog = Prog::from(vec![A(L), P(x2), A(L)]);
+        prog[1].subnodes = Some(Prog::from(vec![A(F), A(R)]));
+        run_prog_and_test(prog, &[A(L),A(F),A(R),A(F),A(R),A(L)]);
     }
 
     #[test]
     fn test_bare_repeat() {
         initialise_logging_for_tests();
-        let mut prog = Prog::from(vec![x2]);
-        prog[0].subnodes = Some(Prog::from(vec![F]));
-        run_prog_and_test(prog, &[F, F]);
+        let mut prog = Prog::from(vec![P(x2)]);
+        prog[0].subnodes = Some(Prog::from(vec![A(F)]));
+        run_prog_and_test(prog, &[A(F), A(F)]);
     }
 
     #[test]
     fn test_bare_nested_repeat() {
         initialise_logging_for_tests();
-        let mut prog = Prog::from(vec![x2]);
-        prog[0].subnodes = Some(Prog::from(vec![x2]));
-        prog[0][0].subnodes = Some(Prog::from(vec![F]));
-        run_prog_and_test(prog, &[F, F, F, F]);
+        let mut prog = Prog::from(vec![P(x2)]);
+        prog[0].subnodes = Some(Prog::from(vec![P(x2)]));
+        prog[0][0].subnodes = Some(Prog::from(vec![A(F)]));
+        run_prog_and_test(prog, &[A(F), A(F), A(F), A(F)]);
     }
 
     #[test]
     fn test_twice_nested_repeat() {
         initialise_logging_for_tests();
-        let mut prog = Prog::from(vec![x2]);
-        prog[0].subnodes = Some(Prog::from(vec![x2, x2]));
-        prog[0][0].subnodes = Some(Prog::from(vec![F]));
-        prog[0][1].subnodes = Some(Prog::from(vec![R]));
-        run_prog_and_test(prog, &[F, F, R, R, F, F, R, R]);
+        let mut prog = Prog::from(vec![P(x2)]);
+        prog[0].subnodes = Some(Prog::from(vec![P(x2), P(x2)]));
+        prog[0][0].subnodes = Some(Prog::from(vec![A(F)]));
+        prog[0][1].subnodes = Some(Prog::from(vec![A(R)]));
+        run_prog_and_test(prog, &[A(F), A(F), A(R), A(R), A(F), A(F), A(R), A(R)]);
     }
 
     #[test]
     fn test_nested_repeat_two_instr() {
         initialise_logging_for_tests();
-        let mut prog = Prog::from(vec![x2]);
-        prog[0].subnodes = Some(Prog::from(vec![x2]));
-        prog[0][0].subnodes = Some(Prog::from(vec![L, R]));
-        run_prog_and_test(prog, &[L, R, L, R, L, R, L, R, ]);
+        let mut prog = Prog::from(vec![P(x2)]);
+        prog[0].subnodes = Some(Prog::from(vec![P(x2)]));
+        prog[0][0].subnodes = Some(Prog::from(vec![A(L), A(R)]));
+        run_prog_and_test(prog, &[A(L), A(R), A(L), A(R), A(L), A(R), A(L), A(R), ]);
     }
 
     #[test]
     fn test_repeat_nested_group() { // x2(group(x2(F), R))
         initialise_logging_for_tests();
-        let mut prog = Prog::from(vec![x2]);
-        prog[0].subnodes = Some(Prog::from(vec![group]));
-        prog[0][0].subnodes = Some(Prog::from(vec![x2, R]));
-        prog[0][0][0].subnodes = Some(Prog::from(vec![F]));
-        run_prog_and_test(prog, &[F, F, R, F, F, R]);
+        let mut prog = Prog::from(vec![P(x2)]);
+        prog[0].subnodes = Some(Prog::from(vec![P(group)]));
+        prog[0][0].subnodes = Some(Prog::from(vec![P(x2), A(R)]));
+        prog[0][0][0].subnodes = Some(Prog::from(vec![A(F)]));
+        run_prog_and_test(prog, &[A(F), A(F), A(R), A(F), A(F), A(R)]);
     }
 
     #[test]
     fn test_f_then_nested_repeat_two_instr() {
         initialise_logging_for_tests();
-        let mut prog = Prog::from(vec![F, x2]);
-        prog[1].subnodes = Some(Prog::from(vec![x2]));
-        prog[1][0].subnodes = Some(Prog::from(vec![L, R]));
-        run_prog_and_test(prog, &[F, L, R, L, R, L, R, L, R, ]);
+        let mut prog = Prog::from(vec![A(F), P(x2)]);
+        prog[1].subnodes = Some(Prog::from(vec![P(x2)]));
+        prog[1][0].subnodes = Some(Prog::from(vec![A(L), A(R)]));
+        run_prog_and_test(prog, &[A(F), A(L), A(R), A(L), A(R), A(L), A(R), A(L), A(R), ]);
     }
 }
