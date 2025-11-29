@@ -357,10 +357,10 @@ mod tests {
         assert_eq!(Prog::from("F,R,L,x2,group,loop5"), Prog::from(vec![A(F), A(R), A(L), P(x2), P(group), P(loop5)]));
     }
 
-    fn run_prog_and_test(mut prog: Prog, expected_ops: &[Op]) {
+    fn run_prog_and_test(mut prog: Prog, expected_ops: &[ActionOp]) {
         for (idx, expected_op) in expected_ops.iter().enumerate() {
             assert!(!prog.finished());
-            assert_eq!(prog.curr_op().unwrap(), *expected_op, "At idx {} of {}", idx, prog);
+            assert_eq!(prog.curr_op().unwrap(), Op::Action(*expected_op), "At idx {} of {}", idx, prog);
             prog.advance_next_instr();
         }
         assert!(prog.finished());
@@ -369,7 +369,7 @@ mod tests {
     #[test]
     fn test_linear_prog() {
         initialise_logging_for_tests();
-        run_prog_and_test(Prog::from(vec![A(F),A(F),A(R),A(F)]), &[A(F), A(F), A(R), A(F)]);
+        run_prog_and_test(Prog::from("F, F, R, F"), &[F, F, R, F]);
     }
 
     #[test]
@@ -377,7 +377,7 @@ mod tests {
         initialise_logging_for_tests();
         let mut prog = Prog::from(vec![A(L), P(x2), A(L)]);
         prog[1].subnodes = Some(Prog::from(vec![A(F), A(R)]));
-        run_prog_and_test(prog, &[A(L),A(F),A(R),A(F),A(R),A(L)]);
+        run_prog_and_test(prog, &[L, F, R, F, R, L]);
     }
 
     #[test]
@@ -385,7 +385,7 @@ mod tests {
         initialise_logging_for_tests();
         let mut prog = Prog::from(vec![P(x2)]);
         prog[0].subnodes = Some(Prog::from(vec![A(F)]));
-        run_prog_and_test(prog, &[A(F), A(F)]);
+        run_prog_and_test(prog, &[F, F]);
     }
 
     #[test]
@@ -394,7 +394,7 @@ mod tests {
         let mut prog = Prog::from(vec![P(x2)]);
         prog[0].subnodes = Some(Prog::from(vec![P(x2)]));
         prog[0][0].subnodes = Some(Prog::from(vec![A(F)]));
-        run_prog_and_test(prog, &[A(F), A(F), A(F), A(F)]);
+        run_prog_and_test(prog, &[F, F, F, F]);
     }
 
     #[test]
@@ -404,7 +404,7 @@ mod tests {
         prog[0].subnodes = Some(Prog::from(vec![P(x2), P(x2)]));
         prog[0][0].subnodes = Some(Prog::from(vec![A(F)]));
         prog[0][1].subnodes = Some(Prog::from(vec![A(R)]));
-        run_prog_and_test(prog, &[A(F), A(F), A(R), A(R), A(F), A(F), A(R), A(R)]);
+        run_prog_and_test(prog, &[F, F, R, R, F, F, R, R]);
     }
 
     #[test]
@@ -413,7 +413,7 @@ mod tests {
         let mut prog = Prog::from(vec![P(x2)]);
         prog[0].subnodes = Some(Prog::from(vec![P(x2)]));
         prog[0][0].subnodes = Some(Prog::from(vec![A(L), A(R)]));
-        run_prog_and_test(prog, &[A(L), A(R), A(L), A(R), A(L), A(R), A(L), A(R), ]);
+        run_prog_and_test(prog, &[L, R, L, R, L, R, L, R]);
     }
 
     #[test]
@@ -423,7 +423,7 @@ mod tests {
         prog[0].subnodes = Some(Prog::from(vec![P(group)]));
         prog[0][0].subnodes = Some(Prog::from(vec![P(x2), A(R)]));
         prog[0][0][0].subnodes = Some(Prog::from(vec![A(F)]));
-        run_prog_and_test(prog, &[A(F), A(F), A(R), A(F), A(F), A(R)]);
+        run_prog_and_test(prog, &[F, F, R, F, F, R]);
     }
 
     #[test]
@@ -432,6 +432,6 @@ mod tests {
         let mut prog = Prog::from(vec![A(F), P(x2)]);
         prog[1].subnodes = Some(Prog::from(vec![P(x2)]));
         prog[1][0].subnodes = Some(Prog::from(vec![A(L), A(R)]));
-        run_prog_and_test(prog, &[A(F), A(L), A(R), A(L), A(R), A(L), A(R), A(L), A(R), ]);
+        run_prog_and_test(prog, &[F, L, R, L, R, L, R, L, R]);
     }
 }
