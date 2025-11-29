@@ -6,7 +6,7 @@ use tile_engine::for_gamedata::*;
 pub struct ProgpuzzCustomProps {
     pub ai: ProgpuzzAI,
     pub prog: Prog,
-    pub at_beginning: bool,
+    pub about_to_exec_init_instr: bool,
 }
 
 impl ProgpuzzCustomProps {
@@ -30,7 +30,7 @@ impl BaseCustomProps for ProgpuzzCustomProps {
         Self {
             ai: ProgpuzzAI::Stay,
             prog: Prog::default(),
-            at_beginning: true,
+            about_to_exec_init_instr: true,
         }
     }
 
@@ -68,28 +68,24 @@ impl BaseGameLogic for ProgpuzzGameLogic
         } else {
             None
         }
-        // coding_arena.curr_arena.as_ref().map(|curr_arena| curr_arena[curr_arena.hero()].logical_props.custom_props.ip)
     }
 
     fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, _cmd: MoveCmd) -> WidgetContinuation {
-        let props = &map[mov].logical_props.custom_props;
+        let props = &mut map[mov].logical_props.custom_props;
         match props.ai {
             ProgpuzzAI::Prog => {
-                if props.at_beginning {
-                    map[mov].logical_props.custom_props.at_beginning = false;
+                if props.about_to_exec_init_instr {
+                    props.about_to_exec_init_instr = false;
                 } else {
-                    let prog = &mut map[mov].logical_props.custom_props.prog;
-                    let cont = prog.advance_next_instr();
+                    props.prog.advance_next_instr();
 
-                    if cont == None {
+                    if props.prog.finished() {
                         log::debug!("Bot reached end of program.");
                         return WidgetContinuation::Break(WidgetConclusion::Die);
                     }
                 }
 
-                let prog = &mut map[mov].logical_props.custom_props.prog;
-
-                let op = prog.curr_op();
+                let op = props.prog.curr_op();
 
                 if op == None {
                     log::debug!("Bot reached empty parent instr.");
@@ -116,7 +112,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
                         log::debug!("Bot rotate R. {} -> {}", map[mov].logical_props.prev_dir , map[mov].logical_props.dir);
                     },
                     _ => {
-                        panic!("Unrecognised instr {:?}", prog.curr_op());
+                        panic!("Unrecognised instr {:?}", props.prog.curr_op());
                     },
                 }
 
