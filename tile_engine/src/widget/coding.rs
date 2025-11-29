@@ -208,19 +208,18 @@ impl Subprog {
     }
 
     // Currently executing op. Action instr from list, or from a parent instr.
-    // None for an empty program, or when program reaches an empty parent instr.
+    // None when past end of program, or when program reaches an empty parent instr.
     pub fn curr_op(&self) -> Option<Op> {
-        if self.instrs.len() == 0 {
-            return None;
+        if self.curr_ip >= self.instrs.len() {
+            None
         } else {
-            assert!(self.curr_ip < self.instrs.len());
-        }
-        let node = self.instrs.get(self.curr_ip).unwrap();
-        if node.op.is_action_instr() {
-            Some(node.op)
-        } else {
-            assert!(node.op.is_parent_instr());
-            node.subnodes.as_ref().unwrap().curr_op()
+            let node = self.instrs.get(self.curr_ip).unwrap();
+            if node.op.is_action_instr() {
+                Some(node.op)
+            } else {
+                assert!(node.op.is_parent_instr());
+                node.subnodes.as_ref().unwrap().curr_op()
+            }
         }
     }
 
