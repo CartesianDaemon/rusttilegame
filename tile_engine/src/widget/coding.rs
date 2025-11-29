@@ -66,7 +66,11 @@ impl Op {
 
 impl std::fmt::Display for Op {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        std::fmt::Debug::fmt(self, f)
+        use Op::*;
+        match self {
+            Action(op) => std::fmt::Debug::fmt(op, f),
+            Parent(op) => std::fmt::Debug::fmt(op, f),
+        }
     }
 }
 
