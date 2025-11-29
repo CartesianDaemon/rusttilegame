@@ -1,0 +1,83 @@
+===================================
+FIXES
+
+Fixes
+ Remaining crashes while dragging. Maybe refactor. Maybe loop in reverse order?
+ Dropping group on supply
+ ... (see notes in history)
+
+Maybe fix
+ Fix highlight overlapping instr and below connector
+ Fix rotation animation for fish when turning past 0.
+ Displaying group while dragging
+ Fixing highlight for drag origin, onto supply, etc.
+ Fix highlight of active instructions while executing (needs getting prog from hero instead of index)
+ Check how things look on different sizes.
+ Prevent dropping inside x2 instr if instr is full
+
+Maybe add
+ Expand hit box for below connector down when nothing below it.
+ Click on map to start. Might need to refactor how Ui uses ActionCmds.
+ And space/click to pause/stop execution?
+ Better interface for small phone screens?
+
+Bug reports
+ Coding.rs: line 228. x2[ x2 [group [F, R] ]]
+
+=====================
+IDEAS FOR TWEAKING
+
+Review highlight colours.
+
+=====================
+REFACTORING
+
+Fix nowish
+ Tests for dragging/dropping. Probably needs injection for mouse coords
+ Return from interact when changing prog, or fixing index in loop.
+
+And
+ Simplify OpStyle to mostly be individual Fns in CodingUi
+
+Maybe
+ Split CodingArenaUi Into CodingUi and CodingArenaUi.
+
+Eventually
+ Go through all the TODOs, NBs, BREADCRUMBS etc.
+
+=====================
+FUNCTIONALITY
+
+Instr ideas
+ Conditional instr.
+ Maybe: Go-to-top, as a simpler variant of loop.
+ Maybe: Sidestep.
+ Maybe: N, E, S, W.
+ Maybe: Execute only N times as a different variant on looping. Or alternate.
+
+Instr and ideas
+ Different kind of exit, needing to stop exactly on
+ Or to sit on/go past N times.
+ Or to collect N different keys.
+
+Instr speculative
+ Subroutines etc.
+ Altering program as it executes. Eg "chomp" next/prev instr!
+ Eg picking up instr from ground, to go into next placeholder hit.
+
+Ui
+ START instr.
+ Allow dropping parent instr to the left of existing instr to nest inside it
+ Reshuffle program when dragging over it.
+
+Execution
+ Control speed of execution
+ Or step through.
+ Add clickable buttons for start/stop, or instructions.
+
+=====================
+
+PUZZLES
+
+The accidental debug B setup served as quite an effective puzzle. 2x each F, L, R, group, 2x. Maybe loop5.
+ Needing to rest 2x and group to get to exit (U3, R2).
