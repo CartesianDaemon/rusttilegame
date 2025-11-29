@@ -429,6 +429,16 @@ mod tests {
     }
 
     #[test]
+    fn test_repeat_nested_group() { // x2(group(x2(F), R))
+        initialise_logging_for_tests();
+        let mut prog = Prog::from(vec![x2]);
+        prog[0].subnodes = Some(Prog::from(vec![group]));
+        prog[0][0].subnodes = Some(Prog::from(vec![x2, R]));
+        prog[0][0][0].subnodes = Some(Prog::from(vec![F]));
+        run_prog_and_test(prog, &[F, F, R, F, F, R]);
+    }
+
+    #[test]
     fn test_f_then_nested_repeat_two_instr() {
         initialise_logging_for_tests();
         let mut prog = Prog::from(vec![F, x2]);
