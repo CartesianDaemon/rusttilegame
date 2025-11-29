@@ -348,6 +348,11 @@ mod tests {
     fn parse() {
         assert_eq!(Prog::from("F"), Prog::from(vec![A(F)]));
         assert_eq!(Prog::from("F "), Prog::from(vec![A(F)]));
+        assert_eq!(Prog::from(" F "), Prog::from(vec![A(F)]));
+        assert_eq!(Prog::from("F,R"), Prog::from(vec![A(F), A(R)]));
+        assert_eq!(Prog::from("F, R"), Prog::from(vec![A(F), A(R)]));
+        assert_eq!(Prog::from("F ,R"), Prog::from(vec![A(F), A(R)]));
+        assert_eq!(Prog::from("F ,R "), Prog::from(vec![A(F), A(R)]));
     }
 
     fn run_prog_and_test(mut prog: Prog, expected_ops: &[Op]) {
