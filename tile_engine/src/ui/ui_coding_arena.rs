@@ -452,7 +452,7 @@ impl UiCodingArena
 
         if self.mouse_in_rect(self.supply_rect()) {
             if is_mouse_button_released(MouseButton::Left) {
-                self.drop_to_supply(coding);
+                self.drop_drag_to_supply(coding);
             }
         }
     }
@@ -808,8 +808,7 @@ impl UiCodingArena
         }
     }
 
-    fn drop_to_supply(&mut self, coding: &mut Coding) {
-        // TODO: Handle node with subnodes
+    fn drop_drag_to_supply(&mut self, coding: &mut Coding) {
         if let Some(DragOrigin {instr: Node{op, ..}, ..}) = self.dragging.clone() {
             log::debug!("INFO: Dropping {:?} to supply", op);
             for bin in &mut coding.supply {
