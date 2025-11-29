@@ -6,6 +6,7 @@ use tile_engine::for_gamedata::*;
 pub struct ProgpuzzCustomProps {
     pub ai: ProgpuzzAI,
     pub prog: Prog,
+    pub at_beginning: bool,
 }
 
 impl ProgpuzzCustomProps {
@@ -29,6 +30,7 @@ impl BaseCustomProps for ProgpuzzCustomProps {
         Self {
             ai: ProgpuzzAI::Stay,
             prog: Prog::default(),
+            at_beginning: true,
         }
     }
 
@@ -62,11 +64,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
 
     fn get_active_idx(coding_arena: &CodingArena<Self>) -> Option<usize> {
         if let Some(arena) = &coding_arena.curr_arena {
-            if arena[arena.hero()].logical_props.custom_props.prog.not_begun() {
-                Some(0)
-            } else {
-                Some(arena[arena.hero()].logical_props.custom_props.prog.prev_ip)
-            }
+            Some(arena[arena.hero()].logical_props.custom_props.prog.curr_ip)
         } else {
             None
         }
@@ -77,16 +75,28 @@ impl BaseGameLogic for ProgpuzzGameLogic
         let props = &map[mov].logical_props.custom_props;
         match props.ai {
             ProgpuzzAI::Prog => {
-                let prog = &mut map[mov].logical_props.custom_props.prog;
+                if props.at_beginning {
+                    map[mov].logical_props.custom_props.at_beginning = false;
+                } else {
+                    let prog = &mut map[mov].logical_props.custom_props.prog;
+                    let cont = prog.advance_next_instr();
 
-                if prog.has_reached_end() {
+                    if cont == None {
                         log::debug!("Bot reached end of program.");
                         return WidgetContinuation::Break(WidgetConclusion::Die);
+                    }
                 }
 
-                prog.advance_next_instr();
+                let prog = &mut map[mov].logical_props.custom_props.prog;
 
-                match prog.curr_op() {
+                let op = prog.curr_op();
+
+                if op == None {
+                    log::debug!("Bot reached empty parent instr.");
+                    return WidgetContinuation::Break(WidgetConclusion::Die);
+                }
+
+                match op.unwrap() {
                     // Move forward
                     Op::F => {
                         let target_pos = map[mov].pos() + map[mov].logical_props.dir;

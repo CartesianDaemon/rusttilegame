@@ -47,6 +47,15 @@ impl Op {
             Self::loop5 => 5,
         }
     }
+
+    pub fn repeat_count(self) -> usize {
+        match self {
+            Op::group => 1,
+            Op::x2 => 2,
+            Op::loop5 => 5,
+            _ => panic!("Repeat count not specified for non-parent instr"),
+        }
+    }
 }
 
 impl std::fmt::Display for Op {
@@ -138,33 +147,15 @@ impl Node {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Subprog {
-    // Index of previous instruction executed. Used for display and knowing when we enter subnodes
-    // Or 9999 for "not yet executed"
-    pub prev_ip: usize,
-    // Index of next instruction to execute.
-    pub next_ip: usize,
+    // Index of instruction currently executing. 0 when program has not started.
+    pub curr_ip: usize,
     // Internal counter, used to implement loops and other stateful instructions.
-    // When used for iteration, counts down. During last iteration it will have value 1.
-    pub repeat: usize,
+    // When used for iteration, counts number of times current execution of parent instr has executed this subprog.
+    pub counter: usize,
     // Vector of one or more instrs to execute. Some parent ops have a specific number of nested instrs.
     pub instrs: Vec<Node>
-}
-
-impl Default for Subprog {
-    fn default() -> Self {
-        Self {
-            // TODO: Could set to last instr, as we would have before wrapping round.
-            // But very first instr is the only one where we need to initialise?
-            // And only if instr not initialised when added to program? If we fix that
-            // we shouldn't need this special case?
-            prev_ip: 9999,
-            next_ip: 0,
-            repeat: 0,
-            instrs: vec![],
-        }
-    }
 }
 
 impl From<Vec<Op>> for Subprog {
@@ -178,17 +169,15 @@ impl From<Vec<Op>> for Subprog {
 
 impl std::fmt::Display for Subprog {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{:.<1$}[", "", self.repeat)?;
+        write!(f, "{:.<1$}[", "", self.counter)?;
         for (idx, node) in self.instrs.iter().enumerate() {
             if idx >0 {write!(f, ",")?}
-            if idx == self.prev_ip {write!(f, "_")?}
-            if idx == self.next_ip {write!(f, "*")?}
+            if idx == self.curr_ip {write!(f, "*")?}
             write!(f, "{}", node.op)?;
             if node.op.is_parent_instr() {
                 write!(f, "{}", node.subnodes.as_ref().unwrap())?;
             }
         }
-        if self.next_ip >= self.instrs.len() {write!(f, ",*")?}
         write!(f, "]")
     }
 }
@@ -214,121 +203,76 @@ impl Subprog {
         std::cmp::max(1, self.instrs.iter().map(|node| node.v_len()).sum())
     }
 
-    pub fn not_begun(&self) -> bool {
-        self.prev_ip == 9999
-    }
-
-    pub fn has_reached_end(&self) -> bool {
-        self.next_ip >= self.instrs.len()
-    }
-
-    // Currently executing node. Either action instr, or parent instr.
-    // Panics if program has stopped.
-    fn curr_node(&mut self) -> &mut Node {
-        self.instrs.get_mut(self.prev_ip).unwrap()
-    }
-
-    // Next executing node. Either action instr, or parent instr.
-    // Panics if program has stopped.
-    fn next_node(&mut self) -> &mut Node {
-        self.instrs.get_mut(self.next_ip).unwrap()
-    }
-
     // Currently executing op. Action instr from list, or from a parent instr.
-    // Panics if program hasn't started yet, or has stopped.
-    pub fn curr_op(&self) -> Op {
-        let node = if self.not_begun() {
-            self.instrs.get(0).unwrap()
+    // None for an empty program, or when program reaches an empty parent instr.
+    pub fn curr_op(&self) -> Option<Op> {
+        if self.instrs.len() == 0 {
+            return None;
         } else {
-            self.instrs.get(self.prev_ip).unwrap()
-        };
+            assert!(self.curr_ip < self.instrs.len());
+        }
+        let node = self.instrs.get(self.curr_ip).unwrap();
         if node.op.is_action_instr() {
-            node.op
+            Some(node.op)
         } else {
             assert!(node.op.is_parent_instr());
             node.subnodes.as_ref().unwrap().curr_op()
         }
     }
 
-    // Next action op to execute. (Or panic.)
-    pub fn next_op(&self) -> Op {
-        let node = self.instrs.get(self.next_ip).unwrap();
-        if node.op.is_action_instr() {
-            node.op
+    pub fn unwrap_curr_op(&self) -> Op {
+        self.curr_op().unwrap()
+    }
+
+    // Advances curr_ip. Returns Some, unless program wraps round.
+    fn advance_ip(&mut self) -> Option<()> {
+        if self.curr_ip + 1 < self.instrs.len() {
+            self.curr_ip += 1;
+            Some(())
         } else {
-            assert!(node.op.is_parent_instr());
-            node.subnodes.as_ref().unwrap().next_op()
+            self.curr_ip = 0;
+            None
         }
     }
 
-    pub fn initialise(&mut self, parent_control_flow_op: Op) {
-        self.next_ip = 0;
-        self.repeat = match parent_control_flow_op {
-            Op::group => 1,
-            Op::x2 => 2,
-            Op::loop5 => 5,
-            _ => panic!(),
-        }
-    }
-
-    fn advance_own_ip(&mut self) {
-        self.next_ip += 1;
-        if self.has_reached_end() && self.repeat > 1 {
-            self.repeat -= 1;
-            self.next_ip = 0;
-        }
-
-        if !self.has_reached_end() {
-            let op = self.next_node().op;
-            if op.is_parent_instr() {
-                self.next_node().subnodes.as_mut().unwrap().initialise(op);
-            }
-        }
-    }
-
-    fn advance_current_subprog(&mut self) {
-        // Example sequence of prev and next ip executing through a group instr.
-        // [_*R ,  R,  [_*F,  F  ],  R  ] // do op at *, then advance to next line
-        // [ _R , *R,  [_*F,  F  ],  R  ]
-        // [  R , _R, *[_*F,  F  ],  R  ]
-        // [  R ,  R,_*[_*F,  F  ],  R  ]
-        // [  R ,  R,_*[ _F, *F  ],  R  ]
-        // [  R ,  R, _[  F, _F *], *R  ]
-        // [  R ,  R,  [  F, _F *], _R *]
-
-        let subprog = self.curr_node().subnodes.as_mut().unwrap();
-
-        subprog.advance_next_instr();
-
-        if subprog.has_reached_end() {
-            self.advance_own_ip();
-        }
-    }
-
-    // Advances control flow state. Use curr_op() to return basic external op, eg move, rotate.
-    // Will panic if we have reached the end of the program.
-    pub fn advance_next_instr(&mut self) {
-        if self.prev_ip == 9999 { // self.prev_ip == self.instrs.len() + 1 {
-            // TODO: 9999 only used for making sure very first instruction is initialised
-            if let Some(node) = self.instrs.get_mut(0) {
-                if node.op.is_parent_instr() {
-                    node.subnodes.as_mut().unwrap().initialise(node.op);
+    fn advance_current_subprog(&mut self, parent_op: Op) -> Option<()> {
+        let subprog = self.instrs.get_mut(self.curr_ip).unwrap().subnodes.as_mut().unwrap();
+        match subprog.advance_next_instr() {
+            Some(()) => Some(()),
+            None => {
+                if subprog.counter + 1 < parent_op.repeat_count() {
+                    subprog.counter += 1;
+                    Some(())
+                } else {
+                    subprog.counter = 0;
+                    self.advance_ip()
                 }
             }
         }
-        self.prev_ip = self.next_ip;
+    }
 
-        let op = self.curr_node().op;
+    // Advances control flow state.
+    //
+    // Advances into parent instructions. Except stops at empty parent instructions, when
+    // curr_op() will return None.
+    //
+    // Returns Some(), or None if program wrapped round.
+    pub fn advance_next_instr(&mut self) -> Option<()> {
+        if self.instrs.len() == 0 {
+            return None;
+        }
+
+        let op = self.instrs.get_mut(self.curr_ip).unwrap().op;
         if op.is_action_instr() {
-            assert!(op.is_action_instr());
-            self.advance_own_ip();
+            self.advance_ip()?;
         } else if op.is_parent_instr() {
-            self.advance_current_subprog();
+            self.advance_current_subprog(op)?;
         } else {
             panic!("Unrecognised category of instr: {}", op);
         }
-        assert!(self.curr_op().is_action_instr());
+        assert!(self.curr_op().is_none() || self.curr_op().unwrap().is_action_instr());
         log::debug!("Advanced prog to {}.", self); // to #{}. Next: #{}.", self, self.prev_ip, self.next_ip);
+        Some(())
     }
 }
 
@@ -372,10 +316,14 @@ mod tests {
 
     fn run_prog_and_test(mut prog: Prog, expected_ops: &[Op]) {
         for (idx, expected_op) in expected_ops.iter().enumerate() {
-            prog.advance_next_instr();
-            assert_eq!(prog.curr_op(), *expected_op, "At idx {} of {}", idx, prog);
+            assert_eq!(prog.curr_op().unwrap(), *expected_op, "At idx {} of {}", idx, prog);
+            let cont = prog.advance_next_instr();
+            if idx < expected_ops.len() - 1 {
+                assert!(cont == Some(()));
+            } else {
+                assert!(cont == None);
+            }
         }
-        assert!(prog.has_reached_end());
     }
 
     #[test]
