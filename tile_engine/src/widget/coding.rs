@@ -130,16 +130,18 @@ impl std::fmt::Display for Node {
     }
 }
 
-impl std::ops::Index<usize> for Node {
+// Returns n'th node in subprog, if any subprog exists.
+// If -1, returns first empty parent node, else panics
+impl std::ops::Index<i16> for Node {
     type Output = Node;
 
-    fn index(&self, idx: usize) -> &Self::Output {
+    fn index(&self, idx: i16) -> &Self::Output {
         &self.subnodes.as_ref().unwrap()[idx]
     }
 }
 
-impl std::ops::IndexMut<usize> for Node {
-    fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
+impl std::ops::IndexMut<i16> for Node {
+    fn index_mut(&mut self, idx: i16) -> &mut Self::Output {
         &mut self.subnodes.as_mut().unwrap()[idx]
     }
 }
@@ -206,17 +208,35 @@ impl std::fmt::Display for Subprog {
     }
 }
 
-impl std::ops::Index<usize> for Subprog {
+impl std::ops::Index<i16> for Subprog {
     type Output = Node;
 
-    fn index(&self, idx: usize) -> &Self::Output {
-        self.instrs.get(idx).unwrap()
+    fn index(&self, idx: i16) -> &Self::Output {
+        if idx >= 0 {
+            self.instrs.get(idx as usize).unwrap()
+        } else {
+            for node in &self.instrs {
+                if let Some(subnodes) = &node.subnodes && subnodes.instrs.len() == 0 {
+                    return node;
+                }
+            }
+            panic!();
+        }
     }
 }
 
-impl std::ops::IndexMut<usize> for Subprog {
-    fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
-        self.instrs.get_mut(idx).unwrap()
+impl std::ops::IndexMut<i16> for Subprog {
+    fn index_mut(&mut self, idx: i16) -> &mut Self::Output {
+        if idx >= 0 {
+            self.instrs.get_mut(idx as usize).unwrap()
+        } else {
+            for node in &mut self.instrs {
+                if let Some(subnodes) = &node.subnodes && subnodes.instrs.len() == 0 {
+                    return node;
+                }
+            }
+            panic!();
+        }
     }
 }
 
