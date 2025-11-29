@@ -228,29 +228,29 @@ impl Subprog {
         self.curr_op().unwrap()
     }
 
-    // Advances curr_ip. Returns Some, unless program wraps round.
-    fn advance_ip(&mut self) -> Option<()> {
-        if self.curr_ip + 1 < self.instrs.len() {
-            self.curr_ip += 1;
-            Some(())
-        } else {
-            self.curr_ip = 0;
-            None
-        }
+    fn advance_ip(&mut self) {
+        self.curr_ip += 1;
     }
 
-    fn advance_current_subprog(&mut self, parent_op: Op) -> Option<()> {
+    fn reset(&mut self) {
+        self.curr_ip = 0;
+        self.counter = 0;
+    }
+
+    fn iterate(&mut self) {
+        self.curr_ip = 0;
+        self.counter += 1;
+    }
+
+    fn advance_current_subprog(&mut self, parent_op: Op) {
         let subprog = self.instrs.get_mut(self.curr_ip).unwrap().subnodes.as_mut().unwrap();
-        match subprog.advance_next_instr() {
-            Some(()) => Some(()),
-            None => {
-                if subprog.counter + 1 < parent_op.repeat_count() {
-                    subprog.counter += 1;
-                    Some(())
-                } else {
-                    subprog.counter = 0;
-                    self.advance_ip()
-                }
+        subprog.advance_next_instr();
+        if subprog.finished() {
+            if subprog.counter + 1 < parent_op.repeat_count() {
+                subprog.iterate();
+            } else {
+                subprog.reset();
+                self.advance_ip();
             }
         }
     }
@@ -261,22 +261,22 @@ impl Subprog {
     // curr_op() will return None.
     //
     // Returns Some(), or None if program wrapped round.
-    pub fn advance_next_instr(&mut self) -> Option<()> {
-        if self.instrs.len() == 0 {
-            return None;
+    pub fn advance_next_instr(&mut self) {
+        if self.finished() {
+            self.reset();
+            return;
         }
 
         let op = self.instrs.get_mut(self.curr_ip).unwrap().op;
         if op.is_action_instr() {
-            self.advance_ip()?;
+            self.advance_ip();
         } else if op.is_parent_instr() {
-            self.advance_current_subprog(op)?;
+            self.advance_current_subprog(op);
         } else {
             panic!("Unrecognised category of instr: {}", op);
         }
         assert!(self.curr_op().is_none() || self.curr_op().unwrap().is_action_instr());
         log::debug!("Advanced prog to {}.", self); // to #{}. Next: #{}.", self, self.prev_ip, self.next_ip);
-        Some(())
     }
 }
 
@@ -320,14 +320,11 @@ mod tests {
 
     fn run_prog_and_test(mut prog: Prog, expected_ops: &[Op]) {
         for (idx, expected_op) in expected_ops.iter().enumerate() {
+            assert!(!prog.finished());
             assert_eq!(prog.curr_op().unwrap(), *expected_op, "At idx {} of {}", idx, prog);
-            let cont = prog.advance_next_instr();
-            if idx < expected_ops.len() - 1 {
-                assert!(cont == Some(()));
-            } else {
-                assert!(cont == None);
-            }
+            prog.advance_next_instr();
         }
+        assert!(prog.finished());
     }
 
     #[test]

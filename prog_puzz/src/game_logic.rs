@@ -78,9 +78,9 @@ impl BaseGameLogic for ProgpuzzGameLogic
                     map[mov].logical_props.custom_props.at_beginning = false;
                 } else {
                     let prog = &mut map[mov].logical_props.custom_props.prog;
-                    let cont = prog.advance_next_instr();
+                    prog.advance_next_instr();
 
-                    if cont == None {
+                    if prog.finished() {
                         log::debug!("Bot reached end of program.");
                         return WidgetContinuation::Break(WidgetConclusion::Die);
                     }
