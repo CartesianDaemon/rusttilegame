@@ -808,15 +808,24 @@ impl UiCodingArena
         }
     }
 
-    fn drop_drag_to_supply(&mut self, coding: &mut Coding) {
-        if let Some(DragOrigin {instr: Node{op, ..}, ..}) = self.dragging.clone() {
-            log::debug!("INFO: Dropping {:?} to supply", op);
-            for bin in &mut coding.supply {
-                if bin.op == op {
-                    bin.curr_count += 1;
-                    break;
-                }
+    fn drop_node_to_supply(&mut self, supply: &mut Vec<Bin>, instr: Node) {
+        log::debug!("INFO: Dropping {:?} to supply", instr.op);
+        for bin in &mut *supply {
+            if bin.op == instr.op {
+                bin.curr_count += 1;
+                break;
             }
+        }
+        if let Some(subprog) = instr.subnodes {
+            for node in subprog.instrs {
+                self.drop_node_to_supply(supply, node);
+            }
+        }
+    }
+
+    fn drop_drag_to_supply(&mut self, coding: &mut Coding) {
+        if let Some(DragOrigin {instr, ..}) = self.dragging.clone() {
+            self.drop_node_to_supply(&mut coding.supply, instr);
             self.dragging = None;
         }
     }
