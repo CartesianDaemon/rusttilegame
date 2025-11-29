@@ -2,7 +2,7 @@
 FIXES
 
 Fixes
- Remaining crashes while dragging. Maybe refactor. Maybe loop in reverse order?
+ X Remaining crashes while executing.
  Dropping group on supply
  ... (see notes in history)
 
@@ -37,6 +37,9 @@ REFACTORING
 Fix nowish
  Tests for dragging/dropping. Probably needs injection for mouse coords
  Return from interact when changing prog, or fixing index in loop.
+
+And
+ Fix potential crashes while dragging. Maybe loop in reverse order?
 
 Tests
  Have a way of recording logical UI input which can be injected in test.
