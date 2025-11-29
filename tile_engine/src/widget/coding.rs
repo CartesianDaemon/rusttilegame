@@ -369,69 +369,69 @@ mod tests {
     #[test]
     fn test_linear_prog() {
         initialise_logging_for_tests();
-        run_prog_and_test(Prog::from("F, F, R, F"), &[F, F, R, F]);
+        run_prog_and_test(Prog::from("F,F,R,F"), &[F, F, R, F]);
     }
 
     #[test]
     fn test_simple_repeat() {
         initialise_logging_for_tests();
-        let mut prog = Prog::from(vec![A(L), P(x2), A(L)]);
-        prog[1].subnodes = Some(Prog::from(vec![A(F), A(R)]));
+        let mut prog = Prog::from("L,x2,L");
+        prog[1].subnodes = Some(Prog::from("F,R"));
         run_prog_and_test(prog, &[L, F, R, F, R, L]);
     }
 
     #[test]
     fn test_bare_repeat() {
         initialise_logging_for_tests();
-        let mut prog = Prog::from(vec![P(x2)]);
-        prog[0].subnodes = Some(Prog::from(vec![A(F)]));
+        let mut prog = Prog::from("x2");
+        prog[0].subnodes = Some(Prog::from("F"));
         run_prog_and_test(prog, &[F, F]);
     }
 
     #[test]
     fn test_bare_nested_repeat() {
         initialise_logging_for_tests();
-        let mut prog = Prog::from(vec![P(x2)]);
-        prog[0].subnodes = Some(Prog::from(vec![P(x2)]));
-        prog[0][0].subnodes = Some(Prog::from(vec![A(F)]));
+        let mut prog = Prog::from("x2");
+        prog[0].subnodes = Some(Prog::from("x2"));
+        prog[0][0].subnodes = Some(Prog::from("F"));
         run_prog_and_test(prog, &[F, F, F, F]);
     }
 
     #[test]
     fn test_twice_nested_repeat() {
         initialise_logging_for_tests();
-        let mut prog = Prog::from(vec![P(x2)]);
-        prog[0].subnodes = Some(Prog::from(vec![P(x2), P(x2)]));
-        prog[0][0].subnodes = Some(Prog::from(vec![A(F)]));
-        prog[0][1].subnodes = Some(Prog::from(vec![A(R)]));
+        let mut prog = Prog::from("x2");
+        prog[0].subnodes = Some(Prog::from("x2,x2"));
+        prog[0][0].subnodes = Some(Prog::from("F"));
+        prog[0][1].subnodes = Some(Prog::from("R"));
         run_prog_and_test(prog, &[F, F, R, R, F, F, R, R]);
     }
 
     #[test]
     fn test_nested_repeat_two_instr() {
         initialise_logging_for_tests();
-        let mut prog = Prog::from(vec![P(x2)]);
-        prog[0].subnodes = Some(Prog::from(vec![P(x2)]));
-        prog[0][0].subnodes = Some(Prog::from(vec![A(L), A(R)]));
+        let mut prog = Prog::from("x2");
+        prog[0].subnodes = Some(Prog::from("x2"));
+        prog[0][0].subnodes = Some(Prog::from("L, R"));
         run_prog_and_test(prog, &[L, R, L, R, L, R, L, R]);
     }
 
     #[test]
     fn test_repeat_nested_group() { // x2(group(x2(F), R))
         initialise_logging_for_tests();
-        let mut prog = Prog::from(vec![P(x2)]);
-        prog[0].subnodes = Some(Prog::from(vec![P(group)]));
-        prog[0][0].subnodes = Some(Prog::from(vec![P(x2), A(R)]));
-        prog[0][0][0].subnodes = Some(Prog::from(vec![A(F)]));
+        let mut prog = Prog::from("x2");
+        prog[0].subnodes = Some(Prog::from("group"));
+        prog[0][0].subnodes = Some(Prog::from("x2, R"));
+        prog[0][0][0].subnodes = Some(Prog::from("F"));
         run_prog_and_test(prog, &[F, F, R, F, F, R]);
     }
 
     #[test]
     fn test_f_then_nested_repeat_two_instr() {
         initialise_logging_for_tests();
-        let mut prog = Prog::from(vec![A(F), P(x2)]);
-        prog[1].subnodes = Some(Prog::from(vec![P(x2)]));
-        prog[1][0].subnodes = Some(Prog::from(vec![A(L), A(R)]));
+        let mut prog = Prog::from("F, x2");
+        prog[1].subnodes = Some(Prog::from("x2"));
+        prog[1][0].subnodes = Some(Prog::from("L, R"));
         run_prog_and_test(prog, &[F, L, R, L, R, L, R, L, R]);
     }
 }
