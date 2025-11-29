@@ -203,6 +203,10 @@ impl Subprog {
         std::cmp::max(1, self.instrs.iter().map(|node| node.v_len()).sum())
     }
 
+    pub fn finished(&self) -> bool {
+        self.curr_ip >= self.instrs.len()
+    }
+
     // Currently executing op. Action instr from list, or from a parent instr.
     // None for an empty program, or when program reaches an empty parent instr.
     pub fn curr_op(&self) -> Option<Op> {

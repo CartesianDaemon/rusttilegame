@@ -68,7 +68,6 @@ impl BaseGameLogic for ProgpuzzGameLogic
         } else {
             None
         }
-        // coding_arena.curr_arena.as_ref().map(|curr_arena| curr_arena[curr_arena.hero()].logical_props.custom_props.ip)
     }
 
     fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, _cmd: MoveCmd) -> WidgetContinuation {
