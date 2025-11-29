@@ -70,7 +70,6 @@ impl std::fmt::Display for Op {
     }
 }
 
-// #[cfg(any())]
 impl From<&str> for Op {
     fn from(txt: &str) -> Self {
         match txt {
@@ -130,8 +129,6 @@ impl std::fmt::Display for Node {
     }
 }
 
-// Returns n'th node in subprog, if any subprog exists.
-// If -1, returns first empty parent node, else panics
 impl std::ops::Index<i16> for Node {
     type Output = Node;
 
@@ -185,7 +182,6 @@ impl<T: Iterator<Item=Op>> From<T> for Subprog {
     }
 }
 
-// #[cfg(any())]
 impl From<&str> for Subprog {
     fn from(txt: &str) -> Self {
         let ops : Vec<Op> = txt.split(",").map(|s| s.trim().into()).collect();
@@ -225,13 +221,17 @@ impl std::ops::Index<i16> for Subprog {
     }
 }
 
+// Returns n'th node in subprog, if any subprog exists.
+// If -1, returns first empty parent node, else panics
 impl std::ops::IndexMut<i16> for Subprog {
     fn index_mut(&mut self, idx: i16) -> &mut Self::Output {
         if idx >= 0 {
             self.instrs.get_mut(idx as usize).unwrap()
         } else {
             for node in &mut self.instrs {
-                if let Some(subnodes) = &node.subnodes && subnodes.instrs.len() == 0 {
+                if node.op.is_parent_instr() && (
+                        node.subnodes.is_none() || node.subnodes.as_ref().unwrap().instrs.len() == 0
+                    ) {
                     return node;
                 }
             }
@@ -396,7 +396,7 @@ mod tests {
     fn test_simple_repeat() {
         initialise_logging_for_tests();
         let mut prog = Prog::from("L,x2,L");
-        prog[1].subnodes = Some(Prog::from("F,R"));
+        prog[-1].subnodes = Some(Prog::from("F,R"));
         run_prog_and_test(prog, &[L, F, R, F, R, L]);
     }
 
