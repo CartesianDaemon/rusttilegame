@@ -404,7 +404,7 @@ mod tests {
     fn test_bare_repeat() {
         initialise_logging_for_tests();
         let mut prog = Prog::from("x2");
-        prog[0].subnodes = Some(Prog::from("F"));
+        prog[-1].subnodes = Some(Prog::from("F"));
         run_prog_and_test(prog, &[F, F]);
     }
 
@@ -413,7 +413,7 @@ mod tests {
         initialise_logging_for_tests();
         let mut prog = Prog::from("x2");
         prog[0].subnodes = Some(Prog::from("x2"));
-        prog[0][0].subnodes = Some(Prog::from("F"));
+        prog[0][-1].subnodes = Some(Prog::from("F"));
         run_prog_and_test(prog, &[F, F, F, F]);
     }
 
@@ -422,8 +422,8 @@ mod tests {
         initialise_logging_for_tests();
         let mut prog = Prog::from("x2");
         prog[0].subnodes = Some(Prog::from("x2,x2"));
-        prog[0][0].subnodes = Some(Prog::from("F"));
-        prog[0][1].subnodes = Some(Prog::from("R"));
+        prog[0][-1].subnodes = Some(Prog::from("F"));
+        prog[0][-1].subnodes = Some(Prog::from("R"));
         run_prog_and_test(prog, &[F, F, R, R, F, F, R, R]);
     }
 
@@ -432,7 +432,7 @@ mod tests {
         initialise_logging_for_tests();
         let mut prog = Prog::from("x2");
         prog[0].subnodes = Some(Prog::from("x2"));
-        prog[0][0].subnodes = Some(Prog::from("L, R"));
+        prog[0][-1].subnodes = Some(Prog::from("L, R"));
         run_prog_and_test(prog, &[L, R, L, R, L, R, L, R]);
     }
 
