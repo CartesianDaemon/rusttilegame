@@ -77,9 +77,9 @@ impl From<&str> for Op {
             "F" => Op::Action(ActionOp::F),
             "L" => Op::Action(ActionOp::L),
             "R" => Op::Action(ActionOp::R),
-            "{}" => Op::Parent(ParentOp::group),
+            "group" => Op::Parent(ParentOp::group),
             "x2" => Op::Parent(ParentOp::x2),
-            "loop" => Op::Parent(ParentOp::loop5),
+            "loop5" => Op::Parent(ParentOp::loop5),
             _ => panic!("Unrecognised txt for instr: {}", txt)
         }
     }
@@ -353,6 +353,8 @@ mod tests {
         assert_eq!(Prog::from("F, R"), Prog::from(vec![A(F), A(R)]));
         assert_eq!(Prog::from("F ,R"), Prog::from(vec![A(F), A(R)]));
         assert_eq!(Prog::from("F ,R "), Prog::from(vec![A(F), A(R)]));
+        assert_eq!(Prog::from(" F ,R    , L"), Prog::from(vec![A(F), A(R), A(L)]));
+        assert_eq!(Prog::from("F,R,L,x2,group,loop5"), Prog::from(vec![A(F), A(R), A(L), P(x2), P(group), P(loop5)]));
     }
 
     fn run_prog_and_test(mut prog: Prog, expected_ops: &[Op]) {
