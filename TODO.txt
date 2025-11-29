@@ -22,7 +22,9 @@ Maybe add
  Better interface for small phone screens?
 
 Bug reports
- Coding.rs: line 228. x2[ x2 [group [F, R] ]]
+ When executing, Coding.rs: line 228. x2[ x2 [group [F, R] ]]
+ When executing, Similarly for x2(group(x2(F), F)). Cf: "[_*x2.[_*group.[*x2.[_F,*],_F]]]"
+ When executing with empty prog, or empty parent instr.
 
 =====================
 IDEAS FOR TWEAKING
@@ -35,6 +37,14 @@ REFACTORING
 Fix nowish
  Tests for dragging/dropping. Probably needs injection for mouse coords
  Return from interact when changing prog, or fixing index in loop.
+
+Tests
+ Have a way of recording logical UI input which can be injected in test.
+ And recorded from play as easy to add to test.
+ And similarly, when crashing show the program executing. That sort of already exists?
+
+Logging
+ Use tracing from my playground repo instead of logging. Shows nested "what part of prog is running".
 
 And
  Simplify OpStyle to mostly be individual Fns in CodingUi
