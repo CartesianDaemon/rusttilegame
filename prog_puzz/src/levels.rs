@@ -44,23 +44,29 @@ impl ProgpuzzLevset {
             */
         ]);
 
-        use supply_ops::*;
-
         let coding = if std::env::args().collect::<Vec<_>>().contains(&"--debug-coding=A".to_string()) {
-            let mut coding = Coding::from_vec(&[
-                (F, 1),
-                (L, 1),
-                (R, 1),
-                (group, 1),
-                (x2, 1),
-            ]);
+            let mut coding;
+            {
+                use supply_ops::*;
+                coding = Coding::from_vec(&[
+                    (F, 1),
+                    (L, 1),
+                    (R, 1),
+                    (group, 1),
+                    (x2, 1),
+                ]);
+            }
 
-            coding.prog = Prog::from(vec![R, x2]);
-            coding.prog.instrs[1].subnodes = Some(Prog::from(vec![x2]));
-            coding.prog.instrs[1].subnodes.as_mut().unwrap().instrs[0].subnodes = Some(Prog::from(vec![F]));
+            {
+                use prog_ops::*;
+                coding.prog = Prog::from(vec![R, x2]);
+                coding.prog.instrs[1].subnodes = Some(Prog::from(vec![x2]));
+                coding.prog.instrs[1].subnodes.as_mut().unwrap().instrs[0].subnodes = Some(Prog::from(vec![F]));
+            }
 
             coding
         } else if std::env::args().collect::<Vec<_>>().contains(&"--debug-coding=B".to_string()) {
+            use supply_ops::*;
             Coding::from_vec(&[
                 (F, 2),
                 (L, 2),
@@ -70,8 +76,8 @@ impl ProgpuzzLevset {
                 (loop5, 2),
             ])
         } else {
-            let coding = Coding::from_vec(&[(F, 6), (R, 1)]);
-            coding
+            use supply_ops::*;
+            Coding::from_vec(&[(F, 6), (R, 1)])
         };
 
         // NB: Would like to implement thin walls between squares, not walls filling whole squares.

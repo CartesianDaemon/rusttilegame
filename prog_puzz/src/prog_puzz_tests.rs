@@ -6,9 +6,8 @@ use crate::game_logic::{ProgpuzzCustomProps, ProgpuzzGameLogic};
 
 use super::objs::*;
 
-use supply_ops::*;
-
 fn basic_test_key() -> HashMap<char, Vec<FreeObj<crate::game_logic::ProgpuzzCustomProps>>> {
+    use prog_ops::*;
     let prog = Prog::from(vec![F,F,R,F]);
     HashMap::from([
         (' ', vec![ new_floor() ]),
@@ -55,6 +54,7 @@ fn basic_map(turn: usize) -> Arena<super::game_logic::ProgpuzzGameLogic> {
 }
 
 fn get_basic_lev() -> Widget<super::game_logic::ProgpuzzGameLogic> {
+    use supply_ops::*;
     Widget::CodingArena(CodingArena::new::<16>(
         basic_map(0),
         Coding::from_vec( &[(F, 1), (L, 1), (R, 1), (group, 1)] )
@@ -91,6 +91,7 @@ fn hero_prog<'a>(state: &'a Widget<ProgpuzzGameLogic>) -> &'a Prog {
 fn basic_move() {
     initialise_logging_for_tests();
 
+    use prog_ops::*;
     let mut state = get_basic_lev_with_prog(Prog::from(vec![F,F,R,F]));
     assert!(matches!(state, Widget::CodingArena(CodingArena{phase: CodingRunningPhase::Coding, ..})));
     assert_eq!(state.as_ascii_rows(), get_basic_lev().as_ascii_rows());
@@ -132,6 +133,7 @@ fn basic_move() {
 fn test_group() {
     initialise_logging_for_tests();
 
+    use prog_ops::*;
     let mut prog = Prog::from(vec![R,group,R]);
     prog.instrs[1].subnodes = Some(Prog::from(vec![F, F]));
     let mut state = get_basic_lev_with_prog(prog);
@@ -170,6 +172,7 @@ fn test_group() {
 fn repeat_x2() {
     initialise_logging_for_tests();
 
+    use prog_ops::*;
     let mut prog = Prog::from(vec![R,x2,R]);
     prog.instrs[1].subnodes = Some(Prog::from(vec![F]));
     let mut state = get_basic_lev_with_prog(prog);
@@ -205,6 +208,7 @@ fn repeat_x2() {
 fn repeat_x2_rotate() {
     initialise_logging_for_tests();
 
+    use prog_ops::*;
     let mut prog = Prog::from(vec![x2]);
     prog.instrs[0].subnodes = Some(Prog::from(vec![R,R,L]));
     let mut state = get_basic_lev_with_prog(prog);
@@ -248,6 +252,7 @@ fn repeat_x2_rotate() {
 fn nested_repeat() {
     initialise_logging_for_tests();
 
+    use prog_ops::*;
     let mut prog = Prog::from(vec![R, x2]);
     prog.instrs[1].subnodes = Some(Prog::from(vec![x2]));
     prog.instrs[1].subnodes.as_mut().unwrap().instrs[0].subnodes = Some(Prog::from(vec![F]));
