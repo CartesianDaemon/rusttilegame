@@ -55,7 +55,7 @@ impl Instr {
         }
     }
 
-    pub fn is_op(&self, op: Opcode) -> bool {
+    pub fn has_opcode(&self, op: Opcode) -> bool {
         match self {
             Instr::Action(opcode_a, _) => matches!(&op, Opcode::Action(opcode_b) if opcode_a == opcode_b ),
             Instr::Parent(opcode_a) => matches!(&op, Opcode::Parent(opcode_b) if opcode_a == opcode_b ),
