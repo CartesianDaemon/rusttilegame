@@ -38,6 +38,13 @@ pub enum Instr {
 }
 
 impl Instr {
+    pub fn from_op(op: Op) -> Self {
+        match op {
+            Op::Action(action_op) => Self::Action(action_op, ActionData::default()),
+            Op::Parent(parent_op) => Self::Parent(parent_op),
+        }
+    }
+
     pub fn _d_connector(self) -> bool {
         use Instr::*;
         match self {
@@ -46,10 +53,12 @@ impl Instr {
         }
     }
 
+    // TODO: Replace with match?
     pub fn is_action_instr(self) -> bool {
         !self.is_parent_instr()
     }
 
+    // TODO: Replace with match?
     pub fn is_parent_instr(self) -> bool {
         self.r_connect_max() > 0
     }
@@ -104,13 +113,13 @@ impl From<&str> for Instr {
 
 #[derive(Clone, Debug)]
 pub struct Bin {
-    pub op: Instr,
+    pub op: Op,
     pub orig_count: u16,
     pub curr_count: u16,
 }
 
 impl Bin {
-    fn new(op: Instr, orig_count: u16) -> Self {
+    fn new(op: Op, orig_count: u16) -> Self {
         Self {
             op,
             orig_count,
@@ -162,6 +171,13 @@ impl std::ops::IndexMut<i16> for Node {
 }
 
 impl Node {
+    pub fn from_op(op: Op) -> Self {
+        Self {
+            op: Instr::from_op(op),
+            subnodes: match op {Op::Action(_) => None, Op::Parent(_) => Some(Subprog::default())},
+        }
+    }
+
     pub fn v_len(&self) -> usize {
         match &self.subnodes {
             None => 1,
@@ -364,7 +380,7 @@ pub struct Coding {
 }
 
 impl Coding {
-    pub fn from_vec(supplies: &[(Instr, u16)]) -> Coding {
+    pub fn from_vec(supplies: &[(Op, u16)]) -> Coding {
         Coding {
             supply: supplies.iter().map(|(op,count)|
             Bin::new(*op, *count)
