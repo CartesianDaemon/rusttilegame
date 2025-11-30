@@ -85,16 +85,13 @@ impl BaseGameLogic for ProgpuzzGameLogic
                     }
                 }
 
-                let op = props.prog.curr_op();
-
-                if op == None {
-                    log::debug!("Bot reached empty parent instr.");
-                    return WidgetContinuation::Break(WidgetConclusion::Die);
-                }
-
-                match op.unwrap() {
+                match props.prog.curr_op_mut() {
+                    None => {
+                        log::debug!("Bot reached empty parent instr.");
+                        return WidgetContinuation::Break(WidgetConclusion::Die);
+                    }
                     // Move forward
-                    Op::Action(ActionOp::F, _data) => {
+                    Some(Op::Action(ActionOp::F, _data)) => {
                         let target_pos = map[mov].pos() + map[mov].logical_props.dir;
                         if map.passable(target_pos) {
                             log::debug!("Bot move F. {} -> {}", map[mov].pos(), target_pos);
@@ -103,15 +100,15 @@ impl BaseGameLogic for ProgpuzzGameLogic
                             log::debug!("Bot blocked F. {} -/-> {}", map[mov].pos(), target_pos);
                         }
                     },
-                    Op::Action(ActionOp::L, _data) => {
+                    Some(Op::Action(ActionOp::L, _data)) => {
                         map[mov].logical_props.dir.rotate_l();
                         log::debug!("Bot rotate L. {} -> {}", map[mov].logical_props.prev_dir , map[mov].logical_props.dir);
                     },
-                    Op::Action(ActionOp::R, _data) => {
+                    Some(Op::Action(ActionOp::R, _data)) => {
                         map[mov].logical_props.dir.rotate_r();
                         log::debug!("Bot rotate R. {} -> {}", map[mov].logical_props.prev_dir , map[mov].logical_props.dir);
                     },
-                    Op::Parent(_) => {
+                    Some(Op::Parent(_)) => {
                         panic!("Unrecognised instr {:?}", props.prog.curr_op());
                     },
                 }
