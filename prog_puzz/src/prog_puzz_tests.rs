@@ -6,7 +6,7 @@ use crate::game_logic::{ProgpuzzCustomProps, ProgpuzzGameLogic};
 
 use super::objs::*;
 
-use op_consts::*;
+use supply_ops::*;
 
 fn basic_test_key() -> HashMap<char, Vec<FreeObj<crate::game_logic::ProgpuzzCustomProps>>> {
     let prog = Prog::from(vec![F,F,R,F]);

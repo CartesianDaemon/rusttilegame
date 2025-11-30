@@ -364,7 +364,7 @@ impl BaseWidget for Coding
     }
 }
 
-pub mod actionop_consts {
+pub mod action_ops {
     #![allow(non_upper_case_globals)]
     use super::*;
 
@@ -373,7 +373,7 @@ pub mod actionop_consts {
     pub const R: ActionOp = ActionOp::R;
 }
 
-pub mod op_consts {
+pub mod supply_ops {
     #![allow(non_upper_case_globals)]
     use super::*;
 
@@ -387,6 +387,23 @@ pub mod op_consts {
     pub const loop5: Op = Op::Parent(ParentOp::loop5);
 }
 
+pub mod prog_ops {
+    #![allow(non_upper_case_globals)]
+    use super::*;
+
+    pub const a: ActionData = ActionData { blocked: false};
+    pub const F: Op = Op::Action(ActionOp::F, a);
+    pub const L: Op = Op::Action(ActionOp::L, a);
+    pub const R: Op = Op::Action(ActionOp::R, a);
+
+    // TODO: Introduce fn if we first subsume Subprog into ParentOp
+    // pub fn x2(ops: Vec<Op>) -> Op = Op::Parent(ParentOp::x2);
+
+    pub const x2: Op = Op::Parent(ParentOp::x2);
+    pub const group: Op = Op::Parent(ParentOp::group);
+    pub const loop5: Op = Op::Parent(ParentOp::loop5);
+}
+
 #[cfg(test)]
 mod tests {
     use crate::infra::initialise_logging_for_tests;
@@ -394,7 +411,7 @@ mod tests {
 
     #[test]
     fn parse() {
-        use op_consts::*;
+        use supply_ops::*;
         assert_eq!(Prog::from("F"), Prog::from(vec![F]));
         assert_eq!(Prog::from("F "), Prog::from(vec![F]));
         assert_eq!(Prog::from(" F "), Prog::from(vec![F]));
@@ -415,7 +432,7 @@ mod tests {
         assert!(prog.finished());
     }
 
-    use actionop_consts::*;
+    use action_ops::*;
 
     #[test]
     fn test_linear_prog() {

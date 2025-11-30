@@ -44,7 +44,7 @@ impl ProgpuzzLevset {
             */
         ]);
 
-        use op_consts::*;
+        use supply_ops::*;
 
         let coding = if std::env::args().collect::<Vec<_>>().contains(&"--debug-coding=A".to_string()) {
             let mut coding = Coding::from_vec(&[
