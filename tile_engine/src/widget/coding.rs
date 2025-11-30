@@ -24,7 +24,8 @@ pub enum ParentOp {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Op {
     Action(ActionOp, ActionData),
-    // TODO: Could merge Subprog into here, not in separate node type?
+    // TODO: Want to merge Subprog into here. Remove Node as separate type.
+    // Although, could have Op (with no data) and Instr (with data)..
     Parent(ParentOp),
 }
 
