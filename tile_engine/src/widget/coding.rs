@@ -400,14 +400,13 @@ pub mod supply_ops {
     #![allow(non_upper_case_globals)]
     use super::*;
 
-    pub const a: ActionData = ActionData { successful: false};
-    pub const F: Instr = Instr::Action(ActionOp::F, a);
-    pub const L: Instr = Instr::Action(ActionOp::L, a);
-    pub const R: Instr = Instr::Action(ActionOp::R, a);
+    pub const F: Op = Op::Action(ActionOp::F);
+    pub const L: Op = Op::Action(ActionOp::L);
+    pub const R: Op = Op::Action(ActionOp::R);
 
-    pub const x2: Instr = Instr::Parent(ParentOp::x2);
-    pub const group: Instr = Instr::Parent(ParentOp::group);
-    pub const loop5: Instr = Instr::Parent(ParentOp::loop5);
+    pub const x2: Op = Op::Parent(ParentOp::x2);
+    pub const group: Op = Op::Parent(ParentOp::group);
+    pub const loop5: Op = Op::Parent(ParentOp::loop5);
 }
 
 pub mod prog_ops {
@@ -434,7 +433,7 @@ mod tests {
 
     #[test]
     fn parse() {
-        use supply_ops::*;
+        use prog_ops::*;
         assert_eq!(Prog::from("F"), Prog::from(vec![F]));
         assert_eq!(Prog::from("F "), Prog::from(vec![F]));
         assert_eq!(Prog::from(" F "), Prog::from(vec![F]));
