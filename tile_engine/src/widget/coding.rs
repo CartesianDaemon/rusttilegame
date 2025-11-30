@@ -3,7 +3,7 @@ use crate::map_coords::MoveCmd;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
 pub struct ActionData {
-    pub successful: bool,
+    pub blocked: bool,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -465,7 +465,7 @@ pub mod prog_ops {
 
     use super::*;
 
-    pub const default_action_data: ActionData = ActionData { successful: false};
+    pub const default_action_data: ActionData = ActionData { blocked: false};
     pub const F: Instr = Instr::Action(ActionOpcode::F, default_action_data);
     pub const L: Instr = Instr::Action(ActionOpcode::L, default_action_data);
     pub const R: Instr = Instr::Action(ActionOpcode::R, default_action_data);

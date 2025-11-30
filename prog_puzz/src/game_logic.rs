@@ -85,14 +85,13 @@ impl BaseGameLogic for ProgpuzzGameLogic
                     }
                 }
 
-                props.prog.curr_op_mut().unwrap().as_action_data().successful = true;
-                let op = props.prog.curr_op();
-                match op {
+                match props.prog.curr_op_mut() {
                     None => {
                         log::debug!("Bot reached empty parent instr.");
                         return WidgetContinuation::Break(WidgetConclusion::Die);
                     }
-                    Some(Instr::Action(action_op, _)) => {
+                    Some(Instr::Action(action_op, action_data)) => {
+                        action_data.blocked = false;
                         match action_op {
                             // Move forward
                             ActionOpcode::F => {
@@ -102,7 +101,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
                                     map.move_obj_to(mov, target_pos);
                                 } else {
                                     log::debug!("Bot blocked F. {} -/-> {}", map[mov].pos(), target_pos);
-                                    map[mov].logical_props.custom_props.prog.curr_op_mut().unwrap().as_action_data().successful = false;
+                                    map[mov].logical_props.custom_props.prog.curr_op_mut().unwrap().as_action_data().blocked = true;
                                 }
                             },
                             ActionOpcode::L => {
