@@ -537,9 +537,9 @@ mod tests {
     fn test_twice_nested_repeat() {
         initialise_logging_for_tests();
         let mut prog = Prog::from("x2");
-        prog[0].subnodes = Some(Prog::from("x2,x2"));
-        prog[0][-1].subnodes = Some(Prog::from("F"));
-        prog[0][-1].subnodes = Some(Prog::from("R"));
+        prog[0].instr = Instr::Parent(ParentOpcode::x2, Prog::from("x2, x2"));
+        prog[0][-1].instr = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
+        prog[0][-1].instr = Instr::Parent(ParentOpcode::x2, Prog::from("R"));
         run_prog_and_test(prog, &[F, F, R, R, F, F, R, R]);
     }
 
@@ -547,8 +547,8 @@ mod tests {
     fn test_nested_repeat_two_instr() {
         initialise_logging_for_tests();
         let mut prog = Prog::from("x2");
-        prog[0].subnodes = Some(Prog::from("x2"));
-        prog[0][-1].subnodes = Some(Prog::from("L, R"));
+        prog[0].instr = Instr::Parent(ParentOpcode::x2, Prog::from("x2"));
+        prog[0][-1].instr = Instr::Parent(ParentOpcode::x2, Prog::from("L, R"));
         run_prog_and_test(prog, &[L, R, L, R, L, R, L, R]);
     }
 
@@ -556,9 +556,9 @@ mod tests {
     fn test_repeat_nested_group() { // x2(group(x2(F), R))
         initialise_logging_for_tests();
         let mut prog = Prog::from("x2");
-        prog[0].subnodes = Some(Prog::from("group"));
-        prog[0][0].subnodes = Some(Prog::from("x2, R"));
-        prog[0][0][0].subnodes = Some(Prog::from("F"));
+        prog[0].instr = Instr::Parent(ParentOpcode::x2, Prog::from("group"));
+        prog[0][0].instr = Instr::Parent(ParentOpcode::group, Prog::from("x2, R"));
+        prog[0][0][0].instr = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
         run_prog_and_test(prog, &[F, F, R, F, F, R]);
     }
 
@@ -566,8 +566,8 @@ mod tests {
     fn test_f_then_nested_repeat_two_instr() {
         initialise_logging_for_tests();
         let mut prog = Prog::from("F, x2");
-        prog[1].subnodes = Some(Prog::from("x2"));
-        prog[1][0].subnodes = Some(Prog::from("L, R"));
+        prog[1].instr = Instr::Parent(ParentOpcode::x2, Prog::from("x2"));
+        prog[1][0].instr = Instr::Parent(ParentOpcode::x2, Prog::from("L, R"));
         run_prog_and_test(prog, &[F, L, R, L, R, L, R, L, R]);
     }
 }
