@@ -18,7 +18,7 @@ enum InstrRef {
 
 #[derive(Clone)]
 struct DragOrigin {
-    instr: Node,
+    node: Node,
     op_ref: InstrRef,
     orig_offset_x: f32,
     orig_offset_y: f32,
@@ -611,11 +611,11 @@ impl UiCodingArena
         // Use "!is_mouse_button_down" not "is_mouse_buttom_released" to ensure dragging is stopped.
         if !is_mouse_button_down(MouseButton::Left) {
             match &self.dragging {
-                Some(DragOrigin { instr:_instr, op_ref: InstrRef::Supply { idx }, ..}) => {
+                Some(DragOrigin { node:_instr, op_ref: InstrRef::Supply { idx }, ..}) => {
                     log::debug!("INFO: Cancelling drag. Returning {:?} to supply idx {:?}", _instr, idx);
                     self.drop_to_supply_bin(coding, *idx);
                 },
-                Some(DragOrigin { instr: _instr, op_ref: InstrRef::Prog { idx }, ..}) => {
+                Some(DragOrigin { node: _instr, op_ref: InstrRef::Prog { idx }, ..}) => {
                     log::debug!("INFO: Cancelling drag. Returning {:?} to supply idx {:?}", _instr, idx);
                     // TODO: !!
                     self.drop_to_prog(&mut coding.prog, *idx);
@@ -627,16 +627,16 @@ impl UiCodingArena
 
     fn draw_dragging(&self)
     {
-        if let Some(DragOrigin{instr, ..}) = &self.dragging {
+        if let Some(DragOrigin{node: instr, ..}) = &self.dragging {
             let coords = self.dragging_op_coords().unwrap();
             self.draw_op_rect(coords, OpStyle::dragging(), &instr.instr.to_string());
         }
     }
 
-    fn is_droppable_on_supply_bin(&self, idx: usize, op_type: Instr) -> bool {
+    fn is_droppable_on_supply_bin(&self, idx: usize, op_type: Op) -> bool {
         let coords = self.supply_op_coords(idx);
         match &self.dragging {
-            Some(DragOrigin { instr, ..}) => self.is_droppable_on_coords(coords.expand_to(1.5)) && instr.instr == op_type,
+            Some(DragOrigin { node: instr, ..}) => self.is_droppable_on_coords(coords.expand_to(1.5)) && instr.instr.is_op(op_type),
             _ => false,
         }
     }
@@ -775,7 +775,7 @@ impl UiCodingArena
         self.dragging = if bin.curr_count > 0 {
             bin.curr_count -= 1;
             Some(DragOrigin {
-                instr: Node {instr: Instr::from_op(bin.op), subnodes: if bin.op.is_parent_instr() {Some(Subprog::default())} else {None} },
+                node: Node::from_op(bin.op),
                 op_ref: InstrRef::Supply { idx },
                 orig_offset_x,
                 orig_offset_y
@@ -790,7 +790,7 @@ impl UiCodingArena
         let node = prog.instrs.remove(idx);
         log::debug!("INFO: Dragging {:?} from prog", node);
         self.dragging = Some(DragOrigin {
-            instr: node,
+            node,
             op_ref: InstrRef::Prog { idx },
             orig_offset_x,
             orig_offset_y
@@ -798,10 +798,10 @@ impl UiCodingArena
     }
 
     fn drop_to_supply_bin(&mut self, coding: &mut Coding, idx: usize) {
-        if let Some(DragOrigin {instr, ..}) = &self.dragging {
+        if let Some(DragOrigin {node: instr, ..}) = &self.dragging {
             log::debug!("INFO: Dropping {:?} to supply bin", instr);
             let bin = &mut coding.supply.get_mut(idx).unwrap();
-            if bin.op == instr.instr {
+            if instr.instr.is_op(bin.op) {
                 bin.curr_count += 1;
                 self.dragging = None;
             }
@@ -811,7 +811,7 @@ impl UiCodingArena
     fn drop_node_to_supply(&mut self, supply: &mut Vec<Bin>, instr: Node) {
         log::debug!("INFO: Dropping {:?} to supply", instr.instr);
         for bin in &mut *supply {
-            if bin.op == instr.instr {
+            if instr.instr.is_op(bin.op) {
                 bin.curr_count += 1;
                 break;
             }
@@ -824,14 +824,14 @@ impl UiCodingArena
     }
 
     fn drop_drag_to_supply(&mut self, coding: &mut Coding) {
-        if let Some(DragOrigin {instr, ..}) = self.dragging.clone() {
+        if let Some(DragOrigin {node: instr, ..}) = self.dragging.clone() {
             self.drop_node_to_supply(&mut coding.supply, instr);
             self.dragging = None;
         }
     }
 
     fn drop_to_prog(&mut self, prog: &mut Prog, idx: usize) {
-        if let Some(DragOrigin { instr: node, .. }) = &self.dragging {
+        if let Some(DragOrigin { node, .. }) = &self.dragging {
             log::debug!("INFO: Dropping {:?} to prog", node);
             prog.instrs.insert(idx, node.clone());
             self.dragging = None;

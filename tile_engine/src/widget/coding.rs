@@ -29,6 +29,16 @@ pub enum Op {
     Parent(ParentOp),
 }
 
+impl std::fmt::Display for Op {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        use Op::*;
+        match self {
+            Action(op) => std::fmt::Debug::fmt(op, f),
+            Parent(op) => std::fmt::Debug::fmt(op, f),
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Instr {
     Action(ActionOp, ActionData),
@@ -42,6 +52,13 @@ impl Instr {
         match op {
             Op::Action(action_op) => Self::Action(action_op, ActionData::default()),
             Op::Parent(parent_op) => Self::Parent(parent_op),
+        }
+    }
+
+    pub fn is_op(&self, op: Op) -> bool {
+        match self {
+            Instr::Action(opcode_a, _) => matches!(&op, Op::Action(opcode_b) if opcode_a == opcode_b ),
+            Instr::Parent(opcode_a) => matches!(&op, Op::Parent(opcode_b) if opcode_a == opcode_b ),
         }
     }
 
