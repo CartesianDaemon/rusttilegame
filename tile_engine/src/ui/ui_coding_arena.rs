@@ -633,7 +633,7 @@ impl UiCodingArena
         }
     }
 
-    fn is_droppable_on_supply_bin(&self, idx: usize, op_type: Op) -> bool {
+    fn is_droppable_on_supply_bin(&self, idx: usize, op_type: Instr) -> bool {
         let coords = self.supply_op_coords(idx);
         match &self.dragging {
             Some(DragOrigin { instr, ..}) => self.is_droppable_on_coords(coords.expand_to(1.5)) && instr.op == op_type,

@@ -91,7 +91,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
                         log::debug!("Bot reached empty parent instr.");
                         return WidgetContinuation::Break(WidgetConclusion::Die);
                     }
-                    Some(Op::Action(action_op, mut action_data)) => {
+                    Some(Instr::Action(action_op, mut action_data)) => {
                         action_data.successful = match action_op {
                             // Move forward
                             ActionOp::F => {
@@ -117,7 +117,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
                             },
                         }
                     }
-                    Some(Op::Parent(_)) => {
+                    Some(Instr::Parent(_)) => {
                         panic!("Unrecognised instr {:?}", props.prog.curr_op());
                     },
                 }
