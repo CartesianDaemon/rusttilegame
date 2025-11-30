@@ -7,7 +7,7 @@ pub struct ActionData {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum ActionOp {
+pub enum ActionOpcode {
     F,
     L,
     R,
@@ -15,23 +15,23 @@ pub enum ActionOp {
 
 #[allow(non_camel_case_types)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum ParentOp {
+pub enum ParentOpcode {
     group,
     x2,
     loop5,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum Op {
-    Action(ActionOp),
+pub enum Opcode {
+    Action(ActionOpcode),
     // TODO: Want to merge Subprog into here. Remove Node as separate type.
     // Although, could have Op (with no data) and Instr (with data)..
-    Parent(ParentOp),
+    Parent(ParentOpcode),
 }
 
-impl std::fmt::Display for Op {
+impl std::fmt::Display for Opcode {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        use Op::*;
+        use Opcode::*;
         match self {
             Action(op) => std::fmt::Debug::fmt(op, f),
             Parent(op) => std::fmt::Debug::fmt(op, f),
@@ -41,24 +41,24 @@ impl std::fmt::Display for Op {
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Instr {
-    Action(ActionOp, ActionData),
+    Action(ActionOpcode, ActionData),
     // TODO: Want to merge Subprog into here. Remove Node as separate type.
     // Although, could have Op (with no data) and Instr (with data)..
-    Parent(ParentOp),
+    Parent(ParentOpcode),
 }
 
 impl Instr {
-    pub fn from_op(op: Op) -> Self {
+    pub fn from_op(op: Opcode) -> Self {
         match op {
-            Op::Action(action_op) => Self::Action(action_op, ActionData::default()),
-            Op::Parent(parent_op) => Self::Parent(parent_op),
+            Opcode::Action(action_op) => Self::Action(action_op, ActionData::default()),
+            Opcode::Parent(parent_op) => Self::Parent(parent_op),
         }
     }
 
-    pub fn is_op(&self, op: Op) -> bool {
+    pub fn is_op(&self, op: Opcode) -> bool {
         match self {
-            Instr::Action(opcode_a, _) => matches!(&op, Op::Action(opcode_b) if opcode_a == opcode_b ),
-            Instr::Parent(opcode_a) => matches!(&op, Op::Parent(opcode_b) if opcode_a == opcode_b ),
+            Instr::Action(opcode_a, _) => matches!(&op, Opcode::Action(opcode_b) if opcode_a == opcode_b ),
+            Instr::Parent(opcode_a) => matches!(&op, Opcode::Parent(opcode_b) if opcode_a == opcode_b ),
         }
     }
 
@@ -82,7 +82,7 @@ impl Instr {
 
     pub fn r_connect_max(self) -> usize {
         use Instr::*;
-        use ParentOp::*;
+        use ParentOpcode::*;
         match self {
             Action(_, _) => 0,
             Parent(group) => 999,
@@ -94,7 +94,7 @@ impl Instr {
     // TODO: Move to fn of ControlFlowOp not Op.
     pub fn repeat_count(self) -> usize {
         use Instr::*;
-        use ParentOp::*;
+        use ParentOpcode::*;
         match self {
             Action(_, _) => panic!("Repeat count not specified for non-parent instr"),
             Parent(group) => 1,
@@ -117,12 +117,12 @@ impl std::fmt::Display for Instr {
 impl From<&str> for Instr {
     fn from(txt: &str) -> Self {
         match txt {
-            "F" => Instr::Action(ActionOp::F, ActionData::default()),
-            "L" => Instr::Action(ActionOp::L, ActionData::default()),
-            "R" => Instr::Action(ActionOp::R, ActionData::default()),
-            "group" => Instr::Parent(ParentOp::group),
-            "x2" => Instr::Parent(ParentOp::x2),
-            "loop5" => Instr::Parent(ParentOp::loop5),
+            "F" => Instr::Action(ActionOpcode::F, ActionData::default()),
+            "L" => Instr::Action(ActionOpcode::L, ActionData::default()),
+            "R" => Instr::Action(ActionOpcode::R, ActionData::default()),
+            "group" => Instr::Parent(ParentOpcode::group),
+            "x2" => Instr::Parent(ParentOpcode::x2),
+            "loop5" => Instr::Parent(ParentOpcode::loop5),
             _ => panic!("Unrecognised txt for instr: {}", txt)
         }
     }
@@ -130,13 +130,13 @@ impl From<&str> for Instr {
 
 #[derive(Clone, Debug)]
 pub struct Bin {
-    pub op: Op,
+    pub op: Opcode,
     pub orig_count: u16,
     pub curr_count: u16,
 }
 
 impl Bin {
-    fn new(op: Op, orig_count: u16) -> Self {
+    fn new(op: Opcode, orig_count: u16) -> Self {
         Self {
             op,
             orig_count,
@@ -188,10 +188,10 @@ impl std::ops::IndexMut<i16> for Node {
 }
 
 impl Node {
-    pub fn from_op(op: Op) -> Self {
+    pub fn from_op(op: Opcode) -> Self {
         Self {
             instr: Instr::from_op(op),
-            subnodes: match op {Op::Action(_) => None, Op::Parent(_) => Some(Subprog::default())},
+            subnodes: match op {Opcode::Action(_) => None, Opcode::Parent(_) => Some(Subprog::default())},
         }
     }
 
@@ -397,7 +397,7 @@ pub struct Coding {
 }
 
 impl Coding {
-    pub fn from_vec(supplies: &[(Op, u16)]) -> Coding {
+    pub fn from_vec(supplies: &[(Opcode, u16)]) -> Coding {
         Coding {
             supply: supplies.iter().map(|(op,count)|
             Bin::new(*op, *count)
@@ -424,22 +424,22 @@ pub mod action_ops {
     #![allow(non_upper_case_globals)]
     use super::*;
 
-    pub const F: ActionOp = ActionOp::F;
-    pub const L: ActionOp = ActionOp::L;
-    pub const R: ActionOp = ActionOp::R;
+    pub const F: ActionOpcode = ActionOpcode::F;
+    pub const L: ActionOpcode = ActionOpcode::L;
+    pub const R: ActionOpcode = ActionOpcode::R;
 }
 
 pub mod supply_ops {
     #![allow(non_upper_case_globals)]
     use super::*;
 
-    pub const F: Op = Op::Action(ActionOp::F);
-    pub const L: Op = Op::Action(ActionOp::L);
-    pub const R: Op = Op::Action(ActionOp::R);
+    pub const F: Opcode = Opcode::Action(ActionOpcode::F);
+    pub const L: Opcode = Opcode::Action(ActionOpcode::L);
+    pub const R: Opcode = Opcode::Action(ActionOpcode::R);
 
-    pub const x2: Op = Op::Parent(ParentOp::x2);
-    pub const group: Op = Op::Parent(ParentOp::group);
-    pub const loop5: Op = Op::Parent(ParentOp::loop5);
+    pub const x2: Opcode = Opcode::Parent(ParentOpcode::x2);
+    pub const group: Opcode = Opcode::Parent(ParentOpcode::group);
+    pub const loop5: Opcode = Opcode::Parent(ParentOpcode::loop5);
 }
 
 pub mod prog_ops {
@@ -447,16 +447,16 @@ pub mod prog_ops {
     use super::*;
 
     pub const a: ActionData = ActionData { successful: false};
-    pub const F: Instr = Instr::Action(ActionOp::F, a);
-    pub const L: Instr = Instr::Action(ActionOp::L, a);
-    pub const R: Instr = Instr::Action(ActionOp::R, a);
+    pub const F: Instr = Instr::Action(ActionOpcode::F, a);
+    pub const L: Instr = Instr::Action(ActionOpcode::L, a);
+    pub const R: Instr = Instr::Action(ActionOpcode::R, a);
 
     // TODO: Introduce fn if we first subsume Subprog into ParentOp
     // pub fn x2(ops: Vec<Op>) -> Op = Op::Parent(ParentOp::x2);
 
-    pub const x2: Instr = Instr::Parent(ParentOp::x2);
-    pub const group: Instr = Instr::Parent(ParentOp::group);
-    pub const loop5: Instr = Instr::Parent(ParentOp::loop5);
+    pub const x2: Instr = Instr::Parent(ParentOpcode::x2);
+    pub const group: Instr = Instr::Parent(ParentOpcode::group);
+    pub const loop5: Instr = Instr::Parent(ParentOpcode::loop5);
 }
 
 #[cfg(test)]
@@ -478,7 +478,7 @@ mod tests {
         assert_eq!(Prog::from("F,R,L,x2,group,loop5"), Prog::from(vec![F, R, L, x2, group, loop5]));
     }
 
-    fn run_prog_and_test(mut prog: Prog, expected_ops: &[ActionOp]) {
+    fn run_prog_and_test(mut prog: Prog, expected_ops: &[ActionOpcode]) {
         for (idx, expected_op) in expected_ops.iter().enumerate() {
             assert!(!prog.finished());
             assert!(matches!(prog.curr_op(), Some(Instr::Action(op, _)) if op==*expected_op) , "At idx {} of {}", idx, prog);
