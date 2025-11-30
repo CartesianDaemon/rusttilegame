@@ -636,7 +636,7 @@ impl UiCodingArena
     fn is_droppable_on_supply_bin(&self, idx: usize, op_type: Opcode) -> bool {
         let coords = self.supply_op_coords(idx);
         match &self.dragging {
-            Some(DragOrigin { node: instr, ..}) => self.is_droppable_on_coords(coords.expand_to(1.5)) && instr.instr.has_opcode(op_type),
+            Some(DragOrigin { node: instr, ..}) => self.is_droppable_on_coords(coords.expand_to(1.5)) && instr.instr.macthes_opcode(op_type),
             _ => false,
         }
     }
@@ -801,7 +801,7 @@ impl UiCodingArena
         if let Some(DragOrigin {node, ..}) = &self.dragging {
             log::debug!("INFO: Dropping {:?} to supply bin", node);
             let bin = &mut coding.supply.get_mut(idx).unwrap();
-            if node.instr.has_opcode(bin.op) {
+            if node.instr.macthes_opcode(bin.op) {
                 bin.curr_count += 1;
                 if let Some(subprog) = &node.subnodes {
                     for subnode in &mut subprog.instrs.clone() {
@@ -817,7 +817,7 @@ impl UiCodingArena
     fn drop_node_to_supply(&mut self, supply: &mut Vec<Bin>, instr: Node) {
         log::debug!("INFO: Dropping {:?} to supply", instr.instr);
         for bin in &mut *supply {
-            if instr.instr.has_opcode(bin.op) {
+            if instr.instr.macthes_opcode(bin.op) {
                 bin.curr_count += 1;
                 break;
             }

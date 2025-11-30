@@ -62,6 +62,34 @@ impl Instr {
         }
     }
 
+    pub fn as_action_op(&self) -> ActionOpcode {
+        match self {
+            Self::Action(op, _) => *op,
+            _ => panic!("Not an action instr"),
+        }
+    }
+
+    pub fn as_action_data(&self) -> ActionData {
+        match self {
+            Self::Action(_, data) => *data,
+            _ => panic!("Not an action instr"),
+        }
+    }
+
+    pub fn as_parent_subprog(&self) -> &Subprog {
+        match self {
+            Self::Parent(_, subprog) => subprog,
+            _ => panic!("Not a parent instr"),
+        }
+    }
+
+    pub fn as_parent_subprog_mut(&mut self) -> &mut Subprog {
+        match self {
+            Self::Parent(_, subprog) => subprog,
+            _ => panic!("Not a parent instr"),
+        }
+    }
+
     // More naturally part of opcode.
     pub fn _d_connector(self) -> bool {
         use Instr::*;
@@ -100,9 +128,9 @@ impl Instr {
         use ParentOpcode::*;
         match self {
             Action(_, _) => panic!("Repeat count not specified for non-parent instr"),
-            Parent(group) => 1,
-            Parent(x2) => 2,
-            Parent(loop5) => 5,
+            Parent(group, _) => 1,
+            Parent(x2, _) => 2,
+            Parent(loop5, _) => 5,
         }
     }
 }
@@ -112,7 +140,7 @@ impl std::fmt::Display for Instr {
         use Instr::*;
         match self {
             Action(op, _) => std::fmt::Debug::fmt(op, f),
-            Parent(op) => std::fmt::Debug::fmt(op, f),
+            Parent(op, _) => std::fmt::Debug::fmt(op, f),
         }
     }
 }
@@ -123,9 +151,9 @@ impl From<&str> for Instr {
             "F" => Instr::Action(ActionOpcode::F, ActionData::default()),
             "L" => Instr::Action(ActionOpcode::L, ActionData::default()),
             "R" => Instr::Action(ActionOpcode::R, ActionData::default()),
-            "group" => Instr::Parent(ParentOpcode::group),
-            "x2" => Instr::Parent(ParentOpcode::x2),
-            "loop5" => Instr::Parent(ParentOpcode::loop5),
+            "group" => Instr::Parent(ParentOpcode::group, Subprog::default()),
+            "x2" => Instr::Parent(ParentOpcode::x2, Subprog::default()),
+            "loop5" => Instr::Parent(ParentOpcode::loop5, Subprog::default()),
             _ => panic!("Unrecognised txt for instr: {}", txt)
         }
     }
@@ -163,13 +191,12 @@ impl Bin {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Node {
     pub instr: Instr,
-    pub subnodes: Option<Subprog>,
 }
 
 impl std::fmt::Display for Node {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{}", self.instr)?;
-        if let Some(subprog) = &self.subnodes {
+        if let Instr::Parent(_,subprog) = &self.instr {
             write!(f, "[{}]", subprog)?;
         }
         Ok(())
@@ -180,13 +207,13 @@ impl std::ops::Index<i16> for Node {
     type Output = Node;
 
     fn index(&self, idx: i16) -> &Self::Output {
-        &self.subnodes.as_ref().unwrap()[idx]
+        &self.instr.as_parent_subprog()[idx]
     }
 }
 
 impl std::ops::IndexMut<i16> for Node {
     fn index_mut(&mut self, idx: i16) -> &mut Self::Output {
-        &mut self.subnodes.as_mut().unwrap()[idx]
+        &mut self.instr.as_parent_subprog_mut()[idx]
     }
 }
 
