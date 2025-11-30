@@ -106,26 +106,26 @@ fn basic_move() {
     // F
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)).unwrap(), 0);
-    assert_eq!(hero_prog(&state).unwrap_curr_op(), F);
+    assert_eq!(hero_prog(&state).unwrap_curr_op(), &F);
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 3));
 
     // F
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)).unwrap(), 1);
-    assert_eq!(hero_prog(&state).unwrap_curr_op(), F);
+    assert_eq!(hero_prog(&state).unwrap_curr_op(), &F);
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 2));
 
     // R
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)).unwrap(), 2);
-    assert_eq!(hero_prog(&state).unwrap_curr_op(), R);
+    assert_eq!(hero_prog(&state).unwrap_curr_op(), &R);
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 2));
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
 
     // F
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)).unwrap(), 3);
-    assert_eq!(hero_prog(&state).unwrap_curr_op(), F);
+    assert_eq!(hero_prog(&state).unwrap_curr_op(), &F);
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(5, 2));
 }
 
@@ -135,7 +135,7 @@ fn test_group() {
 
     use prog_ops::*;
     let mut prog = Prog::from(vec![R,group,R]);
-    prog.instrs[1].subnodes = Some(Prog::from(vec![F, F]));
+    prog[1].instr = Instr::Parent(ParentOpcode::group, Prog::from("F, F"));
     let mut state = get_basic_lev_with_prog(prog);
 
     // Start running, no other effect
@@ -146,24 +146,24 @@ fn test_group() {
 
     // R
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    assert_eq!(hero_prog(&state).unwrap_curr_op(), R);
+    assert_eq!(hero_prog(&state).unwrap_curr_op(), &R);
 
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
 
     // group:F, first F
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(())); // x2 instr unimplemented!()
-    assert_eq!(hero_prog(&state).unwrap_curr_op(), F);
+    assert_eq!(hero_prog(&state).unwrap_curr_op(), &F);
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(5, 4));
 
     // group:F, second F
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    assert_eq!(hero_prog(&state).unwrap_curr_op(), F);
+    assert_eq!(hero_prog(&state).unwrap_curr_op(), &F);
 
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(6, 4));
 
     // R
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    assert_eq!(hero_prog(&state).unwrap_curr_op(), R);
+    assert_eq!(hero_prog(&state).unwrap_curr_op(), &R);
 
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
 }
@@ -174,7 +174,7 @@ fn repeat_x2() {
 
     use prog_ops::*;
     let mut prog = Prog::from(vec![R,x2,R]);
-    prog.instrs[1].subnodes = Some(Prog::from(vec![F]));
+    prog[1].instr = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
     let mut state = get_basic_lev_with_prog(prog);
 
     // Start running, no other effect
@@ -186,22 +186,22 @@ fn repeat_x2() {
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
 
-    assert_eq!(hero_prog(&state).unwrap_curr_op(), R);
+    assert_eq!(hero_prog(&state).unwrap_curr_op(), &R);
 
     // x2 F, first time
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(5, 4));
-    assert_eq!(hero_prog(&state).unwrap_curr_op(), F);
+    assert_eq!(hero_prog(&state).unwrap_curr_op(), &F);
 
     // x2 F, second time
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(6, 4));
-    assert_eq!(hero_prog(&state).unwrap_curr_op(), F);
+    assert_eq!(hero_prog(&state).unwrap_curr_op(), &F);
 
     // R
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
-    assert_eq!(hero_prog(&state).unwrap_curr_op(), R);
+    assert_eq!(hero_prog(&state).unwrap_curr_op(), &R);
 }
 
 #[test]
@@ -210,7 +210,7 @@ fn repeat_x2_rotate() {
 
     use prog_ops::*;
     let mut prog = Prog::from(vec![x2]);
-    prog.instrs[0].subnodes = Some(Prog::from(vec![R,R,L]));
+    prog[0].instr = Instr::Parent(ParentOpcode::x2, Prog::from("R, R, L"));
     let mut state = get_basic_lev_with_prog(prog);
 
     // Start running, no other effect
@@ -218,33 +218,33 @@ fn repeat_x2_rotate() {
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, -1));
 
     // R
-    assert_eq!(hero_prog(&state).unwrap_curr_op(), R);
+    assert_eq!(hero_prog(&state).unwrap_curr_op(), &R);
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
 
     // R
-    assert_eq!(hero_prog(&state).unwrap_curr_op(), R);
+    assert_eq!(hero_prog(&state).unwrap_curr_op(), &R);
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
 
     // L
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    assert_eq!(hero_prog(&state).unwrap_curr_op(), L);
+    assert_eq!(hero_prog(&state).unwrap_curr_op(), &L);
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
 
     // R
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    assert_eq!(hero_prog(&state).unwrap_curr_op(), R);
+    assert_eq!(hero_prog(&state).unwrap_curr_op(), &R);
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
 
     // R
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    // assert_eq!(hero_prog(&state).unwrap_curr_op(), R);
+    // assert_eq!(hero_prog(&state).unwrap_curr_op(), &R);
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(-1, 0));
 
     // L
     assert_eq!(state.advance(MoveCmd::Stay), WidgetContinuation::Continue(()));
-    // assert_eq!(hero_prog(&state).unwrap_curr_op(), L);
+    // assert_eq!(hero_prog(&state).unwrap_curr_op(), &L);
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, 1));
 }
 
@@ -254,8 +254,8 @@ fn nested_repeat() {
 
     use prog_ops::*;
     let mut prog = Prog::from(vec![R, x2]);
-    prog.instrs[1].subnodes = Some(Prog::from(vec![x2]));
-    prog.instrs[1].subnodes.as_mut().unwrap().instrs[0].subnodes = Some(Prog::from(vec![F]));
+    prog[1].instr = Instr::Parent(ParentOpcode::x2, Prog::from("x2"));
+    prog[1][0].instr = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
     let mut state = get_basic_lev_with_prog(prog);
 
     // Start running, no other effect
