@@ -798,11 +798,17 @@ impl UiCodingArena
     }
 
     fn drop_to_supply_bin(&mut self, coding: &mut Coding, idx: usize) {
-        if let Some(DragOrigin {node: instr, ..}) = &self.dragging {
-            log::debug!("INFO: Dropping {:?} to supply bin", instr);
+        if let Some(DragOrigin {node, ..}) = &self.dragging {
+            log::debug!("INFO: Dropping {:?} to supply bin", node);
             let bin = &mut coding.supply.get_mut(idx).unwrap();
-            if instr.instr.is_op(bin.op) {
+            if node.instr.is_op(bin.op) {
                 bin.curr_count += 1;
+                if let Some(subprog) = &node.subnodes {
+                    for subnode in &mut subprog.instrs.clone() {
+                        let supply = &mut coding.supply;
+                        self.drop_node_to_supply(supply, subnode.clone());
+                    }
+                }
                 self.dragging = None;
             }
         }
