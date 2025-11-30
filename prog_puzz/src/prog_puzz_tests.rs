@@ -135,7 +135,7 @@ fn test_group() {
 
     use prog_ops::*;
     let mut prog = Prog::from(vec![R,group,R]);
-    prog[1].instr = Instr::Parent(ParentOpcode::group, Prog::from("F, F"));
+    prog[1] = Instr::Parent(ParentOpcode::group, Prog::from("F, F"));
     let mut state = get_basic_lev_with_prog(prog);
 
     // Start running, no other effect
@@ -174,7 +174,7 @@ fn repeat_x2() {
 
     use prog_ops::*;
     let mut prog = Prog::from(vec![R,x2,R]);
-    prog[1].instr = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
+    prog[1] = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
     let mut state = get_basic_lev_with_prog(prog);
 
     // Start running, no other effect
@@ -210,7 +210,7 @@ fn repeat_x2_rotate() {
 
     use prog_ops::*;
     let mut prog = Prog::from(vec![x2]);
-    prog[0].instr = Instr::Parent(ParentOpcode::x2, Prog::from("R, R, L"));
+    prog[0] = Instr::Parent(ParentOpcode::x2, Prog::from("R, R, L"));
     let mut state = get_basic_lev_with_prog(prog);
 
     // Start running, no other effect
@@ -254,8 +254,8 @@ fn nested_repeat() {
 
     use prog_ops::*;
     let mut prog = Prog::from(vec![R, x2]);
-    prog[1].instr = Instr::Parent(ParentOpcode::x2, Prog::from("x2"));
-    prog[1][0].instr = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
+    prog[1] = Instr::Parent(ParentOpcode::x2, Prog::from("x2"));
+    prog[1][0] = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
     let mut state = get_basic_lev_with_prog(prog);
 
     // Start running, no other effect
