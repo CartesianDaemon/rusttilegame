@@ -44,36 +44,33 @@ impl ProgpuzzLevset {
             */
         ]);
 
-        use ActionOp::*;
-        use ParentOp::*;
-        use Op::Action as A;
-        use Op::Parent as P;
+        use op_consts::*;
 
         let coding = if std::env::args().collect::<Vec<_>>().contains(&"--debug-coding=A".to_string()) {
             let mut coding = Coding::from_vec(&[
-                (A(F), 1),
-                (A(L), 1),
-                (A(R), 1),
-                (P(group), 1),
-                (P(x2), 1),
+                (F, 1),
+                (L, 1),
+                (R, 1),
+                (group, 1),
+                (x2, 1),
             ]);
 
-            coding.prog = Prog::from(vec![A(R), P(x2)]);
-            coding.prog.instrs[1].subnodes = Some(Prog::from(vec![P(x2)]));
-            coding.prog.instrs[1].subnodes.as_mut().unwrap().instrs[0].subnodes = Some(Prog::from(vec![A(F)]));
+            coding.prog = Prog::from(vec![R, x2]);
+            coding.prog.instrs[1].subnodes = Some(Prog::from(vec![x2]));
+            coding.prog.instrs[1].subnodes.as_mut().unwrap().instrs[0].subnodes = Some(Prog::from(vec![F]));
 
             coding
         } else if std::env::args().collect::<Vec<_>>().contains(&"--debug-coding=B".to_string()) {
             Coding::from_vec(&[
-                (A(F), 2),
-                (A(L), 2),
-                (A(R), 2),
-                (P(group), 2),
-                (P(x2), 2),
-                (P(loop5), 2),
+                (F, 2),
+                (L, 2),
+                (R, 2),
+                (group, 2),
+                (x2, 2),
+                (loop5, 2),
             ])
         } else {
-            let coding = Coding::from_vec(&[(A(F), 6), (A(R), 1)]);
+            let coding = Coding::from_vec(&[(F, 6), (R, 1)]);
             coding
         };
 

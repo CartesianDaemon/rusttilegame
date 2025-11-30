@@ -1,6 +1,11 @@
 use super::*;
 use crate::map_coords::MoveCmd;
 
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+pub struct ActionData {
+    blocked: bool,
+}
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ActionOp {
     F,
@@ -18,7 +23,7 @@ pub enum ParentOp {
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Op {
-    Action(ActionOp),
+    Action(ActionOp, ActionData),
     // TODO: Could merge Subprog into here, not in separate node type?
     Parent(ParentOp),
 }
@@ -27,7 +32,7 @@ impl Op {
     pub fn _d_connector(self) -> bool {
         use Op::*;
         match self {
-            Action(_) => true,
+            Action(_, _) => true,
             Parent(_) => true,
         }
     }
@@ -44,7 +49,7 @@ impl Op {
         use Op::*;
         use ParentOp::*;
         match self {
-            Action(_) => 0,
+            Action(_, _) => 0,
             Parent(group) => 999,
             Parent(x2) => 1,
             Parent(loop5) => 5,
@@ -56,7 +61,7 @@ impl Op {
         use Op::*;
         use ParentOp::*;
         match self {
-            Action(_) => panic!("Repeat count not specified for non-parent instr"),
+            Action(_, _) => panic!("Repeat count not specified for non-parent instr"),
             Parent(group) => 1,
             Parent(x2) => 2,
             Parent(loop5) => 5,
@@ -68,7 +73,7 @@ impl std::fmt::Display for Op {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         use Op::*;
         match self {
-            Action(op) => std::fmt::Debug::fmt(op, f),
+            Action(op, _) => std::fmt::Debug::fmt(op, f),
             Parent(op) => std::fmt::Debug::fmt(op, f),
         }
     }
@@ -77,9 +82,9 @@ impl std::fmt::Display for Op {
 impl From<&str> for Op {
     fn from(txt: &str) -> Self {
         match txt {
-            "F" => Op::Action(ActionOp::F),
-            "L" => Op::Action(ActionOp::L),
-            "R" => Op::Action(ActionOp::R),
+            "F" => Op::Action(ActionOp::F, ActionData::default()),
+            "L" => Op::Action(ActionOp::L, ActionData::default()),
+            "R" => Op::Action(ActionOp::R, ActionData::default()),
             "group" => Op::Parent(ParentOp::group),
             "x2" => Op::Parent(ParentOp::x2),
             "loop5" => Op::Parent(ParentOp::loop5),
@@ -160,7 +165,7 @@ impl Node {
 pub struct Subprog {
     // Index of instruction currently executing. 0 when program has not started.
     pub curr_ip: usize,
-    // Internal counteA(R), used to implement loops and other stateful instructions.
+    // Internal counter, used to implement loops and other stateful instructions.
     // When used for iteration, counts number of times current execution of parent instr has executed this subprog.
     pub counter: usize,
     // Vector of one or more instrs to execute. Some parent ops have a specific number of nested instrs.
@@ -359,36 +364,58 @@ impl BaseWidget for Coding
     }
 }
 
+pub mod actionop_consts {
+    #![allow(non_upper_case_globals)]
+    use super::*;
+
+    pub const F: ActionOp = ActionOp::F;
+    pub const L: ActionOp = ActionOp::L;
+    pub const R: ActionOp = ActionOp::R;
+}
+
+pub mod op_consts {
+    #![allow(non_upper_case_globals)]
+    use super::*;
+
+    pub const a: ActionData = ActionData { blocked: false};
+    pub const F: Op = Op::Action(ActionOp::F, a);
+    pub const L: Op = Op::Action(ActionOp::L, a);
+    pub const R: Op = Op::Action(ActionOp::R, a);
+
+    pub const x2: Op = Op::Parent(ParentOp::x2);
+    pub const group: Op = Op::Parent(ParentOp::group);
+    pub const loop5: Op = Op::Parent(ParentOp::loop5);
+}
+
 #[cfg(test)]
 mod tests {
     use crate::infra::initialise_logging_for_tests;
     use super::*;
-    use ActionOp::*;
-    use ParentOp::*;
-    use Op::Action as A;
-    use Op::Parent as P;
 
     #[test]
     fn parse() {
-        assert_eq!(Prog::from("F"), Prog::from(vec![A(F)]));
-        assert_eq!(Prog::from("F "), Prog::from(vec![A(F)]));
-        assert_eq!(Prog::from(" F "), Prog::from(vec![A(F)]));
-        assert_eq!(Prog::from("F,R"), Prog::from(vec![A(F), A(R)]));
-        assert_eq!(Prog::from("F, R"), Prog::from(vec![A(F), A(R)]));
-        assert_eq!(Prog::from("F ,R"), Prog::from(vec![A(F), A(R)]));
-        assert_eq!(Prog::from("F ,R "), Prog::from(vec![A(F), A(R)]));
-        assert_eq!(Prog::from(" F ,R    , L"), Prog::from(vec![A(F), A(R), A(L)]));
-        assert_eq!(Prog::from("F,R,L,x2,group,loop5"), Prog::from(vec![A(F), A(R), A(L), P(x2), P(group), P(loop5)]));
+        use op_consts::*;
+        assert_eq!(Prog::from("F"), Prog::from(vec![F]));
+        assert_eq!(Prog::from("F "), Prog::from(vec![F]));
+        assert_eq!(Prog::from(" F "), Prog::from(vec![F]));
+        assert_eq!(Prog::from("F,R"), Prog::from(vec![F, R]));
+        assert_eq!(Prog::from("F, R"), Prog::from(vec![F, R]));
+        assert_eq!(Prog::from("F ,R"), Prog::from(vec![F, R]));
+        assert_eq!(Prog::from("F ,R "), Prog::from(vec![F, R]));
+        assert_eq!(Prog::from(" F ,R    , L"), Prog::from(vec![F, R, L]));
+        assert_eq!(Prog::from("F,R,L,x2,group,loop5"), Prog::from(vec![F, R, L, x2, group, loop5]));
     }
 
     fn run_prog_and_test(mut prog: Prog, expected_ops: &[ActionOp]) {
         for (idx, expected_op) in expected_ops.iter().enumerate() {
             assert!(!prog.finished());
-            assert_eq!(prog.curr_op().unwrap(), Op::Action(*expected_op), "At idx {} of {}", idx, prog);
+            assert!(matches!(prog.curr_op(), Some(Op::Action(op, _)) if op==*expected_op) , "At idx {} of {}", idx, prog);
             prog.advance_next_instr();
         }
         assert!(prog.finished());
     }
+
+    use actionop_consts::*;
 
     #[test]
     fn test_linear_prog() {

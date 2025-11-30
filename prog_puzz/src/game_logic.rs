@@ -94,7 +94,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
 
                 match op.unwrap() {
                     // Move forward
-                    Op::Action(ActionOp::F) => {
+                    Op::Action(ActionOp::F, _data) => {
                         let target_pos = map[mov].pos() + map[mov].logical_props.dir;
                         if map.passable(target_pos) {
                             log::debug!("Bot move F. {} -> {}", map[mov].pos(), target_pos);
@@ -103,11 +103,11 @@ impl BaseGameLogic for ProgpuzzGameLogic
                             log::debug!("Bot blocked F. {} -/-> {}", map[mov].pos(), target_pos);
                         }
                     },
-                    Op::Action(ActionOp::L) => {
+                    Op::Action(ActionOp::L, _data) => {
                         map[mov].logical_props.dir.rotate_l();
                         log::debug!("Bot rotate L. {} -> {}", map[mov].logical_props.prev_dir , map[mov].logical_props.dir);
                     },
-                    Op::Action(ActionOp::R) => {
+                    Op::Action(ActionOp::R, _data) => {
                         map[mov].logical_props.dir.rotate_r();
                         log::debug!("Bot rotate R. {} -> {}", map[mov].logical_props.prev_dir , map[mov].logical_props.dir);
                     },
