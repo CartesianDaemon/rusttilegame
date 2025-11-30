@@ -35,8 +35,6 @@ impl ParentOpcode {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Opcode {
     Action(ActionOpcode),
-    // TODO: Want to merge Subprog into here. Remove Node as separate type.
-    // Although, could have Op (with no data) and Instr (with data)..
     Parent(ParentOpcode),
 }
 
@@ -53,13 +51,11 @@ impl std::fmt::Display for Opcode {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Instr {
     Action(ActionOpcode, ActionData),
-    // TODO: Want to merge Subprog into here. Remove Node as separate type.
-    // Although, could have Op (with no data) and Instr (with data)..
     Parent(ParentOpcode, Subprog),
 }
 
 impl Instr {
-    pub fn from_op(op: Opcode) -> Self {
+    pub fn from_opcode(op: Opcode) -> Self {
         match op {
             Opcode::Action(action_op) => Self::Action(action_op, ActionData::default()),
             Opcode::Parent(parent_op) => Self::Parent(parent_op, Subprog::default()),
@@ -141,6 +137,13 @@ impl Instr {
             Parent(loop5, _) => 5,
         }
     }
+
+    pub fn v_len(&self) -> usize {
+        match &self {
+            Instr::Parent(_, subprog) => subprog.v_len(),
+            _ => 1,
+        }
+    }
 }
 
 impl std::fmt::Display for Instr {
@@ -193,15 +196,8 @@ impl Bin {
     }
 }
 
-/// An instruction as it exists in a specific program, including subprog and current state.
-///
-/// Could go back to calling this "Instr" not "Node".
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Node {
-    pub instr: Instr,
-}
-
-impl std::fmt::Display for Node {
+#[cfg(any())]
+impl std::fmt::Display for Instr {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{}", self.instr)?;
         if let Instr::Parent(_,subprog) = &self.instr {
@@ -211,32 +207,17 @@ impl std::fmt::Display for Node {
     }
 }
 
-impl std::ops::Index<i16> for Node {
-    type Output = Node;
+impl std::ops::Index<i16> for Instr {
+    type Output = Instr;
 
     fn index(&self, idx: i16) -> &Self::Output {
-        &self.instr.as_parent_subprog()[idx]
+        &self.as_parent_subprog()[idx]
     }
 }
 
-impl std::ops::IndexMut<i16> for Node {
+impl std::ops::IndexMut<i16> for Instr {
     fn index_mut(&mut self, idx: i16) -> &mut Self::Output {
-        &mut self.instr.as_parent_subprog_mut()[idx]
-    }
-}
-
-impl Node {
-    pub fn from_opcode(op: Opcode) -> Self {
-        Self {
-            instr: Instr::from_op(op),
-        }
-    }
-
-    pub fn v_len(&self) -> usize {
-        match &self.instr {
-            Instr::Parent(_, subprog) => subprog.v_len(),
-            _ => 1,
-        }
+        &mut self.as_parent_subprog_mut()[idx]
     }
 }
 
@@ -248,13 +229,13 @@ pub struct Subprog {
     // When used for iteration, counts number of times current execution of parent instr has executed this subprog.
     pub counter: usize,
     // Vector of one or more instrs to execute. Some parent ops have a specific number of nested instrs.
-    pub instrs: Vec<Node>
+    pub instrs: Vec<Instr>
 }
 
 impl From<Vec<Instr>> for Subprog {
     fn from(instrs: Vec<Instr>) -> Self {
         Self {
-            instrs: instrs.into_iter().map(|instr| Node{instr:instr}).collect(),
+            instrs,
             ..Self::default()
         }
     }
@@ -264,7 +245,7 @@ impl From<Vec<Instr>> for Subprog {
 impl<T: Iterator<Item=Instr>> From<T> for Subprog {
     fn from(ops: T) -> Self {
         Self {
-            instrs: ops.map(|op| Node{op:*op, subnodes:None }).collect(),
+            instrs: ops.map(|op| Instr{op:*op, subnodes:None }).collect(),
             ..Self::default()
         }
     }
@@ -280,11 +261,11 @@ impl From<&str> for Subprog {
 impl std::fmt::Display for Subprog {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{:.<1$}[", "", self.counter)?;
-        for (idx, node) in self.instrs.iter().enumerate() {
+        for (idx, instr) in self.instrs.iter().enumerate() {
             if idx >0 {write!(f, ",")?}
             if idx == self.curr_ip {write!(f, "*")?}
-            write!(f, "{}", node.instr)?;
-            if let Instr::Parent(_, subprog) = &node.instr {
+            write!(f, "{}", instr)?;
+            if let Instr::Parent(_, subprog) = &instr {
                 write!(f, "{}", subprog)?;
             }
         }
@@ -293,15 +274,15 @@ impl std::fmt::Display for Subprog {
 }
 
 impl std::ops::Index<i16> for Subprog {
-    type Output = Node;
+    type Output = Instr;
 
     fn index(&self, idx: i16) -> &Self::Output {
         if idx >= 0 {
             self.instrs.get(idx as usize).unwrap()
         } else {
-            for node in &self.instrs {
-                if let Instr::Parent(_, subprog) = &node.instr && subprog.instrs.len() == 0 {
-                    return node;
+            for instr in &self.instrs {
+                if let Instr::Parent(_, subprog) = &instr && subprog.instrs.len() == 0 {
+                    return instr;
                 }
             }
             panic!();
@@ -316,9 +297,9 @@ impl std::ops::IndexMut<i16> for Subprog {
         if idx >= 0 {
             self.instrs.get_mut(idx as usize).unwrap()
         } else {
-            for node in &mut self.instrs {
-                if let Instr::Parent(_, subprog) = &node.instr && subprog.instrs.len() == 0 {
-                    return node;
+            for instr in &mut self.instrs {
+                if let Instr::Parent(_, subprog) = &instr && subprog.instrs.len() == 0 {
+                    return instr;
                 }
             }
             panic!();
@@ -340,14 +321,14 @@ impl Subprog {
     // Currently executing op. Action instr from list, or from a parent instr.
     // None when past end of program, or when program reaches an empty parent instr.
     pub fn curr_op(&self) -> Option<&Instr> {
-        match &self.instrs.get(self.curr_ip)?.instr {
+        match &self.instrs.get(self.curr_ip)? {
             instr @ Instr::Action(..) => Some(instr),
             Instr::Parent(_, subprog) => subprog.curr_op(),
         }
     }
 
     pub fn curr_op_mut(&mut self) -> Option<&mut Instr> {
-        match &mut self.instrs.get_mut(self.curr_ip)?.instr {
+        match self.instrs.get_mut(self.curr_ip)? {
             instr @ Instr::Action(..) => Some(instr),
             Instr::Parent(_, subprog) => subprog.curr_op_mut(),
         }
@@ -372,7 +353,7 @@ impl Subprog {
     }
 
     fn advance_current_subprog(&mut self, parent_op: &Instr) {
-        let subprog = self.instrs.get_mut(self.curr_ip).unwrap().instr.as_parent_subprog_mut();
+        let subprog = self.instrs.get_mut(self.curr_ip).unwrap().as_parent_subprog_mut();
         subprog.advance_next_instr();
         if subprog.finished() {
             if subprog.counter + 1 < parent_op.repeat_count() {
@@ -396,7 +377,7 @@ impl Subprog {
             return;
         }
 
-        let op = &self.instrs.get_mut(self.curr_ip).unwrap().instr.clone();
+        let op = &self.instrs.get_mut(self.curr_ip).unwrap().clone();
         match op {
             Instr::Action(..) => self.advance_ip(),
             Instr::Parent(..) => self.advance_current_subprog(op),
@@ -520,7 +501,7 @@ mod tests {
     fn test_simple_repeat() {
         initialise_logging_for_tests();
         let mut prog = Prog::from("L,x2,L");
-        prog[-1].instr = Instr::Parent(ParentOpcode::x2, Prog::from("F,R"));
+        prog[-1] = Instr::Parent(ParentOpcode::x2, Prog::from("F,R"));
         run_prog_and_test(prog, &[L, F, R, F, R, L]);
     }
 
@@ -528,7 +509,7 @@ mod tests {
     fn test_bare_repeat() {
         initialise_logging_for_tests();
         let mut prog = Prog::from("x2");
-        prog[-1].instr = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
+        prog[-1] = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
         run_prog_and_test(prog, &[F, F]);
     }
 
@@ -536,8 +517,8 @@ mod tests {
     fn test_bare_nested_repeat() {
         initialise_logging_for_tests();
         let mut prog = Prog::from("x2");
-        prog[0].instr = Instr::Parent(ParentOpcode::x2, Prog::from("x2"));
-        prog[0][-1].instr = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
+        prog[0] = Instr::Parent(ParentOpcode::x2, Prog::from("x2"));
+        prog[0][-1] = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
         run_prog_and_test(prog, &[F, F, F, F]);
     }
 
@@ -545,9 +526,9 @@ mod tests {
     fn test_twice_nested_repeat() {
         initialise_logging_for_tests();
         let mut prog = Prog::from("x2");
-        prog[0].instr = Instr::Parent(ParentOpcode::x2, Prog::from("x2, x2"));
-        prog[0][-1].instr = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
-        prog[0][-1].instr = Instr::Parent(ParentOpcode::x2, Prog::from("R"));
+        prog[0] = Instr::Parent(ParentOpcode::x2, Prog::from("x2, x2"));
+        prog[0][-1] = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
+        prog[0][-1] = Instr::Parent(ParentOpcode::x2, Prog::from("R"));
         run_prog_and_test(prog, &[F, F, R, R, F, F, R, R]);
     }
 
@@ -555,8 +536,8 @@ mod tests {
     fn test_nested_repeat_two_instr() {
         initialise_logging_for_tests();
         let mut prog = Prog::from("x2");
-        prog[0].instr = Instr::Parent(ParentOpcode::x2, Prog::from("x2"));
-        prog[0][-1].instr = Instr::Parent(ParentOpcode::x2, Prog::from("L, R"));
+        prog[0] = Instr::Parent(ParentOpcode::x2, Prog::from("x2"));
+        prog[0][-1] = Instr::Parent(ParentOpcode::x2, Prog::from("L, R"));
         run_prog_and_test(prog, &[L, R, L, R, L, R, L, R]);
     }
 
@@ -564,9 +545,9 @@ mod tests {
     fn test_repeat_nested_group() { // x2(group(x2(F), R))
         initialise_logging_for_tests();
         let mut prog = Prog::from("x2");
-        prog[0].instr = Instr::Parent(ParentOpcode::x2, Prog::from("group"));
-        prog[0][0].instr = Instr::Parent(ParentOpcode::group, Prog::from("x2, R"));
-        prog[0][0][0].instr = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
+        prog[0] = Instr::Parent(ParentOpcode::x2, Prog::from("group"));
+        prog[0][0] = Instr::Parent(ParentOpcode::group, Prog::from("x2, R"));
+        prog[0][0][0] = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
         run_prog_and_test(prog, &[F, F, R, F, F, R]);
     }
 
@@ -574,8 +555,8 @@ mod tests {
     fn test_f_then_nested_repeat_two_instr() {
         initialise_logging_for_tests();
         let mut prog = Prog::from("F, x2");
-        prog[1].instr = Instr::Parent(ParentOpcode::x2, Prog::from("x2"));
-        prog[1][0].instr = Instr::Parent(ParentOpcode::x2, Prog::from("L, R"));
+        prog[1] = Instr::Parent(ParentOpcode::x2, Prog::from("x2"));
+        prog[1][0] = Instr::Parent(ParentOpcode::x2, Prog::from("L, R"));
         run_prog_and_test(prog, &[F, L, R, L, R, L, R, L, R]);
     }
 }
