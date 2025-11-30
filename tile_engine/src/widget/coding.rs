@@ -39,34 +39,35 @@ impl std::fmt::Display for Opcode {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Instr {
     Action(ActionOpcode, ActionData),
     // TODO: Want to merge Subprog into here. Remove Node as separate type.
     // Although, could have Op (with no data) and Instr (with data)..
-    Parent(ParentOpcode),
+    Parent(ParentOpcode, Subprog),
 }
 
 impl Instr {
     pub fn from_op(op: Opcode) -> Self {
         match op {
             Opcode::Action(action_op) => Self::Action(action_op, ActionData::default()),
-            Opcode::Parent(parent_op) => Self::Parent(parent_op),
+            Opcode::Parent(parent_op) => Self::Parent(parent_op, Subprog::default()),
         }
     }
 
     pub fn has_opcode(&self, op: Opcode) -> bool {
         match self {
             Instr::Action(opcode_a, _) => matches!(&op, Opcode::Action(opcode_b) if opcode_a == opcode_b ),
-            Instr::Parent(opcode_a) => matches!(&op, Opcode::Parent(opcode_b) if opcode_a == opcode_b ),
+            Instr::Parent(opcode_a, _) => matches!(&op, Opcode::Parent(opcode_b) if opcode_a == opcode_b ),
         }
     }
 
+    // More naturally part of opcode.
     pub fn _d_connector(self) -> bool {
         use Instr::*;
         match self {
             Action(_, _) => true,
-            Parent(_) => true,
+            Parent(_, _) => true,
         }
     }
 
@@ -80,18 +81,20 @@ impl Instr {
         self.r_connect_max() > 0
     }
 
+    // More naturally part of opcode.
     pub fn r_connect_max(self) -> usize {
         use Instr::*;
         use ParentOpcode::*;
         match self {
             Action(_, _) => 0,
-            Parent(group) => 999,
-            Parent(x2) => 1,
-            Parent(loop5) => 5,
+            Parent(group, _) => 999,
+            Parent(x2, _) => 1,
+            Parent(loop5, _) => 5,
         }
     }
 
     // TODO: Move to fn of ControlFlowOp not Op.
+    // More naturally part of opcode.
     pub fn repeat_count(self) -> usize {
         use Instr::*;
         use ParentOpcode::*;
