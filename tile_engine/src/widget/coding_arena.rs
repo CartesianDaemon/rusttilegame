@@ -25,14 +25,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
         match self.phase {
             CodingRunningPhase::Coding => {
                 if cmd == MoveCmd::Stay {
-                    log::debug!("Start program running.");
-
-                    // Init interactive arena
-                    self.curr_arena = Some(self.init_arena.clone());
-                    // Run game-specific logic for sync'ing different panes at start of run.
-                    GameLogic::harmonise(self);
-
-                    self.phase = CodingRunningPhase::Running;
+                    self.start_execution();
                 }
             },
             CodingRunningPhase::Running => {
@@ -50,12 +43,13 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
                     } else if conclusion == std::ops::ControlFlow::Continue(()) {
                         log::trace!("Bot advanced normally. Continue executing program.");
                     }
+                } else {
+                    log::debug!("Cancelling execution.");
+                    self.cancel_execution();
                 }
             },
             CodingRunningPhase::Stopped => {
-                log::debug!("Returning to coding screen");
-                self.phase = CodingRunningPhase::Coding;
-                self.curr_arena = None;
+                self.cancel_execution();
             }
         }
 
@@ -93,4 +87,22 @@ impl<GameLogic: for_gamedata::BaseGameLogic> CodingArena<GameLogic>
     pub fn is_coding(&self) -> bool {
         self.phase == CodingRunningPhase::Coding
     }
+
+    pub fn start_execution(&mut self) {
+        log::debug!("Start program running.");
+
+        // Init interactive arena
+        self.curr_arena = Some(self.init_arena.clone());
+        // Run game-specific logic for sync'ing different panes at start of run.
+        GameLogic::harmonise(self);
+
+        self.phase = CodingRunningPhase::Running;
+    }
+
+    pub fn cancel_execution(&mut self) {
+        log::debug!("Returning to coding screen");
+        self.phase = CodingRunningPhase::Coding;
+        self.curr_arena = None;
+    }
+
 }
