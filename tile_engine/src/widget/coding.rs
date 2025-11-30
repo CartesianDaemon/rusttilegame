@@ -142,13 +142,13 @@ impl Bin {
 /// Could go back to calling this "Instr" not "Node".
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Node {
-    pub op: Instr,
+    pub instr: Instr,
     pub subnodes: Option<Subprog>,
 }
 
 impl std::fmt::Display for Node {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}", self.op)?;
+        write!(f, "{}", self.instr)?;
         if let Some(subprog) = &self.subnodes {
             write!(f, "[{}]", subprog)?;
         }
@@ -173,7 +173,7 @@ impl std::ops::IndexMut<i16> for Node {
 impl Node {
     pub fn from_op(op: Op) -> Self {
         Self {
-            op: Instr::from_op(op),
+            instr: Instr::from_op(op),
             subnodes: match op {Op::Action(_) => None, Op::Parent(_) => Some(Subprog::default())},
         }
     }
@@ -200,7 +200,7 @@ pub struct Subprog {
 impl From<Vec<Instr>> for Subprog {
     fn from(ops: Vec<Instr>) -> Self {
         Self {
-            instrs: ops.iter().map(|op| Node{op:*op, subnodes:None }).collect(),
+            instrs: ops.iter().map(|op| Node{instr:*op, subnodes:None }).collect(),
             ..Self::default()
         }
     }
@@ -229,8 +229,8 @@ impl std::fmt::Display for Subprog {
         for (idx, node) in self.instrs.iter().enumerate() {
             if idx >0 {write!(f, ",")?}
             if idx == self.curr_ip {write!(f, "*")?}
-            write!(f, "{}", node.op)?;
-            if node.op.is_parent_instr() {
+            write!(f, "{}", node.instr)?;
+            if node.instr.is_parent_instr() {
                 write!(f, "{}", node.subnodes.as_ref().unwrap())?;
             }
         }
@@ -263,7 +263,7 @@ impl std::ops::IndexMut<i16> for Subprog {
             self.instrs.get_mut(idx as usize).unwrap()
         } else {
             for node in &mut self.instrs {
-                if node.op.is_parent_instr() && (
+                if node.instr.is_parent_instr() && (
                         node.subnodes.is_none() || node.subnodes.as_ref().unwrap().instrs.len() == 0
                     ) {
                     return node;
@@ -292,10 +292,10 @@ impl Subprog {
             None
         } else {
             let node = self.instrs.get(self.curr_ip).unwrap();
-            if node.op.is_action_instr() {
-                Some(node.op)
+            if node.instr.is_action_instr() {
+                Some(node.instr)
             } else {
-                assert!(node.op.is_parent_instr());
+                assert!(node.instr.is_parent_instr());
                 node.subnodes.as_ref().unwrap().curr_op()
             }
         }
@@ -306,10 +306,10 @@ impl Subprog {
             None
         } else {
             let node = self.instrs.get_mut(self.curr_ip).unwrap();
-            if node.op.is_action_instr() {
-                Some(node.op)
+            if node.instr.is_action_instr() {
+                Some(node.instr)
             } else {
-                assert!(node.op.is_parent_instr());
+                assert!(node.instr.is_parent_instr());
                 node.subnodes.as_mut().unwrap().curr_op()
             }
         }
@@ -358,7 +358,7 @@ impl Subprog {
             return;
         }
 
-        let op = self.instrs.get_mut(self.curr_ip).unwrap().op;
+        let op = self.instrs.get_mut(self.curr_ip).unwrap().instr;
         if op.is_action_instr() {
             self.advance_ip();
         } else if op.is_parent_instr() {

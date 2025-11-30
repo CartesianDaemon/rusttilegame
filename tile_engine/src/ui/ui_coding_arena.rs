@@ -514,19 +514,19 @@ impl UiCodingArena
         let active = Some(yidx) == self.active_idx;
         let highlight_above = self.is_droppable_before_prog_instr(xidx, yidx);
 
-        self.draw_op_rect(coords, self.calculate_op_style(coords, active, true, InstrRef::Prog {idx: yidx}, highlight_above), &node.op.to_string());
+        self.draw_op_rect(coords, self.calculate_op_style(coords, active, true, InstrRef::Prog {idx: yidx}, highlight_above), &node.instr.to_string());
 
         if let Some(connector_yidx) = prev_yidx {
             self.draw_v_connector(self.prog_instr_coords(xidx, connector_yidx), coords, highlight_above);
         }
 
-        if node.op.is_parent_instr() {
+        if node.instr.is_parent_instr() {
             let highlight = false;
 
             let subprog = &node.subnodes.as_ref().unwrap();
             if subprog.instrs.len() > 0 {
                 self.draw_r_connector(coords, highlight);
-                self.draw_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.op.r_connect_max());
+                self.draw_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.instr.r_connect_max());
             } else {
                 self.draw_r_placeholder_right(xidx, yidx);
             }
@@ -587,10 +587,10 @@ impl UiCodingArena
             // Recurse to detect interaction in subprog
             if idx < prog.instrs.len() {
                 let node: &mut Node  = prog.instrs.get_mut(idx).unwrap();
-                if node.op.is_parent_instr() {
+                if node.instr.is_parent_instr() {
                     let subprog: &mut Prog = node.subnodes.as_mut().unwrap();
                     if subprog.instrs.len() > 0 {
-                        self.interact_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.op.r_connect_max());
+                        self.interact_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.instr.r_connect_max());
                     } else {
                         self.interact_prog_instr(xidx + 1, yidx, subprog, 0);
                     }
@@ -629,14 +629,14 @@ impl UiCodingArena
     {
         if let Some(DragOrigin{instr, ..}) = &self.dragging {
             let coords = self.dragging_op_coords().unwrap();
-            self.draw_op_rect(coords, OpStyle::dragging(), &instr.op.to_string());
+            self.draw_op_rect(coords, OpStyle::dragging(), &instr.instr.to_string());
         }
     }
 
     fn is_droppable_on_supply_bin(&self, idx: usize, op_type: Instr) -> bool {
         let coords = self.supply_op_coords(idx);
         match &self.dragging {
-            Some(DragOrigin { instr, ..}) => self.is_droppable_on_coords(coords.expand_to(1.5)) && instr.op == op_type,
+            Some(DragOrigin { instr, ..}) => self.is_droppable_on_coords(coords.expand_to(1.5)) && instr.instr == op_type,
             _ => false,
         }
     }
@@ -775,7 +775,7 @@ impl UiCodingArena
         self.dragging = if bin.curr_count > 0 {
             bin.curr_count -= 1;
             Some(DragOrigin {
-                instr: Node {op: Instr::from_op(bin.op), subnodes: if bin.op.is_parent_instr() {Some(Subprog::default())} else {None} },
+                instr: Node {instr: Instr::from_op(bin.op), subnodes: if bin.op.is_parent_instr() {Some(Subprog::default())} else {None} },
                 op_ref: InstrRef::Supply { idx },
                 orig_offset_x,
                 orig_offset_y
@@ -801,7 +801,7 @@ impl UiCodingArena
         if let Some(DragOrigin {instr, ..}) = &self.dragging {
             log::debug!("INFO: Dropping {:?} to supply bin", instr);
             let bin = &mut coding.supply.get_mut(idx).unwrap();
-            if bin.op == instr.op {
+            if bin.op == instr.instr {
                 bin.curr_count += 1;
                 self.dragging = None;
             }
@@ -809,9 +809,9 @@ impl UiCodingArena
     }
 
     fn drop_node_to_supply(&mut self, supply: &mut Vec<Bin>, instr: Node) {
-        log::debug!("INFO: Dropping {:?} to supply", instr.op);
+        log::debug!("INFO: Dropping {:?} to supply", instr.instr);
         for bin in &mut *supply {
-            if bin.op == instr.op {
+            if bin.op == instr.instr {
                 bin.curr_count += 1;
                 break;
             }
