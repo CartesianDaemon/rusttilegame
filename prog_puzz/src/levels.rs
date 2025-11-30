@@ -60,8 +60,8 @@ impl ProgpuzzLevset {
             {
                 use prog_ops::*;
                 coding.prog = Prog::from(vec![R, x2]);
-                coding.prog.instrs[1].subnodes = Some(Prog::from(vec![x2]));
-                coding.prog.instrs[1].subnodes.as_mut().unwrap().instrs[0].subnodes = Some(Prog::from(vec![F]));
+                coding.prog.instrs[1].instr = Instr::Parent(ParentOpcode::x2, Prog::from("x2"));
+                coding.prog.instrs[1][0].instr = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
             }
 
             coding

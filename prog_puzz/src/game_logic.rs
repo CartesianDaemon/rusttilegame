@@ -85,39 +85,38 @@ impl BaseGameLogic for ProgpuzzGameLogic
                     }
                 }
 
-                let op = props.prog.curr_op_mut();
+                props.prog.curr_op_mut().unwrap().as_action_data().successful = true;
+                let op = props.prog.curr_op();
                 match op {
                     None => {
                         log::debug!("Bot reached empty parent instr.");
                         return WidgetContinuation::Break(WidgetConclusion::Die);
                     }
-                    Some(Instr::Action(action_op, mut action_data)) => {
-                        action_data.successful = match action_op {
+                    Some(Instr::Action(action_op, _)) => {
+                        match action_op {
                             // Move forward
                             ActionOpcode::F => {
                                 let target_pos = map[mov].pos() + map[mov].logical_props.dir;
                                 if map.passable(target_pos) {
                                     log::debug!("Bot move F. {} -> {}", map[mov].pos(), target_pos);
                                     map.move_obj_to(mov, target_pos);
-                                    true
                                 } else {
                                     log::debug!("Bot blocked F. {} -/-> {}", map[mov].pos(), target_pos);
-                                    false
+                                    // TODO: Fight borrow checker
+                                    props.prog.curr_op_mut().unwrap().as_action_data().successful = false;
                                 }
                             },
                             ActionOpcode::L => {
                                 map[mov].logical_props.dir.rotate_l();
                                 log::debug!("Bot rotate L. {} -> {}", map[mov].logical_props.prev_dir , map[mov].logical_props.dir);
-                                true
                             },
                             ActionOpcode::R => {
                                 map[mov].logical_props.dir.rotate_r();
                                 log::debug!("Bot rotate R. {} -> {}", map[mov].logical_props.prev_dir , map[mov].logical_props.dir);
-                                true
                             },
                         }
                     }
-                    Some(Instr::Parent(_)) => {
+                    Some(Instr::Parent(..)) => {
                         panic!("Unrecognised instr {:?}", props.prog.curr_op());
                     },
                 }
