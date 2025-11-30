@@ -218,17 +218,16 @@ impl std::ops::IndexMut<i16> for Node {
 }
 
 impl Node {
-    pub fn from_op(op: Opcode) -> Self {
+    pub fn from_opcode(op: Opcode) -> Self {
         Self {
             instr: Instr::from_op(op),
-            subnodes: match op {Opcode::Action(_) => None, Opcode::Parent(_) => Some(Subprog::default())},
         }
     }
 
     pub fn v_len(&self) -> usize {
-        match &self.subnodes {
-            None => 1,
-            Some(subprog) => subprog.v_len(),
+        match &self.instr {
+            Instr::Parent(_, subprog) => subprog.v_len(),
+            _ => 1,
         }
     }
 }
@@ -245,9 +244,9 @@ pub struct Subprog {
 }
 
 impl From<Vec<Instr>> for Subprog {
-    fn from(ops: Vec<Instr>) -> Self {
+    fn from(instrs: Vec<Instr>) -> Self {
         Self {
-            instrs: ops.iter().map(|op| Node{instr:*op, subnodes:None }).collect(),
+            instrs: instrs.into_iter().map(|instr| Node{instr:instr}).collect(),
             ..Self::default()
         }
     }
@@ -277,8 +276,8 @@ impl std::fmt::Display for Subprog {
             if idx >0 {write!(f, ",")?}
             if idx == self.curr_ip {write!(f, "*")?}
             write!(f, "{}", node.instr)?;
-            if node.instr.is_parent_instr() {
-                write!(f, "{}", node.subnodes.as_ref().unwrap())?;
+            if let Instr::Parent(_, subprog) = &node.instr {
+                write!(f, "{}", subprog)?;
             }
         }
         write!(f, "]")
@@ -293,7 +292,7 @@ impl std::ops::Index<i16> for Subprog {
             self.instrs.get(idx as usize).unwrap()
         } else {
             for node in &self.instrs {
-                if let Some(subnodes) = &node.subnodes && subnodes.instrs.len() == 0 {
+                if let Instr::Parent(_, subprog) = &node.instr && subprog.instrs.len() == 0 {
                     return node;
                 }
             }
@@ -310,9 +309,7 @@ impl std::ops::IndexMut<i16> for Subprog {
             self.instrs.get_mut(idx as usize).unwrap()
         } else {
             for node in &mut self.instrs {
-                if node.instr.is_parent_instr() && (
-                        node.subnodes.is_none() || node.subnodes.as_ref().unwrap().instrs.len() == 0
-                    ) {
+                if let Instr::Parent(_, subprog) = &node.instr && subprog.instrs.len() == 0 {
                     return node;
                 }
             }
@@ -334,35 +331,21 @@ impl Subprog {
 
     // Currently executing op. Action instr from list, or from a parent instr.
     // None when past end of program, or when program reaches an empty parent instr.
-    pub fn curr_op(&self) -> Option<Instr> {
-        if self.curr_ip >= self.instrs.len() {
-            None
-        } else {
-            let node = self.instrs.get(self.curr_ip).unwrap();
-            if node.instr.is_action_instr() {
-                Some(node.instr)
-            } else {
-                assert!(node.instr.is_parent_instr());
-                node.subnodes.as_ref().unwrap().curr_op()
-            }
+    pub fn curr_op(&self) -> Option<&Instr> {
+        match &self.instrs.get(self.curr_ip)?.instr {
+            instr @ Instr::Action(..) => Some(instr),
+            Instr::Parent(_, subprog) => subprog.curr_op(),
         }
     }
 
-    pub fn curr_op_mut(&mut self) -> Option<Instr> {
-        if self.curr_ip >= self.instrs.len() {
-            None
-        } else {
-            let node = self.instrs.get_mut(self.curr_ip).unwrap();
-            if node.instr.is_action_instr() {
-                Some(node.instr)
-            } else {
-                assert!(node.instr.is_parent_instr());
-                node.subnodes.as_mut().unwrap().curr_op()
-            }
+    pub fn curr_op_mut(&mut self) -> Option<&mut Instr> {
+        match &mut self.instrs.get_mut(self.curr_ip)?.instr {
+            instr @ Instr::Action(..) => Some(instr),
+            Instr::Parent(_, subprog) => subprog.curr_op_mut(),
         }
     }
 
-    pub fn unwrap_curr_op(&self) -> Instr {
+    pub fn unwrap_curr_op(&self) -> &Instr {
         self.curr_op().unwrap()
     }
 
