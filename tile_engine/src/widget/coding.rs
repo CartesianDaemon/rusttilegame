@@ -276,6 +276,20 @@ impl Subprog {
         }
     }
 
+    pub fn curr_op_mut(&mut self) -> Option<Op> {
+        if self.curr_ip >= self.instrs.len() {
+            None
+        } else {
+            let node = self.instrs.get_mut(self.curr_ip).unwrap();
+            if node.op.is_action_instr() {
+                Some(node.op)
+            } else {
+                assert!(node.op.is_parent_instr());
+                node.subnodes.as_mut().unwrap().curr_op()
+            }
+        }
+    }
+
     pub fn unwrap_curr_op(&self) -> Op {
         self.curr_op().unwrap()
     }
