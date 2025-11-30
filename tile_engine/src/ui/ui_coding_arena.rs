@@ -520,10 +520,9 @@ impl UiCodingArena
             self.draw_v_connector(self.prog_instr_coords(xidx, connector_yidx), coords, highlight_above);
         }
 
-        if node.instr.is_parent_instr() {
+        if let Instr::Parent(_, subprog) = &node.instr {
             let highlight = false;
 
-            let subprog = &node.subnodes.as_ref().unwrap();
             if subprog.instrs.len() > 0 {
                 self.draw_r_connector(coords, highlight);
                 self.draw_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.instr.r_connect_max());
@@ -587,10 +586,10 @@ impl UiCodingArena
             // Recurse to detect interaction in subprog
             if idx < prog.instrs.len() {
                 let node: &mut Node  = prog.instrs.get_mut(idx).unwrap();
-                if node.instr.is_parent_instr() {
-                    let subprog: &mut Prog = node.subnodes.as_mut().unwrap();
+                if let Instr::Parent(instr, subprog) = &mut node.instr {
+                    let v_connector = subprog.instrs.len() < instr.r_connect_max();
                     if subprog.instrs.len() > 0 {
-                        self.interact_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < node.instr.r_connect_max());
+                        self.interact_subprog(xidx + 1, yidx, subprog, v_connector);
                     } else {
                         self.interact_prog_instr(xidx + 1, yidx, subprog, 0);
                     }
@@ -803,7 +802,7 @@ impl UiCodingArena
             let bin = &mut coding.supply.get_mut(idx).unwrap();
             if node.instr.has_opcode(bin.op) {
                 bin.curr_count += 1;
-                if let Some(subprog) = &node.subnodes {
+                if let Instr::Parent(_, subprog) = &node.instr {
                     for subnode in &mut subprog.instrs.clone() {
                         let supply = &mut coding.supply;
                         self.drop_node_to_supply(supply, subnode.clone());
@@ -814,16 +813,16 @@ impl UiCodingArena
         }
     }
 
-    fn drop_node_to_supply(&mut self, supply: &mut Vec<Bin>, instr: Node) {
-        log::debug!("INFO: Dropping {:?} to supply", instr.instr);
+    fn drop_node_to_supply(&mut self, supply: &mut Vec<Bin>, node: Node) {
+        log::debug!("INFO: Dropping {:?} to supply", node.instr);
         for bin in &mut *supply {
-            if instr.instr.has_opcode(bin.op) {
+            if node.instr.has_opcode(bin.op) {
                 bin.curr_count += 1;
                 break;
             }
         }
-        if let Some(subprog) = instr.subnodes {
-            for node in subprog.instrs {
+        if let Instr::Parent(_, subprog) = &node.instr {
+            for node in subprog.instrs.clone() {
                 self.drop_node_to_supply(supply, node);
             }
         }

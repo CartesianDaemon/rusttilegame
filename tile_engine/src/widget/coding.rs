@@ -21,6 +21,17 @@ pub enum ParentOpcode {
     loop5,
 }
 
+impl ParentOpcode {
+    pub fn r_connect_max(&self) -> usize {
+        use ParentOpcode::*;
+        match self {
+            group => 999,
+            x2 => 1,
+            loop5 => 5,
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Opcode {
     Action(ActionOpcode),
@@ -112,12 +123,9 @@ impl Instr {
     // More naturally part of opcode.
     pub fn r_connect_max(&self) -> usize {
         use Instr::*;
-        use ParentOpcode::*;
         match self {
             Action(_, _) => 0,
-            Parent(group, _) => 999,
-            Parent(x2, _) => 1,
-            Parent(loop5, _) => 5,
+            Parent(parent_opcode, _) => parent_opcode.r_connect_max(),
         }
     }
 
