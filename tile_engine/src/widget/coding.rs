@@ -106,16 +106,6 @@ impl Instr {
         }
     }
 
-    // TODO: Replace with match?
-    pub fn is_action_instr(&self) -> bool {
-        !self.is_parent_instr()
-    }
-
-    // TODO: Replace with match?
-    pub fn is_parent_instr(&self) -> bool {
-        self.r_connect_max() > 0
-    }
-
     // More naturally part of opcode.
     pub fn r_connect_max(&self) -> usize {
         use Instr::*;
