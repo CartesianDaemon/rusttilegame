@@ -22,8 +22,7 @@ impl ProgpuzzLevset {
 
     pub fn advance_scene(&mut self, continuation: WidgetConclusion) {
         self.current_levid = match (self.current_levid, continuation) {
-            // TODO: Get max levnum from list of levels?
-            (ProgpuzzPaneId::LevCodingArena(1), WidgetConclusion::Win) => ProgpuzzPaneId::Win,
+            (ProgpuzzPaneId::LevCodingArena(levnum), WidgetConclusion::Win) if levnum >= self.levels().len() as u16 => ProgpuzzPaneId::Win,
             (ProgpuzzPaneId::LevCodingArena(levnum), WidgetConclusion::Win) => ProgpuzzPaneId::LevCodingArena(levnum+1),
             (ProgpuzzPaneId::Win, WidgetConclusion::SplashContinue) => Self::new().current_levid,
             _ => panic!()
@@ -44,7 +43,8 @@ impl ProgpuzzLevset {
             */
         ]);
 
-        let coding = if std::env::args().collect::<Vec<_>>().contains(&"--debug-coding=A".to_string()) {
+        // TODO: Separate debug levels..?
+        let lev1_coding = if std::env::args().collect::<Vec<_>>().contains(&"--debug-coding=A".to_string()) {
             let mut coding;
             {
                 use supply_ops::*;
@@ -76,10 +76,10 @@ impl ProgpuzzLevset {
                 (loop5, 2),
             ])
         } else {
-            use supply_ops::*;
-            Coding::from_vec(&[(F, 6), (R, 1)])
+            Coding::from_vec(&[(F, 2), (L, 0), (R, 0)])
         };
 
+        use supply_ops::*;
         vec![
             // TODO: Avoid needing to specify HEIGHT explicitly.
             CodingArena::new::<16>(
@@ -101,7 +101,7 @@ impl ProgpuzzLevset {
                     "#              #",
                     "################",
                 ], progpuzz_key.clone()),
-                coding.clone(),
+                lev1_coding,
             ),
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
@@ -122,7 +122,7 @@ impl ProgpuzzLevset {
                     "#              #",
                     "################",
                 ], progpuzz_key.clone()),
-                coding.clone(),
+                Coding::from_vec(&[(F, 6), (L, 3), (R, 3)]),
             ),
         ]
     }
