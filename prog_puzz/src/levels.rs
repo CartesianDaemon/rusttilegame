@@ -260,9 +260,9 @@ impl ProgpuzzLevset {
                     "#              #",
                     "#              #",
                     "#              #",
-                    "#     ^        #",
+                    "#    >         #",
                     "#     #        #",
-                    "#    w         #",
+                    "#     w        #",
                     "#              #",
                     "#              #",
                     "#              #",
@@ -273,13 +273,34 @@ impl ProgpuzzLevset {
                 ], progpuzz_key.clone()),
                 Coding::from_vec(&[(F, 3), (L, 0), (R, 3), (x2, 3)]),
             ),
+            CodingArena::new::<16>(
+                Arena::from_map_and_key(&[
+                    "################",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "# #            #",
+                    "# #            #",
+                    "#w#   v        #",
+                    "# #            #",
+                    "# #            #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "################",
+                ], progpuzz_key.clone()),
+                Coding::from_vec(&[(F, 4), (L, 3), (R, 0), (x2, 5)]),
+            ),
         ]
     }
 
     pub fn load_scene(&self) -> Widget<super::game_logic::ProgpuzzGameLogic> {
         // NB: Would like to implement thin walls between squares, not walls filling whole squares.
         match self.current_levid {
-            ProgpuzzPaneId::LevCodingArena(n) => Widget::CodingArena(self.levels()[n as usize].clone()),
+            ProgpuzzPaneId::LevCodingArena(n) => Widget::CodingArena(self.levels()[n as usize -1].clone()),
             ProgpuzzPaneId::Win => {
                 Widget::from_splash_string("Congratulations. You've completed all the levels. Press [enter] to play through again".to_string())
             },
