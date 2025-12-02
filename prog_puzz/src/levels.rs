@@ -30,7 +30,7 @@ impl ProgpuzzLevset {
         };
     }
 
-    pub fn load_scene(&self) -> Widget<super::game_logic::ProgpuzzGameLogic> {
+    fn levels(&self) -> Vec<CodingArena<super::game_logic::ProgpuzzGameLogic>> {
         let progpuzz_key = HashMap::from([
             // NB: Better to move this into obj? Combined with obj.char types?
             (' ', vec![ new_floor() ]),
@@ -80,10 +80,30 @@ impl ProgpuzzLevset {
             Coding::from_vec(&[(F, 6), (R, 1)])
         };
 
-        // NB: Would like to implement thin walls between squares, not walls filling whole squares.
-        match self.current_levid {
+        vec![
             // TODO: Avoid needing to specify HEIGHT explicitly.
-            ProgpuzzPaneId::LevCodingArena(1) => Widget::CodingArena(CodingArena::new::<16>(
+            CodingArena::new::<16>(
+                Arena::from_map_and_key(&[
+                    "################",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#     w        #",
+                    "#              #",
+                    "#     ^        #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "################",
+                ], progpuzz_key.clone()),
+                coding.clone(),
+            ),
+            CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
                     "################",
                     "#              #",
@@ -101,14 +121,19 @@ impl ProgpuzzLevset {
                     "#              #",
                     "#              #",
                     "################",
-                ], progpuzz_key),
-                coding,
-            )),
+                ], progpuzz_key.clone()),
+                coding.clone(),
+            ),
+        ]
+    }
+
+    pub fn load_scene(&self) -> Widget<super::game_logic::ProgpuzzGameLogic> {
+        // NB: Would like to implement thin walls between squares, not walls filling whole squares.
+        match self.current_levid {
+            ProgpuzzPaneId::LevCodingArena(n) => Widget::CodingArena(self.levels()[n as usize].clone()),
             ProgpuzzPaneId::Win => {
                 Widget::from_splash_string("Congratulations. You've completed all the levels. Press [enter] to play through again".to_string())
             },
-
-            ProgpuzzPaneId::LevCodingArena(_) => panic!("Loading LevSplit for level that can't be found."),
         }
     }
 }
