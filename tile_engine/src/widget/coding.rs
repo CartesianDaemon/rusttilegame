@@ -3,11 +3,11 @@ use crate::map_coords::MoveCmd;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
 pub struct ActionData {
-    pub successful: bool,
+    pub blocked: bool,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum ActionOp {
+pub enum ActionOpcode {
     F,
     L,
     R,
@@ -15,23 +15,32 @@ pub enum ActionOp {
 
 #[allow(non_camel_case_types)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum ParentOp {
+pub enum ParentOpcode {
     group,
     x2,
     loop5,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum Op {
-    Action(ActionOp),
-    // TODO: Want to merge Subprog into here. Remove Node as separate type.
-    // Although, could have Op (with no data) and Instr (with data)..
-    Parent(ParentOp),
+impl ParentOpcode {
+    pub fn r_connect_max(&self) -> usize {
+        use ParentOpcode::*;
+        match self {
+            group => 999,
+            x2 => 1,
+            loop5 => 5,
+        }
+    }
 }
 
-impl std::fmt::Display for Op {
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum Opcode {
+    Action(ActionOpcode),
+    Parent(ParentOpcode),
+}
+
+impl std::fmt::Display for Opcode {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        use Op::*;
+        use Opcode::*;
         match self {
             Action(op) => std::fmt::Debug::fmt(op, f),
             Parent(op) => std::fmt::Debug::fmt(op, f),
@@ -39,67 +48,90 @@ impl std::fmt::Display for Op {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Instr {
-    Action(ActionOp, ActionData),
-    // TODO: Want to merge Subprog into here. Remove Node as separate type.
-    // Although, could have Op (with no data) and Instr (with data)..
-    Parent(ParentOp),
+    Action(ActionOpcode, ActionData),
+    Parent(ParentOpcode, Subprog),
 }
 
 impl Instr {
-    pub fn from_op(op: Op) -> Self {
+    pub fn from_opcode(op: Opcode) -> Self {
         match op {
-            Op::Action(action_op) => Self::Action(action_op, ActionData::default()),
-            Op::Parent(parent_op) => Self::Parent(parent_op),
+            Opcode::Action(action_op) => Self::Action(action_op, ActionData::default()),
+            Opcode::Parent(parent_op) => Self::Parent(parent_op, Subprog::default()),
         }
     }
 
-    pub fn is_op(&self, op: Op) -> bool {
+    pub fn has_opcode(&self, op: Opcode) -> bool {
         match self {
-            Instr::Action(opcode_a, _) => matches!(&op, Op::Action(opcode_b) if opcode_a == opcode_b ),
-            Instr::Parent(opcode_a) => matches!(&op, Op::Parent(opcode_b) if opcode_a == opcode_b ),
+            Instr::Action(opcode_a, _) => matches!(&op, Opcode::Action(opcode_b) if opcode_a == opcode_b ),
+            Instr::Parent(opcode_a, _) => matches!(&op, Opcode::Parent(opcode_b) if opcode_a == opcode_b ),
         }
     }
 
+    pub fn as_action_op(&self) -> ActionOpcode {
+        match self {
+            Self::Action(op, _) => *op,
+            _ => panic!("Not an action instr"),
+        }
+    }
+
+    pub fn as_action_data(&self) -> ActionData {
+        match self {
+            Self::Action(_, data) => *data,
+            _ => panic!("Not an action instr"),
+        }
+    }
+
+    pub fn as_parent_subprog(&self) -> &Subprog {
+        match self {
+            Self::Parent(_, subprog) => subprog,
+            _ => panic!("Not a parent instr"),
+        }
+    }
+
+    pub fn as_parent_subprog_mut(&mut self) -> &mut Subprog {
+        match self {
+            Self::Parent(_, subprog) => subprog,
+            _ => panic!("Not a parent instr"),
+        }
+    }
+
+    // More naturally part of opcode.
     pub fn _d_connector(self) -> bool {
         use Instr::*;
         match self {
             Action(_, _) => true,
-            Parent(_) => true,
+            Parent(_, _) => true,
         }
     }
 
-    // TODO: Replace with match?
-    pub fn is_action_instr(self) -> bool {
-        !self.is_parent_instr()
-    }
-
-    // TODO: Replace with match?
-    pub fn is_parent_instr(self) -> bool {
-        self.r_connect_max() > 0
-    }
-
-    pub fn r_connect_max(self) -> usize {
+    // More naturally part of opcode.
+    pub fn r_connect_max(&self) -> usize {
         use Instr::*;
-        use ParentOp::*;
         match self {
             Action(_, _) => 0,
-            Parent(group) => 999,
-            Parent(x2) => 1,
-            Parent(loop5) => 5,
+            Parent(parent_opcode, _) => parent_opcode.r_connect_max(),
         }
     }
 
     // TODO: Move to fn of ControlFlowOp not Op.
-    pub fn repeat_count(self) -> usize {
+    // More naturally part of opcode.
+    pub fn repeat_count(&self) -> usize {
         use Instr::*;
-        use ParentOp::*;
+        use ParentOpcode::*;
         match self {
             Action(_, _) => panic!("Repeat count not specified for non-parent instr"),
-            Parent(group) => 1,
-            Parent(x2) => 2,
-            Parent(loop5) => 5,
+            Parent(group, _) => 1,
+            Parent(x2, _) => 2,
+            Parent(loop5, _) => 5,
+        }
+    }
+
+    pub fn v_len(&self) -> usize {
+        match &self {
+            Instr::Parent(_, subprog) => subprog.v_len(),
+            _ => 1,
         }
     }
 }
@@ -109,7 +141,7 @@ impl std::fmt::Display for Instr {
         use Instr::*;
         match self {
             Action(op, _) => std::fmt::Debug::fmt(op, f),
-            Parent(op) => std::fmt::Debug::fmt(op, f),
+            Parent(op, _) => std::fmt::Debug::fmt(op, f),
         }
     }
 }
@@ -117,12 +149,12 @@ impl std::fmt::Display for Instr {
 impl From<&str> for Instr {
     fn from(txt: &str) -> Self {
         match txt {
-            "F" => Instr::Action(ActionOp::F, ActionData::default()),
-            "L" => Instr::Action(ActionOp::L, ActionData::default()),
-            "R" => Instr::Action(ActionOp::R, ActionData::default()),
-            "group" => Instr::Parent(ParentOp::group),
-            "x2" => Instr::Parent(ParentOp::x2),
-            "loop5" => Instr::Parent(ParentOp::loop5),
+            "F" => Instr::Action(ActionOpcode::F, ActionData::default()),
+            "L" => Instr::Action(ActionOpcode::L, ActionData::default()),
+            "R" => Instr::Action(ActionOpcode::R, ActionData::default()),
+            "group" => Instr::Parent(ParentOpcode::group, Subprog::default()),
+            "x2" => Instr::Parent(ParentOpcode::x2, Subprog::default()),
+            "loop5" => Instr::Parent(ParentOpcode::loop5, Subprog::default()),
             _ => panic!("Unrecognised txt for instr: {}", txt)
         }
     }
@@ -130,13 +162,13 @@ impl From<&str> for Instr {
 
 #[derive(Clone, Debug)]
 pub struct Bin {
-    pub op: Op,
+    pub op: Opcode,
     pub orig_count: u16,
     pub curr_count: u16,
 }
 
 impl Bin {
-    fn new(op: Op, orig_count: u16) -> Self {
+    fn new(op: Opcode, orig_count: u16) -> Self {
         Self {
             op,
             orig_count,
@@ -154,52 +186,28 @@ impl Bin {
     }
 }
 
-/// An instruction as it exists in a specific program, including subprog and current state.
-///
-/// Could go back to calling this "Instr" not "Node".
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Node {
-    pub instr: Instr,
-    pub subnodes: Option<Subprog>,
-}
-
-impl std::fmt::Display for Node {
+#[cfg(any())]
+impl std::fmt::Display for Instr {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{}", self.instr)?;
-        if let Some(subprog) = &self.subnodes {
+        if let Instr::Parent(_,subprog) = &self.instr {
             write!(f, "[{}]", subprog)?;
         }
         Ok(())
     }
 }
 
-impl std::ops::Index<i16> for Node {
-    type Output = Node;
+impl std::ops::Index<i16> for Instr {
+    type Output = Instr;
 
     fn index(&self, idx: i16) -> &Self::Output {
-        &self.subnodes.as_ref().unwrap()[idx]
+        &self.as_parent_subprog()[idx]
     }
 }
 
-impl std::ops::IndexMut<i16> for Node {
+impl std::ops::IndexMut<i16> for Instr {
     fn index_mut(&mut self, idx: i16) -> &mut Self::Output {
-        &mut self.subnodes.as_mut().unwrap()[idx]
-    }
-}
-
-impl Node {
-    pub fn from_op(op: Op) -> Self {
-        Self {
-            instr: Instr::from_op(op),
-            subnodes: match op {Op::Action(_) => None, Op::Parent(_) => Some(Subprog::default())},
-        }
-    }
-
-    pub fn v_len(&self) -> usize {
-        match &self.subnodes {
-            None => 1,
-            Some(subprog) => subprog.v_len(),
-        }
+        &mut self.as_parent_subprog_mut()[idx]
     }
 }
 
@@ -211,13 +219,13 @@ pub struct Subprog {
     // When used for iteration, counts number of times current execution of parent instr has executed this subprog.
     pub counter: usize,
     // Vector of one or more instrs to execute. Some parent ops have a specific number of nested instrs.
-    pub instrs: Vec<Node>
+    pub instrs: Vec<Instr>
 }
 
 impl From<Vec<Instr>> for Subprog {
-    fn from(ops: Vec<Instr>) -> Self {
+    fn from(instrs: Vec<Instr>) -> Self {
         Self {
-            instrs: ops.iter().map(|op| Node{instr:*op, subnodes:None }).collect(),
+            instrs,
             ..Self::default()
         }
     }
@@ -227,7 +235,7 @@ impl From<Vec<Instr>> for Subprog {
 impl<T: Iterator<Item=Instr>> From<T> for Subprog {
     fn from(ops: T) -> Self {
         Self {
-            instrs: ops.map(|op| Node{op:*op, subnodes:None }).collect(),
+            instrs: ops.map(|op| Instr{op:*op, subnodes:None }).collect(),
             ..Self::default()
         }
     }
@@ -243,12 +251,12 @@ impl From<&str> for Subprog {
 impl std::fmt::Display for Subprog {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{:.<1$}[", "", self.counter)?;
-        for (idx, node) in self.instrs.iter().enumerate() {
+        for (idx, instr) in self.instrs.iter().enumerate() {
             if idx >0 {write!(f, ",")?}
             if idx == self.curr_ip {write!(f, "*")?}
-            write!(f, "{}", node.instr)?;
-            if node.instr.is_parent_instr() {
-                write!(f, "{}", node.subnodes.as_ref().unwrap())?;
+            write!(f, "{}", instr)?;
+            if let Instr::Parent(_, subprog) = &instr {
+                write!(f, "{}", subprog)?;
             }
         }
         write!(f, "]")
@@ -256,15 +264,15 @@ impl std::fmt::Display for Subprog {
 }
 
 impl std::ops::Index<i16> for Subprog {
-    type Output = Node;
+    type Output = Instr;
 
     fn index(&self, idx: i16) -> &Self::Output {
         if idx >= 0 {
             self.instrs.get(idx as usize).unwrap()
         } else {
-            for node in &self.instrs {
-                if let Some(subnodes) = &node.subnodes && subnodes.instrs.len() == 0 {
-                    return node;
+            for instr in &self.instrs {
+                if let Instr::Parent(_, subprog) = &instr && subprog.instrs.len() == 0 {
+                    return instr;
                 }
             }
             panic!();
@@ -279,11 +287,9 @@ impl std::ops::IndexMut<i16> for Subprog {
         if idx >= 0 {
             self.instrs.get_mut(idx as usize).unwrap()
         } else {
-            for node in &mut self.instrs {
-                if node.instr.is_parent_instr() && (
-                        node.subnodes.is_none() || node.subnodes.as_ref().unwrap().instrs.len() == 0
-                    ) {
-                    return node;
+            for instr in &mut self.instrs {
+                if let Instr::Parent(_, subprog) = &instr && subprog.instrs.len() == 0 {
+                    return instr;
                 }
             }
             panic!();
@@ -304,35 +310,21 @@ impl Subprog {
 
     // Currently executing op. Action instr from list, or from a parent instr.
     // None when past end of program, or when program reaches an empty parent instr.
-    pub fn curr_op(&self) -> Option<Instr> {
-        if self.curr_ip >= self.instrs.len() {
-            None
-        } else {
-            let node = self.instrs.get(self.curr_ip).unwrap();
-            if node.instr.is_action_instr() {
-                Some(node.instr)
-            } else {
-                assert!(node.instr.is_parent_instr());
-                node.subnodes.as_ref().unwrap().curr_op()
-            }
+    pub fn curr_op(&self) -> Option<&Instr> {
+        match &self.instrs.get(self.curr_ip)? {
+            instr @ Instr::Action(..) => Some(instr),
+            Instr::Parent(_, subprog) => subprog.curr_op(),
         }
     }
 
-    pub fn curr_op_mut(&mut self) -> Option<Instr> {
-        if self.curr_ip >= self.instrs.len() {
-            None
-        } else {
-            let node = self.instrs.get_mut(self.curr_ip).unwrap();
-            if node.instr.is_action_instr() {
-                Some(node.instr)
-            } else {
-                assert!(node.instr.is_parent_instr());
-                node.subnodes.as_mut().unwrap().curr_op()
-            }
+    pub fn curr_op_mut(&mut self) -> Option<&mut Instr> {
+        match self.instrs.get_mut(self.curr_ip)? {
+            instr @ Instr::Action(..) => Some(instr),
+            Instr::Parent(_, subprog) => subprog.curr_op_mut(),
         }
     }
 
-    pub fn unwrap_curr_op(&self) -> Instr {
+    pub fn unwrap_curr_op(&self) -> &Instr {
         self.curr_op().unwrap()
     }
 
@@ -350,8 +342,8 @@ impl Subprog {
         self.counter += 1;
     }
 
-    fn advance_current_subprog(&mut self, parent_op: Instr) {
-        let subprog = self.instrs.get_mut(self.curr_ip).unwrap().subnodes.as_mut().unwrap();
+    fn advance_current_subprog(&mut self, parent_op: &Instr) {
+        let subprog = self.instrs.get_mut(self.curr_ip).unwrap().as_parent_subprog_mut();
         subprog.advance_next_instr();
         if subprog.finished() {
             if subprog.counter + 1 < parent_op.repeat_count() {
@@ -375,15 +367,12 @@ impl Subprog {
             return;
         }
 
-        let op = self.instrs.get_mut(self.curr_ip).unwrap().instr;
-        if op.is_action_instr() {
-            self.advance_ip();
-        } else if op.is_parent_instr() {
-            self.advance_current_subprog(op);
-        } else {
-            panic!("Unrecognised category of instr: {}", op);
+        let op = &self.instrs.get_mut(self.curr_ip).unwrap().clone();
+        match op {
+            Instr::Action(..) => self.advance_ip(),
+            Instr::Parent(..) => self.advance_current_subprog(op),
         }
-        assert!(self.curr_op().is_none() || self.curr_op().unwrap().is_action_instr());
+        assert!(self.curr_op().is_none() || matches!(self.curr_op(), Some(Instr::Action(..))));
         log::debug!("Advanced prog to {}.", self); // to #{}. Next: #{}.", self, self.prev_ip, self.next_ip);
     }
 }
@@ -397,7 +386,7 @@ pub struct Coding {
 }
 
 impl Coding {
-    pub fn from_vec(supplies: &[(Op, u16)]) -> Coding {
+    pub fn from_vec(supplies: &[(Opcode, u16)]) -> Coding {
         Coding {
             supply: supplies.iter().map(|(op,count)|
             Bin::new(*op, *count)
@@ -424,39 +413,42 @@ pub mod action_ops {
     #![allow(non_upper_case_globals)]
     use super::*;
 
-    pub const F: ActionOp = ActionOp::F;
-    pub const L: ActionOp = ActionOp::L;
-    pub const R: ActionOp = ActionOp::R;
+    pub const F: ActionOpcode = ActionOpcode::F;
+    pub const L: ActionOpcode = ActionOpcode::L;
+    pub const R: ActionOpcode = ActionOpcode::R;
 }
 
 pub mod supply_ops {
     #![allow(non_upper_case_globals)]
     use super::*;
 
-    pub const F: Op = Op::Action(ActionOp::F);
-    pub const L: Op = Op::Action(ActionOp::L);
-    pub const R: Op = Op::Action(ActionOp::R);
+    pub const F: Opcode = Opcode::Action(ActionOpcode::F);
+    pub const L: Opcode = Opcode::Action(ActionOpcode::L);
+    pub const R: Opcode = Opcode::Action(ActionOpcode::R);
 
-    pub const x2: Op = Op::Parent(ParentOp::x2);
-    pub const group: Op = Op::Parent(ParentOp::group);
-    pub const loop5: Op = Op::Parent(ParentOp::loop5);
+    pub const x2: Opcode = Opcode::Parent(ParentOpcode::x2);
+    pub const group: Opcode = Opcode::Parent(ParentOpcode::group);
+    pub const loop5: Opcode = Opcode::Parent(ParentOpcode::loop5);
 }
 
 pub mod prog_ops {
     #![allow(non_upper_case_globals)]
+
     use super::*;
 
-    pub const a: ActionData = ActionData { successful: false};
-    pub const F: Instr = Instr::Action(ActionOp::F, a);
-    pub const L: Instr = Instr::Action(ActionOp::L, a);
-    pub const R: Instr = Instr::Action(ActionOp::R, a);
+    pub const default_action_data: ActionData = ActionData { blocked: false};
+    pub const F: Instr = Instr::Action(ActionOpcode::F, default_action_data);
+    pub const L: Instr = Instr::Action(ActionOpcode::L, default_action_data);
+    pub const R: Instr = Instr::Action(ActionOpcode::R, default_action_data);
 
     // TODO: Introduce fn if we first subsume Subprog into ParentOp
     // pub fn x2(ops: Vec<Op>) -> Op = Op::Parent(ParentOp::x2);
 
-    pub const x2: Instr = Instr::Parent(ParentOp::x2);
-    pub const group: Instr = Instr::Parent(ParentOp::group);
-    pub const loop5: Instr = Instr::Parent(ParentOp::loop5);
+    // TODO: make Subprog::default a const function to avoid duplication.
+    pub const default_subprog: Subprog = Subprog {counter: 0, curr_ip: 0, instrs: vec![]};
+    pub const x2: Instr = Instr::Parent(ParentOpcode::x2, default_subprog);
+    pub const group: Instr = Instr::Parent(ParentOpcode::group, default_subprog);
+    pub const loop5: Instr = Instr::Parent(ParentOpcode::loop5, default_subprog);
 }
 
 #[cfg(test)]
@@ -478,10 +470,10 @@ mod tests {
         assert_eq!(Prog::from("F,R,L,x2,group,loop5"), Prog::from(vec![F, R, L, x2, group, loop5]));
     }
 
-    fn run_prog_and_test(mut prog: Prog, expected_ops: &[ActionOp]) {
+    fn run_prog_and_test(mut prog: Prog, expected_ops: &[ActionOpcode]) {
         for (idx, expected_op) in expected_ops.iter().enumerate() {
             assert!(!prog.finished());
-            assert!(matches!(prog.curr_op(), Some(Instr::Action(op, _)) if op==*expected_op) , "At idx {} of {}", idx, prog);
+            assert!(matches!(prog.curr_op(), Some(Instr::Action(op, _)) if op==expected_op) , "At idx {} of {}", idx, prog);
             prog.advance_next_instr();
         }
         assert!(prog.finished());
@@ -499,7 +491,7 @@ mod tests {
     fn test_simple_repeat() {
         initialise_logging_for_tests();
         let mut prog = Prog::from("L,x2,L");
-        prog[-1].subnodes = Some(Prog::from("F,R"));
+        prog[-1] = Instr::Parent(ParentOpcode::x2, Prog::from("F,R"));
         run_prog_and_test(prog, &[L, F, R, F, R, L]);
     }
 
@@ -507,7 +499,7 @@ mod tests {
     fn test_bare_repeat() {
         initialise_logging_for_tests();
         let mut prog = Prog::from("x2");
-        prog[-1].subnodes = Some(Prog::from("F"));
+        prog[-1] = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
         run_prog_and_test(prog, &[F, F]);
     }
 
@@ -515,8 +507,8 @@ mod tests {
     fn test_bare_nested_repeat() {
         initialise_logging_for_tests();
         let mut prog = Prog::from("x2");
-        prog[0].subnodes = Some(Prog::from("x2"));
-        prog[0][-1].subnodes = Some(Prog::from("F"));
+        prog[0] = Instr::Parent(ParentOpcode::x2, Prog::from("x2"));
+        prog[0][-1] = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
         run_prog_and_test(prog, &[F, F, F, F]);
     }
 
@@ -524,9 +516,9 @@ mod tests {
     fn test_twice_nested_repeat() {
         initialise_logging_for_tests();
         let mut prog = Prog::from("x2");
-        prog[0].subnodes = Some(Prog::from("x2,x2"));
-        prog[0][-1].subnodes = Some(Prog::from("F"));
-        prog[0][-1].subnodes = Some(Prog::from("R"));
+        prog[0] = Instr::Parent(ParentOpcode::x2, Prog::from("x2, x2"));
+        prog[0][-1] = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
+        prog[0][-1] = Instr::Parent(ParentOpcode::x2, Prog::from("R"));
         run_prog_and_test(prog, &[F, F, R, R, F, F, R, R]);
     }
 
@@ -534,8 +526,8 @@ mod tests {
     fn test_nested_repeat_two_instr() {
         initialise_logging_for_tests();
         let mut prog = Prog::from("x2");
-        prog[0].subnodes = Some(Prog::from("x2"));
-        prog[0][-1].subnodes = Some(Prog::from("L, R"));
+        prog[0] = Instr::Parent(ParentOpcode::x2, Prog::from("x2"));
+        prog[0][-1] = Instr::Parent(ParentOpcode::x2, Prog::from("L, R"));
         run_prog_and_test(prog, &[L, R, L, R, L, R, L, R]);
     }
 
@@ -543,9 +535,9 @@ mod tests {
     fn test_repeat_nested_group() { // x2(group(x2(F), R))
         initialise_logging_for_tests();
         let mut prog = Prog::from("x2");
-        prog[0].subnodes = Some(Prog::from("group"));
-        prog[0][0].subnodes = Some(Prog::from("x2, R"));
-        prog[0][0][0].subnodes = Some(Prog::from("F"));
+        prog[0] = Instr::Parent(ParentOpcode::x2, Prog::from("group"));
+        prog[0][0] = Instr::Parent(ParentOpcode::group, Prog::from("x2, R"));
+        prog[0][0][0] = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
         run_prog_and_test(prog, &[F, F, R, F, F, R]);
     }
 
@@ -553,8 +545,8 @@ mod tests {
     fn test_f_then_nested_repeat_two_instr() {
         initialise_logging_for_tests();
         let mut prog = Prog::from("F, x2");
-        prog[1].subnodes = Some(Prog::from("x2"));
-        prog[1][0].subnodes = Some(Prog::from("L, R"));
+        prog[1] = Instr::Parent(ParentOpcode::x2, Prog::from("x2"));
+        prog[1][0] = Instr::Parent(ParentOpcode::x2, Prog::from("L, R"));
         run_prog_and_test(prog, &[F, L, R, L, R, L, R, L, R]);
     }
 }
