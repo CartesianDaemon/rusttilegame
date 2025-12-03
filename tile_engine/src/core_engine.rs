@@ -103,7 +103,8 @@ pub fn get_arg(prefix: &str) -> Option<String> {
 
 /// Arguments:
 ///  --rust-log=...
-///  --debug-coding
+///  --debug-coding=...
+///  --start-at=...
 pub async fn run<Gamedata: gamedata::BaseGamedata>()
 {
     if let Some(log_opts) = get_arg("--rust-log=") {
