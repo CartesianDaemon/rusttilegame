@@ -264,7 +264,8 @@ impl UiCodingArena
     }
 
     fn prog_instr_sz(&self, prog_w: f32, prog_h: f32, spacing_pc: f32, prog_n: f32) -> f32 {
-        (prog_w * 0.8).min(prog_h / (spacing_pc + prog_n*(1.+spacing_pc)))
+        // Space for 6 instructions, 7 gaps, and half a 7th instruction (for placeholder)
+        (prog_w * 0.8).min(prog_h / (spacing_pc + prog_n*(1.+spacing_pc) + 0.5))
     }
 
     fn initialise_frame_coords(&mut self, coding: bool, prog_n: usize) {
@@ -709,13 +710,14 @@ impl UiCodingArena
         }
     }
 
+    // Including spacing between instr and half the space for an instr below.
     fn placeholder_below_coords(&self, xidx: usize, yidx: usize) -> OpCoords {
         let instr_coords = self.prog_instr_coords(xidx, yidx);
         OpCoords {
             x: instr_coords.x,
             y: instr_coords.y + instr_coords.h,
             w: instr_coords.w,
-            h: instr_coords.rect_spacing,
+            h: instr_coords.rect_spacing + instr_coords.h*0.2,
             rect_spacing: instr_coords.rect_spacing,
         }
     }
