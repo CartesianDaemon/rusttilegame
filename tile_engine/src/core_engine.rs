@@ -93,12 +93,20 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
 }
 
 pub fn get_arg(prefix: &str) -> Option<String> {
-    for arg in std::env::args() {
-        if let Some(log_opts) = arg.strip_prefix(prefix) {
-            return Some(log_opts.to_string());
-        }
-    }
-    None
+    std::env::args().map(|arg| arg.strip_prefix(prefix).map(str::to_string)).flatten().next()
+
+    // With my putative chain macros
+    //chain![ std::env::args() | x.strip_prefix(prefix) || x.to_string() ].next()
+    // With hypothetical syntax || for flatten
+    // With hypothetical syntax to return iterator not Vec??
+
+    // Linear code:
+    //for arg in std::env::args() {
+    //    if let Some(log_opts) = arg.strip_prefix(prefix) {
+    //        return Some(log_opts.to_string());
+    //    }
+    //}
+    //None
 }
 
 /// Arguments:
