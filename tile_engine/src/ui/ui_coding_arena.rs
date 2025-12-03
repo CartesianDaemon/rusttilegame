@@ -365,9 +365,6 @@ impl UiCodingArena
     fn draw_background<GameLogic: BaseGameLogic>(&self, _coding_arena: &mut CodingArena<GameLogic>) {
         // Clear background if necessary.
         crate::ui::clear_background_for_current_platform(self.background_col());
-
-        // Draw lev info. TODO: Move to sep fn
-        draw_text(format!("Level: 1", ).as_str(), 10., 20., 20., self.font_col());
     }
 
     fn supply_rect(&self) -> PRect {
@@ -426,6 +423,8 @@ impl UiCodingArena
 
     /// Draw supply area and all supply bins
     fn draw_supply(&self, coding: &mut Coding) {
+        draw_text(format!("Level: 1", ).as_str(), self.fr_pos.supply_x + 10., 20., 20., self.font_col());
+
         for (idx, bin) in coding.supply.iter().enumerate() {
             self.draw_supply_op(idx, bin);
         }
