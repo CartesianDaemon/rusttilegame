@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use macroquad::prelude::*;
 
-use crate::gamedata::BaseGameLogic;
+use crate::gamedata::BaseGamedata;
 use crate::widget::*;
 
 use super::ui_helpers::*;
@@ -32,16 +32,16 @@ impl UiBase {
 
     /// Draw current gameplay to screen.
     /// TODO: Avoid passing slide and anim through so many layers? Add to struct?
-    pub async fn draw_frame<GameLogic: BaseGameLogic>(&mut self, state: &mut Widget<GameLogic>, anim: AnimState) {
-        match state {
-            Widget::Arena(state) => {
-                UiArena::render(state, &mut self.texture_cache, PRect::from_screen(), anim).await;
+    pub async fn draw_frame<GameData: BaseGamedata>(&mut self, widget: &mut Widget<GameData::GameLogic>, anim: AnimState, state: &GameData) {
+        match widget {
+            Widget::Arena(widget) => {
+                UiArena::render(widget, &mut self.texture_cache, PRect::from_screen(), anim).await;
             }
-            Widget::Splash(state) => {
-                let _r = UiSplash::render(state);
+            Widget::Splash(widget) => {
+                let _r = UiSplash::render(widget);
             }
-            Widget::CodingArena(state) => {
-                self.render_split.render(state, &mut self.texture_cache, anim).await;
+            Widget::CodingArena(widget) => {
+                self.render_split.render(widget, &mut self.texture_cache, anim, state).await;
             }
         }
         sleep_between_frames_on_linux_windows();

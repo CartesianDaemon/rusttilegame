@@ -88,7 +88,7 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
             }
         }
 
-        self.ui.draw_frame(&mut self.state, self.anim).await;
+        self.ui.draw_frame(&mut self.state, self.anim, &self.gamedata).await;
     }
 }
 

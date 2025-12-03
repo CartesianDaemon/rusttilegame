@@ -25,4 +25,11 @@ impl BaseGamedata for ProgpuzzGamedata {
     fn load_scene(&self) -> Widget::<Self::GameLogic> {
         self.levset.load_scene()
     }
+
+    fn get_level_str(&self) -> String {
+        match self.levset.current_levid {
+            levels::ProgpuzzPaneId::LevCodingArena(lev_num) => format!("Level: {}", lev_num),
+            _ => panic!(),
+        }
+    }
 }

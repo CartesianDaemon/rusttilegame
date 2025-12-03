@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::gamedata::BaseGameLogic;
+use crate::gamedata::{BaseGameLogic, BaseGamedata};
 
 use crate::widget::*;
 
@@ -331,14 +331,15 @@ impl UiCodingArena
 
     }
 
-    pub async fn render<GameLogic: BaseGameLogic>(
+    pub async fn render<GameData: BaseGamedata>(
             &mut self,
-            coding_arena: &mut CodingArena<GameLogic>,
+            coding_arena: &mut CodingArena<GameData::GameLogic>,
             texture_cache: &mut TextureCache,
             anim: AnimState,
+            game_state: &GameData,
         ) {
         // TODO: Get prog from arena or from coding pane as appropriate?
-        self.active_idx = GameLogic::get_active_idx(coding_arena);
+        self.active_idx = GameData::GameLogic::get_active_idx(coding_arena);
         self.initialise_frame_coords(coding_arena.is_coding(), coding_arena.coding.prog.v_len());
 
         self.draw_background(coding_arena);
@@ -351,7 +352,7 @@ impl UiCodingArena
 
         self.draw_prog(&coding_arena.coding);
         if self.is_coding {
-            self.draw_supply(&mut coding_arena.coding);
+            self.draw_supply(&mut coding_arena.coding, game_state);
             self.draw_dragging();
         }
 
@@ -422,8 +423,8 @@ impl UiCodingArena
     }
 
     /// Draw supply area and all supply bins
-    fn draw_supply(&self, coding: &mut Coding) {
-        draw_text(format!("Level: 1", ).as_str(), self.fr_pos.supply_x + 10., 20., 20., self.font_col());
+    fn draw_supply<GameData: BaseGamedata>(&self, coding: &mut Coding, game_state: &GameData,) {
+        draw_text(game_state.get_level_str().as_str(), self.fr_pos.supply_x + 10., 20., 20., self.font_col());
 
         for (idx, bin) in coding.supply.iter().enumerate() {
             self.draw_supply_op(idx, bin);

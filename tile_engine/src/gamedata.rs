@@ -59,4 +59,9 @@ pub trait BaseGamedata {
         self.advance_pane(continuation);
         self.load_scene()
     }
+
+    // Get string to display current level, in games with Arena or CodingArena.
+    fn get_level_str(&self) -> String {
+        String::new()
+    }
 }
