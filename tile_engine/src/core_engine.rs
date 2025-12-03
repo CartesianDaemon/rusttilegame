@@ -92,16 +92,22 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
     }
 }
 
+pub fn get_arg(prefix: &str) -> Option<String> {
+    for arg in std::env::args() {
+        if let Some(log_opts) = arg.strip_prefix(prefix) {
+            return Some(log_opts.to_string());
+        }
+    }
+    None
+}
+
 /// Arguments:
 ///  --rust-log=...
 ///  --debug-coding
 pub async fn run<Gamedata: gamedata::BaseGamedata>()
 {
-    for arg in std::env::args() {
-        if let Some(log_opts) = arg.strip_prefix("--rust-log=") {
-            crate::logging::enable_logging(log_opts);
-            break;
-        }
+    if let Some(log_opts) = get_arg("--rust-log=") {
+        crate::logging::enable_logging(&log_opts);
     }
 
     let mut engine = Engine::<Gamedata>::new();
