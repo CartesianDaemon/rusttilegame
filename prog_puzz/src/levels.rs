@@ -17,11 +17,9 @@ pub struct ProgpuzzLevset {
 
 impl ProgpuzzLevset {
     pub fn new() -> ProgpuzzLevset {
-        let starting_lev_num = if std::env::args().collect::<Vec<_>>().contains(&"--start-at=8".to_string()) {
-            8
-        } else {
-            1
-        };
+        let s_: Option<String> = tile_engine::infra::get_arg("--start-at=8");
+        let i_: Option<u16> = s_.map(|s| s.parse::<u16>().ok()).flatten();
+        let starting_lev_num : u16 = i_.unwrap_or(1);
         ProgpuzzLevset { current_levid: ProgpuzzPaneId::LevCodingArena(starting_lev_num) }
     }
 
