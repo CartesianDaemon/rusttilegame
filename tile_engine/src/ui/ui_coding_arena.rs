@@ -710,13 +710,14 @@ impl UiCodingArena
         }
     }
 
+    // Including spacing between instr and half the space for an instr below.
     fn placeholder_below_coords(&self, xidx: usize, yidx: usize) -> OpCoords {
         let instr_coords = self.prog_instr_coords(xidx, yidx);
         OpCoords {
             x: instr_coords.x,
             y: instr_coords.y + instr_coords.h,
             w: instr_coords.w,
-            h: instr_coords.rect_spacing,
+            h: instr_coords.rect_spacing + instr_coords.h/2.,
             rect_spacing: instr_coords.rect_spacing,
         }
     }
