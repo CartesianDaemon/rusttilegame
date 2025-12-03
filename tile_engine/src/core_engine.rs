@@ -92,16 +92,31 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
     }
 }
 
+pub fn get_arg(prefix: &str) -> Option<String> {
+    std::env::args().map(|arg| arg.strip_prefix(prefix).map(str::to_string)).flatten().next()
+
+    // With my putative chain macros
+    //chain![ std::env::args() | x.strip_prefix(prefix) || x.to_string() ].next()
+    // With hypothetical syntax || for flatten
+    // With hypothetical syntax to return iterator not Vec??
+
+    // Linear code:
+    //for arg in std::env::args() {
+    //    if let Some(log_opts) = arg.strip_prefix(prefix) {
+    //        return Some(log_opts.to_string());
+    //    }
+    //}
+    //None
+}
+
 /// Arguments:
 ///  --rust-log=...
-///  --debug-coding
+///  --debug-coding=...
+///  --start-at=...
 pub async fn run<Gamedata: gamedata::BaseGamedata>()
 {
-    for arg in std::env::args() {
-        if let Some(log_opts) = arg.strip_prefix("--rust-log=") {
-            crate::logging::enable_logging(log_opts);
-            break;
-        }
+    if let Some(log_opts) = get_arg("--rust-log=") {
+        crate::logging::enable_logging(&log_opts);
     }
 
     let mut engine = Engine::<Gamedata>::new();

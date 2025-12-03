@@ -18,6 +18,7 @@ pub enum ActionOpcode {
 pub enum ParentOpcode {
     group,
     x2,
+    LOOP,
     loop5,
 }
 
@@ -25,7 +26,8 @@ impl ParentOpcode {
     pub fn r_connect_max(&self) -> usize {
         use ParentOpcode::*;
         match self {
-            group => 999,
+            group |
+            LOOP => 999,
             x2 => 1,
             loop5 => 5,
         }
@@ -124,6 +126,7 @@ impl Instr {
             Action(_, _) => panic!("Repeat count not specified for non-parent instr"),
             Parent(group, _) => 1,
             Parent(x2, _) => 2,
+            Parent(LOOP, _) => 99,
             Parent(loop5, _) => 5,
         }
     }
@@ -429,6 +432,7 @@ pub mod supply_ops {
     pub const x2: Opcode = Opcode::Parent(ParentOpcode::x2);
     pub const group: Opcode = Opcode::Parent(ParentOpcode::group);
     pub const loop5: Opcode = Opcode::Parent(ParentOpcode::loop5);
+    pub const LOOP: Opcode = Opcode::Parent(ParentOpcode::LOOP);
 }
 
 pub mod prog_ops {

@@ -17,20 +17,22 @@ pub struct ProgpuzzLevset {
 
 impl ProgpuzzLevset {
     pub fn new() -> ProgpuzzLevset {
-        ProgpuzzLevset { current_levid: ProgpuzzPaneId::LevCodingArena(1) }
+        let s_: Option<String> = tile_engine::infra::get_arg("--start-at=8");
+        let i_: Option<u16> = s_.map(|s| s.parse::<u16>().ok()).flatten();
+        let starting_lev_num : u16 = i_.unwrap_or(1);
+        ProgpuzzLevset { current_levid: ProgpuzzPaneId::LevCodingArena(starting_lev_num) }
     }
 
     pub fn advance_scene(&mut self, continuation: WidgetConclusion) {
         self.current_levid = match (self.current_levid, continuation) {
-            // TODO: Get max levnum from list of levels?
-            (ProgpuzzPaneId::LevCodingArena(1), WidgetConclusion::Win) => ProgpuzzPaneId::Win,
+            (ProgpuzzPaneId::LevCodingArena(levnum), WidgetConclusion::Win) if levnum >= self.levels().len() as u16 => ProgpuzzPaneId::Win,
             (ProgpuzzPaneId::LevCodingArena(levnum), WidgetConclusion::Win) => ProgpuzzPaneId::LevCodingArena(levnum+1),
             (ProgpuzzPaneId::Win, WidgetConclusion::SplashContinue) => Self::new().current_levid,
             _ => panic!()
         };
     }
 
-    pub fn load_scene(&self) -> Widget<super::game_logic::ProgpuzzGameLogic> {
+    fn levels(&self) -> Vec<CodingArena<super::game_logic::ProgpuzzGameLogic>> {
         let progpuzz_key = HashMap::from([
             // NB: Better to move this into obj? Combined with obj.char types?
             (' ', vec![ new_floor() ]),
@@ -44,7 +46,8 @@ impl ProgpuzzLevset {
             */
         ]);
 
-        let coding = if std::env::args().collect::<Vec<_>>().contains(&"--debug-coding=A".to_string()) {
+        // TODO: Separate debug levels..?
+        let lev1_coding = if std::env::args().collect::<Vec<_>>().contains(&"--debug-coding=A".to_string()) {
             let mut coding;
             {
                 use supply_ops::*;
@@ -73,17 +76,37 @@ impl ProgpuzzLevset {
                 (R, 2),
                 (group, 2),
                 (x2, 2),
-                (loop5, 2),
+                (LOOP, 2),
             ])
         } else {
-            use supply_ops::*;
-            Coding::from_vec(&[(F, 6), (R, 1)])
+            Coding::from_vec(&[(F, 2), (L, 0), (R, 0)])
         };
 
-        // NB: Would like to implement thin walls between squares, not walls filling whole squares.
-        match self.current_levid {
+        use supply_ops::*;
+        vec![
             // TODO: Avoid needing to specify HEIGHT explicitly.
-            ProgpuzzPaneId::LevCodingArena(1) => Widget::CodingArena(CodingArena::new::<16>(
+            CodingArena::new::<16>(
+                Arena::from_map_and_key(&[
+                    "################",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#     w        #",
+                    "#              #",
+                    "#     ^        #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "################",
+                ], progpuzz_key.clone()),
+                lev1_coding,
+            ),
+            CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
                     "################",
                     "#              #",
@@ -101,14 +124,187 @@ impl ProgpuzzLevset {
                     "#              #",
                     "#              #",
                     "################",
-                ], progpuzz_key),
-                coding,
-            )),
+                ], progpuzz_key.clone()),
+                Coding::from_vec(&[(F, 6), (L, 3), (R, 3)]),
+            ),
+            CodingArena::new::<16>(
+                Arena::from_map_and_key(&[
+                    "################",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#     #  w     #",
+                    "#              #",
+                    "#              #",
+                    "#     ^        #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "################",
+                ], progpuzz_key.clone()),
+                Coding::from_vec(&[(F, 6), (L, 3), (R, 3)]),
+            ),
+            CodingArena::new::<16>(
+                Arena::from_map_and_key(&[
+                    "################",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#        w     #",
+                    "#       #      #",
+                    "#              #",
+                    "#      #       #",
+                    "#              #",
+                    "#     #        #",
+                    "#              #",
+                    "#              #",
+                    "#     ^        #",
+                    "#              #",
+                    "#              #",
+                    "################",
+                ], progpuzz_key.clone()),
+                Coding::from_vec(&[(F, 6), (L, 3), (R, 3), (LOOP, 1)]),
+            ),
+            CodingArena::new::<16>(
+                Arena::from_map_and_key(&[
+                    "# ##############",
+                    " #>     #      #",
+                    "#w##### #      #",
+                    "# #     #      #",
+                    "# #   # #      #",
+                    "# #   # #      #",
+                    "# # #          #",
+                    "#       #      #",
+                    " # #### #      #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "################",
+                ], progpuzz_key.clone()),
+                Coding::from_vec(&[(F, 9), (L, 1), (R, 1), (LOOP, 1)]),
+            ),
+            CodingArena::new::<16>(
+                Arena::from_map_and_key(&[
+                    "################",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#    ^#        #",
+                    "#     w        #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "################",
+                ], progpuzz_key.clone()),
+                Coding::from_vec(&[(F, 2), (L, 1), (R, 1), (LOOP, 1)]),
+            ),
+            CodingArena::new::<16>(
+                Arena::from_map_and_key(&[
+                    "################",
+                    "#              #",
+                    "#   #          #",
+                    "#         #    #",
+                    "#              #",
+                    "#   #          #",
+                    "# #           w#",
+                    "#      #########",
+                    "#  #           #",
+                    "#     #        #",
+                    "#          #   #",
+                    "#  #           #",
+                    "#^             #",
+                    "#        #     #",
+                    "#              #",
+                    "################",
+                ], progpuzz_key.clone()),
+                Coding::from_vec(&[(F, 13), (L, 2), (R, 2), (LOOP, 1)]),
+            ),
+            CodingArena::new::<16>(
+                Arena::from_map_and_key(&[
+                    "################",
+                    "#              #",
+                    "##             #",
+                    "#              #",
+                    "#   #   # #    #",
+                    "#          #   #",
+                    "#     ##       #",
+                    "#  #     #     #",
+                    "#    #^# #     #",
+                    "#  #     #     #",
+                    "#  #  ###  #   #",
+                    "#              #",
+                    "#   ###   #    #",
+                    "####     #     #",
+                    "#w             #",
+                    "################",
+                ], progpuzz_key.clone()),
+                Coding::from_vec(&[(F, 15), (L, 3), (R, 3), (LOOP, 1)]),
+            ),
+            CodingArena::new::<16>(
+                Arena::from_map_and_key(&[
+                    "################",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#    >         #",
+                    "#     #        #",
+                    "#     w        #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "################",
+                ], progpuzz_key.clone()),
+                Coding::from_vec(&[(F, 3), (L, 0), (R, 2), (x2, 3)]), // Still need to tweak
+            ),
+            CodingArena::new::<16>(
+                Arena::from_map_and_key(&[
+                    "################",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "# #            #",
+                    "# #            #",
+                    "#w#   v        #",
+                    "# #            #",
+                    "# #            #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "################",
+                ], progpuzz_key.clone()),
+                Coding::from_vec(&[(F, 5), (L, 3), (R, 0), (x2, 5)]),
+            ),
+        ]
+    }
+
+    pub fn load_scene(&self) -> Widget<super::game_logic::ProgpuzzGameLogic> {
+        // NB: Would like to implement thin walls between squares, not walls filling whole squares.
+        match self.current_levid {
+            ProgpuzzPaneId::LevCodingArena(n) => Widget::CodingArena(self.levels()[n as usize -1].clone()),
             ProgpuzzPaneId::Win => {
                 Widget::from_splash_string("Congratulations. You've completed all the levels. Press [enter] to play through again".to_string())
             },
-
-            ProgpuzzPaneId::LevCodingArena(_) => panic!("Loading LevSplit for level that can't be found."),
         }
     }
 }
