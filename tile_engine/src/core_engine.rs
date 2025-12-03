@@ -85,6 +85,8 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
                 if let Some(cmd) = self.input.consume_cmd() {
                     self.advance(cmd);
                 }
+                // Treat any movement as completed
+                self.anim = AnimState { slide_pc: 1., .. self.ticker.anim_state() }
             }
         }
 
