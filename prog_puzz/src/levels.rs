@@ -17,7 +17,12 @@ pub struct ProgpuzzLevset {
 
 impl ProgpuzzLevset {
     pub fn new() -> ProgpuzzLevset {
-        ProgpuzzLevset { current_levid: ProgpuzzPaneId::LevCodingArena(1) }
+        let starting_lev_num = if std::env::args().collect::<Vec<_>>().contains(&"--start-at=8".to_string()) {
+            8
+        } else {
+            1
+        };
+        ProgpuzzLevset { current_levid: ProgpuzzPaneId::LevCodingArena(starting_lev_num) }
     }
 
     pub fn advance_scene(&mut self, continuation: WidgetConclusion) {
@@ -73,14 +78,12 @@ impl ProgpuzzLevset {
                 (R, 2),
                 (group, 2),
                 (x2, 2),
-                (loop5, 2),
+                (LOOP, 2),
             ])
         } else {
             Coding::from_vec(&[(F, 2), (L, 0), (R, 0)])
         };
 
-        // TODO: Display current level on supply, not behind map.
-        // TODO: Add "loop" instr, not loop5.
         use supply_ops::*;
         vec![
             // TODO: Avoid needing to specify HEIGHT explicitly.
@@ -166,28 +169,28 @@ impl ProgpuzzLevset {
                     "#              #",
                     "################",
                 ], progpuzz_key.clone()),
-                Coding::from_vec(&[(F, 6), (L, 3), (R, 3), (loop5, 1)]),
+                Coding::from_vec(&[(F, 6), (L, 3), (R, 3), (LOOP, 1)]),
             ),
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
-                    "################",
-                    "#w>            #",
-                    "# ############ #",
-                    "# #          # #",
-                    "# #          # #",
-                    "# #          # #",
-                    "# #          # #",
-                    "# #          # #",
-                    "# #          # #",
-                    "# #          # #",
-                    "# #          # #",
-                    "# #          # #",
-                    "# #          # #",
-                    "# ############ #",
+                    "# ##############",
+                    " #>     #      #",
+                    "#w##### #      #",
+                    "# #     #      #",
+                    "# #   # #      #",
+                    "# #   # #      #",
+                    "# # #          #",
+                    "#       #      #",
+                    " # #### #      #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
                     "#              #",
                     "################",
                 ], progpuzz_key.clone()),
-                Coding::from_vec(&[(F, 12), (L, 1), (R, 1), (loop5, 1)]),
+                Coding::from_vec(&[(F, 9), (L, 1), (R, 1), (LOOP, 1)]),
             ),
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
@@ -208,7 +211,7 @@ impl ProgpuzzLevset {
                     "#              #",
                     "################",
                 ], progpuzz_key.clone()),
-                Coding::from_vec(&[(F, 2), (L, 1), (R, 1), (loop5, 1)]),
+                Coding::from_vec(&[(F, 2), (L, 1), (R, 1), (LOOP, 1)]),
             ),
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
@@ -229,7 +232,7 @@ impl ProgpuzzLevset {
                     "#              #",
                     "################",
                 ], progpuzz_key.clone()),
-                Coding::from_vec(&[(F, 13), (L, 2), (R, 2), (loop5, 1)]),
+                Coding::from_vec(&[(F, 13), (L, 2), (R, 2), (LOOP, 1)]),
             ),
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
@@ -242,15 +245,15 @@ impl ProgpuzzLevset {
                     "#     ##       #",
                     "#  #     #     #",
                     "#    #^# #     #",
-                    "#  #           #",
+                    "#  #     #     #",
                     "#  #  ###  #   #",
-                    "#  #           #",
-                    "#    ##   #    #",
-                    "##             #",
+                    "#              #",
+                    "#   ###   #    #",
+                    "####     #     #",
                     "#w             #",
                     "################",
                 ], progpuzz_key.clone()),
-                Coding::from_vec(&[(F, 15), (L, 3), (R, 3), (loop5, 1)]),
+                Coding::from_vec(&[(F, 15), (L, 3), (R, 3), (LOOP, 1)]),
             ),
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
@@ -271,7 +274,7 @@ impl ProgpuzzLevset {
                     "#              #",
                     "################",
                 ], progpuzz_key.clone()),
-                Coding::from_vec(&[(F, 3), (L, 0), (R, 3), (x2, 3)]),
+                Coding::from_vec(&[(F, 3), (L, 0), (R, 2), (x2, 3)]), // Still need to tweak
             ),
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
@@ -292,7 +295,7 @@ impl ProgpuzzLevset {
                     "#              #",
                     "################",
                 ], progpuzz_key.clone()),
-                Coding::from_vec(&[(F, 4), (L, 3), (R, 0), (x2, 5)]),
+                Coding::from_vec(&[(F, 5), (L, 3), (R, 0), (x2, 5)]),
             ),
         ]
     }
