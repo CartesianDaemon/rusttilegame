@@ -264,7 +264,8 @@ impl UiCodingArena
     }
 
     fn prog_instr_sz(&self, prog_w: f32, prog_h: f32, spacing_pc: f32, prog_n: f32) -> f32 {
-        (prog_w * 0.8).min(prog_h / (spacing_pc + prog_n*(1.+spacing_pc)))
+        // Space for 6 instructions, 7 gaps, and half a 7th instruction (for placeholder)
+        (prog_w * 0.8).min(prog_h / (spacing_pc + prog_n*(1.+spacing_pc) + 0.5))
     }
 
     fn initialise_frame_coords(&mut self, coding: bool, prog_n: usize) {
