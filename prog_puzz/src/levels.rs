@@ -294,7 +294,7 @@ impl ProgpuzzLevset {
                     "#              #",
                     "################",
                 ], progpuzz_key.clone()),
-                Coding::from_vec(&[(F, 5), (L, 3), (R, 0), (x2, 5)]),
+                Coding::from_vec(&[(F, 6), (L, 3), (R, 0), (x2, 5)]),
             ),
         ]
     }
