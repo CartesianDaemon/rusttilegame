@@ -717,7 +717,7 @@ impl UiCodingArena
             x: instr_coords.x,
             y: instr_coords.y + instr_coords.h,
             w: instr_coords.w,
-            h: instr_coords.rect_spacing + instr_coords.h/2.,
+            h: instr_coords.rect_spacing + instr_coords.h*0.2,
             rect_spacing: instr_coords.rect_spacing,
         }
     }
