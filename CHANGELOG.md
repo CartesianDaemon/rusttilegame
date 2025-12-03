@@ -1,5 +1,12 @@
 ## Unreleased
 
+## 3 Dec: tile_engine 1.6.0, prog_puzz 1.6.0
+
+- Engine for Prog puzz: UI for nested instr.
+- Engine for Prog puzz: Separate Op and Instr, remove Node, simplify Subprog.
+- Engine: Fix background colour.
+- Prog Puzz: Make 10 levels.
+
 ## 22 Nov: tile_engine 1.5.6, prog_puzz 1.5.3
 
 - Make playable release for prog_puzz.
