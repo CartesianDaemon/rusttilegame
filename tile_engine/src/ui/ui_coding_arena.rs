@@ -372,10 +372,10 @@ impl UiCodingArena
     fn draw_victory_overlay(&self)
     {
         // Twinkly stars
-        for _ in 1..300 {
+        for _ in 1..50 {
             let x = macroquad::rand::gen_range(0., screen_width());
             let y = macroquad::rand::gen_range(0., screen_height());
-            draw_circle(x, y, 1., WHITE);
+            draw_circle(x, y, 6., YELLOW);
         }
     }
 
