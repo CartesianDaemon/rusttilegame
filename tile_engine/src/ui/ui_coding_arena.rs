@@ -196,6 +196,8 @@ impl OpStyle {
 // NB Original intention was to split this into a parent struct and UiCoding struct.
 pub struct UiCodingArena {
     is_coding: bool,
+    is_won: bool,
+    is_dead: bool,
     active_idx: Option<usize>,
 
     fr_pos: FrameCoords,
@@ -209,8 +211,13 @@ impl UiCodingArena
         macroquad::rand::srand(12345);
         Self {
             is_coding: false,
+            is_won: false,
+            is_dead: false,
+
             active_idx: None,
+
             fr_pos: FrameCoords::default(),
+
             dragging: None,
         }
     }
@@ -268,12 +275,16 @@ impl UiCodingArena
         (prog_w * 0.8).min(prog_h / (spacing_pc + prog_n*(1.+spacing_pc) + 0.5))
     }
 
-    fn initialise_frame_coords(&mut self, coding: bool, prog_n: usize) {
+    fn initialise_frame_coords(&mut self, coding: CodingRunningPhase, prog_n: usize) {
+        self.is_coding = coding == CodingRunningPhase::Coding;
+        self.is_won = coding == CodingRunningPhase::Won;
+        self.is_dead = coding == CodingRunningPhase::Died;
+
         // Arena
         let arena = PRect {
             x: 0.,
             y: 0.,
-            w: screen_height().min(screen_width() * if coding {0.8} else {0.9} ) ,
+            w: screen_height().min(screen_width() * if self.is_coding {0.8} else {0.9} ) ,
             h: screen_height(),
         };
         let arena_w = arena.w;
@@ -282,7 +293,7 @@ impl UiCodingArena
         let supply_x = arena_w;
         let supply_y = 0.;
         let supply_w = screen_width() - arena_w;
-        let supply_h = if coding {screen_height() * 0.3} else { 0. };
+        let supply_h = if self.is_coding {screen_height() * 0.3} else { 0. };
 
         // Prog
         let spacing_pc = 0.5;
@@ -305,7 +316,6 @@ impl UiCodingArena
         let supply_op_font_sz = supply_op_h * 1.35;
         let supply_op_spacing = supply_op_w * spacing_pc;
 
-        self.is_coding = coding;
         self.fr_pos = FrameCoords {
             arena,
 
@@ -340,7 +350,7 @@ impl UiCodingArena
         ) {
         // TODO: Get prog from arena or from coding pane as appropriate?
         self.active_idx = GameData::GameLogic::get_active_idx(coding_arena);
-        self.initialise_frame_coords(coding_arena.is_coding(), coding_arena.coding.prog.v_len());
+        self.initialise_frame_coords(coding_arena.phase, coding_arena.coding.prog.v_len());
 
         crate::ui::clear_background_for_current_platform(self.background_col());
 
@@ -356,36 +366,10 @@ impl UiCodingArena
             self.draw_dragging();
         }
 
-        if coding_arena.phase == CodingRunningPhase::Won {
-            self.draw_victory_overlay();
-        } else if coding_arena.phase == CodingRunningPhase::Died {
-            self.draw_failure_overlay();
-        }
-
         self.interact_prog(&mut coding_arena.coding);
         if self.is_coding {
             self.interact_supply(&mut coding_arena.coding);
             self.interact_dragging(&mut coding_arena.coding);
-        }
-    }
-
-    fn draw_victory_overlay(&self)
-    {
-        // Twinkly stars
-        for _ in 1..50 {
-            let x = macroquad::rand::gen_range(0., screen_width());
-            let y = macroquad::rand::gen_range(0., screen_height());
-            draw_circle(x, y, 6., YELLOW);
-        }
-    }
-
-    fn draw_failure_overlay(&self)
-    {
-        // Twinkly purple
-        for _ in 1..150 {
-            let x = macroquad::rand::gen_range(0., screen_width());
-            let y = macroquad::rand::gen_range(0., screen_height());
-            draw_circle(x, y, 1., PURPLE);
         }
     }
 
@@ -493,6 +477,9 @@ impl UiCodingArena
     }
 
     fn draw_prog(&self, coding: &Coding) {
+        if self.is_won {
+            draw_rectangle(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, YELLOW);
+        }
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., self.border_cols());
 
         if coding.prog.instrs.len() == 0 {
