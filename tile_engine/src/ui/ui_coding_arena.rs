@@ -206,13 +206,13 @@ pub struct UiCodingArena {
 impl UiCodingArena
 {
     pub fn new() -> Self {
+        macroquad::rand::srand(12345);
         Self {
             is_coding: false,
             active_idx: None,
             fr_pos: FrameCoords::default(),
             dragging: None,
         }
-
     }
 
     fn background_col(&self) -> Color {
@@ -342,7 +342,7 @@ impl UiCodingArena
         self.active_idx = GameData::GameLogic::get_active_idx(coding_arena);
         self.initialise_frame_coords(coding_arena.is_coding(), coding_arena.coding.prog.v_len());
 
-        self.draw_background(coding_arena);
+        crate::ui::clear_background_for_current_platform(self.background_col());
 
         if self.is_coding {
             UiArena::render(&coding_arena.init_arena, texture_cache, self.fr_pos.arena, anim).await;
@@ -356,6 +356,12 @@ impl UiCodingArena
             self.draw_dragging();
         }
 
+        if coding_arena.phase == CodingRunningPhase::Won {
+            self.draw_victory_overlay();
+        } else if coding_arena.phase == CodingRunningPhase::Died {
+            self.draw_failure_overlay();
+        }
+
         self.interact_prog(&mut coding_arena.coding);
         if self.is_coding {
             self.interact_supply(&mut coding_arena.coding);
@@ -363,9 +369,24 @@ impl UiCodingArena
         }
     }
 
-    fn draw_background<GameLogic: BaseGameLogic>(&self, _coding_arena: &mut CodingArena<GameLogic>) {
-        // Clear background if necessary.
-        crate::ui::clear_background_for_current_platform(self.background_col());
+    fn draw_victory_overlay(&self)
+    {
+        // Twinkly stars
+        for _ in 1..300 {
+            let x = macroquad::rand::gen_range(0., screen_width());
+            let y = macroquad::rand::gen_range(0., screen_height());
+            draw_circle(x, y, 1., WHITE);
+        }
+    }
+
+    fn draw_failure_overlay(&self)
+    {
+        // Twinkly purple
+        for _ in 1..150 {
+            let x = macroquad::rand::gen_range(0., screen_width());
+            let y = macroquad::rand::gen_range(0., screen_height());
+            draw_circle(x, y, 1., PURPLE);
+        }
     }
 
     fn supply_rect(&self) -> PRect {
