@@ -1,12 +1,7 @@
 use crate::gamedata::BaseGamedata;
-use crate::map_coords::MoveCmd;
-use crate::ui::AnimState;
-use crate::ui::TickStyle;
-use crate::ui::Ticker;
 
 use super::gamedata;
 use super::widget::*;
-use super::input::Input;
 use super::ui::UiBase;
 
 /// Overall Engine state.
@@ -23,16 +18,6 @@ struct Engine<Gamedata: BaseGamedata> {
     /// Current state of gameplay, current level, mostly map etc.
     state: Widget<Gamedata::GameLogic>,
 
-    /// Smoothly from 0 to 1 transition from previous state to current state
-    /// TODO: Move into arena?
-    /// TODO: Updated by input::ready_to_advance. Is that right? Could return tuple.
-    /// TODO: Combine anim and slide..?
-    anim: crate::ui::AnimState,
-
-    /// Record input from user ready for use.
-    input: Input,
-    ticker: Ticker,
-
     ///
     ui: UiBase,
 }
@@ -44,53 +29,17 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
         Engine::<Gamedata> {
             gamedata: gamedata,
             state: scene,
-            anim: AnimState::default(),
-            input: Input::new(),
             ui: UiBase::new(),
-            ticker: Ticker::new(),
-        }
-    }
-
-    // NB: Move into Widget. Need to move reset_tick into Ui. First need to move
-    // gamedata (ie levidx) into state widget?
-    fn advance(&mut self, cmd: MoveCmd) {
-        let widget_continuation = self.state.advance(cmd);
-        if let WidgetContinuation::Break(widget_ending) = widget_continuation {
-            self.state = self.gamedata.load_next_pane(widget_ending);
-            self.ticker.reset_tick();
         }
     }
 
     /// Collect input. Draw frame. Advance logical Engine state, if tick scheduled.
     /// NB: Move into Ui
     pub async fn do_frame(&mut self) {
-        self.input.read_input();
-
-        match self.state.tick_based() {
-            TickStyle::TickAutomatically => {
-                if self.ticker.tick_if_ready() {
-                    let cmd = self.input.consume_cmd().unwrap_or(MoveCmd::default());
-                    self.advance(cmd);
-                }
-                self.anim = self.ticker.anim_state();
-            },
-            TickStyle::TickOnInput => {
-                if let Some(cmd) = self.input.consume_cmd() {
-                    self.ticker.reset_tick();
-                    self.advance(cmd);
-                }
-                self.anim = self.ticker.anim_state();
-            },
-            TickStyle::Continuous => {
-                if let Some(cmd) = self.input.consume_cmd() {
-                    self.advance(cmd);
-                }
-                // Treat any movement as completed
-                self.anim = AnimState { slide_pc: 1., .. self.ticker.anim_state() }
-            }
+        let widget_continuation = self.ui.do_frame(&mut self.state, &self.gamedata).await;
+        if let WidgetContinuation::Break(widget_ending) = widget_continuation {
+            self.state = self.gamedata.load_next_pane(widget_ending);
         }
-
-        self.ui.draw_frame(&mut self.state, self.anim, &self.gamedata).await;
     }
 }
 
