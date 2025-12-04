@@ -223,8 +223,13 @@ impl UiCodingArena
     }
 
     fn background_col(&self) -> Color {
-        LIGHTGRAY // Currently on web?
-        // BLACK // Currently on windows?
+        if self.is_won {
+            YELLOW
+        } else if self.is_dead {
+            BLACK
+        } else {
+            LIGHTGRAY
+        }
     }
 
     fn border_cols(&self) -> Color {
@@ -477,9 +482,6 @@ impl UiCodingArena
     }
 
     fn draw_prog(&self, coding: &Coding) {
-        if self.is_won {
-            draw_rectangle(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, YELLOW);
-        }
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., self.border_cols());
 
         if coding.prog.instrs.len() == 0 {
