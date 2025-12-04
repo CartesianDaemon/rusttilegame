@@ -1,10 +1,10 @@
 [package]
 name = "prog_puzz"
-version = "1.6.0"
+version = "1.6.1"
 edition = "2024"
 
 [dependencies]
 macroquad = "=0.4.14"
-tile_engine = {version = "1.6.0", path = "../tile_engine" }
+tile_engine = {version = "1.6.1", path = "../tile_engine" }
 log = "0.4.28"
 env_logger = "0.11.8"

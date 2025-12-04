@@ -1,5 +1,11 @@
 ## Unreleased
 
+## 4 Dec: tile_engine 1.6.1, prog_puzz 1.6.1
+
+- Animation for winning and death.
+- Tweak L5&6.
+- Split L10 to L10&11.
+
 ## 3 Dec: tile_engine 1.6.0, prog_puzz 1.6.0
 
 - Engine for Prog puzz: UI for nested instr.
