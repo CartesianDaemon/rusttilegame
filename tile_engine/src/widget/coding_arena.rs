@@ -6,7 +6,8 @@ use crate::for_gamedata;
 pub enum CodingRunningPhase {
     Coding,
     Running,
-    Stopped,
+    Died,
+    Won,
 }
 
 // NB: Move into Prog Puzz. Or make into a general multi-widget widget.
@@ -35,11 +36,10 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
                     let conclusion = self.curr_arena.as_mut().unwrap().advance(cmd);
                     if conclusion == std::ops::ControlFlow::Break(for_gamedata::WidgetConclusion::Die) {
                         log::debug!("Ran off end of program. Stopped.");
-                        self.phase = CodingRunningPhase::Stopped;
+                        self.phase = CodingRunningPhase::Died;
                     } else if conclusion == std::ops::ControlFlow::Break(for_gamedata::WidgetConclusion::Win) {
-                        // TODO: Put in a delay and win animation here.
-                        log::debug!("Bot found target! Go to next level");
-                        return WidgetContinuation::Break(WidgetConclusion::Win);
+                        log::debug!("Bot found target!");
+                        self.phase = CodingRunningPhase::Won;
                     } else if conclusion == std::ops::ControlFlow::Continue(()) {
                         log::trace!("Bot advanced normally. Continue executing program.");
                     }
@@ -48,9 +48,12 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
                     self.cancel_execution();
                 }
             },
-            CodingRunningPhase::Stopped => {
+            CodingRunningPhase::Won => {
+                return WidgetContinuation::Break(WidgetConclusion::Win);
+            },
+            CodingRunningPhase::Died => {
                 self.cancel_execution();
-            }
+            },
         }
 
         return WidgetContinuation::Continue(());
