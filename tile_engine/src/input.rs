@@ -2,9 +2,9 @@ use macroquad::prelude::*;
 
 use super::map_coords::MoveCmd;
 
-/// Interaction from user. Including timing.
+/// Originally intended as interaction from user.
 ///
-/// NB: Want to keep some utility code here and merge the Pane-specific info into Panes.
+/// Now only used by Push Puzz game and arena.
 pub struct Input {
     pub most_recent_cmd: Option<MoveCmd>,
 }

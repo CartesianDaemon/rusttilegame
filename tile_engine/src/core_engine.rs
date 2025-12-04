@@ -40,10 +40,10 @@ struct Engine<Gamedata: BaseGamedata> {
 impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
     pub fn new() -> Engine<Gamedata> {
         let gamedata = Gamedata::new();
-        let arena = gamedata.load_scene();
+        let scene = gamedata.load_scene();
         Engine::<Gamedata> {
             gamedata: gamedata,
-            state: arena,
+            state: scene,
             anim: AnimState::default(),
             input: Input::new(),
             ui: UiBase::new(),

@@ -8,7 +8,7 @@ use crate::widget::*;
 use super::ui_helpers::*;
 use super::ui_splash::*;
 use super::ui_coding_arena::*;
-use super::ui_arena::*;
+use super::ui_interactive_arena::*;
 
 pub type TextureCache = HashMap<String, Texture2D>;
 
@@ -19,14 +19,14 @@ pub type TextureCache = HashMap<String, Texture2D>;
 pub struct UiBase {
     /// Loaded textures
     texture_cache: TextureCache,
-    render_split: UiCodingArena,
+    ui_coding_arena: UiCodingArena,
 }
 
 impl UiBase {
     pub fn new() -> UiBase {
         UiBase {
             texture_cache: HashMap::new(),
-            render_split: UiCodingArena::new(),
+            ui_coding_arena: UiCodingArena::new(),
         }
     }
 
@@ -35,13 +35,13 @@ impl UiBase {
     pub async fn draw_frame<GameData: BaseGamedata>(&mut self, widget: &mut Widget<GameData::GameLogic>, anim: AnimState, state: &GameData) {
         match widget {
             Widget::Arena(widget) => {
-                UiArena::render(widget, &mut self.texture_cache, PRect::from_screen(), anim).await;
+                UiInteractiveArena::render(widget, &mut self.texture_cache, PRect::from_screen(), anim).await;
             }
             Widget::Splash(widget) => {
                 let _r = UiSplash::render(widget);
             }
             Widget::CodingArena(widget) => {
-                self.render_split.render(widget, &mut self.texture_cache, anim, state).await;
+                self.ui_coding_arena.render(widget, &mut self.texture_cache, anim, state).await;
             }
         }
         sleep_between_frames_on_linux_windows();

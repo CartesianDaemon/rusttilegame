@@ -1,6 +1,7 @@
 mod ui_base;
 mod ui_helpers;
 mod ui_arena;
+mod ui_interactive_arena;
 mod ui_coding_arena;
 mod ui_splash;
 
