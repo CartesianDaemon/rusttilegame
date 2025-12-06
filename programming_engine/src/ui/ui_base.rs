@@ -71,9 +71,9 @@ impl UiBase {
             },
             TickStyle::Continuous => {
                 // TODO: ui_coding_arena should handle this
-                //if let Some(cmd) = self.input.consume_cmd() {
-                //    widget_continuation = self.advance::<GameData>(widget, cmd);
-                //}
+                if was_any_input() {
+                    widget_continuation = self.advance::<GameData>(widget, InputCmd::NextPhase);
+                }
                 // Treat any movement as completed
                 self.anim = AnimState { slide_pc: 1., .. self.ticker.anim_state() }
             }

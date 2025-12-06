@@ -43,6 +43,10 @@ pub fn was_key_pressed() -> Option<KeyType> {
     }
 }
 
+pub fn was_any_input() -> bool {
+    was_key_pressed().is_some() || is_mouse_button_pressed(MouseButton::Left)
+}
+
 // Current state of animation for UIs which implement that.
 #[derive(Clone, Copy, Default)]
 pub struct AnimState {
