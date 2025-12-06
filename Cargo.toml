@@ -2,4 +2,4 @@
 
 [workspace]
 resolver = "3"
-members = ["tile_engine", "push_puzz", "prog_puzz"]
+members = ["pushing_engine", "programming_engine", "push_puzz", "prog_puzz"]

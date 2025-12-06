@@ -5,5 +5,5 @@ edition = "2024"
 
 [dependencies]
 macroquad = "=0.4.14"
-tile_engine = { path = "../tile_engine" }
+tile_engine = {package = "pushing_engine", path = "../pushing_engine" }
 log = "0.4.28"

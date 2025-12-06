@@ -1,5 +1,5 @@
 [package]
-name = "tile_engine"
+name = "programming_engine"
 version = "1.6.1"
 edition = "2024"
 

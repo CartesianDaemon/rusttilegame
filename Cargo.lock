@@ -558,7 +558,20 @@ dependencies = [
  "env_logger",
  "log",
  "macroquad",
- "tile_engine",
+ "programming_engine",
+]
+
+[[package]]
+name = "programming_engine"
+version = "1.6.1"
+dependencies = [
+ "assrt",
+ "culpa",
+ "derive_more",
+ "env_logger",
+ "futures",
+ "log",
+ "macroquad",
 ]
 
 [[package]]
@@ -567,7 +580,20 @@ version = "1.0.2"
 dependencies = [
  "log",
  "macroquad",
- "tile_engine",
+ "pushing_engine",
+]
+
+[[package]]
+name = "pushing_engine"
+version = "1.6.1"
+dependencies = [
+ "assrt",
+ "culpa",
+ "derive_more",
+ "env_logger",
+ "futures",
+ "log",
+ "macroquad",
 ]
 
 [[package]]
@@ -658,19 +684,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
-]
-
-[[package]]
-name = "tile_engine"
-version = "1.6.1"
-dependencies = [
- "assrt",
- "culpa",
- "derive_more",
- "env_logger",
- "futures",
- "log",
- "macroquad",
 ]
 
 [[package]]
