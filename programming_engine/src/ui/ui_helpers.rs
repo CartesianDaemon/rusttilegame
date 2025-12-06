@@ -26,8 +26,8 @@ pub enum InputCmd {
 }
 
 pub enum KeyType {
+    Ok,
     Normal,
-    OK,
     Escape,
     Other,
 }
@@ -35,8 +35,8 @@ pub enum KeyType {
 pub fn was_key_pressed() -> Option<KeyType> {
     use macroquad::input::KeyCode::*;
     match macroquad::input::get_last_key_pressed() {
-        Some(Space | Enter ) => Some(KeyType::Normal),
-        Some(Escape | Backspace ) => Some(KeyType::Normal),
+        Some(Space | Enter ) => Some(KeyType::Ok),
+        Some(Escape | Backspace ) => Some(KeyType::Escape),
         Some(key_code) if key_code as u16 <= 65362 => Some(KeyType::Normal),
         Some(_) => Some(KeyType::Other),
         None => None,
@@ -44,7 +44,8 @@ pub fn was_key_pressed() -> Option<KeyType> {
 }
 
 pub fn was_any_input() -> bool {
-    was_key_pressed().is_some() || is_mouse_button_pressed(MouseButton::Left)
+    use KeyType::*;
+    matches!(was_key_pressed(), Some(Ok | Normal | Escape)) || is_mouse_button_pressed(MouseButton::Left)
 }
 
 // Current state of animation for UIs which implement that.

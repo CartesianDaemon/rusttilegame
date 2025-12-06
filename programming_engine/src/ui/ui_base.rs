@@ -51,31 +51,42 @@ impl UiBase {
         widget_continuation
     }
 
+    fn advance_continuous<Gamedata: gamedata::BaseGamedata>(&mut self, widget: &mut Widget<Gamedata::GameLogic>, cmd: InputCmd) -> WidgetContinuation {
+        let widget_continuation = widget.advance(cmd);
+        if let WidgetContinuation::Break(_) = widget_continuation {
+            self.ticker.reset_tick();
+        }
+        self.anim = AnimState { slide_pc: 1., .. self.ticker.anim_state() };
+        widget_continuation
+    }
+
     /// Draw current gameplay to screen.
     /// TODO: Avoid passing slide and anim through so many layers? Add to struct?
     pub async fn do_frame<GameData: BaseGamedata>(&mut self, widget: &mut Widget<GameData::GameLogic>, state: &GameData) -> WidgetContinuation {
         let mut widget_continuation = WidgetContinuation::Continue(());
-        match widget.tick_based() {
-            TickStyle::TickAutomatically => {
-                if self.ticker.tick_if_ready() {
-                    widget_continuation = self.advance::<GameData>(widget, InputCmd::Tick);
-                }
-                self.anim = self.ticker.anim_state();
-            },
-            TickStyle::TickOnInput => {
-                if false { // TODO Get this driven from ui_coding_arena
-                    self.ticker.reset_tick();
-                    widget_continuation = self.advance::<GameData>(widget, InputCmd::Tick);
-                }
-                self.anim = self.ticker.anim_state();
-            },
-            TickStyle::Continuous => {
-                // TODO: ui_coding_arena should handle this
+
+        match widget {
+            Widget::Splash(_) => {
                 if was_any_input() {
-                    widget_continuation = self.advance::<GameData>(widget, InputCmd::NextPhase);
+                    widget_continuation = self.advance_continuous::<GameData>(widget, InputCmd::NextPhase);
                 }
-                // Treat any movement as completed
-                self.anim = AnimState { slide_pc: 1., .. self.ticker.anim_state() }
+            }
+            Widget::CodingArena(_) => {
+                match widget.tick_based() {
+                    TickStyle::TickAutomatically => {
+                        if self.ticker.tick_if_ready() {
+                            widget_continuation = self.advance::<GameData>(widget, InputCmd::Tick);
+                        }
+                        self.anim = self.ticker.anim_state();
+                    },
+                    TickStyle::Continuous => {
+                        // Handle inside ui_coding_arena.advance()
+                        // widget_continuation = self.advance_continuous::<GameData>(widget, InputCmd::NextPhase);
+                    }
+                    TickStyle::TickOnInput => {
+                        panic!();
+                    },
+                }
             }
         }
 
