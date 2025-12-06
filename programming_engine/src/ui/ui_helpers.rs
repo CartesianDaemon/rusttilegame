@@ -25,6 +25,24 @@ pub enum InputCmd {
     Tick, // From timer, or from ui_coding_arena.
 }
 
+pub enum KeyType {
+    Normal,
+    OK,
+    Escape,
+    Other,
+}
+
+pub fn was_key_pressed() -> Option<KeyType> {
+    use macroquad::input::KeyCode::*;
+    match macroquad::input::get_last_key_pressed() {
+        Some(Space | Enter ) => Some(KeyType::Normal),
+        Some(Escape | Backspace ) => Some(KeyType::Normal),
+        Some(key_code) if key_code as u16 <= 65362 => Some(KeyType::Normal),
+        Some(_) => Some(KeyType::Other),
+        None => None,
+    }
+}
+
 // Current state of animation for UIs which implement that.
 #[derive(Clone, Copy, Default)]
 pub struct AnimState {
