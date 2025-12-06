@@ -25,12 +25,12 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
     fn advance(&mut self, cmd: MoveCmd) -> WidgetContinuation {
         match self.phase {
             CodingRunningPhase::Coding => {
-                if cmd == MoveCmd::Stay {
+                if cmd == MoveCmd::NextPhase {
                     self.start_execution();
                 }
             },
             CodingRunningPhase::Running => {
-                if cmd == MoveCmd::Stay {
+                if cmd == MoveCmd::Tick {
                     log::debug!("Advance bot program.");
 
                     let conclusion = self.curr_arena.as_mut().unwrap().advance(cmd);

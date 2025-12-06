@@ -6,12 +6,10 @@ use crate::map_coords::MoveCmd;
 use crate::gamedata::BaseGamedata;
 use crate::gamedata;
 use crate::widget::*;
-use crate::input::Input;
 
 use super::ui_helpers::*;
 use super::ui_splash::*;
 use super::ui_coding_arena::*;
-use super::ui_interactive_arena::*;
 
 pub type TextureCache = HashMap<String, Texture2D>;
 
@@ -31,7 +29,6 @@ pub struct UiBase {
     anim: crate::ui::AnimState,
 
     /// Record input from user ready for use.
-    input: Input,
     ticker: Ticker,
 }
 
@@ -41,7 +38,6 @@ impl UiBase {
             texture_cache: HashMap::new(),
             ui_coding_arena: UiCodingArena::new(),
             anim: AnimState::default(),
-            input: Input::new(),
             ticker: Ticker::new(),
         }
     }
@@ -59,42 +55,37 @@ impl UiBase {
     /// Draw current gameplay to screen.
     /// TODO: Avoid passing slide and anim through so many layers? Add to struct?
     pub async fn do_frame<GameData: BaseGamedata>(&mut self, widget: &mut Widget<GameData::GameLogic>, state: &GameData) -> WidgetContinuation {
-        self.input.read_input();
-
         let mut widget_continuation = WidgetContinuation::Continue(());
         match widget.tick_based() {
             TickStyle::TickAutomatically => {
                 if self.ticker.tick_if_ready() {
-                    let cmd = self.input.consume_cmd().unwrap_or(MoveCmd::default());
-                    widget_continuation = self.advance::<GameData>(widget, cmd);
+                    widget_continuation = self.advance::<GameData>(widget, MoveCmd::Tick);
                 }
                 self.anim = self.ticker.anim_state();
             },
             TickStyle::TickOnInput => {
-                if let Some(cmd) = self.input.consume_cmd() {
+                if false { // TODO Get this driven from ui_coding_arena
                     self.ticker.reset_tick();
-                    widget_continuation = self.advance::<GameData>(widget, cmd);
+                    widget_continuation = self.advance::<GameData>(widget, MoveCmd::Tick);
                 }
                 self.anim = self.ticker.anim_state();
             },
             TickStyle::Continuous => {
-                if let Some(cmd) = self.input.consume_cmd() {
-                    widget_continuation = self.advance::<GameData>(widget, cmd);
-                }
+                // TODO: ui_coding_arena should handle this
+                //if let Some(cmd) = self.input.consume_cmd() {
+                //    widget_continuation = self.advance::<GameData>(widget, cmd);
+                //}
                 // Treat any movement as completed
                 self.anim = AnimState { slide_pc: 1., .. self.ticker.anim_state() }
             }
         }
 
         match widget {
-            Widget::Arena(widget) => {
-                UiInteractiveArena::render(widget, &mut self.texture_cache, PRect::from_screen(), self.anim).await;
-            }
             Widget::Splash(widget) => {
-                let _r = UiSplash::render(widget);
+                let _r = UiSplash::do_frame(widget);
             }
             Widget::CodingArena(widget) => {
-                self.ui_coding_arena.render(widget, &mut self.texture_cache, self.anim, state).await;
+                self.ui_coding_arena.do_frame(widget, &mut self.texture_cache, self.anim, state).await;
             }
         }
         sleep_between_frames_on_linux_windows();

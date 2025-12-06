@@ -9,7 +9,7 @@ pub struct PRect {
 }
 
 impl PRect {
-    pub fn from_screen() -> PRect {
+    pub fn _from_screen() -> PRect {
         PRect {
             x: 0.,
             y: 0.,

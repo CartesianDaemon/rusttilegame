@@ -346,7 +346,7 @@ impl UiCodingArena
 
     }
 
-    pub async fn render<GameData: BaseGamedata>(
+    pub async fn do_frame<GameData: BaseGamedata>(
             &mut self,
             coding_arena: &mut CodingArena<GameData::GameLogic>,
             texture_cache: &mut TextureCache,

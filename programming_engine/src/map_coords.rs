@@ -118,44 +118,8 @@ impl CoordDelta {
     }
 }
 
-// Translation of Key or Mouse into attempted movement of hero.
-// NB: Should love to interface exposed by input.
-// NB: Have separate Cmd for menu, movement, programming, etc. Pane chooses which?
-// Not quite right currently as Progpuzz Arena bot should accept something
-// like Cmd from executing program. Only pushpuzz hero gets it from user?
-// NB: Or could turn into AttemptAction struct in simple_logic, which is
-// used by most game movement logic but doesn't have to be? Along with an
-// attempt_action fn which handles passability etc.
 #[derive(PartialEq, Copy, Clone, Debug)]
 pub enum MoveCmd {
-    Stay,
-    Left,
-    Right,
-    Up,
-    Down,
+    NextPhase, // From any keyboard/mouse input. Or from clicking on/off map in ui_coding_arena to start/stop execution.
+    Tick, // From timer, or from ui_coding_arena.
 }
-
-impl MoveCmd {
-    pub fn as_dir(self: Self) -> CoordDelta {
-        match self {
-            // NB: Could be mapped in terms of rotatable Facing type.
-            Self::Stay  => CoordDelta::from_xy(0, 0),
-            Self::Left  => CoordDelta::from_xy(-1, 0),
-            Self::Right => CoordDelta::from_xy(1, 0),
-            Self::Up    => CoordDelta::from_xy(0, -1),
-            Self::Down  => CoordDelta::from_xy(0, 1),
-        }
-    }
-
-    pub fn default() -> Self {
-        Self::Stay
-    }
-}
-
-/* // Can't do this when type is actually a tuple. When it's reimplemented then yes.
-impl Add<Delta> for Pos {
-    type Output = Pos;
-    fn add(self, rhs: Delta) -> Pos {
-        (self.0 + rhs.0, self.1 + rhs.1, self.2)
-    }
-} */
