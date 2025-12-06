@@ -2,7 +2,6 @@ use std::collections::HashMap;
 
 use macroquad::prelude::*;
 
-use crate::map_coords::MoveCmd;
 use crate::gamedata::BaseGamedata;
 use crate::gamedata;
 use crate::widget::*;

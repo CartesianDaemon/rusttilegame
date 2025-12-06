@@ -1,5 +1,4 @@
 use super::*;
-use crate::map_coords::MoveCmd;
 use crate::for_gamedata;
 
 #[derive(Clone, Copy, Debug, PartialEq)]

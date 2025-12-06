@@ -5,5 +5,5 @@ mod ui_coding_arena;
 mod ui_splash;
 
 use ui_helpers::*;
-pub use ui_helpers::{AnimState, TickStyle};
+pub use ui_helpers::{AnimState, TickStyle, MoveCmd};
 pub use ui_base::*;

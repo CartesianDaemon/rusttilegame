@@ -4,8 +4,8 @@ pub use super::arena::Arena;
 pub use super::coding::*;
 pub use super::splash::*;
 pub use super::coding_arena::*;
+pub use super::super::ui::MoveCmd;
 
-use crate::map_coords::MoveCmd;
 use crate::for_gamedata;
 
 // How scene ended, used to determine next scene/lev to go to.

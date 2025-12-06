@@ -17,7 +17,6 @@ use super::widget_base::{BaseWidget, WidgetContinuation};
 use crate::simple_custom_props;
 use crate::for_gamedata;
 use for_gamedata::BaseGameLogic;
-use crate::map_coords::MoveCmd;
 
 use crate::map_coords::*;
 
@@ -39,7 +38,7 @@ pub struct Arena<GameLogic: for_gamedata::BaseGameLogic> {
 
 impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Arena<GameLogic>
 {
-    fn advance(&mut self, cmd: MoveCmd) -> WidgetContinuation  {
+    fn advance(&mut self, cmd: crate::ui::MoveCmd) -> WidgetContinuation  {
         // TODO: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // TODO: Consider: Maybe display char moving out of sync with enemy.

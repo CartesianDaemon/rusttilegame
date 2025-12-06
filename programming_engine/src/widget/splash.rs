@@ -1,5 +1,4 @@
 use super::*;
-use crate::map_coords::MoveCmd;
 
 #[derive(Clone, Debug)]
 pub struct DialogueLine {

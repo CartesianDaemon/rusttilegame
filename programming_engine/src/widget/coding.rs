@@ -1,5 +1,4 @@
 use super::*;
-use crate::map_coords::MoveCmd;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
 pub struct ActionData {

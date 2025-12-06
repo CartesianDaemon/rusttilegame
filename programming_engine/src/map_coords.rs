@@ -117,9 +117,3 @@ impl CoordDelta {
             }
     }
 }
-
-#[derive(PartialEq, Copy, Clone, Debug)]
-pub enum MoveCmd {
-    NextPhase, // From any keyboard/mouse input. Or from clicking on/off map in ui_coding_arena to start/stop execution.
-    Tick, // From timer, or from ui_coding_arena.
-}
