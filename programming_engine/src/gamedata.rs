@@ -23,7 +23,7 @@ pub trait BaseCustomProps : Clone + std::fmt::Debug + PartialEq {
 }
 
 use super::widget::arena::RosterIndex;
-use crate::for_gamedata::MoveCmd;
+use crate::for_gamedata::InputCmd;
 use super::widget::WidgetContinuation;
 
 // NB: Fns only applicable to some widgets. Should be in type related to those.
@@ -32,7 +32,7 @@ pub trait BaseGameLogic : Clone + Sized {
     type CustomProps : BaseCustomProps;
 
     // For games with an Arena, the logic for moving a movable obj.
-    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, cmd: MoveCmd) -> WidgetContinuation;
+    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, cmd: InputCmd) -> WidgetContinuation;
 
     // For games with a CodingArena, coordinate the Arena with the Coding on advance.
     fn harmonise(_coding_arena: &mut CodingArena<Self>) {

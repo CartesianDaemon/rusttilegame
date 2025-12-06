@@ -43,7 +43,7 @@ impl UiBase {
 
     // NB: Move into Widget. Need to move reset_tick into Ui. First need to move
     // gamedata (ie levidx) into state widget?
-    fn advance<Gamedata: gamedata::BaseGamedata>(&mut self, widget: &mut Widget<Gamedata::GameLogic>, cmd: MoveCmd) -> WidgetContinuation {
+    fn advance<Gamedata: gamedata::BaseGamedata>(&mut self, widget: &mut Widget<Gamedata::GameLogic>, cmd: InputCmd) -> WidgetContinuation {
         let widget_continuation = widget.advance(cmd);
         if let WidgetContinuation::Break(_) = widget_continuation {
             self.ticker.reset_tick();
@@ -58,14 +58,14 @@ impl UiBase {
         match widget.tick_based() {
             TickStyle::TickAutomatically => {
                 if self.ticker.tick_if_ready() {
-                    widget_continuation = self.advance::<GameData>(widget, MoveCmd::Tick);
+                    widget_continuation = self.advance::<GameData>(widget, InputCmd::Tick);
                 }
                 self.anim = self.ticker.anim_state();
             },
             TickStyle::TickOnInput => {
                 if false { // TODO Get this driven from ui_coding_arena
                     self.ticker.reset_tick();
-                    widget_continuation = self.advance::<GameData>(widget, MoveCmd::Tick);
+                    widget_continuation = self.advance::<GameData>(widget, InputCmd::Tick);
                 }
                 self.anim = self.ticker.anim_state();
             },

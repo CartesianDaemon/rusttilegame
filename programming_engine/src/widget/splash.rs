@@ -42,7 +42,7 @@ impl Splash
 }
 
 impl BaseWidget for Splash {
-    fn advance(&mut self, _cmd: MoveCmd) -> WidgetContinuation {
+    fn advance(&mut self, _cmd: InputCmd) -> WidgetContinuation {
         WidgetContinuation::Break(WidgetConclusion::SplashContinue)
     }
 

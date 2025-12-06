@@ -38,7 +38,7 @@ pub struct Arena<GameLogic: for_gamedata::BaseGameLogic> {
 
 impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Arena<GameLogic>
 {
-    fn advance(&mut self, cmd: crate::ui::MoveCmd) -> WidgetContinuation  {
+    fn advance(&mut self, cmd: crate::ui::InputCmd) -> WidgetContinuation  {
         // TODO: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // TODO: Consider: Maybe display char moving out of sync with enemy.

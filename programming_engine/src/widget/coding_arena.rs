@@ -21,15 +21,15 @@ pub struct CodingArena<GameLogic : for_gamedata::BaseGameLogic> {
 
 impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLogic>
 {
-    fn advance(&mut self, cmd: MoveCmd) -> WidgetContinuation {
+    fn advance(&mut self, cmd: InputCmd) -> WidgetContinuation {
         match self.phase {
             CodingRunningPhase::Coding => {
-                if cmd == MoveCmd::NextPhase {
+                if cmd == InputCmd::NextPhase {
                     self.start_execution();
                 }
             },
             CodingRunningPhase::Running => {
-                if cmd == MoveCmd::Tick {
+                if cmd == InputCmd::Tick {
                     log::debug!("Advance bot program.");
 
                     let conclusion = self.curr_arena.as_mut().unwrap().advance(cmd);

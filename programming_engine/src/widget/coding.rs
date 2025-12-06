@@ -400,7 +400,7 @@ impl Coding {
 
 impl BaseWidget for Coding
 {
-    fn advance(&mut self, _cmd: MoveCmd) -> WidgetContinuation {
+    fn advance(&mut self, _cmd: InputCmd) -> WidgetContinuation {
         // TODO
 
         return WidgetContinuation::Continue(());

@@ -4,7 +4,7 @@ pub use super::arena::Arena;
 pub use super::coding::*;
 pub use super::splash::*;
 pub use super::coding_arena::*;
-pub use super::super::ui::MoveCmd;
+pub use super::super::ui::InputCmd;
 
 use crate::for_gamedata;
 
@@ -24,7 +24,7 @@ pub type WidgetContinuation = ControlFlow<WidgetConclusion, ()>;
 // NB Breadcrumb: Need different name for Scene ("level part") than Pane ("screen part").
 pub trait BaseWidget {
     fn tick_based(&self) -> crate::ui::TickStyle;
-    fn advance(&mut self, cmd: MoveCmd) -> WidgetContinuation;
+    fn advance(&mut self, cmd: InputCmd) -> WidgetContinuation;
 }
 
 /// One unit of gameplay: one map layout, one splash screen, etc.
@@ -61,7 +61,7 @@ impl<GameLogic: for_gamedata::BaseGameLogic> Widget<GameLogic> {
     }
 
     // Advance game state. Called when clock ticks or when user inputs.
-    pub fn advance(&mut self, cmd: MoveCmd) -> WidgetContinuation {
+    pub fn advance(&mut self, cmd: InputCmd) -> WidgetContinuation {
         // NB: Use the crate that makes it easy to inherit behaviour between enum variants.
         match self {
             Self::Splash(widget) => widget.advance(cmd),
