@@ -1,19 +1,26 @@
 use macroquad::prelude::*;
 
+use super::ui_helpers::*;
 use crate::scene::Splash;
+use crate::scene::BaseScene;
 
 // Render state for one frame of "Show text, press enter to continue"
 // Currently not needing any global graphics state
-// NB: Good to move Input relating to "continue" in here.
 pub struct UiSplash {
 }
 
 impl UiSplash
 {
-    pub fn do_frame(splash: &Splash) {
+    pub fn advance(scene_splash: &mut Splash) {
+        if was_any_input() {
+            scene_splash.advance(InputCmd::NextPhase);
+        }
+    }
+
+    pub fn do_frame(scene_splash: &Splash) {
         clear_background(WHITE);
 
-        let text = &splash.splash_text;
+        let text = &scene_splash.splash_text;
         let font_size = 30.;
         let text_size = measure_text(text, None, font_size as _, 1.0);
 
@@ -31,7 +38,7 @@ impl UiSplash
         let text_x = avatar_x + avatar_w + 20.;
         let mut next_y = 40.;
         let entry_spacing = 20.;
-        for (idx, dialogue_line) in (&splash.dialogue.entries).iter().enumerate() {
+        for (idx, dialogue_line) in (&scene_splash.dialogue.entries).iter().enumerate() {
             let font_size = 25.;
             let _tex_path = &dialogue_line.tex_path;
             let text = &dialogue_line.text;

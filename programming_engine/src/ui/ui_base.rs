@@ -44,10 +44,8 @@ impl Ui {
     /// TODO: Avoid passing slide and anim through so many layers? Add to struct?
     pub async fn do_frame<GameData: BaseGamedata>(&mut self, scene: &mut Scene<GameData::GameLogic>, state: &GameData) {
         match scene {
-            Scene::Splash(_) => {
-                if was_any_input() {
-                    scene.advance(InputCmd::NextPhase);
-                }
+            Scene::Splash(scene_struct) => {
+                UiSplash::advance(scene_struct);
             }
             Scene::CodingArena(_) => {
                 match scene.tick_based() {
@@ -69,11 +67,11 @@ impl Ui {
         }
 
         match scene {
-            Scene::Splash(scene) => {
-                let _r = UiSplash::do_frame(scene);
+            Scene::Splash(scene_struct) => {
+                let _r = UiSplash::do_frame(scene_struct);
             }
-            Scene::CodingArena(scene) => {
-                self.ui_coding_arena.do_frame(scene, &mut self.texture_cache, self.anim, state).await;
+            Scene::CodingArena(scene_struct) => {
+                self.ui_coding_arena.do_frame(scene_struct, &mut self.texture_cache, self.anim, state).await;
             }
         }
         sleep_between_frames_on_linux_windows();
