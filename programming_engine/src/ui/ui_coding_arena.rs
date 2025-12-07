@@ -561,7 +561,7 @@ impl UiCodingArena
     ///
     /// If idx is equal to prog len, treats an instr-rect sized placeholder at that index. Currently only used
     /// when both are 0.
-    fn interact_subprog(&mut self, subprog_xidx: usize, subprog_yidx: usize, prog: &mut Prog, v_placeholder: bool) {
+    fn interact_subprog(&mut self, subprog_xidx: usize, subprog_yidx: usize, prog: &mut Prog, room_for_more: bool) {
         let mut prev_instr_yidx = None;
         let mut instr_yidx = subprog_yidx;
         for idx in 0..prog.instrs.len() {
@@ -574,7 +574,7 @@ impl UiCodingArena
             prev_instr_yidx = Some(instr_yidx);
             instr_yidx += prog.instrs[idx].v_len();
         }
-        if v_placeholder && let Some(placeholder_yidx) = prev_instr_yidx {
+        if room_for_more && let Some(placeholder_yidx) = prev_instr_yidx {
             self.interact_placeholder_below(subprog_xidx, placeholder_yidx, prog, prog.instrs.len());
         }
     }
