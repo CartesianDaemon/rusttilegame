@@ -501,17 +501,17 @@ impl UiCodingArena
     /// Draw subprog, either top-level prog, or inside a parent instr. At specified instr coords.
     ///
     /// Recurses between draw_subprog and draw_prog_instr, with the same recursion as interact_subprog.
-    fn draw_subprog(&self, subprog_xidx: usize, subprog_yidx: usize, prog: &Prog, v_placeholder: bool) {
+    fn draw_subprog(&self, subprog_xidx: usize, subprog_yidx: usize, prog: &Prog, room_for_more: bool) {
         let mut prev_instr_yidx = None;
         let mut instr_yidx = subprog_yidx;
 
         for instr in &prog.instrs {
-            self.draw_prog_instr(subprog_xidx, prev_instr_yidx, instr_yidx, instr);
+            self.draw_prog_instr(subprog_xidx, prev_instr_yidx, instr_yidx, instr, room_for_more);
             prev_instr_yidx = Some(instr_yidx);
             instr_yidx += instr.v_len();
         }
 
-        if v_placeholder && let Some(placeholder_yidx) = prev_instr_yidx {
+        if room_for_more && let Some(placeholder_yidx) = prev_instr_yidx {
             let coords = self.prog_instr_coords(subprog_xidx, placeholder_yidx);
             let highlight = self.is_pickable_from_placeholder_below(subprog_xidx, placeholder_yidx) || self.is_droppable_on_placeholder_below(subprog_xidx, placeholder_yidx);
             self.draw_v_placeholder_below(coords, highlight);
@@ -519,11 +519,11 @@ impl UiCodingArena
     }
 
     /// Draw instr node in program, recursing into subprog if a parent instr.
-    fn draw_prog_instr(&self, xidx: usize, prev_yidx: Option<usize>, yidx: usize, instr: &Instr)
+    fn draw_prog_instr(&self, xidx: usize, prev_yidx: Option<usize>, yidx: usize, instr: &Instr, room_for_more: bool)
     {
         let coords = self.prog_instr_coords(xidx, yidx);
         let active = Some(yidx) == self.active_idx;
-        let highlight_above = self.is_droppable_before_prog_instr(xidx, yidx);
+        let highlight_above = room_for_more && self.is_droppable_before_prog_instr(xidx, yidx);
 
         self.draw_op_rect(coords, self.calculate_op_style(coords, active, true, InstrRef::Prog {idx: yidx}, highlight_above), &instr.to_string());
 
@@ -547,9 +547,8 @@ impl UiCodingArena
     {
         if self.is_coding
         {
-            // Specially treat START or first instr as dropping anywhere? TODO: Need to specify interact_anywhere_on.
-            let (xidx, yidx) = (0, 0);
-            self.interact_prog_instr(xidx, yidx, &mut coding.prog, 0);
+            // Specially treat START or first instr as accepting a drop anywhere?
+            self.interact_prog_instr(0, 0, &mut coding.prog, 0, true);
 
             // Deal with all subsequent instr normally. Ie. Dropped onto top or bottom of instr for before or after.
             self.interact_subprog(0, 0, &mut coding.prog, true);
@@ -562,11 +561,11 @@ impl UiCodingArena
     ///
     /// If idx is equal to prog len, treats an instr-rect sized placeholder at that index. Currently only used
     /// when both are 0.
-    fn interact_subprog(&mut self, subprog_xidx: usize, subprog_yidx: usize, prog: &mut Prog, v_placeholder: bool) {
+    fn interact_subprog(&mut self, subprog_xidx: usize, subprog_yidx: usize, prog: &mut Prog, room_for_more: bool) {
         let mut prev_instr_yidx = None;
         let mut instr_yidx = subprog_yidx;
         for idx in 0..prog.instrs.len() {
-            self.interact_prog_instr(subprog_xidx, instr_yidx, prog, idx);
+            self.interact_prog_instr(subprog_xidx, instr_yidx, prog, idx, room_for_more);
             if idx >= prog.instrs.len() {
                 // TODO: More explicltly deal with prog changing while recursing.
                 // Either use calculations based on original. Or bail out when finding first pick-up.
@@ -575,13 +574,13 @@ impl UiCodingArena
             prev_instr_yidx = Some(instr_yidx);
             instr_yidx += prog.instrs[idx].v_len();
         }
-        if v_placeholder && let Some(placeholder_yidx) = prev_instr_yidx {
+        if room_for_more && let Some(placeholder_yidx) = prev_instr_yidx {
             self.interact_placeholder_below(subprog_xidx, placeholder_yidx, prog, prog.instrs.len());
         }
     }
 
     /// Interact dragging/dropping with an instr in program. Including subprog.
-    fn interact_prog_instr(&mut self, xidx: usize, yidx: usize, prog: &mut Prog, idx: usize)
+    fn interact_prog_instr(&mut self, xidx: usize, yidx: usize, prog: &mut Prog, idx: usize, room_for_more: bool)
     {
         // TODO: Better guards for altered program.
         let coords = self.prog_instr_coords(xidx, yidx);
@@ -589,7 +588,7 @@ impl UiCodingArena
             if idx < prog.instrs.len() {
                 self.drag_prog_instr(prog, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
             }
-        } else if self.is_droppable_before_prog_instr(xidx, yidx) && is_mouse_button_released(MouseButton::Left) {
+        } else if room_for_more && self.is_droppable_before_prog_instr(xidx, yidx) && is_mouse_button_released(MouseButton::Left) {
             if idx <= prog.instrs.len() {
                 self.drop_to_prog(prog, idx);
             }
@@ -598,11 +597,11 @@ impl UiCodingArena
             if idx < prog.instrs.len() {
                 let instr: &mut Instr  = prog.instrs.get_mut(idx).unwrap();
                 if let Instr::Parent(instr, subprog) = instr {
-                    let v_connector = subprog.instrs.len() < instr.r_connect_max();
+                    let subprog_room_for_more = subprog.instrs.len() < instr.r_connect_max();
                     if subprog.instrs.len() > 0 {
-                        self.interact_subprog(xidx + 1, yidx, subprog, v_connector);
+                        self.interact_subprog(xidx + 1, yidx, subprog, subprog_room_for_more);
                     } else {
-                        self.interact_prog_instr(xidx + 1, yidx, subprog, 0);
+                        self.interact_prog_instr(xidx + 1, yidx, subprog, 0, subprog_room_for_more);
                     }
                 }
             }
