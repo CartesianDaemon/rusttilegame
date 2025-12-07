@@ -366,35 +366,40 @@ impl UiCodingArena
         // That is more like what I had before but makes sense with those values...
         match coding_arena.phase {
             CodingRunningPhase::Coding => {
-                if matches!(was_key_pressed(), Some(Ok | Normal)) ||
+                // Start executing on space/enter, or clicking on map.
+                if matches!(was_key_pressed(), Some(Ok)) ||
                     is_mouse_button_pressed(MouseButton::Left) && self.mouse_in_rect(self.fr_pos.arena) {
                     _ = coding_arena.advance(InputCmd::Continue);
                     }
             },
             CodingRunningPhase::Died => {
+                // Return to coding on any input
                 if was_any_input() {
                     _ = coding_arena.advance(InputCmd::Continue);
                 }
             },
             CodingRunningPhase::Won => {
+                // Onto next level on any input
                 if was_any_input() {
                     // TODO: This one needs to be propagated
                     _ = coding_arena.advance(InputCmd::Continue);
                 }
             },
             CodingRunningPhase::Running => {
-                // While executing
+                // While executing, advance map each tick
                 if self.ticker.tick_if_ready() {
                     coding_arena.advance(InputCmd::Tick);
                 }
                 self.anim = self.ticker.anim_state();
+
                 if matches!(was_key_pressed(), Some(Escape)) ||
                     is_mouse_button_pressed(MouseButton::Left) && !self.mouse_in_rect(self.fr_pos.arena) {
-                        // Cancel
+                        // Cancel execution on Escape/backspace
                         // TODO: Maybe pause
-                    _ = coding_arena.advance(InputCmd::Continue);
+                        coding_arena.advance(InputCmd::Continue);
                 } else if matches!(was_key_pressed(), Some(Ok | Normal)) {
-                    // Need to reset tick counter here?
+                    // Advance map immediately on any other input
+                    self.ticker.reset_tick();
                     _ = coding_arena.advance(InputCmd::Tick);
                 }
             }
