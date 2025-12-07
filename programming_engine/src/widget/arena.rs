@@ -13,11 +13,10 @@ use std::ops::IndexMut;
 
 use culpa::try_fn;
 
-use super::widget_base::{BaseWidget, WidgetContinuation};
+use super::widget_base::{BaseWidget, WidgetConclusion, WidgetContinuation};
 use crate::simple_custom_props;
 use crate::for_gamedata;
 use for_gamedata::BaseGameLogic;
-use crate::map_coords::MoveCmd;
 
 use crate::map_coords::*;
 
@@ -35,11 +34,28 @@ pub struct Arena<GameLogic: for_gamedata::BaseGameLogic> {
     roster: Roster,
     // Used to represent map as ascii for init and debugging. Not comprehensive.
     map_key: std::collections::HashMap<char, Vec<FreeObj<GameLogic::CustomProps>>>,
+    ready_for_next_level: Option<WidgetConclusion>,
 }
 
 impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Arena<GameLogic>
 {
-    fn advance(&mut self, cmd: MoveCmd) -> WidgetContinuation  {
+    fn advance(&mut self, cmd: crate::ui::InputCmd)  {
+        self.ready_for_next_level = self.advance_map(cmd).break_value();
+    }
+
+    fn tick_based(&self) -> crate::ui::TickStyle {
+        crate::ui::TickStyle::TickOnInput
+    }
+
+    fn ready_for_next_level(&self) -> Option<WidgetConclusion> {
+        self.ready_for_next_level
+    }
+}
+
+impl<GameLogic: BaseGameLogic> Arena<GameLogic> {
+    /////////////////
+    /// Helpers for BaseWidget fns
+    fn advance_map(&mut self, cmd: crate::ui::InputCmd) -> WidgetContinuation  {
         // TODO: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // TODO: Consider: Maybe display char moving out of sync with enemy.
@@ -66,12 +82,6 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Arena<GameLogic>
         WidgetContinuation::Continue(())
     }
 
-    fn tick_based(&self) -> crate::ui::TickStyle {
-        crate::ui::TickStyle::TickOnInput
-    }
-}
-
-impl<GameLogic: BaseGameLogic> Arena<GameLogic> {
     /////////////////
     /// Initialisers
     pub fn empty(w: u16, h: u16) -> Self {
@@ -79,6 +89,7 @@ impl<GameLogic: BaseGameLogic> Arena<GameLogic> {
             map: Into::into(Grid::new(w, h)),
             roster: Roster::new(),
             map_key: std::collections::HashMap::new(),
+            ready_for_next_level: None,
         }
     }
 

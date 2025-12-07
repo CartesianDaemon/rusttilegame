@@ -70,7 +70,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
         }
     }
 
-    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, _cmd: MoveCmd) -> WidgetContinuation {
+    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, _cmd: InputCmd) -> WidgetContinuation {
         let props = &mut map[mov].logical_props.custom_props;
         match props.ai {
             ProgpuzzAI::Prog => {

@@ -1,6 +1,3 @@
-use super::*;
-use crate::map_coords::MoveCmd;
-
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
 pub struct ActionData {
     pub blocked: bool,
@@ -396,19 +393,6 @@ impl Coding {
             ).collect(),
             prog: Subprog::default(),
         }
-    }
-}
-
-impl BaseWidget for Coding
-{
-    fn advance(&mut self, _cmd: MoveCmd) -> WidgetContinuation {
-        // TODO
-
-        return WidgetContinuation::Continue(());
-    }
-
-    fn tick_based(&self) -> crate::ui::TickStyle {
-        crate::ui::TickStyle::Continuous
     }
 }
 

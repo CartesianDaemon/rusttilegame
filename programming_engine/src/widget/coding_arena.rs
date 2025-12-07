@@ -1,5 +1,4 @@
 use super::*;
-use crate::map_coords::MoveCmd;
 use crate::for_gamedata;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -18,29 +17,31 @@ pub struct CodingArena<GameLogic : for_gamedata::BaseGameLogic> {
     pub curr_arena: Option<Arena<GameLogic>>,
     pub coding: Coding,
     pub phase: CodingRunningPhase,
+    ready_for_next_level: Option<WidgetConclusion>,
 }
 
 impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLogic>
 {
-    fn advance(&mut self, cmd: MoveCmd) -> WidgetContinuation {
+    fn advance(&mut self, cmd: InputCmd) {
         match self.phase {
             CodingRunningPhase::Coding => {
-                if cmd == MoveCmd::Stay {
+                if cmd == InputCmd::NextPhase {
                     self.start_execution();
                 }
             },
             CodingRunningPhase::Running => {
-                if cmd == MoveCmd::Stay {
+                if cmd == InputCmd::Tick {
                     log::debug!("Advance bot program.");
 
-                    let conclusion = self.curr_arena.as_mut().unwrap().advance(cmd);
-                    if conclusion == std::ops::ControlFlow::Break(for_gamedata::WidgetConclusion::Die) {
+                    self.curr_arena.as_mut().unwrap().advance(cmd);
+                    let conclusion = self.curr_arena.as_ref().unwrap().ready_for_next_level();
+                    if conclusion == Some(for_gamedata::WidgetConclusion::Die) {
                         log::debug!("Ran off end of program. Stopped.");
                         self.phase = CodingRunningPhase::Died;
-                    } else if conclusion == std::ops::ControlFlow::Break(for_gamedata::WidgetConclusion::Win) {
+                    } else if conclusion == Some(for_gamedata::WidgetConclusion::Win) {
                         log::debug!("Bot found target!");
                         self.phase = CodingRunningPhase::Won;
-                    } else if conclusion == std::ops::ControlFlow::Continue(()) {
+                    } else if conclusion == None {
                         log::trace!("Bot advanced normally. Continue executing program.");
                     }
                 } else {
@@ -49,14 +50,12 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
                 }
             },
             CodingRunningPhase::Won => {
-                return WidgetContinuation::Break(WidgetConclusion::Win);
+                self.ready_for_next_level = Some(WidgetConclusion::Win);
             },
             CodingRunningPhase::Died => {
                 self.cancel_execution();
             },
         }
-
-        return WidgetContinuation::Continue(());
     }
 
     fn tick_based(&self) -> crate::ui::TickStyle {
@@ -66,6 +65,10 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
         } else {
             crate::ui::TickStyle::Continuous
         }
+    }
+
+    fn ready_for_next_level(&self) -> Option<WidgetConclusion> {
+        self.ready_for_next_level
     }
 }
 
@@ -80,6 +83,7 @@ impl<GameLogic: for_gamedata::BaseGameLogic> CodingArena<GameLogic>
             curr_arena: None,
             coding: code,
             phase: CodingRunningPhase::Coding,
+            ready_for_next_level: None,
         }
     }
 

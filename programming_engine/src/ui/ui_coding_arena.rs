@@ -2,6 +2,7 @@ use macroquad::prelude::*;
 
 use crate::gamedata::{BaseGameLogic, BaseGamedata};
 
+use crate::ui::ui_helpers::{was_any_input, was_key_pressed};
 use crate::widget::*;
 
 use super::{TextureCache, PRect, AnimState, ui_arena::UiArena};
@@ -346,13 +347,54 @@ impl UiCodingArena
 
     }
 
-    pub async fn render<GameData: BaseGamedata>(
+    pub fn advance<GameData: BaseGamedata>(&self, coding_arena: &mut CodingArena<GameData::GameLogic>) {
+        use crate::ui::KeyType::*;
+        // TODO: Want to combine KeyType into InputCmd. Have one function to turn
+        // keyboard into that. And have UI generate those based on mouse. Then interpret
+        // which of Ok, Cancel etc means what in the widget.
+        // That is more like what I had before but makes sense with those values...
+        match coding_arena.phase {
+            CodingRunningPhase::Coding => {
+                if matches!(was_key_pressed(), Some(Ok | Normal)) ||
+                    is_mouse_button_pressed(MouseButton::Left) && self.mouse_in_rect(self.fr_pos.arena) {
+                    _ = coding_arena.advance(InputCmd::NextPhase);
+                    }
+            },
+            CodingRunningPhase::Died => {
+                if was_any_input() {
+                    _ = coding_arena.advance(InputCmd::NextPhase);
+                }
+            },
+            CodingRunningPhase::Won => {
+                if was_any_input() {
+                    // TODO: This one needs to be propagated
+                    _ = coding_arena.advance(InputCmd::NextPhase);
+                }
+            },
+            CodingRunningPhase::Running => {
+                // While executing
+                if matches!(was_key_pressed(), Some(Escape)) ||
+                    is_mouse_button_pressed(MouseButton::Left) && !self.mouse_in_rect(self.fr_pos.arena) {
+                        // Cancel
+                        // TODO: Maybe pause
+                    _ = coding_arena.advance(InputCmd::NextPhase);
+                } else if matches!(was_key_pressed(), Some(Ok | Normal)) {
+                    // Need to reset tick counter here?
+                    _ = coding_arena.advance(InputCmd::Tick);
+                }
+            }
+        }
+    }
+
+    pub async fn do_frame<GameData: BaseGamedata>(
             &mut self,
             coding_arena: &mut CodingArena<GameData::GameLogic>,
             texture_cache: &mut TextureCache,
             anim: AnimState,
             game_state: &GameData,
         ) {
+        self.advance::<GameData>(coding_arena);
+
         // TODO: Get prog from arena or from coding pane as appropriate?
         self.active_idx = GameData::GameLogic::get_active_idx(coding_arena);
         self.initialise_frame_coords(coding_arena.phase, coding_arena.coding.prog.v_len());

@@ -10,7 +10,7 @@ pub struct UiSplash {
 
 impl UiSplash
 {
-    pub fn render(splash: &Splash) {
+    pub fn do_frame(splash: &Splash) {
         clear_background(WHITE);
 
         let text = &splash.splash_text;

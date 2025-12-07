@@ -9,7 +9,7 @@ pub struct PRect {
 }
 
 impl PRect {
-    pub fn from_screen() -> PRect {
+    pub fn _from_screen() -> PRect {
         PRect {
             x: 0.,
             y: 0.,
@@ -17,6 +17,35 @@ impl PRect {
             h: screen_height(),
         }
     }
+}
+
+#[derive(PartialEq, Copy, Clone, Debug)]
+pub enum InputCmd {
+    NextPhase, // From any keyboard/mouse input. Or from clicking on/off map in ui_coding_arena to start/stop execution.
+    Tick, // From timer, or from ui_coding_arena.
+}
+
+pub enum KeyType {
+    Ok,
+    Normal,
+    Escape,
+    Other,
+}
+
+pub fn was_key_pressed() -> Option<KeyType> {
+    use macroquad::input::KeyCode::*;
+    match macroquad::input::get_last_key_pressed() {
+        Some(Space | Enter ) => Some(KeyType::Ok),
+        Some(Escape | Backspace ) => Some(KeyType::Escape),
+        Some(key_code) if key_code as u16 <= 65362 => Some(KeyType::Normal),
+        Some(_) => Some(KeyType::Other),
+        None => None,
+    }
+}
+
+pub fn was_any_input() -> bool {
+    use KeyType::*;
+    matches!(was_key_pressed(), Some(Ok | Normal | Escape)) || is_mouse_button_pressed(MouseButton::Left)
 }
 
 // Current state of animation for UIs which implement that.
@@ -29,8 +58,6 @@ pub struct AnimState {
     // advanced on tick. >1 if move complete but game not advanced, ie all idle.
     pub anim_pc: f32
 }
-
-
 
 pub enum TickStyle {
     Continuous,
