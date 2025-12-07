@@ -548,7 +548,7 @@ impl UiCodingArena
         if self.is_coding
         {
             // Specially treat START or first instr as accepting a drop anywhere?
-            self.interact_prog_instr(0, 0, &mut coding.prog, 0);
+            self.interact_prog_instr(0, 0, &mut coding.prog, 0, true);
 
             // Deal with all subsequent instr normally. Ie. Dropped onto top or bottom of instr for before or after.
             self.interact_subprog(0, 0, &mut coding.prog, true);
@@ -565,7 +565,7 @@ impl UiCodingArena
         let mut prev_instr_yidx = None;
         let mut instr_yidx = subprog_yidx;
         for idx in 0..prog.instrs.len() {
-            self.interact_prog_instr(subprog_xidx, instr_yidx, prog, idx);
+            self.interact_prog_instr(subprog_xidx, instr_yidx, prog, idx, room_for_more);
             if idx >= prog.instrs.len() {
                 // TODO: More explicltly deal with prog changing while recursing.
                 // Either use calculations based on original. Or bail out when finding first pick-up.
@@ -580,7 +580,7 @@ impl UiCodingArena
     }
 
     /// Interact dragging/dropping with an instr in program. Including subprog.
-    fn interact_prog_instr(&mut self, xidx: usize, yidx: usize, prog: &mut Prog, idx: usize)
+    fn interact_prog_instr(&mut self, xidx: usize, yidx: usize, prog: &mut Prog, idx: usize, room_for_more: bool)
     {
         // TODO: Better guards for altered program.
         let coords = self.prog_instr_coords(xidx, yidx);
@@ -588,7 +588,7 @@ impl UiCodingArena
             if idx < prog.instrs.len() {
                 self.drag_prog_instr(prog, idx, mouse_position().0 - coords.x, mouse_position().1 - coords.y);
             }
-        } else if self.is_droppable_before_prog_instr(xidx, yidx) && is_mouse_button_released(MouseButton::Left) {
+        } else if room_for_more && self.is_droppable_before_prog_instr(xidx, yidx) && is_mouse_button_released(MouseButton::Left) {
             if idx <= prog.instrs.len() {
                 self.drop_to_prog(prog, idx);
             }
@@ -597,11 +597,11 @@ impl UiCodingArena
             if idx < prog.instrs.len() {
                 let instr: &mut Instr  = prog.instrs.get_mut(idx).unwrap();
                 if let Instr::Parent(instr, subprog) = instr {
-                    let v_connector = subprog.instrs.len() < instr.r_connect_max();
+                    let subprog_room_for_more = subprog.instrs.len() < instr.r_connect_max();
                     if subprog.instrs.len() > 0 {
-                        self.interact_subprog(xidx + 1, yidx, subprog, v_connector);
+                        self.interact_subprog(xidx + 1, yidx, subprog, subprog_room_for_more);
                     } else {
-                        self.interact_prog_instr(xidx + 1, yidx, subprog, 0);
+                        self.interact_prog_instr(xidx + 1, yidx, subprog, 0, subprog_room_for_more);
                     }
                 }
             }
