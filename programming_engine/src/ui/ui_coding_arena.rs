@@ -501,17 +501,17 @@ impl UiCodingArena
     /// Draw subprog, either top-level prog, or inside a parent instr. At specified instr coords.
     ///
     /// Recurses between draw_subprog and draw_prog_instr, with the same recursion as interact_subprog.
-    fn draw_subprog(&self, subprog_xidx: usize, subprog_yidx: usize, prog: &Prog, v_placeholder: bool) {
+    fn draw_subprog(&self, subprog_xidx: usize, subprog_yidx: usize, prog: &Prog, room_for_more: bool) {
         let mut prev_instr_yidx = None;
         let mut instr_yidx = subprog_yidx;
 
         for instr in &prog.instrs {
-            self.draw_prog_instr(subprog_xidx, prev_instr_yidx, instr_yidx, instr);
+            self.draw_prog_instr(subprog_xidx, prev_instr_yidx, instr_yidx, instr, room_for_more);
             prev_instr_yidx = Some(instr_yidx);
             instr_yidx += instr.v_len();
         }
 
-        if v_placeholder && let Some(placeholder_yidx) = prev_instr_yidx {
+        if room_for_more && let Some(placeholder_yidx) = prev_instr_yidx {
             let coords = self.prog_instr_coords(subprog_xidx, placeholder_yidx);
             let highlight = self.is_pickable_from_placeholder_below(subprog_xidx, placeholder_yidx) || self.is_droppable_on_placeholder_below(subprog_xidx, placeholder_yidx);
             self.draw_v_placeholder_below(coords, highlight);
@@ -519,11 +519,11 @@ impl UiCodingArena
     }
 
     /// Draw instr node in program, recursing into subprog if a parent instr.
-    fn draw_prog_instr(&self, xidx: usize, prev_yidx: Option<usize>, yidx: usize, instr: &Instr)
+    fn draw_prog_instr(&self, xidx: usize, prev_yidx: Option<usize>, yidx: usize, instr: &Instr, room_for_more: bool)
     {
         let coords = self.prog_instr_coords(xidx, yidx);
         let active = Some(yidx) == self.active_idx;
-        let highlight_above = self.is_droppable_before_prog_instr(xidx, yidx);
+        let highlight_above = room_for_more && self.is_droppable_before_prog_instr(xidx, yidx);
 
         self.draw_op_rect(coords, self.calculate_op_style(coords, active, true, InstrRef::Prog {idx: yidx}, highlight_above), &instr.to_string());
 
