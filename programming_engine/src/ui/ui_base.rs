@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 
 use crate::gamedata::BaseGamedata;
-use crate::gamedata;
 use crate::scene::*;
 
 use super::ui_helpers::*;
@@ -41,15 +40,6 @@ impl Ui {
         }
     }
 
-    // NB: Move into Scene. Need to move reset_tick into Ui. First need to move
-    // gamedata (ie levidx) into state scene?
-    fn advance<Gamedata: gamedata::BaseGamedata>(&mut self, scene: &mut Scene<Gamedata::GameLogic>, cmd: InputCmd) {
-        scene.advance(cmd);
-        if let Some(_) = scene.ready_for_next_level() {
-            self.ticker.reset_tick();
-        }
-    }
-
     /// Draw current gameplay to screen.
     /// TODO: Avoid passing slide and anim through so many layers? Add to struct?
     pub async fn do_frame<GameData: BaseGamedata>(&mut self, scene: &mut Scene<GameData::GameLogic>, state: &GameData) {
@@ -63,7 +53,7 @@ impl Ui {
                 match scene.tick_based() {
                     TickStyle::TickAutomatically => {
                         if self.ticker.tick_if_ready() {
-                            self.advance::<GameData>(scene, InputCmd::Tick);
+                            scene.advance(InputCmd::Tick);
                         }
                         self.anim = self.ticker.anim_state();
                     },
