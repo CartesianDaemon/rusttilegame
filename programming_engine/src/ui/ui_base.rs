@@ -50,21 +50,13 @@ impl Ui {
         }
     }
 
-    fn advance_continuous<Gamedata: gamedata::BaseGamedata>(&mut self, scene: &mut Scene<Gamedata::GameLogic>, cmd: InputCmd) {
-        scene.advance(cmd);
-        if let Some(_) = scene.ready_for_next_level() {
-            self.ticker.reset_tick();
-        }
-        self.anim = AnimState { slide_pc: 1., .. self.ticker.anim_state() };
-    }
-
     /// Draw current gameplay to screen.
     /// TODO: Avoid passing slide and anim through so many layers? Add to struct?
     pub async fn do_frame<GameData: BaseGamedata>(&mut self, scene: &mut Scene<GameData::GameLogic>, state: &GameData) {
         match scene {
             Scene::Splash(_) => {
                 if was_any_input() {
-                    self.advance_continuous::<GameData>(scene, InputCmd::NextPhase);
+                    scene.advance(InputCmd::NextPhase);
                 }
             }
             Scene::CodingArena(_) => {
