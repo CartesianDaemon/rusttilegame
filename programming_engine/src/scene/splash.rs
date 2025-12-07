@@ -49,10 +49,6 @@ impl BaseScene for Splash {
         self.ready_for_next_level = Some(SceneConclusion::SplashContinue)
     }
 
-    fn tick_based(&self) -> crate::ui::TickStyle {
-        crate::ui::TickStyle::Continuous
-    }
-
     fn ready_for_next_level(&self) -> Option<SceneConclusion> {
         self.ready_for_next_level
     }

@@ -19,11 +19,10 @@ pub enum SceneConclusion {
 }
 
 // After each tick, either Continue, or restart/start another level based on Conclusion.
+// TODO: Move into Arena, only used there.
 pub type SceneContinuation = ControlFlow<SceneConclusion, ()>;
 
-// NB Breadcrumb: Need different name for Scene ("level part") than Pane ("screen part").
 pub trait BaseScene {
-    fn tick_based(&self) -> crate::ui::TickStyle;
     fn advance(&mut self, cmd: InputCmd);
     fn ready_for_next_level(&self) -> Option<SceneConclusion>;
 }
@@ -50,15 +49,6 @@ impl<GameLogic: for_gamedata::BaseGameLogic> Scene<GameLogic> {
 
     pub fn from_splash_dialogue(entries: Vec<&str>) -> Self {
         Scene::Splash(Splash::from_dialogue(entries))
-    }
-
-    // Does current pane act on user input immediately (not governed by a game tick)?
-    // NB: Move into Ui not Scene. Then move out of core engine entirely into Ui.
-    pub fn tick_based(&self) -> crate::ui::TickStyle {
-        match self {
-            Self::Splash(scene) => scene.tick_based(),
-            Self::CodingArena(scene) => scene.tick_based(),
-        }
     }
 
     // Advance game state. Called when clock ticks or when user inputs.

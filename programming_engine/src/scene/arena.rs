@@ -43,10 +43,6 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseScene for Arena<GameLogic>
         self.ready_for_next_level = self.advance_map(cmd).break_value();
     }
 
-    fn tick_based(&self) -> crate::ui::TickStyle {
-        crate::ui::TickStyle::TickOnInput
-    }
-
     fn ready_for_next_level(&self) -> Option<SceneConclusion> {
         self.ready_for_next_level
     }

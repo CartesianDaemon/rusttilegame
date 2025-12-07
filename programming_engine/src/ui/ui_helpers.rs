@@ -59,12 +59,6 @@ pub struct AnimState {
     pub anim_pc: f32
 }
 
-pub enum TickStyle {
-    Continuous,
-    TickOnInput,
-    TickAutomatically,
-}
-
 pub struct Ticker {
     pub last_tick_time: f64,
 

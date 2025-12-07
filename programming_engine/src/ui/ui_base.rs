@@ -11,10 +11,8 @@ use super::ui_coding_arena::*;
 
 pub type TextureCache = HashMap<String, Texture2D>;
 
-/// Handles drawing and often input for a specific game state.
+/// Handles drawing and often input for current scene.
 /// Delegates drawing to a variety of UiSomething classes. Could be
-/// more unified with a base trait. Could rationalise the relationship
-/// between a Ui class and a Scene.
 pub struct Ui {
     /// Loaded textures
     texture_cache: TextureCache,
@@ -29,8 +27,6 @@ impl Ui {
         }
     }
 
-    /// Draw current gameplay to screen.
-    /// TODO: Avoid passing slide and anim through so many layers? Add to struct?
     pub async fn do_frame<GameData: BaseGamedata>(&mut self, scene: &mut Scene<GameData::GameLogic>, state: &GameData) {
         match scene {
             Scene::Splash(scene_struct) => {
