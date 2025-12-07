@@ -16,7 +16,7 @@ pub type TextureCache = HashMap<String, Texture2D>;
 /// Delegates drawing to a variety of UiSomething classes. Could be
 /// more unified with a base trait. Could rationalise the relationship
 /// between a Ui class and a Scene.
-pub struct UiBase {
+pub struct Ui {
     /// Loaded textures
     texture_cache: TextureCache,
     ui_coding_arena: UiCodingArena,
@@ -31,9 +31,9 @@ pub struct UiBase {
     ticker: Ticker,
 }
 
-impl UiBase {
-    pub fn new() -> UiBase {
-        UiBase {
+impl Ui {
+    pub fn new() -> Ui {
+        Ui {
             texture_cache: HashMap::new(),
             ui_coding_arena: UiCodingArena::new(),
             anim: AnimState::default(),

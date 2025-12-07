@@ -2,7 +2,7 @@ use crate::gamedata::BaseGamedata;
 
 use super::gamedata;
 use super::scene::*;
-use super::ui::UiBase;
+use super::ui::Ui;
 
 /// Overall Engine state.
 ///
@@ -19,7 +19,7 @@ struct Engine<Gamedata: BaseGamedata> {
     state: Scene<Gamedata::GameLogic>,
 
     ///
-    ui: UiBase,
+    ui: Ui,
 }
 
 impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
@@ -29,7 +29,7 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
         Engine::<Gamedata> {
             gamedata: gamedata,
             state: scene,
-            ui: UiBase::new(),
+            ui: Ui::new(),
         }
     }
 
