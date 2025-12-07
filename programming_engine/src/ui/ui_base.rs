@@ -35,13 +35,6 @@ impl Ui {
         match scene {
             Scene::Splash(scene_struct) => {
                 UiSplash::advance(scene_struct);
-            }
-            Scene::CodingArena(_scene_struct) => {
-            }
-        }
-
-        match scene {
-            Scene::Splash(scene_struct) => {
                 let _r = UiSplash::do_frame(scene_struct);
             }
             Scene::CodingArena(scene_struct) => {
