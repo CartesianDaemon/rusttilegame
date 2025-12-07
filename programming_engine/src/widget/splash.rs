@@ -22,6 +22,7 @@ pub struct Splash {
     // Text for current interstitial screen. Only in Splash.
     pub splash_text: String,
     pub dialogue: Dialogue, // If this works, will replace splash_text
+    ready_for_next_level: Option<WidgetConclusion>,
 }
 
 impl Splash
@@ -30,6 +31,7 @@ impl Splash
         Splash {
             splash_text: txt,
             dialogue: Dialogue { entries: vec![]},
+            ready_for_next_level: None,
         }
     }
 
@@ -37,16 +39,21 @@ impl Splash
         Splash {
             splash_text: "".to_string(),
             dialogue: Dialogue { entries: entries.iter().map(|x| DialogueLine {tex_path: "".to_string(), text: x.to_string()} ).collect() },
+            ready_for_next_level: None,
         }
     }
 }
 
 impl BaseWidget for Splash {
-    fn advance(&mut self, _cmd: InputCmd) -> WidgetContinuation {
-        WidgetContinuation::Break(WidgetConclusion::SplashContinue)
+    fn advance(&mut self, _cmd: InputCmd) {
+        self.ready_for_next_level = Some(WidgetConclusion::SplashContinue)
     }
 
     fn tick_based(&self) -> crate::ui::TickStyle {
         crate::ui::TickStyle::Continuous
+    }
+
+    fn ready_for_next_level(&self) -> Option<WidgetConclusion> {
+        self.ready_for_next_level
     }
 }

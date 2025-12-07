@@ -36,8 +36,8 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
     /// Collect input. Draw frame. Advance logical Engine state, if tick scheduled.
     /// NB: Move into Ui
     pub async fn do_frame(&mut self) {
-        let widget_continuation = self.ui.do_frame(&mut self.state, &self.gamedata).await;
-        if let WidgetContinuation::Break(widget_ending) = widget_continuation {
+        self.ui.do_frame(&mut self.state, &self.gamedata).await;
+        if let Some(widget_ending) = self.state.ready_for_next_level() {
             self.state = self.gamedata.load_next_pane(widget_ending);
         }
     }

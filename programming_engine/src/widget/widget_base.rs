@@ -11,7 +11,7 @@ use crate::for_gamedata;
 // How scene ended, used to determine next scene/lev to go to.
 //
 // Could be more game-specific.
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum WidgetConclusion {
     SplashContinue,
     Win,
@@ -25,7 +25,7 @@ pub type WidgetContinuation = ControlFlow<WidgetConclusion, ()>;
 pub trait BaseWidget {
     fn tick_based(&self) -> crate::ui::TickStyle;
     fn advance(&mut self, cmd: InputCmd);
-    fn ready_for_next_level(&mut self) -> WidgetContinuation;
+    fn ready_for_next_level(&self) -> Option<WidgetConclusion>;
 }
 
 /// One unit of gameplay: one map layout, one splash screen, etc.
@@ -62,11 +62,18 @@ impl<GameLogic: for_gamedata::BaseGameLogic> Widget<GameLogic> {
     }
 
     // Advance game state. Called when clock ticks or when user inputs.
-    pub fn advance(&mut self, cmd: InputCmd) -> WidgetContinuation {
+    pub fn advance(&mut self, cmd: InputCmd) {
         // NB: Use the crate that makes it easy to inherit behaviour between enum variants.
         match self {
             Self::Splash(widget) => widget.advance(cmd),
             Self::CodingArena(widget) => widget.advance(cmd),
+        }
+    }
+
+    pub fn ready_for_next_level(&self) -> Option<WidgetConclusion> {
+        match self {
+            Self::Splash(widget) => widget.ready_for_next_level(),
+            Self::CodingArena(widget) => widget.ready_for_next_level(),
         }
     }
 

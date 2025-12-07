@@ -1,5 +1,3 @@
-use super::*;
-
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
 pub struct ActionData {
     pub blocked: bool,
@@ -395,19 +393,6 @@ impl Coding {
             ).collect(),
             prog: Subprog::default(),
         }
-    }
-}
-
-impl BaseWidget for Coding
-{
-    fn advance(&mut self, _cmd: InputCmd) -> WidgetContinuation {
-        // TODO
-
-        return WidgetContinuation::Continue(());
-    }
-
-    fn tick_based(&self) -> crate::ui::TickStyle {
-        crate::ui::TickStyle::Continuous
     }
 }
 

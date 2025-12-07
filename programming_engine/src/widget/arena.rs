@@ -13,7 +13,7 @@ use std::ops::IndexMut;
 
 use culpa::try_fn;
 
-use super::widget_base::{BaseWidget, WidgetContinuation};
+use super::widget_base::{BaseWidget, WidgetConclusion, WidgetContinuation};
 use crate::simple_custom_props;
 use crate::for_gamedata;
 use for_gamedata::BaseGameLogic;
@@ -28,27 +28,27 @@ pub struct RosterIndex {
 }
 
 /// Grid together with Ros. Those are two separate classes so they can more easily be borrowed separately.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Arena<GameLogic: for_gamedata::BaseGameLogic> {
     map: Grid<GameLogic>,
     roster: Roster,
     // Used to represent map as ascii for init and debugging. Not comprehensive.
     map_key: std::collections::HashMap<char, Vec<FreeObj<GameLogic::CustomProps>>>,
-    ready_for_next_level: WidgetContinuation,
+    ready_for_next_level: Option<WidgetConclusion>,
 }
 
 impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Arena<GameLogic>
 {
     fn advance(&mut self, cmd: crate::ui::InputCmd)  {
-        self.ready_for_next_level = self.advance_map(cmd);
+        self.ready_for_next_level = self.advance_map(cmd).break_value();
     }
 
     fn tick_based(&self) -> crate::ui::TickStyle {
         crate::ui::TickStyle::TickOnInput
     }
 
-    fn ready_for_next_level(&mut self) -> WidgetContinuation {
-        std::mem::replace(&mut self.ready_for_next_level, WidgetContinuation::Continue(()))
+    fn ready_for_next_level(&self) -> Option<WidgetConclusion> {
+        self.ready_for_next_level
     }
 }
 
@@ -89,7 +89,7 @@ impl<GameLogic: BaseGameLogic> Arena<GameLogic> {
             map: Into::into(Grid::new(w, h)),
             roster: Roster::new(),
             map_key: std::collections::HashMap::new(),
-            ready_for_next_level: WidgetContinuation::Continue(()),
+            ready_for_next_level: None,
         }
     }
 
