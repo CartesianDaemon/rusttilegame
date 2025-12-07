@@ -1,8 +1,8 @@
 use macroquad::prelude::*;
 
 use assrt::rsst;
-use crate::widget::arena::MapObj;
-use crate::widget::Arena;
+use crate::scene::arena::MapObj;
+use crate::scene::Arena;
 use crate::gamedata::BaseGameLogic;
 
 use super::*;

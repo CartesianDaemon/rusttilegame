@@ -13,7 +13,7 @@ use std::ops::IndexMut;
 
 use culpa::try_fn;
 
-use super::widget_base::{BaseWidget, WidgetContinuation};
+use super::scene_base::{BaseScene, SceneContinuation};
 use crate::simple_custom_props;
 use crate::for_gamedata;
 use for_gamedata::BaseGameLogic;
@@ -37,9 +37,9 @@ pub struct Arena<GameLogic: for_gamedata::BaseGameLogic> {
     map_key: std::collections::HashMap<char, Vec<FreeObj<GameLogic::CustomProps>>>,
 }
 
-impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Arena<GameLogic>
+impl<GameLogic : for_gamedata::BaseGameLogic> BaseScene for Arena<GameLogic>
 {
-    fn advance(&mut self, cmd: MoveCmd) -> WidgetContinuation  {
+    fn advance(&mut self, cmd: MoveCmd) -> SceneContinuation  {
         // TODO: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // TODO: Consider: Maybe display char moving out of sync with enemy.
@@ -63,7 +63,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Arena<GameLogic>
 
             GameLogic::move_mov(self, mov, cmd)?;
         }
-        WidgetContinuation::Continue(())
+        SceneContinuation::Continue(())
     }
 
     fn tick_based(&self) -> crate::ui::TickStyle {

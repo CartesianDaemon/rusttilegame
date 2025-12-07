@@ -1,7 +1,7 @@
-mod widget_base;
+mod scene_base;
 pub mod arena;
 pub mod coding;
 pub mod splash;
 pub mod coding_arena;
 
-pub use widget_base::*;
+pub use scene_base::*;

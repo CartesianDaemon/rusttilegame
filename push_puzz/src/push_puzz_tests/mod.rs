@@ -13,7 +13,7 @@ use tile_engine::for_gamedata::*;
 mod basic_tests {
     use super::*;
 
-    fn get_lev(n: i32) -> Widget<super::super::pushpuzz::PushpuzzGameLogic> {
+    fn get_lev(n: i32) -> Scene<super::super::pushpuzz::PushpuzzGameLogic> {
         let test_key = HashMap::from([
             (' ', vec![ new_floor() ]),
             ('#', vec![ new_floor(), new_wall() ]),
@@ -28,7 +28,7 @@ mod basic_tests {
         ]);
 
         match n {
-            1=> Widget::from_play_ascii_map(&[
+            1=> Scene::from_play_ascii_map(&[
                 "#####_########_#",
                 "#            # #",
                 "#  >         @ @",
@@ -38,7 +38,7 @@ mod basic_tests {
                 "##############@#",
             ], test_key
             ),
-            2=> Widget::from_play_ascii_map(&[
+            2=> Scene::from_play_ascii_map(&[
                 "#g  #",
                 "#   #",
                 "h   #",
@@ -116,9 +116,9 @@ mod basic_tests {
 
     #[test]
     fn clone_map_and_move() {
-        let orig_curr_widget_state = get_lev(1);
-        let mut state = orig_curr_widget_state.clone();
-        log::trace!("Orig>> {orig_curr_widget_state:?}");
+        let orig_curr_scene_state = get_lev(1);
+        let mut state = orig_curr_scene_state.clone();
+        log::trace!("Orig>> {orig_curr_scene_state:?}");
         log::trace!("Clone>> {state:?}");
         let _ = state.advance(Some(MoveCmd::Right));
     }

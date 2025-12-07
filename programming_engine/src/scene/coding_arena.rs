@@ -9,7 +9,7 @@ pub enum CodingRunningPhase {
     Won,
 }
 
-// NB: Move into Prog Puzz. Or make into a general multi-widget widget.
+// NB: Move into Prog Puzz. Or make into a general multi-scene scene.
 #[derive(Clone, Debug)]
 pub struct CodingArena<GameLogic : for_gamedata::BaseGameLogic> {
     pub init_arena: Arena<GameLogic>,
@@ -17,10 +17,10 @@ pub struct CodingArena<GameLogic : for_gamedata::BaseGameLogic> {
     pub curr_arena: Option<Arena<GameLogic>>,
     pub coding: Coding,
     pub phase: CodingRunningPhase,
-    ready_for_next_level: Option<WidgetConclusion>,
+    ready_for_next_level: Option<SceneConclusion>,
 }
 
-impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLogic>
+impl<GameLogic : for_gamedata::BaseGameLogic> BaseScene for CodingArena<GameLogic>
 {
     fn advance(&mut self, cmd: InputCmd) {
         match self.phase {
@@ -35,10 +35,10 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
 
                     self.curr_arena.as_mut().unwrap().advance(cmd);
                     let conclusion = self.curr_arena.as_ref().unwrap().ready_for_next_level();
-                    if conclusion == Some(for_gamedata::WidgetConclusion::Die) {
+                    if conclusion == Some(for_gamedata::SceneConclusion::Die) {
                         log::debug!("Ran off end of program. Stopped.");
                         self.phase = CodingRunningPhase::Died;
-                    } else if conclusion == Some(for_gamedata::WidgetConclusion::Win) {
+                    } else if conclusion == Some(for_gamedata::SceneConclusion::Win) {
                         log::debug!("Bot found target!");
                         self.phase = CodingRunningPhase::Won;
                     } else if conclusion == None {
@@ -50,7 +50,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
                 }
             },
             CodingRunningPhase::Won => {
-                self.ready_for_next_level = Some(WidgetConclusion::Win);
+                self.ready_for_next_level = Some(SceneConclusion::Win);
             },
             CodingRunningPhase::Died => {
                 self.cancel_execution();
@@ -67,7 +67,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
         }
     }
 
-    fn ready_for_next_level(&self) -> Option<WidgetConclusion> {
+    fn ready_for_next_level(&self) -> Option<SceneConclusion> {
         self.ready_for_next_level
     }
 }

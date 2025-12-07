@@ -399,12 +399,12 @@ impl Coding {
     }
 }
 
-impl BaseWidget for Coding
+impl BaseScene for Coding
 {
-    fn advance(&mut self, _cmd: MoveCmd) -> WidgetContinuation {
+    fn advance(&mut self, _cmd: MoveCmd) -> SceneContinuation {
         // TODO
 
-        return WidgetContinuation::Continue(());
+        return SceneContinuation::Continue(());
     }
 
     fn tick_based(&self) -> crate::ui::TickStyle {

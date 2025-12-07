@@ -5,7 +5,7 @@ use macroquad::prelude::*;
 use crate::map_coords::MoveCmd;
 use crate::gamedata::BaseGamedata;
 use crate::gamedata;
-use crate::widget::*;
+use crate::scene::*;
 use crate::input::Input;
 
 use super::ui_helpers::*;
@@ -18,7 +18,7 @@ pub type TextureCache = HashMap<String, Texture2D>;
 /// Handles drawing and often input for a specific game state.
 /// Delegates drawing to a variety of UiSomething classes. Could be
 /// more unified with a base trait. Could rationalise the relationship
-/// between a Ui class and a Widget.
+/// between a Ui class and a Scene.
 pub struct UiBase {
     /// Loaded textures
     texture_cache: TextureCache,
@@ -46,60 +46,60 @@ impl UiBase {
         }
     }
 
-    // NB: Move into Widget. Need to move reset_tick into Ui. First need to move
-    // gamedata (ie levidx) into state widget?
-    fn advance<Gamedata: gamedata::BaseGamedata>(&mut self, widget: &mut Widget<Gamedata::GameLogic>, cmd: MoveCmd) -> WidgetContinuation {
-        let widget_continuation = widget.advance(cmd);
-        if let WidgetContinuation::Break(_) = widget_continuation {
+    // NB: Move into Scene. Need to move reset_tick into Ui. First need to move
+    // gamedata (ie levidx) into state scene?
+    fn advance<Gamedata: gamedata::BaseGamedata>(&mut self, scene: &mut Scene<Gamedata::GameLogic>, cmd: MoveCmd) -> SceneContinuation {
+        let scene_continuation = scene.advance(cmd);
+        if let SceneContinuation::Break(_) = scene_continuation {
             self.ticker.reset_tick();
         }
-        widget_continuation
+        scene_continuation
     }
 
     /// Draw current gameplay to screen.
     /// TODO: Avoid passing slide and anim through so many layers? Add to struct?
-    pub async fn do_frame<GameData: BaseGamedata>(&mut self, widget: &mut Widget<GameData::GameLogic>, state: &GameData) -> WidgetContinuation {
+    pub async fn do_frame<GameData: BaseGamedata>(&mut self, scene: &mut Scene<GameData::GameLogic>, state: &GameData) -> SceneContinuation {
         self.input.read_input();
 
-        let mut widget_continuation = WidgetContinuation::Continue(());
-        match widget.tick_based() {
+        let mut scene_continuation = SceneContinuation::Continue(());
+        match scene.tick_based() {
             TickStyle::TickAutomatically => {
                 if self.ticker.tick_if_ready() {
                     let cmd = self.input.consume_cmd().unwrap_or(MoveCmd::default());
-                    widget_continuation = self.advance::<GameData>(widget, cmd);
+                    scene_continuation = self.advance::<GameData>(scene, cmd);
                 }
                 self.anim = self.ticker.anim_state();
             },
             TickStyle::TickOnInput => {
                 if let Some(cmd) = self.input.consume_cmd() {
                     self.ticker.reset_tick();
-                    widget_continuation = self.advance::<GameData>(widget, cmd);
+                    scene_continuation = self.advance::<GameData>(scene, cmd);
                 }
                 self.anim = self.ticker.anim_state();
             },
             TickStyle::Continuous => {
                 if let Some(cmd) = self.input.consume_cmd() {
-                    widget_continuation = self.advance::<GameData>(widget, cmd);
+                    scene_continuation = self.advance::<GameData>(scene, cmd);
                 }
                 // Treat any movement as completed
                 self.anim = AnimState { slide_pc: 1., .. self.ticker.anim_state() }
             }
         }
 
-        match widget {
-            Widget::Arena(widget) => {
-                UiInteractiveArena::render(widget, &mut self.texture_cache, PRect::from_screen(), self.anim).await;
+        match scene {
+            Scene::Arena(scene) => {
+                UiInteractiveArena::render(scene, &mut self.texture_cache, PRect::from_screen(), self.anim).await;
             }
-            Widget::Splash(widget) => {
-                let _r = UiSplash::render(widget);
+            Scene::Splash(scene) => {
+                let _r = UiSplash::render(scene);
             }
-            Widget::CodingArena(widget) => {
-                self.ui_coding_arena.render(widget, &mut self.texture_cache, self.anim, state).await;
+            Scene::CodingArena(scene) => {
+                self.ui_coding_arena.render(scene, &mut self.texture_cache, self.anim, state).await;
             }
         }
         sleep_between_frames_on_linux_windows();
 
-        return widget_continuation;
+        return scene_continuation;
     }
 }
 

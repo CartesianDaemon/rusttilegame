@@ -70,7 +70,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
         }
     }
 
-    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, _cmd: InputCmd) -> WidgetContinuation {
+    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, _cmd: InputCmd) -> SceneContinuation {
         let props = &mut map[mov].logical_props.custom_props;
         match props.ai {
             ProgpuzzAI::Prog => {
@@ -81,14 +81,14 @@ impl BaseGameLogic for ProgpuzzGameLogic
 
                     if props.prog.finished() {
                         log::debug!("Bot reached end of program.");
-                        return WidgetContinuation::Break(WidgetConclusion::Die);
+                        return SceneContinuation::Break(SceneConclusion::Die);
                     }
                 }
 
                 match props.prog.curr_op_mut() {
                     None => {
                         log::debug!("Bot reached empty parent instr.");
-                        return WidgetContinuation::Break(WidgetConclusion::Die);
+                        return SceneContinuation::Break(SceneConclusion::Die);
                     }
                     Some(Instr::Action(action_op, action_data)) => {
                         action_data.blocked = false;
@@ -121,17 +121,17 @@ impl BaseGameLogic for ProgpuzzGameLogic
 
                 // Conclude pane successfully if hero finds with goal.
                 if map.any_has_effect(map[mov].pos(), Effect::Win) {
-                    return WidgetContinuation::Break(WidgetConclusion::Win)
+                    return SceneContinuation::Break(SceneConclusion::Win)
                 }
 
                 // Continue pane without concluding.
-                return WidgetContinuation::Continue(());
+                return SceneContinuation::Continue(());
             },
             ProgpuzzAI::Stay => {
                 log::trace!("ProgpuzzGameLogic::move_mov: Stay\n");
                 // Do nothing
             },
             }
-        return WidgetContinuation::Continue(());
+        return SceneContinuation::Continue(());
     }
 }

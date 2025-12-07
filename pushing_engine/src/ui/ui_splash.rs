@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::widget::Splash;
+use crate::scene::Splash;
 
 // Render state for one frame of "Show text, press enter to continue"
 // Currently not needing any global graphics state

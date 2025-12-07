@@ -10,7 +10,7 @@ pub enum CodingRunningPhase {
     Won,
 }
 
-// NB: Move into Prog Puzz. Or make into a general multi-widget widget.
+// NB: Move into Prog Puzz. Or make into a general multi-scene scene.
 #[derive(Clone, Debug)]
 pub struct CodingArena<GameLogic : for_gamedata::BaseGameLogic> {
     pub init_arena: Arena<GameLogic>,
@@ -20,9 +20,9 @@ pub struct CodingArena<GameLogic : for_gamedata::BaseGameLogic> {
     pub phase: CodingRunningPhase,
 }
 
-impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLogic>
+impl<GameLogic : for_gamedata::BaseGameLogic> BaseScene for CodingArena<GameLogic>
 {
-    fn advance(&mut self, cmd: MoveCmd) -> WidgetContinuation {
+    fn advance(&mut self, cmd: MoveCmd) -> SceneContinuation {
         match self.phase {
             CodingRunningPhase::Coding => {
                 if cmd == MoveCmd::Stay {
@@ -34,10 +34,10 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
                     log::debug!("Advance bot program.");
 
                     let conclusion = self.curr_arena.as_mut().unwrap().advance(cmd);
-                    if conclusion == std::ops::ControlFlow::Break(for_gamedata::WidgetConclusion::Die) {
+                    if conclusion == std::ops::ControlFlow::Break(for_gamedata::SceneConclusion::Die) {
                         log::debug!("Ran off end of program. Stopped.");
                         self.phase = CodingRunningPhase::Died;
-                    } else if conclusion == std::ops::ControlFlow::Break(for_gamedata::WidgetConclusion::Win) {
+                    } else if conclusion == std::ops::ControlFlow::Break(for_gamedata::SceneConclusion::Win) {
                         log::debug!("Bot found target!");
                         self.phase = CodingRunningPhase::Won;
                     } else if conclusion == std::ops::ControlFlow::Continue(()) {
@@ -49,14 +49,14 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for CodingArena<GameLog
                 }
             },
             CodingRunningPhase::Won => {
-                return WidgetContinuation::Break(WidgetConclusion::Win);
+                return SceneContinuation::Break(SceneConclusion::Win);
             },
             CodingRunningPhase::Died => {
                 self.cancel_execution();
             },
         }
 
-        return WidgetContinuation::Continue(());
+        return SceneContinuation::Continue(());
     }
 
     fn tick_based(&self) -> crate::ui::TickStyle {

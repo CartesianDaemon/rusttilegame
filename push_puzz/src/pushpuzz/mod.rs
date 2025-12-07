@@ -42,11 +42,11 @@ impl BaseGamedata for PushpuzzGamedata {
         }
     }
 
-    fn advance_pane(&mut self, continuation: WidgetConclusion) {
+    fn advance_pane(&mut self, continuation: SceneConclusion) {
         self.levset.advance_pane(continuation)
     }
 
-    fn load_scene(&self) -> Widget<Self::GameLogic> {
+    fn load_scene(&self) -> Scene<Self::GameLogic> {
         self.levset.load_pane()
     }
 }

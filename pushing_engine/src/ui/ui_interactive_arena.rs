@@ -1,5 +1,5 @@
 use crate::ui::ui_arena::UiArena;
-use crate::widget::Arena;
+use crate::scene::Arena;
 use crate::gamedata::BaseGameLogic;
 
 use super::*;

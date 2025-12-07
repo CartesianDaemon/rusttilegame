@@ -23,11 +23,11 @@ impl ProgpuzzLevset {
         ProgpuzzLevset { current_levid: ProgpuzzPaneId::LevCodingArena(starting_lev_num) }
     }
 
-    pub fn advance_scene(&mut self, continuation: WidgetConclusion) {
+    pub fn advance_scene(&mut self, continuation: SceneConclusion) {
         self.current_levid = match (self.current_levid, continuation) {
-            (ProgpuzzPaneId::LevCodingArena(levnum), WidgetConclusion::Win) if levnum >= self.levels().len() as u16 => ProgpuzzPaneId::Win,
-            (ProgpuzzPaneId::LevCodingArena(levnum), WidgetConclusion::Win) => ProgpuzzPaneId::LevCodingArena(levnum+1),
-            (ProgpuzzPaneId::Win, WidgetConclusion::SplashContinue) => Self::new().current_levid,
+            (ProgpuzzPaneId::LevCodingArena(levnum), SceneConclusion::Win) if levnum >= self.levels().len() as u16 => ProgpuzzPaneId::Win,
+            (ProgpuzzPaneId::LevCodingArena(levnum), SceneConclusion::Win) => ProgpuzzPaneId::LevCodingArena(levnum+1),
+            (ProgpuzzPaneId::Win, SceneConclusion::SplashContinue) => Self::new().current_levid,
             _ => panic!()
         };
     }
@@ -320,12 +320,12 @@ impl ProgpuzzLevset {
         ]
     }
 
-    pub fn load_scene(&self) -> Widget<super::game_logic::ProgpuzzGameLogic> {
+    pub fn load_scene(&self) -> Scene<super::game_logic::ProgpuzzGameLogic> {
         // NB: Would like to implement thin walls between squares, not walls filling whole squares.
         match self.current_levid {
-            ProgpuzzPaneId::LevCodingArena(n) => Widget::CodingArena(self.levels()[n as usize -1].clone()),
+            ProgpuzzPaneId::LevCodingArena(n) => Scene::CodingArena(self.levels()[n as usize -1].clone()),
             ProgpuzzPaneId::Win => {
-                Widget::from_splash_string("Congratulations. You've completed all the levels. Press [enter] to play through again".to_string())
+                Scene::from_splash_string("Congratulations. You've completed all the levels. Press [enter] to play through again".to_string())
             },
         }
     }

@@ -53,37 +53,37 @@ fn basic_map(turn: usize) -> Arena<super::game_logic::ProgpuzzGameLogic> {
     Arena::from_map_and_key(&ascii, key)
 }
 
-fn get_basic_lev() -> Widget<super::game_logic::ProgpuzzGameLogic> {
+fn get_basic_lev() -> Scene<super::game_logic::ProgpuzzGameLogic> {
     use supply_ops::*;
-    Widget::CodingArena(CodingArena::new::<16>(
+    Scene::CodingArena(CodingArena::new::<16>(
         basic_map(0),
         Coding::from_vec( &[(F, 1), (L, 1), (R, 1), (group, 1)] )
     ))
 }
 
-fn get_basic_lev_with_prog(prog: Prog) -> Widget<super::game_logic::ProgpuzzGameLogic> {
+fn get_basic_lev_with_prog(prog: Prog) -> Scene<super::game_logic::ProgpuzzGameLogic> {
     let mut state = get_basic_lev();
-    if let Widget::CodingArena(coding_arena)= &mut state {
+    if let Scene::CodingArena(coding_arena)= &mut state {
         coding_arena.coding.prog =  prog;
     };
     state
 }
 
-fn coding_arena<'a>(state: &'a Widget<ProgpuzzGameLogic>) -> &'a CodingArena<ProgpuzzGameLogic> {
+fn coding_arena<'a>(state: &'a Scene<ProgpuzzGameLogic>) -> &'a CodingArena<ProgpuzzGameLogic> {
     match state {
-        Widget::CodingArena(coding_arena) => &coding_arena,
+        Scene::CodingArena(coding_arena) => &coding_arena,
         _ => panic!("Can't find hero. Arena may not be running."),
     }
 }
 
-fn hero<'a>(state: &'a Widget<ProgpuzzGameLogic>) -> &'a MapObj<ProgpuzzCustomProps> {
+fn hero<'a>(state: &'a Scene<ProgpuzzGameLogic>) -> &'a MapObj<ProgpuzzCustomProps> {
     match state {
-        Widget::CodingArena(CodingArena {curr_arena: Some(arena), .. }) => &arena[arena.hero()],
+        Scene::CodingArena(CodingArena {curr_arena: Some(arena), .. }) => &arena[arena.hero()],
         _ => panic!("Can't find hero. Arena may not be running."),
     }
 }
 
-fn hero_prog<'a>(state: &'a Widget<ProgpuzzGameLogic>) -> &'a Prog {
+fn hero_prog<'a>(state: &'a Scene<ProgpuzzGameLogic>) -> &'a Prog {
     &hero(state).logical_props.custom_props.prog
 }
 
@@ -93,13 +93,13 @@ fn basic_move() {
 
     use prog_ops::*;
     let mut state = get_basic_lev_with_prog(Prog::from(vec![F,F,R,F]));
-    assert!(matches!(state, Widget::CodingArena(CodingArena{phase: CodingRunningPhase::Coding, ..})));
+    assert!(matches!(state, Scene::CodingArena(CodingArena{phase: CodingRunningPhase::Coding, ..})));
     assert_eq!(state.as_ascii_rows(), get_basic_lev().as_ascii_rows());
     assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)), None);
 
     // Start running, no other effect
     state.advance(InputCmd::NextPhase); assert_eq!(state.ready_for_next_level(), None); 
-    assert!(matches!(state, Widget::CodingArena(CodingArena{phase: CodingRunningPhase::Running, ..})));
+    assert!(matches!(state, Scene::CodingArena(CodingArena{phase: CodingRunningPhase::Running, ..})));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 4));
     assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)).unwrap(), 0);
 
@@ -141,7 +141,7 @@ fn test_group() {
     // Start running, no other effect
     state.advance(InputCmd::NextPhase); assert_eq!(state.ready_for_next_level(), None); 
 
-    assert!(matches!(state, Widget::CodingArena(CodingArena{phase: CodingRunningPhase::Running, ..})));
+    assert!(matches!(state, Scene::CodingArena(CodingArena{phase: CodingRunningPhase::Running, ..})));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 4));
 
     // R
@@ -179,7 +179,7 @@ fn repeat_x2() {
 
     // Start running, no other effect
     state.advance(InputCmd::NextPhase); assert_eq!(state.ready_for_next_level(), None);
-    assert!(matches!(state, Widget::CodingArena(CodingArena{phase: CodingRunningPhase::Running, ..})));
+    assert!(matches!(state, Scene::CodingArena(CodingArena{phase: CodingRunningPhase::Running, ..})));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 4));
 
     // R

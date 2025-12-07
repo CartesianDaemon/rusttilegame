@@ -13,7 +13,7 @@ use std::ops::IndexMut;
 
 use culpa::try_fn;
 
-use super::widget_base::{BaseWidget, WidgetConclusion, WidgetContinuation};
+use super::scene_base::{BaseScene, SceneConclusion, SceneContinuation};
 use crate::simple_custom_props;
 use crate::for_gamedata;
 use for_gamedata::BaseGameLogic;
@@ -34,10 +34,10 @@ pub struct Arena<GameLogic: for_gamedata::BaseGameLogic> {
     roster: Roster,
     // Used to represent map as ascii for init and debugging. Not comprehensive.
     map_key: std::collections::HashMap<char, Vec<FreeObj<GameLogic::CustomProps>>>,
-    ready_for_next_level: Option<WidgetConclusion>,
+    ready_for_next_level: Option<SceneConclusion>,
 }
 
-impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Arena<GameLogic>
+impl<GameLogic : for_gamedata::BaseGameLogic> BaseScene for Arena<GameLogic>
 {
     fn advance(&mut self, cmd: crate::ui::InputCmd)  {
         self.ready_for_next_level = self.advance_map(cmd).break_value();
@@ -47,15 +47,15 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Arena<GameLogic>
         crate::ui::TickStyle::TickOnInput
     }
 
-    fn ready_for_next_level(&self) -> Option<WidgetConclusion> {
+    fn ready_for_next_level(&self) -> Option<SceneConclusion> {
         self.ready_for_next_level
     }
 }
 
 impl<GameLogic: BaseGameLogic> Arena<GameLogic> {
     /////////////////
-    /// Helpers for BaseWidget fns
-    fn advance_map(&mut self, cmd: crate::ui::InputCmd) -> WidgetContinuation  {
+    /// Helpers for BaseScene fns
+    fn advance_map(&mut self, cmd: crate::ui::InputCmd) -> SceneContinuation  {
         // TODO: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // TODO: Consider: Maybe display char moving out of sync with enemy.
@@ -79,7 +79,7 @@ impl<GameLogic: BaseGameLogic> Arena<GameLogic> {
 
             GameLogic::move_mov(self, mov, cmd)?;
         }
-        WidgetContinuation::Continue(())
+        SceneContinuation::Continue(())
     }
 
     /////////////////

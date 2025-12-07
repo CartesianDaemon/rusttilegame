@@ -351,7 +351,7 @@ impl UiCodingArena
         use crate::ui::KeyType::*;
         // TODO: Want to combine KeyType into InputCmd. Have one function to turn
         // keyboard into that. And have UI generate those based on mouse. Then interpret
-        // which of Ok, Cancel etc means what in the widget.
+        // which of Ok, Cancel etc means what in the scene.
         // That is more like what I had before but makes sense with those values...
         match coding_arena.phase {
             CodingRunningPhase::Coding => {

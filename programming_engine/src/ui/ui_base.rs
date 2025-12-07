@@ -15,7 +15,7 @@ pub type TextureCache = HashMap<String, Texture2D>;
 /// Handles drawing and often input for a specific game state.
 /// Delegates drawing to a variety of UiSomething classes. Could be
 /// more unified with a base trait. Could rationalise the relationship
-/// between a Ui class and a Widget.
+/// between a Ui class and a Scene.
 pub struct UiBase {
     /// Loaded textures
     texture_cache: TextureCache,
@@ -41,18 +41,18 @@ impl UiBase {
         }
     }
 
-    // NB: Move into Widget. Need to move reset_tick into Ui. First need to move
-    // gamedata (ie levidx) into state widget?
-    fn advance<Gamedata: gamedata::BaseGamedata>(&mut self, widget: &mut Widget<Gamedata::GameLogic>, cmd: InputCmd) {
-        widget.advance(cmd);
-        if let Some(_) = widget.ready_for_next_level() {
+    // NB: Move into Scene. Need to move reset_tick into Ui. First need to move
+    // gamedata (ie levidx) into state scene?
+    fn advance<Gamedata: gamedata::BaseGamedata>(&mut self, scene: &mut Scene<Gamedata::GameLogic>, cmd: InputCmd) {
+        scene.advance(cmd);
+        if let Some(_) = scene.ready_for_next_level() {
             self.ticker.reset_tick();
         }
     }
 
-    fn advance_continuous<Gamedata: gamedata::BaseGamedata>(&mut self, widget: &mut Widget<Gamedata::GameLogic>, cmd: InputCmd) {
-        widget.advance(cmd);
-        if let Some(_) = widget.ready_for_next_level() {
+    fn advance_continuous<Gamedata: gamedata::BaseGamedata>(&mut self, scene: &mut Scene<Gamedata::GameLogic>, cmd: InputCmd) {
+        scene.advance(cmd);
+        if let Some(_) = scene.ready_for_next_level() {
             self.ticker.reset_tick();
         }
         self.anim = AnimState { slide_pc: 1., .. self.ticker.anim_state() };
@@ -60,24 +60,24 @@ impl UiBase {
 
     /// Draw current gameplay to screen.
     /// TODO: Avoid passing slide and anim through so many layers? Add to struct?
-    pub async fn do_frame<GameData: BaseGamedata>(&mut self, widget: &mut Widget<GameData::GameLogic>, state: &GameData) {
-        match widget {
-            Widget::Splash(_) => {
+    pub async fn do_frame<GameData: BaseGamedata>(&mut self, scene: &mut Scene<GameData::GameLogic>, state: &GameData) {
+        match scene {
+            Scene::Splash(_) => {
                 if was_any_input() {
-                    self.advance_continuous::<GameData>(widget, InputCmd::NextPhase);
+                    self.advance_continuous::<GameData>(scene, InputCmd::NextPhase);
                 }
             }
-            Widget::CodingArena(_) => {
-                match widget.tick_based() {
+            Scene::CodingArena(_) => {
+                match scene.tick_based() {
                     TickStyle::TickAutomatically => {
                         if self.ticker.tick_if_ready() {
-                            self.advance::<GameData>(widget, InputCmd::Tick);
+                            self.advance::<GameData>(scene, InputCmd::Tick);
                         }
                         self.anim = self.ticker.anim_state();
                     },
                     TickStyle::Continuous => {
                         // Handle inside ui_coding_arena.advance()
-                        // widget_continuation = self.advance_continuous::<GameData>(widget, InputCmd::NextPhase);
+                        // scene_continuation = self.advance_continuous::<GameData>(scene, InputCmd::NextPhase);
                     }
                     TickStyle::TickOnInput => {
                         panic!();
@@ -86,12 +86,12 @@ impl UiBase {
             }
         }
 
-        match widget {
-            Widget::Splash(widget) => {
-                let _r = UiSplash::do_frame(widget);
+        match scene {
+            Scene::Splash(scene) => {
+                let _r = UiSplash::do_frame(scene);
             }
-            Widget::CodingArena(widget) => {
-                self.ui_coding_arena.do_frame(widget, &mut self.texture_cache, self.anim, state).await;
+            Scene::CodingArena(scene) => {
+                self.ui_coding_arena.do_frame(scene, &mut self.texture_cache, self.anim, state).await;
             }
         }
         sleep_between_frames_on_linux_windows();

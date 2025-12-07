@@ -2,7 +2,7 @@
 
 /// Trait for interface needed for Games implemented in the Engine
 
-use super::widget::{Widget, Arena, WidgetConclusion, CodingArena};
+use super::scene::{Scene, Arena, SceneConclusion, CodingArena};
 
 // TODO: Don't need to for the first two games, but can move Pass and
 // Effect in here. Or better, make a SimpleObjectInteractions type
@@ -22,17 +22,17 @@ pub trait BaseCustomProps : Clone + std::fmt::Debug + PartialEq {
     fn is_hero(self: &Self) -> bool;
 }
 
-use super::widget::arena::RosterIndex;
+use super::scene::arena::RosterIndex;
 use crate::for_gamedata::MoveCmd;
-use super::widget::WidgetContinuation;
+use super::scene::SceneContinuation;
 
-// NB: Fns only applicable to some widgets. Should be in type related to those.
+// NB: Fns only applicable to some scenes. Should be in type related to those.
 pub trait BaseGameLogic : Clone + Sized {
     // For games with an Arena, game-specific data stored in each obj.
     type CustomProps : BaseCustomProps;
 
     // For games with an Arena, the logic for moving a movable obj.
-    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, cmd: MoveCmd) -> WidgetContinuation;
+    fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, cmd: MoveCmd) -> SceneContinuation;
 
     // For games with a CodingArena, coordinate the Arena with the Coding on advance.
     fn harmonise(_coding_arena: &mut CodingArena<Self>) {
@@ -51,11 +51,11 @@ pub trait BaseGamedata {
 
     fn new() -> Self;
 
-    fn advance_pane(&mut self, continuation: WidgetConclusion);
+    fn advance_pane(&mut self, continuation: SceneConclusion);
 
-    fn load_scene(&self) -> Widget<Self::GameLogic>;
+    fn load_scene(&self) -> Scene<Self::GameLogic>;
 
-    fn load_next_pane(&mut self, continuation: WidgetConclusion) -> Widget<Self::GameLogic> {
+    fn load_next_pane(&mut self, continuation: SceneConclusion) -> Scene<Self::GameLogic> {
         self.advance_pane(continuation);
         self.load_scene()
     }

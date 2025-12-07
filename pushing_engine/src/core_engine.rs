@@ -1,7 +1,7 @@
 use crate::gamedata::BaseGamedata;
 
 use super::gamedata;
-use super::widget::*;
+use super::scene::*;
 use super::ui::UiBase;
 
 /// Overall Engine state.
@@ -16,7 +16,7 @@ struct Engine<Gamedata: BaseGamedata> {
     pub gamedata: Gamedata,
 
     /// Current state of gameplay, current level, mostly map etc.
-    state: Widget<Gamedata::GameLogic>,
+    state: Scene<Gamedata::GameLogic>,
 
     ///
     ui: UiBase,
@@ -36,9 +36,9 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
     /// Collect input. Draw frame. Advance logical Engine state, if tick scheduled.
     /// NB: Move into Ui
     pub async fn do_frame(&mut self) {
-        let widget_continuation = self.ui.do_frame(&mut self.state, &self.gamedata).await;
-        if let WidgetContinuation::Break(widget_ending) = widget_continuation {
-            self.state = self.gamedata.load_next_pane(widget_ending);
+        let scene_continuation = self.ui.do_frame(&mut self.state, &self.gamedata).await;
+        if let SceneContinuation::Break(scene_ending) = scene_continuation {
+            self.state = self.gamedata.load_next_pane(scene_ending);
         }
     }
 }

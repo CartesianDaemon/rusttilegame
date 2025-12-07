@@ -16,7 +16,7 @@ struct Engine<Gamedata: BaseGamedata> {
     pub gamedata: Gamedata,
 
     /// Current state of gameplay, current level, mostly map etc.
-    state: Widget<Gamedata::GameLogic>,
+    state: Scene<Gamedata::GameLogic>,
 
     ///
     ui: UiBase,
@@ -37,8 +37,8 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
     /// NB: Move into Ui
     pub async fn do_frame(&mut self) {
         self.ui.do_frame(&mut self.state, &self.gamedata).await;
-        if let Some(widget_ending) = self.state.ready_for_next_level() {
-            self.state = self.gamedata.load_next_pane(widget_ending);
+        if let Some(scene_ending) = self.state.ready_for_next_level() {
+            self.state = self.gamedata.load_next_pane(scene_ending);
         }
     }
 }

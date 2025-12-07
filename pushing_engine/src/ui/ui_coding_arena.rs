@@ -2,7 +2,7 @@ use macroquad::prelude::*;
 
 use crate::gamedata::{BaseGameLogic, BaseGamedata};
 
-use crate::widget::*;
+use crate::scene::*;
 
 use super::{TextureCache, PRect, AnimState, ui_arena::UiArena};
 
