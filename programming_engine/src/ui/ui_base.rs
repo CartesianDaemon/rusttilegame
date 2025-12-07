@@ -19,15 +19,6 @@ pub struct Ui {
     /// Loaded textures
     texture_cache: TextureCache,
     ui_coding_arena: UiCodingArena,
-
-    /// Smoothly from 0 to 1 transition from previous state to current state
-    /// TODO: Move into arena?
-    /// TODO: Updated by input::ready_to_advance. Is that right? Could return tuple.
-    /// TODO: Combine anim and slide..?
-    anim: crate::ui::AnimState,
-
-    /// Record input from user ready for use.
-    ticker: Ticker,
 }
 
 impl Ui {
@@ -35,8 +26,6 @@ impl Ui {
         Ui {
             texture_cache: HashMap::new(),
             ui_coding_arena: UiCodingArena::new(),
-            anim: AnimState::default(),
-            ticker: Ticker::new(),
         }
     }
 
@@ -48,21 +37,6 @@ impl Ui {
                 UiSplash::advance(scene_struct);
             }
             Scene::CodingArena(_scene_struct) => {
-                match scene.tick_based() {
-                    TickStyle::TickAutomatically => {
-                        if self.ticker.tick_if_ready() {
-                            scene.advance(InputCmd::Tick);
-                        }
-                        self.anim = self.ticker.anim_state();
-                    },
-                    TickStyle::Continuous => {
-                        // Handle inside ui_coding_arena.advance()
-                        // scene_continuation = self.advance_continuous::<GameData>(scene, InputCmd::NextPhase);
-                    }
-                    TickStyle::TickOnInput => {
-                        panic!();
-                    },
-                }
             }
         }
 
@@ -72,7 +46,7 @@ impl Ui {
             }
             Scene::CodingArena(scene_struct) => {
                 self.ui_coding_arena.advance::<GameData>(scene_struct);
-                self.ui_coding_arena.do_frame(scene_struct, &mut self.texture_cache, self.anim, state).await;
+                self.ui_coding_arena.do_frame(scene_struct, &mut self.texture_cache, state).await;
             }
         }
         sleep_between_frames_on_linux_windows();

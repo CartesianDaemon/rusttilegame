@@ -4,6 +4,7 @@ use crate::gamedata::{BaseGameLogic, BaseGamedata};
 
 use crate::ui::ui_helpers::{was_any_input, was_key_pressed};
 use crate::scene::*;
+use super::ui_helpers::*;
 
 use super::{TextureCache, PRect, AnimState, ui_arena::UiArena};
 
@@ -204,6 +205,13 @@ pub struct UiCodingArena {
     fr_pos: FrameCoords,
 
     dragging: Option<DragOrigin>,
+
+    /// Smoothly from 0 to 1 transition from previous state to current state
+    /// TODO: Maybe move anim and ticker into Arena.
+    anim: crate::ui::AnimState,
+
+    /// Record input from user ready for use.
+    ticker: Ticker,
 }
 
 impl UiCodingArena
@@ -220,6 +228,9 @@ impl UiCodingArena
             fr_pos: FrameCoords::default(),
 
             dragging: None,
+
+            anim: AnimState::default(),
+            ticker: Ticker::new(),
         }
     }
 
@@ -347,7 +358,7 @@ impl UiCodingArena
 
     }
 
-    pub fn advance<GameData: BaseGamedata>(&self, coding_arena: &mut CodingArena<GameData::GameLogic>) {
+    pub fn advance<GameData: BaseGamedata>(&mut self, coding_arena: &mut CodingArena<GameData::GameLogic>) {
         use crate::ui::KeyType::*;
         // TODO: Want to combine KeyType into InputCmd. Have one function to turn
         // keyboard into that. And have UI generate those based on mouse. Then interpret
@@ -373,6 +384,10 @@ impl UiCodingArena
             },
             CodingRunningPhase::Running => {
                 // While executing
+                if self.ticker.tick_if_ready() {
+                    coding_arena.advance(InputCmd::Tick);
+                }
+                self.anim = self.ticker.anim_state();
                 if matches!(was_key_pressed(), Some(Escape)) ||
                     is_mouse_button_pressed(MouseButton::Left) && !self.mouse_in_rect(self.fr_pos.arena) {
                         // Cancel
@@ -390,7 +405,6 @@ impl UiCodingArena
             &mut self,
             coding_arena: &mut CodingArena<GameData::GameLogic>,
             texture_cache: &mut TextureCache,
-            anim: AnimState,
             game_state: &GameData,
         ) {
         // TODO: Get prog from arena or from coding pane as appropriate?
@@ -400,9 +414,9 @@ impl UiCodingArena
         crate::ui::clear_background_for_current_platform(self.background_col());
 
         if self.is_coding {
-            UiArena::render(&coding_arena.init_arena, texture_cache, self.fr_pos.arena, anim).await;
+            UiArena::render(&coding_arena.init_arena, texture_cache, self.fr_pos.arena, self.anim).await;
         } else {
-            UiArena::render(coding_arena.curr_arena.as_mut().unwrap(), texture_cache, self.fr_pos.arena, anim).await;
+            UiArena::render(coding_arena.curr_arena.as_mut().unwrap(), texture_cache, self.fr_pos.arena, self.anim).await;
         }
 
         self.draw_prog(&coding_arena.coding);
