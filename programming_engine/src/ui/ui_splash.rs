@@ -13,7 +13,7 @@ impl UiSplash
 {
     pub fn advance(scene_splash: &mut Splash) {
         if was_any_input() {
-            scene_splash.advance(InputCmd::NextPhase);
+            scene_splash.advance(InputCmd::Continue);
         }
     }
 

@@ -25,7 +25,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseScene for CodingArena<GameLogi
     fn advance(&mut self, cmd: InputCmd) {
         match self.phase {
             CodingRunningPhase::Coding => {
-                if cmd == InputCmd::NextPhase {
+                if cmd == InputCmd::Continue {
                     self.start_execution();
                 }
             },

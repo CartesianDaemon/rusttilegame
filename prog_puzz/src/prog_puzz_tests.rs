@@ -98,7 +98,7 @@ fn basic_move() {
     assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)), None);
 
     // Start running, no other effect
-    state.advance(InputCmd::NextPhase); assert_eq!(state.ready_for_next_level(), None); 
+    state.advance(InputCmd::Continue); assert_eq!(state.ready_for_next_level(), None); 
     assert!(matches!(state, Scene::CodingArena(CodingArena{phase: CodingRunningPhase::Running, ..})));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 4));
     assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)).unwrap(), 0);
@@ -139,7 +139,7 @@ fn test_group() {
     let mut state = get_basic_lev_with_prog(prog);
 
     // Start running, no other effect
-    state.advance(InputCmd::NextPhase); assert_eq!(state.ready_for_next_level(), None); 
+    state.advance(InputCmd::Continue); assert_eq!(state.ready_for_next_level(), None); 
 
     assert!(matches!(state, Scene::CodingArena(CodingArena{phase: CodingRunningPhase::Running, ..})));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 4));
@@ -178,7 +178,7 @@ fn repeat_x2() {
     let mut state = get_basic_lev_with_prog(prog);
 
     // Start running, no other effect
-    state.advance(InputCmd::NextPhase); assert_eq!(state.ready_for_next_level(), None);
+    state.advance(InputCmd::Continue); assert_eq!(state.ready_for_next_level(), None);
     assert!(matches!(state, Scene::CodingArena(CodingArena{phase: CodingRunningPhase::Running, ..})));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 4));
 
@@ -214,7 +214,7 @@ fn repeat_x2_rotate() {
     let mut state = get_basic_lev_with_prog(prog);
 
     // Start running, no other effect
-    state.advance(InputCmd::NextPhase); assert_eq!(state.ready_for_next_level(), None);
+    state.advance(InputCmd::Continue); assert_eq!(state.ready_for_next_level(), None);
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, -1));
 
     // R
@@ -259,7 +259,7 @@ fn nested_repeat() {
     let mut state = get_basic_lev_with_prog(prog);
 
     // Start running, no other effect
-    state.advance(InputCmd::NextPhase); assert_eq!(state.ready_for_next_level(), None);
+    state.advance(InputCmd::Continue); assert_eq!(state.ready_for_next_level(), None);
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 4));
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(0, -1));
 

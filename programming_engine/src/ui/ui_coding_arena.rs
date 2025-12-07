@@ -368,18 +368,18 @@ impl UiCodingArena
             CodingRunningPhase::Coding => {
                 if matches!(was_key_pressed(), Some(Ok | Normal)) ||
                     is_mouse_button_pressed(MouseButton::Left) && self.mouse_in_rect(self.fr_pos.arena) {
-                    _ = coding_arena.advance(InputCmd::NextPhase);
+                    _ = coding_arena.advance(InputCmd::Continue);
                     }
             },
             CodingRunningPhase::Died => {
                 if was_any_input() {
-                    _ = coding_arena.advance(InputCmd::NextPhase);
+                    _ = coding_arena.advance(InputCmd::Continue);
                 }
             },
             CodingRunningPhase::Won => {
                 if was_any_input() {
                     // TODO: This one needs to be propagated
-                    _ = coding_arena.advance(InputCmd::NextPhase);
+                    _ = coding_arena.advance(InputCmd::Continue);
                 }
             },
             CodingRunningPhase::Running => {
@@ -392,7 +392,7 @@ impl UiCodingArena
                     is_mouse_button_pressed(MouseButton::Left) && !self.mouse_in_rect(self.fr_pos.arena) {
                         // Cancel
                         // TODO: Maybe pause
-                    _ = coding_arena.advance(InputCmd::NextPhase);
+                    _ = coding_arena.advance(InputCmd::Continue);
                 } else if matches!(was_key_pressed(), Some(Ok | Normal)) {
                     // Need to reset tick counter here?
                     _ = coding_arena.advance(InputCmd::Tick);

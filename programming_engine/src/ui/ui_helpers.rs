@@ -21,15 +21,16 @@ impl PRect {
 
 #[derive(PartialEq, Copy, Clone, Debug)]
 pub enum InputCmd {
-    NextPhase, // From any keyboard/mouse input. Or from clicking on/off map in ui_coding_arena to start/stop execution.
-    Tick, // From timer, or from ui_coding_arena.
+    Continue, // Move to next scene, or start executing.
+    Tick, // Advance map. From timer, or from ui_coding_arena.
+    Cancel, // Cancel execution
 }
 
 pub enum KeyType {
     Ok,
     Normal,
     Escape,
-    Other,
+    Modifier,
 }
 
 pub fn was_key_pressed() -> Option<KeyType> {
@@ -38,7 +39,7 @@ pub fn was_key_pressed() -> Option<KeyType> {
         Some(Space | Enter ) => Some(KeyType::Ok),
         Some(Escape | Backspace ) => Some(KeyType::Escape),
         Some(key_code) if key_code as u16 <= 65362 => Some(KeyType::Normal),
-        Some(_) => Some(KeyType::Other),
+        Some(_) => Some(KeyType::Modifier),
         None => None,
     }
 }
@@ -58,6 +59,7 @@ pub struct AnimState {
     // advanced on tick. >1 if move complete but game not advanced, ie all idle.
     pub anim_pc: f32
 }
+
 
 pub struct Ticker {
     pub last_tick_time: f64,
