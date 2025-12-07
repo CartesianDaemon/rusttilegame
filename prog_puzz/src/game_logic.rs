@@ -81,14 +81,14 @@ impl BaseGameLogic for ProgpuzzGameLogic
 
                     if props.prog.finished() {
                         log::debug!("Bot reached end of program.");
-                        return SceneContinuation::Break(SceneConclusion::Die);
+                        return SceneContinuation::Break(SceneConclusion::Fail);
                     }
                 }
 
                 match props.prog.curr_op_mut() {
                     None => {
                         log::debug!("Bot reached empty parent instr.");
-                        return SceneContinuation::Break(SceneConclusion::Die);
+                        return SceneContinuation::Break(SceneConclusion::Fail);
                     }
                     Some(Instr::Action(action_op, action_data)) => {
                         action_data.blocked = false;
@@ -121,7 +121,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
 
                 // Conclude pane successfully if hero finds with goal.
                 if map.any_has_effect(map[mov].pos(), Effect::Win) {
-                    return SceneContinuation::Break(SceneConclusion::Win)
+                    return SceneContinuation::Break(SceneConclusion::Succeed)
                 }
 
                 // Continue pane without concluding.

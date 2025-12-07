@@ -25,9 +25,9 @@ impl ProgpuzzLevset {
 
     pub fn advance_scene(&mut self, continuation: SceneConclusion) {
         self.current_levid = match (self.current_levid, continuation) {
-            (ProgpuzzPaneId::LevCodingArena(levnum), SceneConclusion::Win) if levnum >= self.levels().len() as u16 => ProgpuzzPaneId::Win,
-            (ProgpuzzPaneId::LevCodingArena(levnum), SceneConclusion::Win) => ProgpuzzPaneId::LevCodingArena(levnum+1),
-            (ProgpuzzPaneId::Win, SceneConclusion::SplashContinue) => Self::new().current_levid,
+            (ProgpuzzPaneId::LevCodingArena(levnum), SceneConclusion::Succeed) if levnum >= self.levels().len() as u16 => ProgpuzzPaneId::Win,
+            (ProgpuzzPaneId::LevCodingArena(levnum), SceneConclusion::Succeed) => ProgpuzzPaneId::LevCodingArena(levnum+1),
+            (ProgpuzzPaneId::Win, SceneConclusion::Continue) => Self::new().current_levid,
             _ => panic!()
         };
     }

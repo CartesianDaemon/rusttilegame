@@ -35,10 +35,10 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseScene for CodingArena<GameLogi
 
                     self.curr_arena.as_mut().unwrap().advance(cmd);
                     let conclusion = self.curr_arena.as_ref().unwrap().ready_for_next_level();
-                    if conclusion == Some(for_gamedata::SceneConclusion::Die) {
+                    if conclusion == Some(for_gamedata::SceneConclusion::Fail) {
                         log::debug!("Ran off end of program. Stopped.");
                         self.phase = CodingRunningPhase::Died;
-                    } else if conclusion == Some(for_gamedata::SceneConclusion::Win) {
+                    } else if conclusion == Some(for_gamedata::SceneConclusion::Succeed) {
                         log::debug!("Bot found target!");
                         self.phase = CodingRunningPhase::Won;
                     } else if conclusion == None {
@@ -50,7 +50,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseScene for CodingArena<GameLogi
                 }
             },
             CodingRunningPhase::Won => {
-                self.ready_for_next_level = Some(SceneConclusion::Win);
+                self.ready_for_next_level = Some(SceneConclusion::Succeed);
             },
             CodingRunningPhase::Died => {
                 self.cancel_execution();

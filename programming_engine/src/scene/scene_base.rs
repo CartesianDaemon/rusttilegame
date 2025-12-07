@@ -8,14 +8,12 @@ pub use super::super::ui::InputCmd;
 
 use crate::for_gamedata;
 
-// How scene ended, used to determine next scene/lev to go to.
-//
-// Could be more game-specific.
+// Determines which scene to go to after scene ends.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum SceneConclusion {
-    SplashContinue,
-    Win,
-    Die,
+    Continue,
+    Succeed,
+    Fail,
 }
 
 // After each tick, either Continue, or restart/start another level based on Conclusion.

@@ -46,7 +46,7 @@ impl Splash
 
 impl BaseScene for Splash {
     fn advance(&mut self, _cmd: InputCmd) {
-        self.ready_for_next_level = Some(SceneConclusion::SplashContinue)
+        self.ready_for_next_level = Some(SceneConclusion::Continue)
     }
 
     fn ready_for_next_level(&self) -> Option<SceneConclusion> {
