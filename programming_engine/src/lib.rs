@@ -14,7 +14,7 @@ mod core_engine;
 mod gamedata;
 mod logging;
 mod map_coords;
-mod widget;
+mod scene;
 mod obj;
 mod ui;
 pub mod simple_custom_props;
@@ -27,11 +27,11 @@ pub use core_engine::run;
 pub mod for_gamedata {
     pub use super::obj::*;
     pub use super::gamedata::*;
-    pub use super::widget::*;
+    pub use super::scene::*;
     pub use super::map_coords::*;
     pub use super::simple_custom_props::*;
-    pub use super::widget::Arena;
-    pub use super::widget::arena::RosterIndex;
+    pub use super::scene::Arena;
+    pub use super::scene::arena::RosterIndex;
 }
 
 pub mod infra {

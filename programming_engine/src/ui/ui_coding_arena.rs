@@ -3,7 +3,7 @@ use macroquad::prelude::*;
 use crate::gamedata::{BaseGameLogic, BaseGamedata};
 
 use crate::ui::ui_helpers::{was_any_input, was_key_pressed};
-use crate::widget::*;
+use crate::scene::*;
 
 use super::{TextureCache, PRect, AnimState, ui_arena::UiArena};
 

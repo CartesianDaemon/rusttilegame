@@ -1,7 +1,7 @@
 use crate::gamedata::BaseGamedata;
 
 use super::gamedata;
-use super::widget::*;
+use super::scene::*;
 use super::ui::UiBase;
 
 /// Overall Engine state.

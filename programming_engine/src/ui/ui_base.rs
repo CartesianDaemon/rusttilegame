@@ -4,7 +4,7 @@ use macroquad::prelude::*;
 
 use crate::gamedata::BaseGamedata;
 use crate::gamedata;
-use crate::widget::*;
+use crate::scene::*;
 
 use super::ui_helpers::*;
 use super::ui_splash::*;
