@@ -47,7 +47,7 @@ impl Ui {
             Scene::Splash(scene_struct) => {
                 UiSplash::advance(scene_struct);
             }
-            Scene::CodingArena(_) => {
+            Scene::CodingArena(_scene_struct) => {
                 match scene.tick_based() {
                     TickStyle::TickAutomatically => {
                         if self.ticker.tick_if_ready() {
@@ -71,6 +71,7 @@ impl Ui {
                 let _r = UiSplash::do_frame(scene_struct);
             }
             Scene::CodingArena(scene_struct) => {
+                self.ui_coding_arena.advance::<GameData>(scene_struct);
                 self.ui_coding_arena.do_frame(scene_struct, &mut self.texture_cache, self.anim, state).await;
             }
         }

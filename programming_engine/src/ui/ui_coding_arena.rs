@@ -393,8 +393,6 @@ impl UiCodingArena
             anim: AnimState,
             game_state: &GameData,
         ) {
-        self.advance::<GameData>(coding_arena);
-
         // TODO: Get prog from arena or from coding pane as appropriate?
         self.active_idx = GameData::GameLogic::get_active_idx(coding_arena);
         self.initialise_frame_coords(coding_arena.phase, coding_arena.coding.prog.v_len());
