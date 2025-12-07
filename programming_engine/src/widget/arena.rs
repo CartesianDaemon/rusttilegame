@@ -28,17 +28,34 @@ pub struct RosterIndex {
 }
 
 /// Grid together with Ros. Those are two separate classes so they can more easily be borrowed separately.
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct Arena<GameLogic: for_gamedata::BaseGameLogic> {
     map: Grid<GameLogic>,
     roster: Roster,
     // Used to represent map as ascii for init and debugging. Not comprehensive.
     map_key: std::collections::HashMap<char, Vec<FreeObj<GameLogic::CustomProps>>>,
+    ready_for_next_level: WidgetContinuation,
 }
 
 impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Arena<GameLogic>
 {
-    fn advance(&mut self, cmd: crate::ui::InputCmd) -> WidgetContinuation  {
+    fn advance(&mut self, cmd: crate::ui::InputCmd)  {
+        self.ready_for_next_level = self.advance_map(cmd);
+    }
+
+    fn tick_based(&self) -> crate::ui::TickStyle {
+        crate::ui::TickStyle::TickOnInput
+    }
+
+    fn ready_for_next_level(&mut self) -> WidgetContinuation {
+        std::mem::replace(&mut self.ready_for_next_level, WidgetContinuation::Continue(()))
+    }
+}
+
+impl<GameLogic: BaseGameLogic> Arena<GameLogic> {
+    /////////////////
+    /// Helpers for BaseWidget fns
+    fn advance_map(&mut self, cmd: crate::ui::InputCmd) -> WidgetContinuation  {
         // TODO: Decide order of char, enemy. Before or after not quite right. Or need
         // to handle char moving onto enemy.
         // TODO: Consider: Maybe display char moving out of sync with enemy.
@@ -65,12 +82,6 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseWidget for Arena<GameLogic>
         WidgetContinuation::Continue(())
     }
 
-    fn tick_based(&self) -> crate::ui::TickStyle {
-        crate::ui::TickStyle::TickOnInput
-    }
-}
-
-impl<GameLogic: BaseGameLogic> Arena<GameLogic> {
     /////////////////
     /// Initialisers
     pub fn empty(w: u16, h: u16) -> Self {
@@ -78,6 +89,7 @@ impl<GameLogic: BaseGameLogic> Arena<GameLogic> {
             map: Into::into(Grid::new(w, h)),
             roster: Roster::new(),
             map_key: std::collections::HashMap::new(),
+            ready_for_next_level: WidgetContinuation::Continue(()),
         }
     }
 

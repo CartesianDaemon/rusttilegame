@@ -24,7 +24,8 @@ pub type WidgetContinuation = ControlFlow<WidgetConclusion, ()>;
 // NB Breadcrumb: Need different name for Scene ("level part") than Pane ("screen part").
 pub trait BaseWidget {
     fn tick_based(&self) -> crate::ui::TickStyle;
-    fn advance(&mut self, cmd: InputCmd) -> WidgetContinuation;
+    fn advance(&mut self, cmd: InputCmd);
+    fn ready_for_next_level(&mut self) -> WidgetContinuation;
 }
 
 /// One unit of gameplay: one map layout, one splash screen, etc.
