@@ -411,7 +411,7 @@ impl UiCodingArena
             &mut self,
             coding_arena: &mut CodingArena<GameData::GameLogic>,
             texture_cache: &mut TextureCache,
-            game_state: &GameData,
+            game_state: &mut GameData,
         ) {
         // TODO: Get prog from arena or from coding scene as appropriate?
         self.active_idx = GameData::GameLogic::get_active_idx(coding_arena);
@@ -493,7 +493,7 @@ impl UiCodingArena
     }
 
     /// Draw supply area and all supply bins
-    fn draw_supply<GameData: BaseGamedata>(&self, coding: &mut Coding, game_state: &GameData,) {
+    fn draw_supply<GameData: BaseGamedata>(&self, coding: &mut Coding, game_state: &mut GameData,) {
         LevChooser::do_frame(game_state, (self.fr_pos.supply_x + 10., self.fr_pos.supply_y + 20.));
 
         for (idx, bin) in coding.supply.iter().enumerate() {

@@ -29,7 +29,7 @@ impl LevChooser {
     }
 
     pub fn do_frame<GameData: BaseGamedata>(
-            game_state: &GameData,
+            game_state: &mut GameData,
             draw_coords: (f32, f32),
         ) {
             let n_levs = game_state.num_levels();
@@ -42,10 +42,13 @@ impl LevChooser {
             let r = 10.;
 
             for lev_idx in 1..=n_levs {
-                let digits = if lev_idx < 10 {1.} else {2.};
-
                 let rect = PRect { x: curr_x - r, y: y - r, w: r * 2., h: r * 2.};
                 let mouseover = rect.contains(mouse_position());
+
+                if mouseover && is_mouse_button_pressed(MouseButton::Left) && game_state.get_unlocked_levels().contains(&lev_idx) {
+                    game_state.goto_level(lev_idx);
+                }
+
                 let cols = if lev_idx == game_state.get_current_level() {
                     Self::col_active(mouseover)
                 } else if game_state.get_unlocked_levels().contains(&lev_idx) {
@@ -53,8 +56,11 @@ impl LevChooser {
                 } else {
                     Self::col_locked(mouseover)
                 };
+
                 draw_circle(curr_x, y, r, cols.1);
                 draw_circle_lines(curr_x, y, r, cols.3, cols.2);
+
+                let digits = if lev_idx < 10 {1.} else {2.};
                 let (text_x, text_y) = (curr_x - digits*approx_half_char_width, y + txt_below_of_centre);
                 draw_text(format!("{lev_idx}").as_str(), text_x, text_y, 20., cols.0);
                 curr_x += stride;
