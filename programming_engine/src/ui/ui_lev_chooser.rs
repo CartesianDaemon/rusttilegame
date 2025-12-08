@@ -10,8 +10,9 @@ impl LevChooser {
             game_state: &GameData,
             draw_coords: (f32, f32),
         ) {
-            let font_col = DARKGRAY;
-            let locked_col = DARKGRAY;
+            let active = (DARKGRAY, WHITE, BLUE);
+            let unlocked = (DARKGRAY, WHITE, DARKGRAY);
+            let locked = (LIGHTGRAY, DARKGRAY, BLACK);
 
             let n_levs = game_state.num_levels();
 
@@ -24,9 +25,11 @@ impl LevChooser {
 
             for lev_idx in 1..=n_levs {
                 let digits = if lev_idx < 10 {1.} else {2.};
-                draw_circle_lines(curr_x, y, r, 1., locked_col);
+                let cols = if lev_idx == 1 {active} else {locked};
+                draw_circle(curr_x, y, r, cols.1);
+                draw_circle_lines(curr_x, y, r, 1., cols.2);
                 let (text_x, text_y) = (curr_x - digits*approx_half_char_width, y + txt_below_of_centre);
-                draw_text(format!("{lev_idx}").as_str(), text_x, text_y, 20., font_col);
+                draw_text(format!("{lev_idx}").as_str(), text_x, text_y, 20., cols.0);
                 curr_x += stride;
             }
         }
