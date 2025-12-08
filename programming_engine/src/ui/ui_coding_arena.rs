@@ -7,6 +7,7 @@ use crate::scene::*;
 use super::ui_helpers::*;
 
 use super::{TextureCache, PRect, AnimState, ui_arena::UiArena};
+use super::LevChooser;
 
 #[derive(Copy, Clone, PartialEq)]
 enum InstrRef {
@@ -493,7 +494,7 @@ impl UiCodingArena
 
     /// Draw supply area and all supply bins
     fn draw_supply<GameData: BaseGamedata>(&self, coding: &mut Coding, game_state: &GameData,) {
-        draw_text(game_state.get_level_str().as_str(), self.fr_pos.supply_x + 10., 20., 20., self.font_col());
+        LevChooser::do_frame(game_state, (self.fr_pos.supply_x + 10., self.fr_pos.supply_y + 20.));
 
         for (idx, bin) in coding.supply.iter().enumerate() {
             self.draw_supply_op(idx, bin);
