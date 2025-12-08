@@ -3,9 +3,13 @@ use super::levels;
 
 use tile_engine::for_gamedata::*;
 
+use std::collections::HashSet;
+
 #[derive(Debug)]
 pub struct ProgpuzzGamedata {
     levset: levels::ProgpuzzLevset,
+
+    unlocked_levels: HashSet<u16>,
 }
 
 impl BaseGamedata for ProgpuzzGamedata {
@@ -14,12 +18,14 @@ impl BaseGamedata for ProgpuzzGamedata {
 
     fn new() -> Self {
         ProgpuzzGamedata {
-            levset: levels::ProgpuzzLevset::new()
+            levset: levels::ProgpuzzLevset::new(),
+            unlocked_levels: [1].into(),
         }
     }
 
     fn advance_scene(&mut self, continuation: SceneConclusion) {
-        self.levset.advance_scene(continuation)
+        self.levset.advance_scene(continuation);
+        self.unlocked_levels.insert(self.levset.get_current_level());
     }
 
     fn load_scene(&self) -> Scene::<Self::GameLogic> {
@@ -35,6 +41,14 @@ impl BaseGamedata for ProgpuzzGamedata {
 
     fn num_levels(&self) -> u16 {
         self.levset.num_levels()
+    }
+
+    fn get_current_level(&self) -> u16 {
+        self.levset.get_current_level()
+    }
+
+    fn get_unlocked_levels(&self) -> std::collections::HashSet<u16> {
+        self.unlocked_levels.clone()
     }
 
     fn goto_level(&mut self, lev_idx: u16) {

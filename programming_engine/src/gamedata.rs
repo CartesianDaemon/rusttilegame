@@ -65,6 +65,17 @@ pub trait BaseGamedata {
         0
     }
 
+    // Current level, if levels are identified by numeric index. Else 0.
+    fn get_current_level(&self) -> u16 {
+        0
+    }
+
+    // Levels available to go to, if levels are identified by numeric index. Else empty set.
+    fn get_unlocked_levels(&self) -> std::collections::HashSet<u16> {
+        assert!(self.num_levels() == 0);
+        std::collections::HashSet::new()
+    }
+
     // Only meaningful if num_levels > 0
     #[allow(unused)]
     fn goto_level(&mut self, lev_idx: u16) {

@@ -25,7 +25,13 @@ impl LevChooser {
 
             for lev_idx in 1..=n_levs {
                 let digits = if lev_idx < 10 {1.} else {2.};
-                let cols = if lev_idx == 1 {active} else {locked};
+                let cols = if lev_idx == game_state.get_current_level() {
+                    active
+                } else if game_state.get_unlocked_levels().contains(&lev_idx) {
+                    unlocked
+                } else {
+                    locked
+                };
                 draw_circle(curr_x, y, r, cols.1);
                 draw_circle_lines(curr_x, y, r, 1., cols.2);
                 let (text_x, text_y) = (curr_x - digits*approx_half_char_width, y + txt_below_of_centre);

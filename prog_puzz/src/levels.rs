@@ -27,6 +27,13 @@ impl ProgpuzzLevset {
         self.current_levid = ProgpuzzSceneId::LevCodingArena(lev_idx);
     }
 
+    pub fn get_current_level(&self) -> u16 {
+        match self.current_levid {
+            ProgpuzzSceneId::LevCodingArena(levnum) => levnum,
+            ProgpuzzSceneId::Win => self.num_levels()
+        }
+    }
+
     pub fn advance_scene(&mut self, continuation: SceneConclusion) {
         self.current_levid = match (self.current_levid, continuation) {
             (ProgpuzzSceneId::LevCodingArena(levnum), SceneConclusion::Succeed) if levnum >= self.levels().len() as u16 => ProgpuzzSceneId::Win,
