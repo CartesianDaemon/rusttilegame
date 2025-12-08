@@ -38,7 +38,7 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
     pub async fn do_frame(&mut self) {
         self.ui.do_frame(&mut self.state, &self.gamedata).await;
         if let Some(scene_ending) = self.state.ready_for_next_level() {
-            self.state = self.gamedata.load_next_pane(scene_ending);
+            self.state = self.gamedata.load_next_scene(scene_ending);
         }
     }
 }

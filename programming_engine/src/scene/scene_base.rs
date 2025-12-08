@@ -68,7 +68,7 @@ impl<GameLogic: for_gamedata::BaseGameLogic> Scene<GameLogic> {
     pub fn as_arena(&self) -> &Arena<GameLogic> {
         match self {
             Self::Splash(_splash) => panic!(),
-            Self::CodingArena(pane) => &pane.init_arena,
+            Self::CodingArena(scene) => &scene.init_arena,
         }
     }
 

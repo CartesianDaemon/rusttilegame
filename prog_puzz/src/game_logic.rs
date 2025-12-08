@@ -119,12 +119,12 @@ impl BaseGameLogic for ProgpuzzGameLogic
                     },
                 }
 
-                // Conclude pane successfully if hero finds with goal.
+                // Conclude scene successfully if hero finds with goal.
                 if map.any_has_effect(map[mov].pos(), Effect::Win) {
                     return SceneContinuation::Break(SceneConclusion::Succeed)
                 }
 
-                // Continue pane without concluding.
+                // Continue scene without concluding.
                 return SceneContinuation::Continue(());
             },
             ProgpuzzAI::Stay => {

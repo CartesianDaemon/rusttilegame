@@ -5,7 +5,7 @@ use super::objs::*;
 use tile_engine::for_gamedata::*;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
-pub enum PushpuzzPaneId {
+pub enum PushpuzzSceneId {
     NewGame,
     LevIntro(u16),
     LevArena(u16),
@@ -16,30 +16,30 @@ pub enum PushpuzzPaneId {
 
 #[derive(Debug)]
 pub struct PushpuzzLevset {
-    pub current_paneid: PushpuzzPaneId,
+    pub current_sceneid: PushpuzzSceneId,
 }
 
 impl PushpuzzLevset {
     pub fn new() -> PushpuzzLevset {
-        PushpuzzLevset { current_paneid: PushpuzzPaneId::NewGame }
+        PushpuzzLevset { current_sceneid: PushpuzzSceneId::NewGame }
     }
 
-    pub fn advance_pane(&mut self, continuation: SceneConclusion) {
-        self.current_paneid = match (self.current_paneid, continuation) {
-            (PushpuzzPaneId::NewGame, SceneConclusion::SplashContinue) => PushpuzzPaneId::LevIntro(1),
-            (PushpuzzPaneId::LevIntro(levnum), SceneConclusion::SplashContinue) => PushpuzzPaneId::LevArena(levnum),
-            (PushpuzzPaneId::LevArena(levnum), SceneConclusion::Win) => PushpuzzPaneId::LevOutro(levnum),
-            (PushpuzzPaneId::LevArena(levnum), SceneConclusion::Die) => PushpuzzPaneId::LevRetry(levnum),
-            (PushpuzzPaneId::LevRetry(levnum), SceneConclusion::SplashContinue) => PushpuzzPaneId::LevArena(levnum),
+    pub fn advance_scene(&mut self, continuation: SceneConclusion) {
+        self.current_sceneid = match (self.current_sceneid, continuation) {
+            (PushpuzzSceneId::NewGame, SceneConclusion::SplashContinue) => PushpuzzSceneId::LevIntro(1),
+            (PushpuzzSceneId::LevIntro(levnum), SceneConclusion::SplashContinue) => PushpuzzSceneId::LevArena(levnum),
+            (PushpuzzSceneId::LevArena(levnum), SceneConclusion::Win) => PushpuzzSceneId::LevOutro(levnum),
+            (PushpuzzSceneId::LevArena(levnum), SceneConclusion::Die) => PushpuzzSceneId::LevRetry(levnum),
+            (PushpuzzSceneId::LevRetry(levnum), SceneConclusion::SplashContinue) => PushpuzzSceneId::LevArena(levnum),
             // TODO: Get max levnum from list of levels?
-            (PushpuzzPaneId::LevOutro(2), SceneConclusion::SplashContinue) => PushpuzzPaneId::Win,
-            (PushpuzzPaneId::LevOutro(levnum), SceneConclusion::SplashContinue) => PushpuzzPaneId::LevOutro(levnum+1),
-            (PushpuzzPaneId::Win, SceneConclusion::SplashContinue) => PushpuzzPaneId::NewGame,
+            (PushpuzzSceneId::LevOutro(2), SceneConclusion::SplashContinue) => PushpuzzSceneId::Win,
+            (PushpuzzSceneId::LevOutro(levnum), SceneConclusion::SplashContinue) => PushpuzzSceneId::LevOutro(levnum+1),
+            (PushpuzzSceneId::Win, SceneConclusion::SplashContinue) => PushpuzzSceneId::NewGame,
             _ => panic!()
         };
     }
 
-    pub fn load_pane(&self) -> Scene<super::PushpuzzGameLogic> {
+    pub fn load_scene(&self) -> Scene<super::PushpuzzGameLogic> {
         let aquarium1_key = HashMap::from([
             // TODO: Combine with obj.char types?
             (' ', vec![ new_floor() ]),
@@ -55,9 +55,9 @@ impl PushpuzzLevset {
             */
         ]);
 
-        match self.current_paneid {
+        match self.current_sceneid {
             // TODO: Can we use idx++ instead of specifying each level number? Not immediately?
-            PushpuzzPaneId::NewGame => Scene::from_splash_dialogue(
+            PushpuzzSceneId::NewGame => Scene::from_splash_dialogue(
                 //"Click or press [enter] to start.".to_string(),
                 vec![
                     "Hello!",
@@ -67,10 +67,10 @@ impl PushpuzzLevset {
                 ]
             ),
 
-            PushpuzzPaneId::LevIntro(1) => {
+            PushpuzzSceneId::LevIntro(1) => {
                 Scene::from_splash_string("Welcome to level 1!".to_string())
             },
-            PushpuzzPaneId::LevArena(1) => Scene::from_play_ascii_map(&[
+            PushpuzzSceneId::LevArena(1) => Scene::from_play_ascii_map(&[
                 "#            # #",
                 "#####@####@###@#",
                 "@              #",
@@ -88,14 +88,14 @@ impl PushpuzzLevset {
                 "#            # #",
                 "#            @ #",
             ], aquarium1_key),
-            PushpuzzPaneId::LevOutro(1) => {
+            PushpuzzSceneId::LevOutro(1) => {
                 Scene::from_splash_string("Well done!! Goodbye from level 1".to_string())
             },
 
-            PushpuzzPaneId::LevIntro(2) => {
+            PushpuzzSceneId::LevIntro(2) => {
                 Scene::from_splash_string("Ooh, welcome to level 2!".to_string())
             },
-            PushpuzzPaneId::LevArena(2) => Scene::from_play_ascii_map(&[
+            PushpuzzSceneId::LevArena(2) => Scene::from_play_ascii_map(&[
                 "################",
                 "#              #",
                 "#              #",
@@ -113,20 +113,20 @@ impl PushpuzzLevset {
                 "#              #",
                 "####o###########",
             ], aquarium1_key),
-            PushpuzzPaneId::LevOutro(2) => {
+            PushpuzzSceneId::LevOutro(2) => {
                 Scene::from_splash_string("Wow, well done!! Goodbye from level 2!".to_string())
             },
 
-            PushpuzzPaneId::LevRetry(_levno) => {
+            PushpuzzSceneId::LevRetry(_levno) => {
                 Scene::from_splash_string("Game Over. Press [enter] to retry.".to_string())
             },
-            PushpuzzPaneId::Win => {
+            PushpuzzSceneId::Win => {
                 Scene::from_splash_string("Congratulations. You win! Press [enter] to play again.".to_string())
             },
 
-            PushpuzzPaneId::LevIntro(_) => panic!("Loading LevIntro for level that can't be found."),
-            PushpuzzPaneId::LevArena(_) => panic!("Loading LevArena for level that can't be found."),
-            PushpuzzPaneId::LevOutro(_) => panic!("Loading LevOutro for level that can't be found."),
+            PushpuzzSceneId::LevIntro(_) => panic!("Loading LevIntro for level that can't be found."),
+            PushpuzzSceneId::LevArena(_) => panic!("Loading LevArena for level that can't be found."),
+            PushpuzzSceneId::LevOutro(_) => panic!("Loading LevOutro for level that can't be found."),
         }
     }
 }

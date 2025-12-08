@@ -55,7 +55,7 @@ pub trait BaseGamedata {
 
     fn load_scene(&self) -> Scene<Self::GameLogic>;
 
-    fn load_next_pane(&mut self, continuation: SceneConclusion) -> Scene<Self::GameLogic> {
+    fn load_next_scene(&mut self, continuation: SceneConclusion) -> Scene<Self::GameLogic> {
         self.advance_scene(continuation);
         self.load_scene()
     }

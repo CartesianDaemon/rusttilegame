@@ -38,7 +38,7 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
     pub async fn do_frame(&mut self) {
         let scene_continuation = self.ui.do_frame(&mut self.state, &self.gamedata).await;
         if let SceneContinuation::Break(scene_ending) = scene_continuation {
-            self.state = self.gamedata.load_next_pane(scene_ending);
+            self.state = self.gamedata.load_next_scene(scene_ending);
         }
     }
 }

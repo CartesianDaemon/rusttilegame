@@ -91,7 +91,7 @@ impl<GameLogic: for_gamedata::BaseGameLogic> CodingArena<GameLogic>
 
         // Init interactive arena
         self.curr_arena = Some(self.init_arena.clone());
-        // Run game-specific logic for sync'ing different panes at start of run.
+        // Run game-specific logic for sync'ing different scenes at start of run.
         GameLogic::harmonise(self);
 
         self.phase = CodingRunningPhase::Running;

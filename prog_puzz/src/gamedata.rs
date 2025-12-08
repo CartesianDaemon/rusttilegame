@@ -28,7 +28,7 @@ impl BaseGamedata for ProgpuzzGamedata {
 
     fn get_level_str(&self) -> String {
         match self.levset.current_levid {
-            levels::ProgpuzzPaneId::LevCodingArena(lev_num) => format!("Level: {}", lev_num),
+            levels::ProgpuzzSceneId::LevCodingArena(lev_num) => format!("Level: {}", lev_num),
             _ => panic!(),
         }
     }

@@ -120,7 +120,7 @@ impl CoordDelta {
 
 // Translation of Key or Mouse into attempted movement of hero.
 // NB: Should love to interface exposed by input.
-// NB: Have separate Cmd for menu, movement, programming, etc. Pane chooses which?
+// NB: Have separate Cmd for menu, movement, programming, etc. Scene chooses which?
 // Not quite right currently as Progpuzz Arena bot should accept something
 // like Cmd from executing program. Only pushpuzz hero gets it from user?
 // NB: Or could turn into AttemptAction struct in simple_logic, which is

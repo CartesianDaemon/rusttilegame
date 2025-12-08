@@ -5,14 +5,14 @@ use super::objs::*;
 use tile_engine::for_gamedata::*;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
-pub enum ProgpuzzPaneId {
+pub enum ProgpuzzSceneId {
     LevCodingArena(u16),
     Win,
 }
 
 #[derive(Debug)]
 pub struct ProgpuzzLevset {
-    pub current_levid: ProgpuzzPaneId,
+    pub current_levid: ProgpuzzSceneId,
 }
 
 impl ProgpuzzLevset {
@@ -20,18 +20,18 @@ impl ProgpuzzLevset {
         let s_: Option<String> = tile_engine::infra::get_arg("--start-at=");
         let i_: Option<u16> = s_.map(|s| s.parse::<u16>().ok()).flatten();
         let starting_lev_num : u16 = i_.unwrap_or(1);
-        ProgpuzzLevset { current_levid: ProgpuzzPaneId::LevCodingArena(starting_lev_num) }
+        ProgpuzzLevset { current_levid: ProgpuzzSceneId::LevCodingArena(starting_lev_num) }
     }
 
     pub fn goto_level(&mut self, lev_idx: u16) {
-        self.current_levid = ProgpuzzPaneId::LevCodingArena(lev_idx);
+        self.current_levid = ProgpuzzSceneId::LevCodingArena(lev_idx);
     }
 
     pub fn advance_scene(&mut self, continuation: SceneConclusion) {
         self.current_levid = match (self.current_levid, continuation) {
-            (ProgpuzzPaneId::LevCodingArena(levnum), SceneConclusion::Succeed) if levnum >= self.levels().len() as u16 => ProgpuzzPaneId::Win,
-            (ProgpuzzPaneId::LevCodingArena(levnum), SceneConclusion::Succeed) => ProgpuzzPaneId::LevCodingArena(levnum+1),
-            (ProgpuzzPaneId::Win, SceneConclusion::Continue) => Self::new().current_levid,
+            (ProgpuzzSceneId::LevCodingArena(levnum), SceneConclusion::Succeed) if levnum >= self.levels().len() as u16 => ProgpuzzSceneId::Win,
+            (ProgpuzzSceneId::LevCodingArena(levnum), SceneConclusion::Succeed) => ProgpuzzSceneId::LevCodingArena(levnum+1),
+            (ProgpuzzSceneId::Win, SceneConclusion::Continue) => Self::new().current_levid,
             _ => panic!()
         };
     }
@@ -331,8 +331,8 @@ impl ProgpuzzLevset {
     pub fn load_scene(&self) -> Scene<super::game_logic::ProgpuzzGameLogic> {
         // NB: Would like to implement thin walls between squares, not walls filling whole squares.
         match self.current_levid {
-            ProgpuzzPaneId::LevCodingArena(n) => Scene::CodingArena(self.levels()[n as usize -1].clone()),
-            ProgpuzzPaneId::Win => {
+            ProgpuzzSceneId::LevCodingArena(n) => Scene::CodingArena(self.levels()[n as usize -1].clone()),
+            ProgpuzzSceneId::Win => {
                 Scene::from_splash_string("Congratulations. You've completed all the levels. Press [enter] to play through again".to_string())
             },
         }

@@ -412,7 +412,7 @@ impl UiCodingArena
             texture_cache: &mut TextureCache,
             game_state: &GameData,
         ) {
-        // TODO: Get prog from arena or from coding pane as appropriate?
+        // TODO: Get prog from arena or from coding scene as appropriate?
         self.active_idx = GameData::GameLogic::get_active_idx(coding_arena);
         self.initialise_frame_coords(coding_arena.phase, coding_arena.coding.prog.v_len());
 
