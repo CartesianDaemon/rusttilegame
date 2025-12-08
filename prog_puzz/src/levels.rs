@@ -23,6 +23,10 @@ impl ProgpuzzLevset {
         ProgpuzzLevset { current_levid: ProgpuzzPaneId::LevCodingArena(starting_lev_num) }
     }
 
+    pub fn goto_level(&mut self, lev_idx: u16) {
+        self.current_levid = ProgpuzzPaneId::LevCodingArena(lev_idx);
+    }
+
     pub fn advance_scene(&mut self, continuation: SceneConclusion) {
         self.current_levid = match (self.current_levid, continuation) {
             (ProgpuzzPaneId::LevCodingArena(levnum), SceneConclusion::Succeed) if levnum >= self.levels().len() as u16 => ProgpuzzPaneId::Win,
@@ -318,6 +322,10 @@ impl ProgpuzzLevset {
                 Coding::from_vec(&[(F, 6), (L, 3), (R, 0), (x2, 5)]),
             ),
         ]
+    }
+
+    pub fn num_levels(&self) -> u16 {
+        self.levels().len() as u16
     }
 
     pub fn load_scene(&self) -> Scene<super::game_logic::ProgpuzzGameLogic> {

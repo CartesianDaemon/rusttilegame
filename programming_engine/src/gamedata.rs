@@ -60,6 +60,17 @@ pub trait BaseGamedata {
         self.load_scene()
     }
 
+    // Number of levels, if levels are identified by numeric index. Else 0.
+    fn num_levels(&self) -> u16 {
+        0
+    }
+
+    // Only meaningful if num_levels > 0
+    #[allow(unused)]
+    fn goto_level(&mut self, lev_idx: u16) {
+        assert!(self.num_levels() == 0)
+    }
+
     // Get string to display current level, in games with Arena or CodingArena.
     fn get_level_str(&self) -> String {
         String::new()

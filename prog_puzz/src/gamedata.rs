@@ -32,4 +32,12 @@ impl BaseGamedata for ProgpuzzGamedata {
             _ => panic!(),
         }
     }
+
+    fn num_levels(&self) -> u16 {
+        self.levset.num_levels()
+    }
+
+    fn goto_level(&mut self, lev_idx: u16) {
+        self.levset.goto_level(lev_idx);
+    }
 }
