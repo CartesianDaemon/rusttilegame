@@ -17,6 +17,10 @@ impl PRect {
             h: screen_height(),
         }
     }
+
+    pub fn contains(&self, pt: (f32, f32)) -> bool {
+        (self.x..self.x+self.w).contains(&pt.0) && (self.y..self.y+self.h).contains(&pt.1)
+    }
 }
 
 #[derive(PartialEq, Copy, Clone, Debug)]
