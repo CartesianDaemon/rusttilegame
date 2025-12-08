@@ -6,7 +6,7 @@ use tile_engine::for_gamedata::*;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum ProgpuzzSceneId {
-    LevCodingArena(u16),
+    LevCodingArena(u16), // Level index from 1 to N. (Not 0 to N-1.)
     Win,
 }
 
