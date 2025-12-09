@@ -79,7 +79,7 @@ impl LevChooser {
                 } else {
                     curr_x += h_stride;
                 }
-                let curr_y = init_y + (lev_idx / 10) as f32 * v_stride;
+                let curr_y = init_y + ((lev_idx-1) / 10) as f32 * v_stride;
 
                 let rect = PRect { x: curr_x - r, y: curr_y - r, w: r * 2., h: r * 2.};
                 let mouse_in = rect.contains(mouse_position());
