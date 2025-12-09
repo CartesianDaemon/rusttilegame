@@ -118,8 +118,8 @@ impl Instr {
 
     // TODO: Move to fn of ControlFlowOp not Op.
     // More naturally part of opcode.
-    pub fn repeat_count(&self, subprog: &Subprog, idx: i16) -> usize {
-        assert!(std::ptr::eq(self, &subprog[idx]));
+    pub fn repeat_count(&self, subprog: &Subprog, idx: usize) -> usize {
+        assert!(std::ptr::eq(self, *subprog.instrs.get(idx).as_ref().unwrap()));
         use Instr::*;
         use ParentOpcode::*;
         match self {
@@ -128,7 +128,7 @@ impl Instr {
             Parent(x2, _) => 2,
             Parent(LOOP, _) => 99,
             Parent(loop5, _) => 5,
-            Parent(Else, _) => if idx > 0 && subprog[idx-1].blocked() {1} else {0},
+            Parent(Else, _) => if idx > 0 && subprog.instrs.get(idx-1).as_ref().unwrap().blocked() {1} else {0},
         }
     }
 
@@ -136,7 +136,6 @@ impl Instr {
         match self {
             Instr::Action(_, data) => data.blocked,
             Instr::Parent(_, data) => data.instrs.last().map_or(false, Instr::blocked),
-            // Instr::Parent(_, data) => data.instrs.is_empty() || data.instrs.last().unwrap().blocked(),
         }
     }
 
@@ -355,10 +354,11 @@ impl Subprog {
     }
 
     fn advance_current_subprog(&mut self, parent_op: &Instr) {
+        let repeat_count = parent_op.repeat_count(self, self.curr_ip);
         let subprog = self.instrs.get_mut(self.curr_ip).unwrap().as_parent_subprog_mut();
         subprog.advance_next_instr();
         if subprog.finished() {
-            if subprog.counter + 1 < parent_op.repeat_count() {
+            if subprog.counter + 1 < repeat_count {
                 subprog.iterate();
             } else {
                 subprog.reset();
