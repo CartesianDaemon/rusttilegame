@@ -13,26 +13,44 @@ pub struct LevChooser {
     drag_origin: Option<DragInfo>,
 }
 
+#[derive(PartialEq)]
+enum MouseOverState {
+    Neutral,
+    Over,
+    PressedOn,
+    PressedOff,
+}
+
+struct MouseOverCols {
+    text: Color,
+    fill: Color,
+    border: Color,
+    border_width: f32,
+}
+
 impl LevChooser {
-    fn col_active(mouseover: bool) -> (Color, Color, Color, f32) {
+    fn col_active(mouseover: MouseOverState) -> MouseOverCols {
+        MouseOverCols {border: BLUE, border_width: 2., ..LevChooser::col_unlocked(mouseover)}
+    }
+
+    fn col_unlocked(mouseover: MouseOverState) -> MouseOverCols {
+        use MouseOverState::*;
+        let neutral_cols = MouseOverCols {text: DARKGRAY, fill: WHITE, border: DARKGRAY, border_width: 1.};
         match mouseover {
-            false => (DARKGRAY, WHITE, BLUE, 2.),
-            true => (DARKGRAY, YELLOW, BLUE, 2.2),
+            Neutral => neutral_cols,
+            Over => MouseOverCols {fill: YELLOW, border_width: 2., ..neutral_cols},
+            PressedOn => MouseOverCols {fill: ORANGE, border_width: 2., ..neutral_cols},
+            PressedOff => MouseOverCols {fill: YELLOW, border_width: 2., ..neutral_cols},
         }
     }
 
-    fn col_unlocked(mouseover: bool) -> (Color, Color, Color, f32) {
-        match mouseover {
-            false => (DARKGRAY, WHITE, DARKGRAY, 1.),
-            true => (DARKGRAY, YELLOW, DARKGRAY, 2.),
-        }
-    }
-
-    fn col_locked(mouseover: bool) -> (Color, Color, Color, f32) {
-        match mouseover {
-            false => (LIGHTGRAY, DARKGRAY, BLACK, 1.),
-            true => (LIGHTGRAY, DARKGRAY, BLACK, 1.2),
-        }
+    fn col_locked(mouseover: MouseOverState) -> MouseOverCols {
+        use MouseOverState::*;
+        let border_width = match mouseover {
+            Neutral | PressedOff => 1.0,
+            Over | PressedOn => 1.2,
+        };
+        MouseOverCols {text: LIGHTGRAY, fill: DARKGRAY, border: BLACK, border_width}
     }
 
     pub fn do_frame<GameData: BaseGamedata>(&mut self, game_state: &mut GameData, draw_coords: (f32, f32)) {
@@ -53,9 +71,9 @@ impl LevChooser {
 
             for lev_idx in 1..=n_levs {
                 let rect = PRect { x: curr_x - r, y: y - r, w: r * 2., h: r * 2.};
-                let mouseover = rect.contains(mouse_position());
+                let mouse_in = rect.contains(mouse_position());
 
-                if mouseover && is_mouse_button_down(MouseButton::Left) && game_state.get_unlocked_levels().contains(&lev_idx) {
+                if mouse_in && is_mouse_button_down(MouseButton::Left) && game_state.get_unlocked_levels().contains(&lev_idx) {
                     if let Some(drag_info) = &mut self.drag_origin {
                         if drag_info.lev_idx == lev_idx && get_time() > drag_info.mouse_down_time + hold_for {
                             game_state.goto_level(lev_idx);
@@ -67,20 +85,31 @@ impl LevChooser {
                     }
                 }
 
-                let cols = if lev_idx == game_state.get_current_level() {
-                    Self::col_active(mouseover)
-                } else if game_state.get_unlocked_levels().contains(&lev_idx) {
-                    Self::col_unlocked(mouseover)
+                let mouse_over_state = if let Some(drag_info) = &mut self.drag_origin && drag_info.lev_idx == lev_idx {
+                    if mouse_in {
+                        MouseOverState::PressedOn
+                    } else {
+                        MouseOverState::PressedOff
+                    }
+                } else if self.drag_origin.is_none() && mouse_in {
+                    MouseOverState::Over
                 } else {
-                    Self::col_locked(mouseover)
+                    MouseOverState::Neutral
+                };
+                let cols = if lev_idx == game_state.get_current_level() {
+                    Self::col_active(mouse_over_state)
+                } else if game_state.get_unlocked_levels().contains(&lev_idx) {
+                    Self::col_unlocked(mouse_over_state)
+                } else {
+                    Self::col_locked(mouse_over_state)
                 };
 
-                draw_circle(curr_x, y, r, cols.1);
-                draw_circle_lines(curr_x, y, r, cols.3, cols.2);
+                draw_circle(curr_x, y, r, cols.fill);
+                draw_circle_lines(curr_x, y, r, cols.border_width, cols.border);
 
                 let digits = if lev_idx < 10 {1.} else {2.};
                 let (text_x, text_y) = (curr_x - digits*approx_half_char_width, y + txt_below_of_centre);
-                draw_text(format!("{lev_idx}").as_str(), text_x, text_y, 20., cols.0);
+                draw_text(format!("{lev_idx}").as_str(), text_x, text_y, 20., cols.text);
                 curr_x += stride;
             }
         }
