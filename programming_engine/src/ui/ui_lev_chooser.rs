@@ -55,13 +55,14 @@ impl LevChooser {
 
     pub fn do_frame<GameData: BaseGamedata>(&mut self, game_state: &mut GameData, draw_coords: (f32, f32)) {
             let n_levs = game_state.num_levels();
+            let buttons_per_row = 10;
 
-            let mut curr_x = draw_coords.0 + 15.;
             let approx_half_char_width = 4.;
-            let y = 20.;
+            let h_stride = 30.;
+
             let txt_below_of_centre = 5.;
-            let stride = 30.;
             let r = 10.;
+            let v_stride = 30.;
 
             let hold_for = 0.1;
 
@@ -69,8 +70,18 @@ impl LevChooser {
                 self.drag_origin = None;
             }
 
+            let init_x = draw_coords.0 + 15.;
+            let mut curr_x = init_x;
+            let init_y = 20.;
             for lev_idx in 1..=n_levs {
-                let rect = PRect { x: curr_x - r, y: y - r, w: r * 2., h: r * 2.};
+                if lev_idx % buttons_per_row == 1 {
+                    curr_x = init_x;
+                } else {
+                    curr_x += h_stride;
+                }
+                let curr_y = init_y + (lev_idx / 10) as f32 * v_stride;
+
+                let rect = PRect { x: curr_x - r, y: curr_y - r, w: r * 2., h: r * 2.};
                 let mouse_in = rect.contains(mouse_position());
 
                 if mouse_in && is_mouse_button_down(MouseButton::Left) && game_state.get_unlocked_levels().contains(&lev_idx) {
@@ -104,13 +115,12 @@ impl LevChooser {
                     Self::col_locked(mouse_over_state)
                 };
 
-                draw_circle(curr_x, y, r, cols.fill);
-                draw_circle_lines(curr_x, y, r, cols.border_width, cols.border);
+                draw_circle(curr_x, curr_y, r, cols.fill);
+                draw_circle_lines(curr_x, curr_y, r, cols.border_width, cols.border);
 
                 let digits = if lev_idx < 10 {1.} else {2.};
-                let (text_x, text_y) = (curr_x - digits*approx_half_char_width, y + txt_below_of_centre);
+                let (text_x, text_y) = (curr_x - digits*approx_half_char_width, curr_y + txt_below_of_centre);
                 draw_text(format!("{lev_idx}").as_str(), text_x, text_y, 20., cols.text);
-                curr_x += stride;
             }
         }
 }
