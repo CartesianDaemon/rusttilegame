@@ -17,6 +17,7 @@ pub enum ParentOpcode {
     x2,
     LOOP,
     loop5,
+    Else,
 }
 
 impl ParentOpcode {
@@ -27,6 +28,7 @@ impl ParentOpcode {
             LOOP => 999,
             x2 => 1,
             loop5 => 5,
+            Else => 2,
         }
     }
 }
@@ -116,7 +118,8 @@ impl Instr {
 
     // TODO: Move to fn of ControlFlowOp not Op.
     // More naturally part of opcode.
-    pub fn repeat_count(&self) -> usize {
+    pub fn repeat_count(&self, subprog: &Subprog, idx: i16) -> usize {
+        assert!(std::ptr::eq(self, &subprog[idx]));
         use Instr::*;
         use ParentOpcode::*;
         match self {
@@ -125,6 +128,15 @@ impl Instr {
             Parent(x2, _) => 2,
             Parent(LOOP, _) => 99,
             Parent(loop5, _) => 5,
+            Parent(Else, _) => if idx > 0 && subprog[idx-1].blocked() {1} else {0},
+        }
+    }
+
+    pub fn blocked(&self) -> bool {
+        match self {
+            Instr::Action(_, data) => data.blocked,
+            Instr::Parent(_, data) => data.instrs.last().map_or(false, Instr::blocked),
+            // Instr::Parent(_, data) => data.instrs.is_empty() || data.instrs.last().unwrap().blocked(),
         }
     }
 
