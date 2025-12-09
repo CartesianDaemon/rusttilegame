@@ -167,7 +167,6 @@ impl OpStyle {
         Self {
             border_width: 1.,
             border_col: DARKGRAY,
-            // Covers over excess connecting line
             fill_col: background_col,
             scale: 1.0,
         }
@@ -756,7 +755,7 @@ impl UiCodingArena
         let fdx = idx as f32;
         OpCoords {
             x: self.fr_pos.supply_x + self.fr_pos.supply_op_spacing + fdx * (self.fr_pos.supply_op_w + self.fr_pos.supply_op_spacing),
-            y: self.fr_pos.supply_y + self.fr_pos.supply_h/2. - self.fr_pos.supply_op_h*0.6,
+            y: self.fr_pos.supply_y + self.fr_pos.supply_h - self.fr_pos.supply_op_h - self.fr_pos.supply_op_spacing,
             w: self.fr_pos.supply_op_h,
             h: self.fr_pos.supply_op_h,
             rect_spacing: 0.,
