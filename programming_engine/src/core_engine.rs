@@ -37,6 +37,10 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
     /// NB: Move into Ui
     pub async fn do_frame(&mut self) {
         self.ui.do_frame(&mut self.state, &mut self.gamedata).await;
+        if true {
+            // TODO: Only if scene has changed
+            self.state = self.gamedata.load_scene();
+        }
         if let Some(scene_ending) = self.state.ready_for_next_level() {
             self.state = self.gamedata.load_next_scene(scene_ending);
         }

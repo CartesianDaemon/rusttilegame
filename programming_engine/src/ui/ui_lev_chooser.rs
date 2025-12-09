@@ -3,14 +3,21 @@ use macroquad::prelude::*;
 use crate::ui::PRect;
 use crate::gamedata::{BaseGamedata};
 
+struct DragInfo {
+    lev_idx: u16,
+    mouse_down_time: f64,
+}
+
+#[derive(Default)]
 pub struct LevChooser {
+    drag_origin: Option<DragInfo>,
 }
 
 impl LevChooser {
     fn col_active(mouseover: bool) -> (Color, Color, Color, f32) {
         match mouseover {
             false => (DARKGRAY, WHITE, BLUE, 2.),
-            true => (DARKGRAY, WHITE, BLUE, 2.2),
+            true => (DARKGRAY, YELLOW, BLUE, 2.2),
         }
     }
 
@@ -28,10 +35,7 @@ impl LevChooser {
         }
     }
 
-    pub fn do_frame<GameData: BaseGamedata>(
-            game_state: &mut GameData,
-            draw_coords: (f32, f32),
-        ) {
+    pub fn do_frame<GameData: BaseGamedata>(&mut self, game_state: &mut GameData, draw_coords: (f32, f32)) {
             let n_levs = game_state.num_levels();
 
             let mut curr_x = draw_coords.0 + 15.;
@@ -41,12 +45,24 @@ impl LevChooser {
             let stride = 30.;
             let r = 10.;
 
+            let hold_for = 0.3;
+
+            if !is_mouse_button_down(MouseButton::Left) {
+                self.drag_origin = None;
+            }
+
             for lev_idx in 1..=n_levs {
                 let rect = PRect { x: curr_x - r, y: y - r, w: r * 2., h: r * 2.};
                 let mouseover = rect.contains(mouse_position());
 
-                if mouseover && is_mouse_button_pressed(MouseButton::Left) && game_state.get_unlocked_levels().contains(&lev_idx) {
-                    game_state.goto_level(lev_idx);
+                if mouseover && is_mouse_button_down(MouseButton::Left) && game_state.get_unlocked_levels().contains(&lev_idx) {
+                    if let Some(drag_info) = &self.drag_origin {
+                        if drag_info.lev_idx == lev_idx && get_time() > drag_info.mouse_down_time + hold_for {
+                            game_state.goto_level(lev_idx);
+                        }
+                    } else {
+                        self.drag_origin = Some(DragInfo { lev_idx, mouse_down_time: get_time() });
+                    }
                 }
 
                 let cols = if lev_idx == game_state.get_current_level() {

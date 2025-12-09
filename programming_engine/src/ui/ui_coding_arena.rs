@@ -207,6 +207,8 @@ pub struct UiCodingArena {
 
     dragging: Option<DragOrigin>,
 
+    lev_chooser: LevChooser,
+
     /// Smoothly from 0 to 1 transition from previous state to current state
     /// TODO: Maybe move anim and ticker into Arena.
     anim: crate::ui::AnimState,
@@ -229,6 +231,8 @@ impl UiCodingArena
             fr_pos: FrameCoords::default(),
 
             dragging: None,
+
+            lev_chooser: LevChooser::default(),
 
             anim: AnimState::default(),
             ticker: Ticker::new(),
@@ -427,7 +431,8 @@ impl UiCodingArena
 
         self.draw_prog(&coding_arena.coding);
         if self.is_coding {
-            self.draw_supply(&mut coding_arena.coding, game_state);
+            self.draw_supply(&mut coding_arena.coding);
+            self.lev_chooser.do_frame(game_state, (self.fr_pos.supply_x + 10., self.fr_pos.supply_y + 20.));
             self.draw_dragging();
         }
 
@@ -493,9 +498,7 @@ impl UiCodingArena
     }
 
     /// Draw supply area and all supply bins
-    fn draw_supply<GameData: BaseGamedata>(&self, coding: &mut Coding, game_state: &mut GameData,) {
-        LevChooser::do_frame(game_state, (self.fr_pos.supply_x + 10., self.fr_pos.supply_y + 20.));
-
+    fn draw_supply(&self, coding: &mut Coding) {
         for (idx, bin) in coding.supply.iter().enumerate() {
             self.draw_supply_op(idx, bin);
         }
