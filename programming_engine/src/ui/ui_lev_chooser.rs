@@ -56,9 +56,11 @@ impl LevChooser {
                 let mouseover = rect.contains(mouse_position());
 
                 if mouseover && is_mouse_button_down(MouseButton::Left) && game_state.get_unlocked_levels().contains(&lev_idx) {
-                    if let Some(drag_info) = &self.drag_origin {
+                    if let Some(drag_info) = &mut self.drag_origin {
                         if drag_info.lev_idx == lev_idx && get_time() > drag_info.mouse_down_time + hold_for {
                             game_state.goto_level(lev_idx);
+                            // Invalidate drag until mouse released
+                            drag_info.lev_idx = 0;
                         }
                     } else {
                         self.drag_origin = Some(DragInfo { lev_idx, mouse_down_time: get_time() });
