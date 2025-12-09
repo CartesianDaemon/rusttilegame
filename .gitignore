@@ -1,3 +1,5 @@
 /target
 *.swp
 tilegame_diary.txt
+local.data
+

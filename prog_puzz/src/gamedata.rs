@@ -3,15 +3,23 @@ use super::levels;
 
 use tile_engine::for_gamedata::*;
 
-use std::collections::HashSet;
-
 #[derive(Debug)]
 pub struct ProgpuzzGamedata {
     levset: levels::ProgpuzzLevset,
 
-    unlocked_levels: HashSet<u16>,
     // TODO: Or better to store "current level" in a higher layer?
     reload_needed: bool,
+}
+
+impl ProgpuzzGamedata {
+    fn level_key(&self, lev_idx: u16) -> String {
+        format!("Level{lev_idx}")
+    }
+
+    fn unlock_level(&mut self, lev_idx: u16) {
+        let storage = &mut quad_storage::STORAGE.lock().unwrap();
+        storage.set(&self.level_key(lev_idx), "unlocked");
+    }
 }
 
 impl BaseGamedata for ProgpuzzGamedata {
@@ -19,16 +27,17 @@ impl BaseGamedata for ProgpuzzGamedata {
     type CustomProps = ProgpuzzCustomProps;
 
     fn new() -> Self {
-        ProgpuzzGamedata {
+        let mut game_data = ProgpuzzGamedata {
             levset: levels::ProgpuzzLevset::new(),
-            unlocked_levels: [1].into(),
             reload_needed: false,
-        }
+        };
+        game_data.unlock_level(1);
+        game_data
     }
 
     fn advance_scene(&mut self, continuation: SceneConclusion) {
         self.levset.advance_scene(continuation);
-        self.unlocked_levels.insert(self.levset.get_current_level());
+        self.unlock_level(self.levset.get_current_level());
     }
 
     fn load_scene(&mut self) -> Scene::<Self::GameLogic> {
@@ -57,7 +66,8 @@ impl BaseGamedata for ProgpuzzGamedata {
     }
 
     fn get_unlocked_levels(&self) -> std::collections::HashSet<u16> {
-        self.unlocked_levels.clone()
+        let storage = &mut quad_storage::STORAGE.lock().unwrap();
+        (1..self.num_levels()).filter(|lev_idx| storage.get(&self.level_key(*lev_idx)).is_some()).collect()
     }
 
     fn goto_level(&mut self, lev_idx: u16) {
