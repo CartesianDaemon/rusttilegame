@@ -89,6 +89,7 @@ impl ProgpuzzLevset {
                 (group, 2),
                 (x2, 2),
                 (LOOP, 2),
+                (Else, 2),
             ])
         } else {
             Coding::from_vec(&[(F, 2), (L, 0), (R, 0)])

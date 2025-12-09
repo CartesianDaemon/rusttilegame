@@ -429,6 +429,7 @@ pub mod supply_ops {
     pub const group: Opcode = Opcode::Parent(ParentOpcode::group);
     pub const loop5: Opcode = Opcode::Parent(ParentOpcode::loop5);
     pub const LOOP: Opcode = Opcode::Parent(ParentOpcode::LOOP);
+    pub const Else: Opcode = Opcode::Parent(ParentOpcode::Else);
 }
 
 pub mod prog_ops {
@@ -449,6 +450,7 @@ pub mod prog_ops {
     pub const x2: Instr = Instr::Parent(ParentOpcode::x2, default_subprog);
     pub const group: Instr = Instr::Parent(ParentOpcode::group, default_subprog);
     pub const loop5: Instr = Instr::Parent(ParentOpcode::loop5, default_subprog);
+    pub const Else: Instr = Instr::Parent(ParentOpcode::Else, default_subprog);
 }
 
 #[cfg(test)]
