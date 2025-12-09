@@ -63,7 +63,7 @@ impl LevChooser {
             let stride = 30.;
             let r = 10.;
 
-            let hold_for = 0.3;
+            let hold_for = 0.1;
 
             if !is_mouse_button_down(MouseButton::Left) {
                 self.drag_origin = None;
