@@ -53,7 +53,8 @@ pub trait BaseGamedata {
 
     fn advance_scene(&mut self, continuation: SceneConclusion);
 
-    fn load_scene(&self) -> Scene<Self::GameLogic>;
+    // TODO: Would using RefCell be better than being mutable?
+    fn load_scene(&mut self) -> Scene<Self::GameLogic>;
 
     fn load_next_scene(&mut self, continuation: SceneConclusion) -> Scene<Self::GameLogic> {
         self.advance_scene(continuation);
@@ -61,6 +62,7 @@ pub trait BaseGamedata {
     }
 
     // Number of levels, if levels are identified by numeric index. Else 0.
+    // TODO: Move into optional level-chooser widget.
     fn num_levels(&self) -> u16 {
         0
     }
@@ -68,6 +70,11 @@ pub trait BaseGamedata {
     // Current level, if levels are identified by numeric index. Else 0.
     fn get_current_level(&self) -> u16 {
         0
+    }
+
+    fn reload_needed(&self) -> bool {
+        assert!(self.num_levels() == 0);
+        false
     }
 
     // Levels available to go to, if levels are identified by numeric index. Else empty set.

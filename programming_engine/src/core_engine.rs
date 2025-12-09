@@ -24,7 +24,7 @@ struct Engine<Gamedata: BaseGamedata> {
 
 impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
     pub fn new() -> Engine<Gamedata> {
-        let gamedata = Gamedata::new();
+        let mut gamedata = Gamedata::new();
         let scene = gamedata.load_scene();
         Engine::<Gamedata> {
             gamedata: gamedata,
@@ -37,12 +37,12 @@ impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
     /// NB: Move into Ui
     pub async fn do_frame(&mut self) {
         self.ui.do_frame(&mut self.state, &mut self.gamedata).await;
-        if true {
-            // TODO: Only if scene has changed
-            self.state = self.gamedata.load_scene();
-        }
         if let Some(scene_ending) = self.state.ready_for_next_level() {
+            // TODO: Avoid duplication with reload_needed?
             self.state = self.gamedata.load_next_scene(scene_ending);
+        }
+        if self.gamedata.reload_needed() {
+            self.state = self.gamedata.load_scene();
         }
     }
 }
