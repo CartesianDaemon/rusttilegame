@@ -118,7 +118,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
                         }
                     }
                     Some(Instr::Parent(..)) => {
-                        panic!("Unrecognised instr {:?}", props.prog.curr_op());
+                        panic!("Unrecognised instr {:?}", props.prog.curr_action_instr());
                     },
                 }
 

@@ -7,6 +7,9 @@ impl ActionData {
     pub const fn default() -> Self {
         ActionData {blocked: false}
     }
+    pub const fn blocked() -> Self {
+        ActionData {blocked: true}
+    }
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -135,7 +138,13 @@ impl Instr {
             Parent(x2, _) => 2,
             Parent(LOOP, _) => 99,
             Parent(loop5, _) => 5,
-            Parent(Else, _) => if idx > 0 && subprog.instrs.get(idx-1).as_ref().unwrap().blocked() {1} else {0},
+            Parent(Else, _) => if idx > 0 && subprog.instrs.get(idx-1).as_ref().unwrap().blocked() {
+                log::debug!("Calculating Else repeat count as 1 in {subprog:?}");
+                1
+            } else {
+                log::debug!("Calculating Else repeat count as 0 in {subprog:?}");
+                0
+            },
         }
     }
 
@@ -340,30 +349,39 @@ impl Subprog {
         self.curr_ip >= self.instrs.len()
     }
 
-    // Currently executing op. Action instr from list, or from a parent instr.
+    // Current instr in this prog (either action instr or parent instr)
+    fn curr_instr(&self) -> Option<&Instr> {
+        self.instrs.get(self.curr_ip)
+    }
+
+    fn curr_instr_mut(&mut self) -> Option<&mut Instr> {
+        self.instrs.get_mut(self.curr_ip)
+    }
+
+    // Currently executing op. Action instr from list, or nested inside parent instrs.
     // None when past end of program, or when program reaches an empty parent instr.
-    pub fn curr_op(&self) -> Option<&Instr> {
-        match &self.instrs.get(self.curr_ip)? {
+    pub fn curr_action_instr(&self) -> Option<&Instr> {
+        match &self.curr_instr()? {
             instr @ Instr::Action(..) => Some(instr),
-            Instr::Parent(_, subprog) => subprog.curr_op(),
+            Instr::Parent(_, subprog) => subprog.curr_action_instr(),
         }
     }
 
     pub fn curr_op_mut(&mut self) -> Option<&mut Instr> {
-        match self.instrs.get_mut(self.curr_ip)? {
+        match self.curr_instr_mut()? {
             instr @ Instr::Action(..) => Some(instr),
             Instr::Parent(_, subprog) => subprog.curr_op_mut(),
         }
     }
 
     pub fn unwrap_curr_op(&self) -> &Instr {
-        self.curr_op().unwrap()
+        self.curr_action_instr().unwrap()
     }
 
     fn advance_ip(&mut self) {
         self.curr_ip += 1;
         // Skip over any repeat-0 instr.
-        if matches!(self.curr_op(), Some(instr @ Instr::Parent(..)) if instr.repeat_count(self, self.curr_ip) == 0) {
+        if matches!(self.curr_instr(), Some(instr @ Instr::Parent(..)) if instr.repeat_count(self, self.curr_ip) == 0) {
             self.advance_ip();
         }
     }
@@ -399,6 +417,7 @@ impl Subprog {
     //
     // Returns Some(), or None if program wrapped round.
     pub fn advance_next_instr(&mut self) {
+        log::debug!("------");
         if self.finished() {
             self.reset();
             return;
@@ -409,7 +428,7 @@ impl Subprog {
             Instr::Action(..) => self.advance_ip(),
             Instr::Parent(..) => self.advance_current_subprog(op),
         }
-        assert!(self.curr_op().is_none() || matches!(self.curr_op(), Some(Instr::Action(..))));
+        assert!(self.curr_action_instr().is_none() || matches!(self.curr_action_instr(), Some(Instr::Action(..))));
         log::debug!("Advanced prog to {}.", self); // to #{}. Next: #{}.", self, self.prev_ip, self.next_ip);
     }
 }
@@ -467,7 +486,7 @@ pub mod prog_ops {
     pub const F: Instr = Instr::Action(ActionOpcode::F, ActionData::default());
     pub const L: Instr = Instr::Action(ActionOpcode::L, ActionData::default());
     pub const R: Instr = Instr::Action(ActionOpcode::R, ActionData::default());
-    pub const No: Instr = Instr::Action(ActionOpcode::No, ActionData {blocked: true});
+    pub const No: Instr = Instr::Action(ActionOpcode::No, ActionData::blocked());
 
     // TODO: Introduce fn if we first subsume Subprog into ParentOp
     // pub fn x2(ops: Vec<Op>) -> Op = Op::Parent(ParentOp::x2);
@@ -488,7 +507,7 @@ pub mod prog_fn_ops {
     pub const F: Instr = Instr::Action(ActionOpcode::F, ActionData::default());
     pub const L: Instr = Instr::Action(ActionOpcode::L, ActionData::default());
     pub const R: Instr = Instr::Action(ActionOpcode::R, ActionData::default());
-    pub const No: Instr = Instr::Action(ActionOpcode::No, ActionData::default());
+    pub const No: Instr = Instr::Action(ActionOpcode::No, ActionData::blocked());
 
     pub fn group(ops: &[Instr]) -> Instr { Instr::Parent(ParentOpcode::group, Subprog::from(ops)) }
     pub fn x2(ops: &[Instr]) -> Instr { Instr::Parent(ParentOpcode::x2, Subprog::from(ops)) }
@@ -520,8 +539,8 @@ mod tests {
         for (idx, expected_op) in expected_ops.iter().enumerate() {
             assert!(!prog.finished());
             assert!(
-                matches!(prog.curr_op(), Some(Instr::Action(op, _)) if op==expected_op),
-                "At idx {idx} of {prog} expected {:?} to match {expected_op:?}", prog.curr_op(),
+                matches!(prog.curr_action_instr(), Some(Instr::Action(op, _)) if op==expected_op),
+                "At idx {idx} of {prog} expected {:?} to match {expected_op:?}", prog.curr_action_instr(),
             );
             prog.advance_next_instr();
         }
