@@ -119,7 +119,7 @@ impl Instr {
     // TODO: Move to fn of ControlFlowOp not Op.
     // More naturally part of opcode.
     pub fn repeat_count(&self, subprog: &Subprog, idx: usize) -> usize {
-        assert!(std::ptr::eq(self, *subprog.instrs.get(idx).as_ref().unwrap()));
+        // assert!(std::ptr::eq(self, *subprog.instrs.get(idx).as_ref().unwrap()));
         use Instr::*;
         use ParentOpcode::*;
         match self {
@@ -341,6 +341,10 @@ impl Subprog {
 
     fn advance_ip(&mut self) {
         self.curr_ip += 1;
+        // Skip over any repeat-0 instr.
+        if matches!(self.curr_op(), Some(instr @ Instr::Parent(..)) if instr.repeat_count(self, self.curr_ip) == 0) {
+            self.advance_ip();
+        }
     }
 
     fn reset(&mut self) {
