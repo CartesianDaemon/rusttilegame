@@ -166,6 +166,7 @@ impl From<&str> for Instr {
             "group" => Instr::Parent(ParentOpcode::group, Subprog::default()),
             "x2" => Instr::Parent(ParentOpcode::x2, Subprog::default()),
             "loop5" => Instr::Parent(ParentOpcode::loop5, Subprog::default()),
+            "Else" => Instr::Parent(ParentOpcode::loop5, Subprog::default()),
             _ => panic!("Unrecognised txt for instr: {}", txt)
         }
     }
@@ -222,7 +223,7 @@ impl std::ops::IndexMut<i16> for Instr {
     }
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Subprog {
     // Index of instruction currently executing. 0 when program has not started.
     pub curr_ip: usize,
@@ -309,6 +310,10 @@ impl std::ops::IndexMut<i16> for Subprog {
 }
 
 impl Subprog {
+    pub const fn default() -> Self {
+        Subprog {counter: 0, curr_ip: 0, instrs: vec![]}
+    }
+
     // Number of instructions within if laid out vertically. Used for drawing.
     // Always at least 1.
     pub fn v_len(&self) -> usize {
@@ -457,6 +462,26 @@ pub mod prog_ops {
     pub const Else: Instr = Instr::Parent(ParentOpcode::Else, default_subprog);
 }
 
+pub mod prog_fn_ops {
+    #![allow(non_upper_case_globals)]
+
+    use super::*;
+
+    pub const default_action_data: ActionData = ActionData { blocked: false};
+    pub const F: Instr = Instr::Action(ActionOpcode::F, default_action_data);
+    pub const L: Instr = Instr::Action(ActionOpcode::L, default_action_data);
+    pub const R: Instr = Instr::Action(ActionOpcode::R, default_action_data);
+
+    // pub fn x2(ops: Vec<Op>) -> Op = Op::Parent(ParentOp::x2);
+
+    // TODO: make Subprog::default a const function to avoid duplication.
+    pub const empty_subprog: Subprog = Subprog {counter: 0, curr_ip: 0, instrs: vec![]};
+    pub const x2: Instr = Instr::Parent(ParentOpcode::x2, empty_subprog);
+    pub const group: Instr = Instr::Parent(ParentOpcode::group, empty_subprog);
+    pub const loop5: Instr = Instr::Parent(ParentOpcode::loop5, empty_subprog);
+    pub const Else: Instr = Instr::Parent(ParentOpcode::Else, empty_subprog);
+}
+
 #[cfg(test)]
 mod tests {
     use crate::infra::initialise_logging_for_tests;
@@ -554,5 +579,13 @@ mod tests {
         prog[1] = Instr::Parent(ParentOpcode::x2, Prog::from("x2"));
         prog[1][0] = Instr::Parent(ParentOpcode::x2, Prog::from("L, R"));
         run_prog_and_test(prog, &[F, L, R, L, R, L, R, L, R]);
+    }
+
+    #[test]
+    fn test_else() {
+        initialise_logging_for_tests();
+        let mut prog = Prog::from("L,Else,L");
+        prog[-1] = Instr::Parent(ParentOpcode::x2, Prog::from("F,R"));
+        run_prog_and_test(prog, &[L, F, R, F, R, L]);
     }
 }
