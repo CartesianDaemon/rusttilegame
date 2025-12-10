@@ -519,7 +519,10 @@ mod tests {
     fn run_prog_and_test(mut prog: Prog, expected_ops: &[ActionOpcode]) {
         for (idx, expected_op) in expected_ops.iter().enumerate() {
             assert!(!prog.finished());
-            assert!(matches!(prog.curr_op(), Some(Instr::Action(op, _)) if op==expected_op) , "At idx {} of {}", idx, prog);
+            assert!(
+                matches!(prog.curr_op(), Some(Instr::Action(op, _)) if op==expected_op),
+                "At idx {idx} of {prog} expected {:?} to match {expected_op:?}", prog.curr_op(),
+            );
             prog.advance_next_instr();
         }
         assert!(prog.finished());
