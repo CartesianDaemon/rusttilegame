@@ -1,6 +1,12 @@
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct ActionData {
     pub blocked: bool,
+}
+
+impl ActionData {
+    pub const fn default() -> Self {
+        ActionData {blocked: false}
+    }
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -463,23 +469,19 @@ pub mod prog_ops {
 }
 
 pub mod prog_fn_ops {
-    #![allow(non_upper_case_globals)]
+    #![allow(non_snake_case)]
 
     use super::*;
 
-    pub const default_action_data: ActionData = ActionData { blocked: false};
-    pub const F: Instr = Instr::Action(ActionOpcode::F, default_action_data);
-    pub const L: Instr = Instr::Action(ActionOpcode::L, default_action_data);
-    pub const R: Instr = Instr::Action(ActionOpcode::R, default_action_data);
+    pub const F: Instr = Instr::Action(ActionOpcode::F, ActionData::default());
+    pub const L: Instr = Instr::Action(ActionOpcode::L, ActionData::default());
+    pub const R: Instr = Instr::Action(ActionOpcode::R, ActionData::default());
 
-    // pub fn x2(ops: Vec<Op>) -> Op = Op::Parent(ParentOp::x2);
-
-    // TODO: make Subprog::default a const function to avoid duplication.
-    pub const empty_subprog: Subprog = Subprog {counter: 0, curr_ip: 0, instrs: vec![]};
-    pub const x2: Instr = Instr::Parent(ParentOpcode::x2, empty_subprog);
-    pub const group: Instr = Instr::Parent(ParentOpcode::group, empty_subprog);
-    pub const loop5: Instr = Instr::Parent(ParentOpcode::loop5, empty_subprog);
-    pub const Else: Instr = Instr::Parent(ParentOpcode::Else, empty_subprog);
+    pub fn group(ops: Vec<Instr>) -> Instr { Instr::Parent(ParentOpcode::group, Subprog::from(ops)) }
+    pub fn x2(ops: Vec<Instr>) -> Instr { Instr::Parent(ParentOpcode::x2, Subprog::from(ops)) }
+    pub fn LOOP(ops: Vec<Instr>) -> Instr { Instr::Parent(ParentOpcode::LOOP, Subprog::from(ops)) }
+    pub fn loop5(ops: Vec<Instr>) -> Instr { Instr::Parent(ParentOpcode::loop5, Subprog::from(ops)) }
+    pub fn Else(ops: Vec<Instr>) -> Instr { Instr::Parent(ParentOpcode::Else, Subprog::from(ops)) }
 }
 
 #[cfg(test)]
