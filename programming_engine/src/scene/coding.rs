@@ -14,6 +14,7 @@ pub enum ActionOpcode {
     F,
     L,
     R,
+    No, // Only used during testing. Test treats it as always failing.
 }
 
 #[allow(non_camel_case_types)]
@@ -249,6 +250,15 @@ impl From<Vec<Instr>> for Subprog {
     }
 }
 
+impl From<&[Instr]> for Subprog {
+    fn from(instrs: &[Instr]) -> Self {
+        Self {
+            instrs: instrs.to_vec(),
+            ..Self::default()
+        }
+    }
+}
+
 #[cfg(any())]
 impl<T: Iterator<Item=Instr>> From<T> for Subprog {
     fn from(ops: T) -> Self {
@@ -430,6 +440,7 @@ pub mod action_ops {
     pub const F: ActionOpcode = ActionOpcode::F;
     pub const L: ActionOpcode = ActionOpcode::L;
     pub const R: ActionOpcode = ActionOpcode::R;
+    pub const No: ActionOpcode = ActionOpcode::No;
 }
 
 pub mod supply_ops {
@@ -439,6 +450,7 @@ pub mod supply_ops {
     pub const F: Opcode = Opcode::Action(ActionOpcode::F);
     pub const L: Opcode = Opcode::Action(ActionOpcode::L);
     pub const R: Opcode = Opcode::Action(ActionOpcode::R);
+    pub const No: Opcode = Opcode::Action(ActionOpcode::No);
 
     pub const x2: Opcode = Opcode::Parent(ParentOpcode::x2);
     pub const group: Opcode = Opcode::Parent(ParentOpcode::group);
@@ -452,10 +464,10 @@ pub mod prog_ops {
 
     use super::*;
 
-    pub const default_action_data: ActionData = ActionData { blocked: false};
-    pub const F: Instr = Instr::Action(ActionOpcode::F, default_action_data);
-    pub const L: Instr = Instr::Action(ActionOpcode::L, default_action_data);
-    pub const R: Instr = Instr::Action(ActionOpcode::R, default_action_data);
+    pub const F: Instr = Instr::Action(ActionOpcode::F, ActionData::default());
+    pub const L: Instr = Instr::Action(ActionOpcode::L, ActionData::default());
+    pub const R: Instr = Instr::Action(ActionOpcode::R, ActionData::default());
+    pub const No: Instr = Instr::Action(ActionOpcode::No, ActionData {blocked: true});
 
     // TODO: Introduce fn if we first subsume Subprog into ParentOp
     // pub fn x2(ops: Vec<Op>) -> Op = Op::Parent(ParentOp::x2);
@@ -469,19 +481,20 @@ pub mod prog_ops {
 }
 
 pub mod prog_fn_ops {
-    #![allow(non_snake_case)]
+    #![allow(non_snake_case, non_upper_case_globals)]
 
     use super::*;
 
     pub const F: Instr = Instr::Action(ActionOpcode::F, ActionData::default());
     pub const L: Instr = Instr::Action(ActionOpcode::L, ActionData::default());
     pub const R: Instr = Instr::Action(ActionOpcode::R, ActionData::default());
+    pub const No: Instr = Instr::Action(ActionOpcode::No, ActionData::default());
 
-    pub fn group(ops: Vec<Instr>) -> Instr { Instr::Parent(ParentOpcode::group, Subprog::from(ops)) }
-    pub fn x2(ops: Vec<Instr>) -> Instr { Instr::Parent(ParentOpcode::x2, Subprog::from(ops)) }
-    pub fn LOOP(ops: Vec<Instr>) -> Instr { Instr::Parent(ParentOpcode::LOOP, Subprog::from(ops)) }
-    pub fn loop5(ops: Vec<Instr>) -> Instr { Instr::Parent(ParentOpcode::loop5, Subprog::from(ops)) }
-    pub fn Else(ops: Vec<Instr>) -> Instr { Instr::Parent(ParentOpcode::Else, Subprog::from(ops)) }
+    pub fn group(ops: &[Instr]) -> Instr { Instr::Parent(ParentOpcode::group, Subprog::from(ops)) }
+    pub fn x2(ops: &[Instr]) -> Instr { Instr::Parent(ParentOpcode::x2, Subprog::from(ops)) }
+    pub fn LOOP(ops: &[Instr]) -> Instr { Instr::Parent(ParentOpcode::LOOP, Subprog::from(ops)) }
+    pub fn loop5(ops: &[Instr]) -> Instr { Instr::Parent(ParentOpcode::loop5, Subprog::from(ops)) }
+    pub fn Else(ops: &[Instr]) -> Instr { Instr::Parent(ParentOpcode::Else, Subprog::from(ops)) }
 }
 
 #[cfg(test)]
@@ -530,10 +543,14 @@ mod tests {
 
     #[test]
     fn test_bare_repeat() {
+        use prog_fn_ops::*;
         initialise_logging_for_tests();
-        let mut prog = Prog::from("x2");
-        prog[-1] = Instr::Parent(ParentOpcode::x2, Prog::from("F"));
-        run_prog_and_test(prog, &[F, F]);
+        let prog = Prog::from(vec![x2(&[F])]);
+
+        {
+            use action_ops::*;
+            run_prog_and_test(prog, &[F, F]);
+        }
     }
 
     #[test]
@@ -586,8 +603,13 @@ mod tests {
     #[test]
     fn test_else() {
         initialise_logging_for_tests();
-        let mut prog = Prog::from("L,Else,L");
-        prog[-1] = Instr::Parent(ParentOpcode::x2, Prog::from("F,R"));
-        run_prog_and_test(prog, &[L, F, R, F, R, L]);
+        use prog_fn_ops::*;
+        initialise_logging_for_tests();
+        let prog = Prog::from(vec![F, Else(&[L]), No, Else(&[L])]);
+
+        {
+            use action_ops::*;
+            run_prog_and_test(prog, &[F, No, L]);
+        }
     }
 }

@@ -112,6 +112,9 @@ impl BaseGameLogic for ProgpuzzGameLogic
                                 map[mov].logical_props.dir.rotate_r();
                                 log::debug!("Bot rotate R. {} -> {}", map[mov].logical_props.prev_dir , map[mov].logical_props.dir);
                             },
+                            ActionOpcode::No => {
+                                panic!();
+                            }
                         }
                     }
                     Some(Instr::Parent(..)) => {
