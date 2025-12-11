@@ -87,9 +87,16 @@ impl Instr {
         }
     }
 
-    pub fn as_action_data(&self) -> ActionData {
+    pub fn as_action_data(&self) -> &ActionData {
         match self {
-            Self::Action(_, data) => *data,
+            Self::Action(_, data) => data,
+            _ => panic!("Not an action instr"),
+        }
+    }
+
+    pub fn as_action_data_mut(&mut self) -> &mut ActionData {
+        match self {
+            Self::Action(_, data) => data,
             _ => panic!("Not an action instr"),
         }
     }
@@ -167,7 +174,7 @@ impl std::fmt::Display for Instr {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         use Instr::*;
         match self {
-            Action(op, _) => std::fmt::Debug::fmt(op, f),
+            Action(op, _) => write!(f, "{op:?}{}", if self.blocked() {"b"} else {""} ),
             Parent(op, _) => std::fmt::Debug::fmt(op, f),
         }
     }
@@ -287,14 +294,20 @@ impl From<&str> for Subprog {
 
 impl std::fmt::Display for Subprog {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{:.<1$}[", "", self.counter)?;
+        write!(f, "_{}[", self.counter)?;
         for (idx, instr) in self.instrs.iter().enumerate() {
             if idx >0 {write!(f, ",")?}
-            if idx == self.curr_ip {write!(f, "*")?}
-            write!(f, "{}", instr)?;
+            if idx == self.curr_ip {
+                write!(f, "{}", instr.to_string().to_uppercase())?;
+            } else {
+                write!(f, "{}", instr.to_string().to_lowercase())?;
+            }
             if let Instr::Parent(_, subprog) = &instr {
                 write!(f, "{}", subprog)?;
             }
+        }
+        if self.curr_ip >= self.instrs.len() {
+            write!(f, ",_")?;
         }
         write!(f, "]")
     }

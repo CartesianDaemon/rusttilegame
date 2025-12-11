@@ -101,7 +101,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
                                     map.move_obj_to(mov, target_pos);
                                 } else {
                                     log::debug!("Bot blocked F. {} -/-> {}", map[mov].pos(), target_pos);
-                                    map[mov].logical_props.custom_props.prog.curr_op_mut().unwrap().as_action_data().blocked = true;
+                                    map[mov].logical_props.custom_props.prog.curr_op_mut().unwrap().as_action_data_mut().blocked = true;
                                 }
                             },
                             ActionOpcode::L => {
