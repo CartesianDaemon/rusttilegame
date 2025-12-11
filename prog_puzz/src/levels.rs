@@ -356,6 +356,28 @@ impl ProgpuzzLevset {
                 ], progpuzz_key.clone()),
                 Coding::from_vec(&[(F, 2), (L, 2), (R, 2), (Else, 1), (LOOP, 1)]),
             ),
+            CodingArena::new::<16>(
+                Arena::from_map_and_key(&[
+                    "################",
+                    "#>             #",
+                    "############ ###",
+                    "#         #  # #",
+                    "#### ###### ## #",
+                    "#         # #  #",
+                    "# #######     ##",
+                    "# #    #  #### #",
+                    "# # ##         #",
+                    "# # #  # #######",
+                    "# # ####       #",
+                    "# ###   #####  #",
+                    "# #   #        #",
+                    "# ## ###########",
+                    "#  #          w#",
+                    "################",
+                ], progpuzz_key.clone()),
+                Coding::from_vec(&[(F, 4), (L, 2), (R, 2), (Else, 2), (LOOP, 1), (group, 1)]),
+                // Try solution loop(group(L,F),else(R,F),else(R,F))
+            ),
         ]
     }
 
