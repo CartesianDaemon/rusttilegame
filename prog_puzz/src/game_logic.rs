@@ -70,6 +70,16 @@ impl BaseGameLogic for ProgpuzzGameLogic
         }
     }
 
+    fn current_prog(coding_arena: &mut CodingArena<Self>) -> &mut Subprog {
+        if coding_arena.is_running() {
+            let arena = coding_arena.curr_arena.as_mut().unwrap();
+            let hero = arena.hero();
+            &mut arena[hero].logical_props.custom_props.prog
+        } else {
+            &mut coding_arena.coding.prog
+        }
+    }
+
     fn move_mov(map: &mut Arena<Self>, mov: RosterIndex, _cmd: InputCmd) -> SceneContinuation {
         let props = &mut map[mov].logical_props.custom_props;
         match props.ai {

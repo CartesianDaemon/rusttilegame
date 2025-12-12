@@ -42,6 +42,8 @@ pub trait BaseGameLogic : Clone + Sized {
     fn get_active_idx(_coding_arena: &CodingArena<Self>) -> Option<usize> {
         None
     }
+
+    fn current_prog(coding_arena: &mut CodingArena<Self>) -> &mut crate::for_gamedata::Subprog;
 }
 
 /// Manages game-specific state, e.g. which level to go to next.

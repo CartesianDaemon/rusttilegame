@@ -431,14 +431,14 @@ impl UiCodingArena
             UiArena::render(coding_arena.curr_arena.as_mut().unwrap(), texture_cache, self.fr_pos.arena, self.anim).await;
         }
 
-        self.draw_prog(coding_arena.current_prog());
+        self.draw_prog(GameData::GameLogic::current_prog(coding_arena));
         if self.is_coding {
             self.draw_supply(&mut coding_arena.coding);
             self.lev_chooser.do_frame(game_state, (self.fr_pos.supply_x + 10., self.fr_pos.supply_y + 20.));
             self.draw_dragging();
         }
 
-        self.interact_prog(coding_arena.current_prog());
+        self.interact_prog(GameData::GameLogic::current_prog(coding_arena));
         if self.is_coding {
             self.interact_supply(&mut coding_arena.coding);
             self.interact_dragging(&mut coding_arena.coding);
