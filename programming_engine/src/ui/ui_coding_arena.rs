@@ -553,7 +553,7 @@ impl UiCodingArena
             // Draw "Start" instr.
             self.draw_placeholder_rect(0, 0);
         } else {
-            self.draw_subprog(0, 0, prog, true);
+            self.draw_subprog(0, 0, prog, true, true);
         }
     }
 
@@ -566,12 +566,13 @@ impl UiCodingArena
     /// Draw subprog, either top-level prog, or inside a parent instr. At specified instr coords.
     ///
     /// Recurses between draw_subprog and draw_prog_instr. The same recursion is used by interact_subprog.
-    fn draw_subprog(&self, subprog_xidx: usize, subprog_yidx: usize, prog: &Prog, room_for_more: bool) {
+    fn draw_subprog(&self, subprog_xidx: usize, subprog_yidx: usize, prog: &Prog, parent_active: bool, room_for_more: bool) {
         let mut prev_instr_yidx = None;
         let mut instr_yidx = subprog_yidx;
 
-        for instr in &prog.instrs {
-            self.draw_prog_instr(subprog_xidx, prev_instr_yidx, instr_yidx, instr, room_for_more);
+        for (idx, instr) in prog.instrs.iter().enumerate() {
+            let active = parent_active && idx == prog.curr_ip;
+            self.draw_prog_instr(subprog_xidx, prev_instr_yidx, instr_yidx, instr, active, room_for_more);
             prev_instr_yidx = Some(instr_yidx);
             instr_yidx += instr.v_len();
         }
@@ -584,10 +585,9 @@ impl UiCodingArena
     }
 
     /// Draw instr node in program, recursing into subprog if a parent instr.
-    fn draw_prog_instr(&self, xidx: usize, prev_yidx: Option<usize>, yidx: usize, instr: &Instr, room_for_more: bool)
+    fn draw_prog_instr(&self, xidx: usize, prev_yidx: Option<usize>, yidx: usize, instr: &Instr, active: bool, room_for_more: bool)
     {
         let coords = self.prog_instr_coords(xidx, yidx);
-        let active = Some(yidx) == self.active_idx;
         let highlight_above = room_for_more && self.is_droppable_before_prog_instr(xidx, yidx);
 
         self.draw_op_rect(coords, self.calculate_op_style(coords, active, true, InstrRef::Prog {idx: yidx}, highlight_above), &instr.to_string());
@@ -601,7 +601,7 @@ impl UiCodingArena
 
             if subprog.instrs.len() > 0 {
                 self.draw_r_connector(coords, highlight);
-                self.draw_subprog(xidx + 1, yidx, subprog, subprog.instrs.len() < instr.r_connect_max());
+                self.draw_subprog(xidx + 1, yidx, subprog, active, subprog.instrs.len() < instr.r_connect_max());
             } else {
                 self.draw_r_placeholder_right(xidx, yidx);
             }
