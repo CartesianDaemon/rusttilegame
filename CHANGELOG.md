@@ -1,5 +1,23 @@
 ## Unreleased
 
+- Gameplay: Else instr.
+  - Refactor: .blocked. Test. .prev_ip.
+- Gameplay: Add experimental levels with Else, including Maze.
+- Feature: Update controls to allow for starting and stopping program with mouse or keyboard.
+  - Refactor: Ticker, removing Input, etc.
+- Feature: Level select.
+- Feature: Persist unlocked levels between games.
+- Feature: Cycle through different tick intervals.
+- Feature/Fix: Correctly highlight current instr inside subprog.
+- Refactor: Split into two engines
+
+- Gameplay: Tweak existing levels.
+- Feature/QoL: Tweak size of text on displayed ops.
+
+- Refactor: Rename to Scene.
+- Fix: Remove v_connector below LOOP instr.
+- Fix: Prevent dropping on x2 instruction when no more room
+
 ## 4 Dec: tile_engine 1.6.1, prog_puzz 1.6.1
 
 - Animation for winning and death.
