@@ -33,6 +33,12 @@ impl ActionOpcode {
     }
 }
 
+impl std::fmt::Display for ActionOpcode {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.as_text())
+    }
+}
+
 #[allow(non_camel_case_types)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ParentOpcode {
@@ -41,6 +47,12 @@ pub enum ParentOpcode {
     LOOP,
     loop5,
     Else,
+}
+
+impl std::fmt::Display for ParentOpcode {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.as_text())
+    }
 }
 
 impl ParentOpcode {
@@ -77,9 +89,14 @@ pub enum Opcode {
 impl std::fmt::Display for Opcode {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         use Opcode::*;
+        use ParentOpcode::*;
         match self {
-            Action(op) => std::fmt::Debug::fmt(op, f),
-            Parent(op) => std::fmt::Debug::fmt(op, f),
+            Action(op) => std::fmt::Display::fmt(op, f),
+            Parent(group) => std::fmt::Display::fmt("group", f),
+            Parent(LOOP) => std::fmt::Display::fmt("loop", f),
+            Parent(x2) => std::fmt::Display::fmt("x2", f),
+            Parent(loop5) => std::fmt::Display::fmt("loop5", f),
+            Parent(Else) => std::fmt::Display::fmt("Else", f),
         }
     }
 }
@@ -95,7 +112,7 @@ impl Opcode {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub enum Instr {
     Action(ActionOpcode, ActionData),
     Parent(ParentOpcode, Subprog),
@@ -221,15 +238,23 @@ impl std::fmt::Display for Instr {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         use Instr::*;
         match self {
-            Action(op, _) => write!(f, "{op:?}{}", if self.blocked() {"b"} else {""} ),
-            Parent(op, _) => std::fmt::Debug::fmt(op, f),
+            Action(op, _) => std::fmt::Display::fmt(op, f),
+            Parent(op, _) => std::fmt::Display::fmt(op, f),
         }
     }
 }
 
 // Conversion to string for detailed representation.
 // Aim for allowing reconstruction of current state.
-//impl std::fmt::Debug
+impl std::fmt::Debug for Instr {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        use Instr::*;
+        match self {
+            Action(op, _) => write!(f, "{op:?}{}", if self.blocked() {"b"} else {""} ),
+            Parent(op, _) => std::fmt::Debug::fmt(op, f),
+        }
+    }
+}
 
 impl From<&str> for Instr {
     fn from(txt: &str) -> Self {
@@ -297,7 +322,7 @@ impl std::ops::IndexMut<i16> for Instr {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct Subprog {
     // Index of instruction currently executing. 0 when program has not started.
     pub curr_ip: usize,
@@ -347,20 +372,33 @@ impl From<&str> for Subprog {
 
 impl std::fmt::Display for Subprog {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "[")?;
+        for (idx, instr) in self.instrs.iter().enumerate() {
+            if idx >0 {write!(f, ",")?}
+            write!(f, "{}", instr.as_text())?;
+            if let Instr::Parent(_, subprog) = &instr {
+                write!(f, "{}", subprog)?;
+            }
+        }
+        write!(f, "]")
+    }
+}
+
+impl std::fmt::Debug for Subprog {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "_{}[", self.counter)?;
         for (idx, instr) in self.instrs.iter().enumerate() {
             if idx >0 {write!(f, ",")?}
             if idx == self.curr_ip {
-                write!(f, "{}", instr.to_string().to_uppercase())?;
-            } else {
-                write!(f, "{}", instr.to_string().to_lowercase())?;
+                write!(f, "*")?;
             }
+            write!(f, "{}", instr.to_string())?;
             if let Instr::Parent(_, subprog) = &instr {
                 write!(f, "{}", subprog)?;
             }
         }
         if self.curr_ip >= self.instrs.len() {
-            write!(f, ",_")?;
+            write!(f, ",*")?;
         }
         write!(f, "]")
     }
@@ -496,7 +534,7 @@ impl Subprog {
             Instr::Parent(..) => self.advance_current_subprog(op),
         }
         assert!(self.curr_action_instr().is_none() || matches!(self.curr_action_instr(), Some(Instr::Action(..))));
-        log::debug!("Advanced prog to {}.", self); // to #{}. Next: #{}.", self, self.prev_ip, self.next_ip);
+        log::debug!("Advanced prog to {:?}.", self); // to #{}. Next: #{}.", self, self.prev_ip, self.next_ip);
     }
 }
 
