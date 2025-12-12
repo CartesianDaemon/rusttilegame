@@ -164,9 +164,9 @@ impl ProgpuzzLevset {
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
                     "################",
+                    "#              #", // Maybe introduce an easier loop first?
                     "#              #",
-                    "#              #",
-                    "#              #",
+                    "#              #", // Maybe restrict further so you need to do FFRFL?
                     "#        w     #",
                     "#       #      #",
                     "#              #",
@@ -206,11 +206,19 @@ impl ProgpuzzLevset {
 
 
 
+
+
+
+
+
+
+
+
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
                     "                ",
                     " ############## ",
-                    " ############## ",
+                    " ############## ", // Any less brute-force-y?
                     " ############## ",
                     " ##### ######## ",
                     " #####   ###### ",
@@ -231,7 +239,7 @@ impl ProgpuzzLevset {
                 Arena::from_map_and_key(&[
                     "################",
                     "#              #",
-                    "#   #          #",
+                    "#   #          #", // Any less brute-force-y?
                     "#         #    #",
                     "#              #",
                     "#   #          #",
@@ -252,7 +260,7 @@ impl ProgpuzzLevset {
                 Arena::from_map_and_key(&[
                     "################",
                     "#              #",
-                    "##             #",
+                    "##             #",  // Any less brute-force-y?
                     "#              #",
                     "#   #   # #    #",
                     "#          #   #",
@@ -273,7 +281,7 @@ impl ProgpuzzLevset {
                 Arena::from_map_and_key(&[
                     "################",
                     "#              #",
-                    "#              #",
+                    "#              #",  // Need to tweak x2 to make them definitely necessary?
                     "#              #",
                     "#              #",
                     "#              #",
@@ -288,12 +296,12 @@ impl ProgpuzzLevset {
                     "#              #",
                     "################",
                 ], progpuzz_key.clone()),
-                Coding::from_vec(&[(F, 3), (L, 0), (R, 2), (x2, 3)]), // Still need to tweak
+                Coding::from_vec(&[(F, 3), (L, 0), (R, 2), (x2, 3)]),
             ),
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
                     "################",
-                    "#              #",
+                    "#              #",  // For this and L11 review number of F and x2 available..
                     "#              #",
                     "#              #",
                     "#              #",
@@ -314,11 +322,19 @@ impl ProgpuzzLevset {
 
 
 
+
+
+
+
+
+
+
+
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
                     "################",
                     "#              #",
-                    "#              #",
+                    "#              #",  // For this and L10 review number of F and x2 available..
                     "#              #",
                     "#              #",
                     "#              #",
@@ -339,7 +355,7 @@ impl ProgpuzzLevset {
                 Arena::from_map_and_key(&[
                     "################",
                     "#              #",
-                    "#              #",
+                    "#              #",  // Example of else. Does it need to be any more restricted?
                     "#              #",
                     "#       #      #",
                     "#       #      #",
@@ -359,7 +375,7 @@ impl ProgpuzzLevset {
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
                     "################",
-                    "#>             #",
+                    "#>             #",  // Difficult use of else?
                     "############ ###",
                     "#         #  # #",
                     "#### ###### ## #",
