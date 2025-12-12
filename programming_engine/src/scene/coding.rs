@@ -380,15 +380,62 @@ impl<T: Iterator<Item=Instr>> From<T> for Subprog {
     }
 }
 
-// impl Subprog {
-//     pub fn from_text(txt: &str) -> Self {
-//         let mut instrs = Vec::<Instr>::default();
-//         for tok in txt.split_inclusive(|c: char| !c.is_alphanumeric() && c != '_') {
-//             match tok.
-//         }
-//         Self::default()
-//     }
-// }
+#[cfg(test)]
+fn find_matching_closing_bracket(txt: &str) -> Option<usize> {
+    assert_eq!(txt.as_bytes()[0], b'[', "Expected '{txt}' to start with '['");
+    find_unmatched_closing_bracket(&txt[1..]).map(|idx| idx+1)
+}
+
+fn find_unmatched_closing_bracket(txt: &str) -> Option<usize> {
+    let mut nesting_count = 0;
+    for (idx, c) in txt.chars().enumerate() {
+        match c {
+            '[' => nesting_count += 1,
+            ']' if nesting_count == 0 => return Some(idx),
+            ']' if nesting_count > 0 => nesting_count-=1,
+            _ => (),
+        }
+    }
+    None
+}
+
+impl Subprog {
+    pub fn from_text(txt: &str) -> Self {
+        let mut ret = Self::default();
+        let mut remaining = txt;
+        while remaining.len() > 0 {
+            let (segment, sep, trailing) = match remaining.find([',','[',']']) {
+                Some(idx) => (
+                    &remaining[0..idx],
+                    &remaining[idx..idx+1],
+                    &remaining[idx+1..],
+                ),
+                None => (
+                    remaining,
+                    ",",
+                    "",
+                )
+            };
+
+            ret.instrs.push(segment.trim().into());
+
+            match ret.instrs.last_mut().unwrap() {
+                instr @ Instr::Action(_, _) => {
+                    assert_eq!(sep, ",", "Expected ',' after {instr}");
+                    remaining = trailing;
+                },
+                ref mut instr @ Instr::Parent(..) => {
+                    assert_eq!(sep, "[", "Expected '[' after {instr}");
+                    let idy = find_unmatched_closing_bracket(trailing).unwrap();
+                    assert_eq!(trailing.as_bytes()[idy+1], b',', "Expected ',' after ']' in {trailing} at {idy}");
+                    *instr.as_parent_subprog_mut() = Self::from_text(&trailing[0..idy]);
+                    remaining = &trailing[idy+2..];
+                } ,
+            }
+        }
+        ret
+    }
+}
 
 impl From<&str> for Subprog {
     fn from(txt: &str) -> Self {
@@ -565,8 +612,6 @@ impl Subprog {
     }
 }
 
-use std::default;
-
 pub use Subprog as Prog;
 
 #[derive(Clone, Debug)]
@@ -656,7 +701,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn parse() {
+    fn parse_linear_prog() {
         use prog_ops::*;
         assert_eq!(Prog::from("F"), Prog::from(vec![F]));
         assert_eq!(Prog::from("F "), Prog::from(vec![F]));
@@ -667,6 +712,37 @@ mod tests {
         assert_eq!(Prog::from("F ,R "), Prog::from(vec![F, R]));
         assert_eq!(Prog::from(" F ,R    , L"), Prog::from(vec![F, R, L]));
         assert_eq!(Prog::from("F,R,L,x2,group,loop5"), Prog::from(vec![F, R, L, x2, group, loop5]));
+    }
+
+    #[test]
+    fn test_matching_nested_brackets() {
+        assert_eq!(find_matching_closing_bracket("[]"), Some(1));
+        assert_eq!(find_matching_closing_bracket("[   ]"), Some(4));
+        assert_eq!(find_matching_closing_bracket("[[ ]]"), Some(4));
+        assert_eq!(find_matching_closing_bracket("["), None);
+        assert_eq!(find_matching_closing_bracket("[ []"), None);
+        assert_eq!(find_matching_closing_bracket("[ [] [] ]"), Some(8));
+        assert_eq!(find_matching_closing_bracket("[ [ [ ] ] ]"), Some(10));
+        assert_eq!(find_matching_closing_bracket("[[][]]"), Some(5));
+        assert_eq!(find_matching_closing_bracket("[[[]]]"), Some(5));
+    }
+
+    #[test]
+    fn parse_nested_prog() {
+        use prog_ops::*;
+        if true {
+            assert_eq!(Prog::from_text("F"), Prog::from(vec![F]));
+            assert_eq!(Prog::from_text("F "), Prog::from(vec![F]));
+            assert_eq!(Prog::from_text(" F "), Prog::from(vec![F]));
+            assert_eq!(Prog::from_text("F,R"), Prog::from(vec![F, R]));
+            assert_eq!(Prog::from_text("F, R"), Prog::from(vec![F, R]));
+            assert_eq!(Prog::from_text("F ,R"), Prog::from(vec![F, R]));
+            assert_eq!(Prog::from_text("F ,R "), Prog::from(vec![F, R]));
+            assert_eq!(Prog::from_text(" F ,R    , L"), Prog::from(vec![F, R, L]));
+            assert_eq!(Prog::from_text("F,R,L,x2[],group[],loop5[],"), Prog::from(vec![F, R, L, x2, group, loop5]));
+        }
+        if false {
+        }
     }
 
     fn run_prog_and_test(mut prog: Prog, expected_ops: &[ActionOpcode]) {
