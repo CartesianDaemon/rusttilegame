@@ -78,6 +78,10 @@ impl<GameLogic: for_gamedata::BaseGameLogic> CodingArena<GameLogic>
         }
     }
 
+    pub fn current_prog(&mut self) -> &mut Subprog {
+        &mut self.coding.prog
+    }
+
     pub fn is_running(&self) -> bool {
         self.phase == CodingRunningPhase::Running
     }

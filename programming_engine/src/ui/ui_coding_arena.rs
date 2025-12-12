@@ -296,10 +296,10 @@ impl UiCodingArena
         (prog_w * 0.8).min(prog_h / (spacing_pc + prog_n*(1.+spacing_pc) + 0.5))
     }
 
-    fn initialise_frame_coords(&mut self, coding: CodingRunningPhase, prog_n: usize) {
-        self.is_coding = coding == CodingRunningPhase::Coding;
-        self.is_won = coding == CodingRunningPhase::Won;
-        self.is_dead = coding == CodingRunningPhase::Died;
+    fn initialise_frame_coords(&mut self, coding_arena_phase: CodingRunningPhase, prog_n: usize) {
+        self.is_coding = coding_arena_phase == CodingRunningPhase::Coding;
+        self.is_won = coding_arena_phase == CodingRunningPhase::Won;
+        self.is_dead = coding_arena_phase == CodingRunningPhase::Died;
 
         // Arena
         let arena = PRect {
@@ -420,7 +420,6 @@ impl UiCodingArena
             texture_cache: &mut TextureCache,
             game_state: &mut GameData,
         ) {
-        // TODO: Get prog from arena or from coding scene as appropriate?
         self.active_idx = GameData::GameLogic::get_active_idx(coding_arena);
         self.initialise_frame_coords(coding_arena.phase, coding_arena.coding.prog.v_len());
 
@@ -432,14 +431,14 @@ impl UiCodingArena
             UiArena::render(coding_arena.curr_arena.as_mut().unwrap(), texture_cache, self.fr_pos.arena, self.anim).await;
         }
 
-        self.draw_prog(&coding_arena.coding);
+        self.draw_prog(coding_arena.current_prog());
         if self.is_coding {
             self.draw_supply(&mut coding_arena.coding);
             self.lev_chooser.do_frame(game_state, (self.fr_pos.supply_x + 10., self.fr_pos.supply_y + 20.));
             self.draw_dragging();
         }
 
-        self.interact_prog(&mut coding_arena.coding);
+        self.interact_prog(coding_arena.current_prog());
         if self.is_coding {
             self.interact_supply(&mut coding_arena.coding);
             self.interact_dragging(&mut coding_arena.coding);
@@ -547,14 +546,14 @@ impl UiCodingArena
         }
     }
 
-    fn draw_prog(&self, coding: &Coding) {
+    fn draw_prog(&self, prog: &Subprog) {
         draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., self.border_cols());
 
-        if coding.prog.instrs.len() == 0 {
+        if prog.instrs.len() == 0 {
             // Draw "Start" instr.
             self.draw_placeholder_rect(0, 0);
         } else {
-            self.draw_subprog(0, 0, &coding.prog, true);
+            self.draw_subprog(0, 0, prog, true);
         }
     }
 
@@ -609,15 +608,15 @@ impl UiCodingArena
         }
     }
 
-    fn interact_prog(&mut self, coding: &mut Coding)
+    fn interact_prog(&mut self, prog: &mut Subprog)
     {
         if self.is_coding
         {
             // Specially treat START or first instr as accepting a drop anywhere?
-            self.interact_prog_instr(0, 0, &mut coding.prog, 0, true);
+            self.interact_prog_instr(0, 0, prog, 0, true);
 
             // Deal with all subsequent instr normally. Ie. Dropped onto top or bottom of instr for before or after.
-            self.interact_subprog(0, 0, &mut coding.prog, true);
+            self.interact_subprog(0, 0, prog, true);
         }
     }
 
