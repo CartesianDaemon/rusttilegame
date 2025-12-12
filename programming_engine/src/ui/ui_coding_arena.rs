@@ -464,7 +464,8 @@ impl UiCodingArena
             1 => 1.35,
             2 => 0.85,
             3 => 0.5,
-            _ => 0.475,
+            4 => 0.475,
+            _ => 0.4,
         };
         let x_offset = c.w * match txt.len() {
             1 => 0.2,
@@ -476,7 +477,8 @@ impl UiCodingArena
             1 => 0.85,
             2 => 0.7,
             3 => 0.85,
-            _ => 0.65,
+            4 => 0.65,
+            _ => 0.5,
         };
         draw_text(txt, c.x + x_offset, c.y + y_offset, font_sz, DARKGRAY);
     }
