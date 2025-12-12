@@ -13,6 +13,8 @@
 
 - Gameplay: Tweak existing levels.
 - Feature/QoL: Tweak size of text on displayed ops.
+- Feature: Keep mouse within smaller prog op when dragging.
+- Refactor: Adjust fmt::display and fmt::debug for opcodes and instrs.
 
 - Refactor: Rename to Scene.
 - Fix: Remove v_connector below LOOP instr.
