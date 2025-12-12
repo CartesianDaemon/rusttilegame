@@ -135,7 +135,7 @@ impl Instr {
 
     // TODO: Move to fn of ControlFlowOp not Op.
     // More naturally part of opcode.
-    pub fn repeat_count(&self, subprog: &Subprog, idx: usize) -> usize {
+    pub fn repeat_count(&self, subprog: &Subprog) -> usize {
         // assert!(std::ptr::eq(self, *subprog.instrs.get(idx).as_ref().unwrap()));
         use Instr::*;
         use ParentOpcode::*;
@@ -145,11 +145,11 @@ impl Instr {
             Parent(x2, _) => 2,
             Parent(LOOP, _) => 99,
             Parent(loop5, _) => 5,
-            Parent(Else, _) => if idx > 0 && subprog.instrs.get(idx-1).as_ref().unwrap().blocked() {
-                log::debug!("Calculating Else repeat count as 1 in {subprog:?}");
+            Parent(Else, _) => if subprog.instrs.get(subprog.prev_ip).map_or(false, Instr::blocked) {
+                log::debug!("Calculating Else repeat count as 1 in {subprog}");
                 1
             } else {
-                log::debug!("Calculating Else repeat count as 0 in {subprog:?}");
+                log::debug!("Calculating Else repeat count as 0 in {subprog}");
                 0
             },
         }
@@ -250,6 +250,8 @@ impl std::ops::IndexMut<i16> for Instr {
 pub struct Subprog {
     // Index of instruction currently executing. 0 when program has not started.
     pub curr_ip: usize,
+    // Previously executed instr.
+    prev_ip: usize,
     // Internal counter, used to implement loops and other stateful instructions.
     // When used for iteration, counts number of times current execution of parent instr has executed this subprog.
     pub counter: usize,
@@ -349,7 +351,7 @@ impl std::ops::IndexMut<i16> for Subprog {
 
 impl Subprog {
     pub const fn default() -> Self {
-        Subprog {counter: 0, curr_ip: 0, instrs: vec![]}
+        Subprog {counter: 0, curr_ip: 0, prev_ip: 0, instrs: vec![]}
     }
 
     // Number of instructions within if laid out vertically. Used for drawing.
@@ -394,7 +396,7 @@ impl Subprog {
     fn advance_ip(&mut self) {
         self.curr_ip += 1;
         // Skip over any repeat-0 instr.
-        if matches!(self.curr_instr(), Some(instr @ Instr::Parent(..)) if instr.repeat_count(self, self.curr_ip) == 0) {
+        if matches!(self.curr_instr(), Some(instr @ Instr::Parent(..)) if instr.repeat_count(self) == 0) {
             self.advance_ip();
         }
     }
@@ -410,7 +412,7 @@ impl Subprog {
     }
 
     fn advance_current_subprog(&mut self, parent_op: &Instr) {
-        let repeat_count = parent_op.repeat_count(self, self.curr_ip);
+        let repeat_count = parent_op.repeat_count(self);
         let subprog = self.instrs.get_mut(self.curr_ip).unwrap().as_parent_subprog_mut();
         subprog.advance_next_instr();
         if subprog.finished() {
@@ -431,6 +433,7 @@ impl Subprog {
     // Returns Some(), or None if program wrapped round.
     pub fn advance_next_instr(&mut self) {
         log::debug!("------");
+        self.prev_ip = self.curr_ip;
         if self.finished() {
             self.reset();
             return;
@@ -505,7 +508,7 @@ pub mod prog_ops {
     // pub fn x2(ops: Vec<Op>) -> Op = Op::Parent(ParentOp::x2);
 
     // TODO: make Subprog::default a const function to avoid duplication.
-    pub const default_subprog: Subprog = Subprog {counter: 0, curr_ip: 0, instrs: vec![]};
+    pub const default_subprog: Subprog = Subprog {counter: 0, curr_ip: 0, prev_ip: 0, instrs: vec![]};
     pub const x2: Instr = Instr::Parent(ParentOpcode::x2, default_subprog);
     pub const group: Instr = Instr::Parent(ParentOpcode::group, default_subprog);
     pub const loop5: Instr = Instr::Parent(ParentOpcode::loop5, default_subprog);
