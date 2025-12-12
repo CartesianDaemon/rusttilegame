@@ -464,13 +464,13 @@ impl UiCodingArena
             1 => 1.35,
             2 => 0.85,
             3 => 0.5,
-            _ => 0.5,
+            _ => 0.475,
         };
         let x_offset = c.w * match txt.len() {
             1 => 0.2,
             2 => 0.15,
             3 => 0.2,
-            _ => 0.07,
+            _ => 0.1,
         };
         let y_offset = c.w * match txt.len() {
             1 => 0.85,
