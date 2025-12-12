@@ -21,7 +21,7 @@ pub enum ActionOpcode {
 }
 
 impl ActionOpcode {
-    // Used for representing to user
+    // Used for representing a single instruction graphically
     pub fn as_text(&self) -> String {
         use ActionOpcode::*;
         match self {
@@ -67,7 +67,7 @@ impl ParentOpcode {
         }
     }
 
-    // Used for representing to user
+    // Used for representing a single instruction graphically
     pub fn as_text(&self) -> String {
         use ParentOpcode::*;
         match self {
@@ -86,17 +86,40 @@ pub enum Opcode {
     Parent(ParentOpcode),
 }
 
+// Conversion to string for "Friendly" representation of programs.
+// Aim for allowing reconstruction of original program but not current state.
 impl std::fmt::Display for Opcode {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         use Opcode::*;
+        use ActionOpcode::*;
         use ParentOpcode::*;
         match self {
-            Action(op) => std::fmt::Display::fmt(op, f),
+            Action(F) => std::fmt::Display::fmt("F", f),
+            Action(L) => std::fmt::Display::fmt("L", f),
+            Action(R) => std::fmt::Display::fmt("R", f),
+            Action(No) => std::fmt::Display::fmt("No", f),
             Parent(group) => std::fmt::Display::fmt("group", f),
             Parent(LOOP) => std::fmt::Display::fmt("loop", f),
             Parent(x2) => std::fmt::Display::fmt("x2", f),
             Parent(loop5) => std::fmt::Display::fmt("loop5", f),
             Parent(Else) => std::fmt::Display::fmt("Else", f),
+        }
+    }
+}
+
+impl From<&str> for Opcode {
+    fn from(txt: &str) -> Self {
+        match txt {
+            "F" => Opcode::Action(ActionOpcode::F),
+            "L" => Opcode::Action(ActionOpcode::L),
+            "R" => Opcode::Action(ActionOpcode::R),
+            "No" => Opcode::Action(ActionOpcode::No),
+            "group" => Opcode::Parent(ParentOpcode::group),
+            "loop" => Opcode::Parent(ParentOpcode::LOOP),
+            "x2" => Opcode::Parent(ParentOpcode::x2),
+            "loop5" => Opcode::Parent(ParentOpcode::loop5),
+            "Else" => Opcode::Parent(ParentOpcode::Else),
+            _ => panic!("Unrecognised txt for instr: {}", txt)
         }
     }
 }
@@ -258,15 +281,9 @@ impl std::fmt::Debug for Instr {
 
 impl From<&str> for Instr {
     fn from(txt: &str) -> Self {
-        match txt {
-            "F" => Instr::Action(ActionOpcode::F, ActionData::default()),
-            "L" => Instr::Action(ActionOpcode::L, ActionData::default()),
-            "R" => Instr::Action(ActionOpcode::R, ActionData::default()),
-            "group" => Instr::Parent(ParentOpcode::group, Subprog::default()),
-            "x2" => Instr::Parent(ParentOpcode::x2, Subprog::default()),
-            "loop5" => Instr::Parent(ParentOpcode::loop5, Subprog::default()),
-            "Else" => Instr::Parent(ParentOpcode::loop5, Subprog::default()),
-            _ => panic!("Unrecognised txt for instr: {}", txt)
+        match txt.into() {
+            Opcode::Action(op) => Instr::Action(op, ActionData::default()),
+            Opcode::Parent(op) => Instr::Parent(op, Subprog::default()),
         }
     }
 }
@@ -362,6 +379,16 @@ impl<T: Iterator<Item=Instr>> From<T> for Subprog {
         }
     }
 }
+
+// impl Subprog {
+//     pub fn from_text(txt: &str) -> Self {
+//         let mut instrs = Vec::<Instr>::default();
+//         for tok in txt.split_inclusive(|c: char| !c.is_alphanumeric() && c != '_') {
+//             match tok.
+//         }
+//         Self::default()
+//     }
+// }
 
 impl From<&str> for Subprog {
     fn from(txt: &str) -> Self {
@@ -537,6 +564,8 @@ impl Subprog {
         log::debug!("Advanced prog to {:?}.", self); // to #{}. Next: #{}.", self, self.prev_ip, self.next_ip);
     }
 }
+
+use std::default;
 
 pub use Subprog as Prog;
 
