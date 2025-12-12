@@ -90,7 +90,7 @@ impl Ticker {
         self.last_tick_time + self.tick_interval()
     }
 
-    pub fn _cycle_tick_intervals(&mut self) {
+    pub fn cycle_tick_intervals(&mut self) {
         self.tick_interval_idx +=1 ;
         if self.tick_interval_idx >= self.tick_interval_set.len() {
             self.tick_interval_idx = 0

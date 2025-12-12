@@ -396,15 +396,19 @@ impl UiCodingArena
                 }
                 self.anim = self.ticker.anim_state();
 
+                // TODO: Turn some input into Input Cmd and move some "what to do" logic into coding arena?
                 if matches!(was_key_pressed(), Some(Escape)) ||
                     is_mouse_button_pressed(MouseButton::Left) && !self.mouse_in_rect(self.fr_pos.arena) {
                         // Cancel execution on Escape/backspace
                         // TODO: Maybe pause
                         coding_arena.advance(InputCmd::Continue);
-                } else if matches!(was_key_pressed(), Some(Ok | Normal)) {
+                } else if matches!(was_key_pressed(), Some(Normal)) {
                     // Advance map immediately on any other input
                     self.ticker.reset_tick();
                     _ = coding_arena.advance(InputCmd::Tick);
+                } else if matches!(was_key_pressed(), Some(Ok)) {
+                    // Switch to a different tick speed
+                    self.ticker.cycle_tick_intervals();
                 }
             }
         }
