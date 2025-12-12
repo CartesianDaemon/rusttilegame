@@ -143,7 +143,7 @@ impl Instr {
             Action(_, _) => panic!("Repeat count not specified for non-parent instr"),
             Parent(group, _) => 1,
             Parent(x2, _) => 2,
-            Parent(LOOP, _) => 99,
+            Parent(LOOP, _) => 999,
             Parent(loop5, _) => 5,
             Parent(Else, _) => if subprog.instrs.get(subprog.prev_ip).map_or(false, Instr::blocked) {
                 log::debug!("Calculating Else repeat count as 1 in {subprog}");
