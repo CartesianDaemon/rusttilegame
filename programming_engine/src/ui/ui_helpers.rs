@@ -76,7 +76,7 @@ pub struct Ticker {
 impl Ticker {
     pub fn new() -> Ticker {
         Ticker {
-            tick_interval_set: vec![0.5, 0.3, 0.1, 1.],
+            tick_interval_set: vec![0.5, 0.3, 0.15, 0.05],
             tick_interval_idx: 0,
             last_tick_time: get_time(),
         }
@@ -95,6 +95,7 @@ impl Ticker {
         if self.tick_interval_idx >= self.tick_interval_set.len() {
             self.tick_interval_idx = 0
         }
+        log::debug!("Set tick interval to {}s", self.tick_interval());
     }
 
     pub fn reset_tick(&mut self) {
