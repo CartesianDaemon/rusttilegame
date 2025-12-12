@@ -566,7 +566,7 @@ impl UiCodingArena
 
     /// Draw subprog, either top-level prog, or inside a parent instr. At specified instr coords.
     ///
-    /// Recurses between draw_subprog and draw_prog_instr, with the same recursion as interact_subprog.
+    /// Recurses between draw_subprog and draw_prog_instr. The same recursion is used by interact_subprog.
     fn draw_subprog(&self, subprog_xidx: usize, subprog_yidx: usize, prog: &Prog, room_for_more: bool) {
         let mut prev_instr_yidx = None;
         let mut instr_yidx = subprog_yidx;
@@ -577,7 +577,7 @@ impl UiCodingArena
             instr_yidx += instr.v_len();
         }
 
-        if room_for_more && let Some(placeholder_yidx) = prev_instr_yidx {
+        if room_for_more && let Some(placeholder_yidx) = prev_instr_yidx && prog.instrs.last().as_ref().unwrap().v_connector() {
             let coords = self.prog_instr_coords(subprog_xidx, placeholder_yidx);
             let highlight = self.is_pickable_from_placeholder_below(subprog_xidx, placeholder_yidx) || self.is_droppable_on_placeholder_below(subprog_xidx, placeholder_yidx);
             self.draw_v_placeholder_below(coords, highlight);
@@ -623,7 +623,7 @@ impl UiCodingArena
 
     /// Interact program, or subprog inside a parent instr, at specified instr coords.
     ///
-    /// Recurses between interact_subprog and interact_prog_instr, with the same recursion as interact_subprog.
+    /// Recurses between interact_subprog and interact_prog_instr, using the same recursion as draw_subprog.
     ///
     /// If idx is equal to prog len, treats an instr-rect sized placeholder at that index. Currently only used
     /// when both are 0.
@@ -640,7 +640,7 @@ impl UiCodingArena
             prev_instr_yidx = Some(instr_yidx);
             instr_yidx += prog.instrs[idx].v_len();
         }
-        if room_for_more && let Some(placeholder_yidx) = prev_instr_yidx {
+        if room_for_more && let Some(placeholder_yidx) = prev_instr_yidx && prog.instrs.last().as_ref().unwrap().v_connector() {
             self.interact_placeholder_below(subprog_xidx, placeholder_yidx, prog, prog.instrs.len());
         }
     }

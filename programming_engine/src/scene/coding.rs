@@ -115,8 +115,8 @@ impl Instr {
         }
     }
 
-    // More naturally part of opcode.
-    pub fn v_connector(self) -> bool {
+    // More naturally part of opcode?
+    pub fn v_connector(&self) -> bool {
         use Instr::*;
         use ParentOpcode::*;
         match self {
