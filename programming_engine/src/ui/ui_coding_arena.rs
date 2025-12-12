@@ -460,8 +460,25 @@ impl UiCodingArena
 
         draw_rectangle(c.x, c.y, c.w, c.h, style.fill_col);
         draw_rectangle_lines(c.x, c.y, c.w, c.h, style.border_width, style.border_col);
-        let font_sz = c.w * if txt.len() <= 1 { 1.35 } else { 0.5 };
-        draw_text(txt, c.x + 0.2 * c.w, c.y + 0.85 * c.h, font_sz, DARKGRAY);
+        let font_sz = c.w * match txt.len() {
+            1 => 1.35,
+            2 => 0.85,
+            3 => 0.5,
+            _ => 0.5,
+        };
+        let x_offset = c.w * match txt.len() {
+            1 => 0.2,
+            2 => 0.15,
+            3 => 0.2,
+            _ => 0.07,
+        };
+        let y_offset = c.w * match txt.len() {
+            1 => 0.85,
+            2 => 0.7,
+            3 => 0.85,
+            _ => 0.65,
+        };
+        draw_text(txt, c.x + x_offset, c.y + y_offset, font_sz, DARKGRAY);
     }
 
     /// Draw connector from bottom edge of given rect to top edge of next rect
@@ -513,7 +530,7 @@ impl UiCodingArena
         let coords = self.supply_op_coords(idx);
         let active = false;
         let has_op = bin.curr_count > 0;
-        self.draw_op_rect(coords, self.calculate_op_style(coords, active, has_op, InstrRef::Supply {idx}, self.is_droppable_on_supply_bin(idx, bin.op)), &bin.op.to_string());
+        self.draw_op_rect(coords, self.calculate_op_style(coords, active, has_op, InstrRef::Supply {idx}, self.is_droppable_on_supply_bin(idx, bin.op)), &bin.op.as_text());
 
         // Draw count
         let count_txt = format!("{}/{}", bin.curr_count, bin.orig_count);
@@ -590,7 +607,7 @@ impl UiCodingArena
         let coords = self.prog_instr_coords(xidx, yidx);
         let highlight_above = room_for_more && self.is_droppable_before_prog_instr(xidx, yidx);
 
-        self.draw_op_rect(coords, self.calculate_op_style(coords, active, true, InstrRef::Prog {idx: yidx}, highlight_above), &instr.to_string());
+        self.draw_op_rect(coords, self.calculate_op_style(coords, active, true, InstrRef::Prog {idx: yidx}, highlight_above), &instr.as_text());
 
         if let Some(connector_yidx) = prev_yidx {
             self.draw_v_connector(self.prog_instr_coords(xidx, connector_yidx), coords, highlight_above);
@@ -703,7 +720,7 @@ impl UiCodingArena
     {
         if let Some(DragOrigin{instr, ..}) = &self.dragging {
             let coords = self.dragging_op_coords().unwrap();
-            self.draw_op_rect(coords, OpStyle::dragging(), &instr.to_string());
+            self.draw_op_rect(coords, OpStyle::dragging(), &instr.as_text());
         }
     }
 

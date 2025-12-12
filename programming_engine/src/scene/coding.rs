@@ -20,6 +20,19 @@ pub enum ActionOpcode {
     No, // Only used during testing. Test treats it as always failing.
 }
 
+impl ActionOpcode {
+    // Used for representing to user
+    pub fn as_text(&self) -> String {
+        use ActionOpcode::*;
+        match self {
+            F => "F",
+            L => "L",
+            R => "R",
+            No => "No",
+        }.to_string()
+    }
+}
+
 #[allow(non_camel_case_types)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ParentOpcode {
@@ -41,6 +54,18 @@ impl ParentOpcode {
             Else => 2,
         }
     }
+
+    // Used for representing to user
+    pub fn as_text(&self) -> String {
+        use ParentOpcode::*;
+        match self {
+            group => "{}",
+            LOOP => "LOOP",
+            x2 => "x2",
+            loop5 => "loop5",
+            Else => "Else",
+        }.to_string()
+    }
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -59,6 +84,17 @@ impl std::fmt::Display for Opcode {
     }
 }
 
+impl Opcode {
+    pub fn as_text(&self) -> String {
+        use Opcode::*;
+        match self {
+            Action(op) => op.as_text(),
+            Parent(op) => op.as_text(),
+        }
+
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Instr {
     Action(ActionOpcode, ActionData),
@@ -70,6 +106,13 @@ impl Instr {
         match op {
             Opcode::Action(action_op) => Self::Action(action_op, ActionData::default()),
             Opcode::Parent(parent_op) => Self::Parent(parent_op, Subprog::default()),
+        }
+    }
+
+    pub fn as_text(&self) -> String {
+        match self {
+            Instr::Action(op, _) => op.as_text(),
+            Instr::Parent(op, _) => op.as_text(),
         }
     }
 
@@ -172,6 +215,8 @@ impl Instr {
     }
 }
 
+// Conversion to string for "Friendly" representation.
+// Aim for allowing reconstruction of original program but not current state.
 impl std::fmt::Display for Instr {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         use Instr::*;
@@ -181,6 +226,10 @@ impl std::fmt::Display for Instr {
         }
     }
 }
+
+// Conversion to string for detailed representation.
+// Aim for allowing reconstruction of current state.
+//impl std::fmt::Debug
 
 impl From<&str> for Instr {
     fn from(txt: &str) -> Self {
