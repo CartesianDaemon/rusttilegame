@@ -871,8 +871,8 @@ impl UiCodingArena
             Some(DragOrigin {
                 instr: Instr::from_opcode(bin.op),
                 op_ref: InstrRef::Supply { idx },
-                orig_offset_x,
-                orig_offset_y
+                orig_offset_x: orig_offset_x * self.fr_pos.prog_instr_w / self.fr_pos.supply_op_w,
+                orig_offset_y: orig_offset_y * self.fr_pos.prog_instr_w / self.fr_pos.supply_op_w
             })
         } else {
             None
