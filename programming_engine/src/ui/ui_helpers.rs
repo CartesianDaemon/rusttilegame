@@ -69,14 +69,31 @@ pub struct Ticker {
     pub last_tick_time: f64,
 
     // Time between ticks in sec.
-    tick_interval: f64,
+    tick_interval_set: Vec<f64>,
+    tick_interval_idx: usize,
 }
 
 impl Ticker {
     pub fn new() -> Ticker {
         Ticker {
-            tick_interval: 0.5,
+            tick_interval_set: vec![0.5, 0.3, 0.1, 1.],
+            tick_interval_idx: 0,
             last_tick_time: get_time(),
+        }
+    }
+
+    fn tick_interval(&self) -> f64 {
+        self.tick_interval_set[self.tick_interval_idx]
+    }
+
+    fn next_expected_tick(&self) -> f64 {
+        self.last_tick_time + self.tick_interval()
+    }
+
+    pub fn _cycle_tick_intervals(&mut self) {
+        self.tick_interval_idx +=1 ;
+        if self.tick_interval_idx >= self.tick_interval_set.len() {
+            self.tick_interval_idx = 0
         }
     }
 
@@ -86,7 +103,7 @@ impl Ticker {
 
     pub fn tick_if_ready(&mut self) -> bool {
         let curr_time = get_time();
-        if curr_time >= self.last_tick_time + self.tick_interval {
+        if curr_time >= self.next_expected_tick() {
             self.reset_tick();
             true
         } else {
@@ -95,7 +112,7 @@ impl Ticker {
     }
 
     pub fn anim_state(&self) -> AnimState {
-        let pc_through_tick = ((get_time() - self.last_tick_time) / self.tick_interval) as f32;
+        let pc_through_tick = ((get_time() - self.last_tick_time) / self.tick_interval()) as f32;
         AnimState {
             anim_pc: pc_through_tick % 1.0,
             slide_pc: pc_through_tick.min(1.0),
