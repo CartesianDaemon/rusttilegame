@@ -118,8 +118,10 @@ impl Instr {
     // More naturally part of opcode.
     pub fn _d_connector(self) -> bool {
         use Instr::*;
+        use ParentOpcode::*;
         match self {
             Action(_, _) => true,
+            Parent(LOOP, _) => false,
             Parent(_, _) => true,
         }
     }
