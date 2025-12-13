@@ -15,22 +15,46 @@ pub struct ProgpuzzGamedata {
 
 #[derive(Debug)]
 pub struct SaveGame {
+    num_levels: u16,
 }
 
+use chrono::prelude::*;
 impl SaveGame {
-    fn new() -> Self {
-        let mut save_game = Self {};
+    fn new(num_levels: u16) -> Self {
+        let mut save_game = Self {num_levels};
         save_game.unlock_level(1);
+        save_game.storage().set(&save_game.version_key(), "1.6.1");
         save_game
     }
 
-    fn level_unlocked_key(&self, lev_idx: u16) -> String {
-        format!("Level{lev_idx}")
+    fn version_key(&self) -> &str {
+        "version"
     }
 
-    fn unlock_level(&mut self, lev_idx: u16) {
-        let storage = &mut quad_storage::STORAGE.lock().unwrap();
-        storage.set(&self.level_unlocked_key(lev_idx), "unlocked");
+    fn level_unlocked_key(&self, lev_idx: u16) -> String {
+        format!("Level_unlocked{lev_idx}")
+    }
+
+    fn level_solutions_key(&self, lev_idx: u16) -> String {
+        format!("Level_solutions{lev_idx}")
+    }
+
+    fn storage(&self) -> std::sync::MutexGuard<quad_storage::LocalStorage> {
+        quad_storage::STORAGE.lock().unwrap()
+    }
+
+    pub fn unlock_level(&mut self, lev_idx: u16) {
+        self.storage().set(&self.level_unlocked_key(lev_idx), "unlocked");
+    }
+
+    pub fn get_unlocked_levels(&self) -> std::collections::HashSet<u16> {
+        (1..self.num_levels).filter(|lev_idx| self.storage().get(&self.level_unlocked_key(*lev_idx)).is_some()).collect()
+    }
+
+    pub fn _store_solution(&self, lev_idx: u16, datetime: DateTime<Local>, solution: &Subprog) {
+        let key = &self.level_solutions_key(lev_idx);
+        let prev = self.storage().get(key).unwrap_or_default();
+        self.storage().set(key, &format!("{prev}{datetime}: {solution}\n"));
     }
 }
 
@@ -39,10 +63,12 @@ impl BaseGamedata for ProgpuzzGamedata {
     type CustomProps = ProgpuzzCustomProps;
 
     fn new() -> Self {
+        let levset = levels::ProgpuzzLevset::new();
+        let num_levels = levset.num_levels();
         ProgpuzzGamedata {
-            levset: levels::ProgpuzzLevset::new(),
+            levset,
             reload_needed: false,
-            save_game: SaveGame::new(),
+            save_game: SaveGame::new(num_levels),
         }
     }
 
@@ -77,8 +103,7 @@ impl BaseGamedata for ProgpuzzGamedata {
     }
 
     fn get_unlocked_levels(&self) -> std::collections::HashSet<u16> {
-        let storage = &mut quad_storage::STORAGE.lock().unwrap();
-        (1..self.num_levels()).filter(|lev_idx| storage.get(&self.save_game.level_unlocked_key(*lev_idx)).is_some()).collect()
+        self.save_game.get_unlocked_levels()
     }
 
     fn goto_level(&mut self, lev_idx: u16) {
