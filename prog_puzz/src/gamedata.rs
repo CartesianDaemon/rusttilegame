@@ -26,8 +26,6 @@ mod savegame {
 
     impl SaveGame {
         pub fn new(num_levels: u16) -> Self {
-            let datetime = time::UtcDateTime::now();
-
             let mut save_game = Self {num_levels};
             save_game.unlock_level(1);
             // TODO: Handle values from previous version?
