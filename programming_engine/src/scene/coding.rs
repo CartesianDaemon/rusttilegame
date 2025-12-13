@@ -427,9 +427,17 @@ impl Subprog {
                 ref mut instr @ Instr::Parent(..) => {
                     assert_eq!(sep, "[", "Expected '[' after {instr}");
                     let idy = find_unmatched_closing_bracket(trailing).unwrap();
-                    assert_eq!(trailing.as_bytes()[idy+1], b',', "Expected ',' after ']' in {trailing} at {idy}");
-                    *instr.as_parent_subprog_mut() = Self::from_text(&trailing[0..idy]);
-                    remaining = &trailing[idy+2..];
+                    let (subprog_txt, rest_of_string) = (&trailing[0..idy], &trailing[idy+1..]);
+                    *instr.as_parent_subprog_mut() = Self::from_text(subprog_txt);
+
+                    let rest_of_string = rest_of_string.trim();
+                    if rest_of_string.is_empty() {
+                        remaining = rest_of_string;
+                    } else {
+                        assert!(rest_of_string.starts_with(','), "Expected ',' after ']' in {trailing} at {idy}");
+                        remaining = &rest_of_string[1..];
+
+                    }
                 } ,
             }
         }
@@ -740,8 +748,9 @@ mod tests {
             assert_eq!(Prog::from_text("F ,R "), Prog::from(vec![F, R]));
             assert_eq!(Prog::from_text(" F ,R    , L"), Prog::from(vec![F, R, L]));
             assert_eq!(Prog::from_text("F,R,L,x2[],group[],loop5[],"), Prog::from(vec![F, R, L, x2, group, loop5]));
-        }
-        if false {
+            assert_eq!(Prog::from_text("F,R,L,x2[],group[],loop5[]"), Prog::from(vec![F, R, L, x2, group, loop5]));
+        } else {
+            // ...
         }
     }
 
