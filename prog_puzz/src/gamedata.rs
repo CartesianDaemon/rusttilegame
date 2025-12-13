@@ -23,8 +23,16 @@ impl SaveGame {
     fn new(num_levels: u16) -> Self {
         let mut save_game = Self {num_levels};
         save_game.unlock_level(1);
-        save_game.storage().set(&save_game.version_key(), "1.6.1");
+        // TODO: Handle values from previous version?
+        save_game.storage().set(&save_game.version_key(), save_game.current_version());
         save_game
+    }
+
+    fn current_version(&self) -> &str {
+        // Version based on engine versions.
+        // Expecting 1.6.1: version with plain "Level1" key for unlock and no solution key.
+        // Expecting 1.6.2: version with "Level1_unlocked" and "Level1_solutions"
+        return "1.6.1";
     }
 
     fn version_key(&self) -> &str {
@@ -32,11 +40,11 @@ impl SaveGame {
     }
 
     fn level_unlocked_key(&self, lev_idx: u16) -> String {
-        format!("Level_unlocked{lev_idx}")
+        format!("Level{lev_idx}_unlocked")
     }
 
-    fn level_solutions_key(&self, lev_idx: u16) -> String {
-        format!("Level_solutions{lev_idx}")
+    fn _level_solutions_key(&self, lev_idx: u16) -> String {
+        format!("Level{lev_idx}_solutions")
     }
 
     fn storage(&self) -> std::sync::MutexGuard<quad_storage::LocalStorage> {
@@ -52,9 +60,9 @@ impl SaveGame {
     }
 
     pub fn _store_solution(&self, lev_idx: u16, datetime: DateTime<Local>, solution: &Subprog) {
-        let key = &self.level_solutions_key(lev_idx);
+        let key = &self._level_solutions_key(lev_idx);
         let prev = self.storage().get(key).unwrap_or_default();
-        self.storage().set(key, &format!("{prev}{datetime}: {solution}\n"));
+        self.storage().set(key, &format!("{prev}{datetime} ({}): {solution}\n", self.current_version()));
     }
 }
 
