@@ -749,6 +749,15 @@ mod tests {
             assert_eq!(Prog::from_text(" F ,R    , L"), Prog::from(vec![F, R, L]));
             assert_eq!(Prog::from_text("F,R,L,x2[],group[],loop5[],"), Prog::from(vec![F, R, L, x2, group, loop5]));
             assert_eq!(Prog::from_text("F,R,L,x2[],group[],loop5[]"), Prog::from(vec![F, R, L, x2, group, loop5]));
+        }
+        if true {
+            use prog_fn_ops::*;
+            assert_eq!(Prog::from_text("group [ F ] "), Prog::from(vec![group(&[F])]));
+            assert_eq!(Prog::from_text("group [ F, R ] "), Prog::from(vec![group(&[F, R])]));
+            assert_eq!(Prog::from_text("group [ F ,R ] "), Prog::from(vec![group(&[F, R])]));
+            assert_eq!(Prog::from_text("group [ F, R,]"), Prog::from(vec![group(&[F, R])]));
+            assert_eq!(Prog::from_text("group [ x2 [ F, R] ] "), Prog::from(vec![group(&[x2(&[F, R])])]));
+            assert_eq!(Prog::from_text("group [ x2 [ F, R], loop [ L, L] ] "), Prog::from(vec![group(&[x2(&[F, R]), LOOP(&[L, L])])]));
         } else {
             // ...
         }
