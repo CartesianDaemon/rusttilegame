@@ -9,16 +9,28 @@ pub struct ProgpuzzGamedata {
 
     // TODO: Or better to store "current level" in a higher layer?
     reload_needed: bool,
+
+    save_game: SaveGame,
 }
 
-impl ProgpuzzGamedata {
-    fn level_key(&self, lev_idx: u16) -> String {
+#[derive(Debug)]
+pub struct SaveGame {
+}
+
+impl SaveGame {
+    fn new() -> Self {
+        let mut save_game = Self {};
+        save_game.unlock_level(1);
+        save_game
+    }
+
+    fn level_unlocked_key(&self, lev_idx: u16) -> String {
         format!("Level{lev_idx}")
     }
 
     fn unlock_level(&mut self, lev_idx: u16) {
         let storage = &mut quad_storage::STORAGE.lock().unwrap();
-        storage.set(&self.level_key(lev_idx), "unlocked");
+        storage.set(&self.level_unlocked_key(lev_idx), "unlocked");
     }
 }
 
@@ -27,17 +39,16 @@ impl BaseGamedata for ProgpuzzGamedata {
     type CustomProps = ProgpuzzCustomProps;
 
     fn new() -> Self {
-        let mut game_data = ProgpuzzGamedata {
+        ProgpuzzGamedata {
             levset: levels::ProgpuzzLevset::new(),
             reload_needed: false,
-        };
-        game_data.unlock_level(1);
-        game_data
+            save_game: SaveGame::new(),
+        }
     }
 
     fn advance_scene(&mut self, continuation: SceneConclusion) {
         self.levset.advance_scene(continuation);
-        self.unlock_level(self.levset.get_current_level());
+        self.save_game.unlock_level(self.levset.get_current_level());
     }
 
     fn load_scene(&mut self) -> Scene::<Self::GameLogic> {
@@ -67,7 +78,7 @@ impl BaseGamedata for ProgpuzzGamedata {
 
     fn get_unlocked_levels(&self) -> std::collections::HashSet<u16> {
         let storage = &mut quad_storage::STORAGE.lock().unwrap();
-        (1..self.num_levels()).filter(|lev_idx| storage.get(&self.level_key(*lev_idx)).is_some()).collect()
+        (1..self.num_levels()).filter(|lev_idx| storage.get(&self.save_game.level_unlocked_key(*lev_idx)).is_some()).collect()
     }
 
     fn goto_level(&mut self, lev_idx: u16) {
