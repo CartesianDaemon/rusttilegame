@@ -19,9 +19,6 @@ pub struct ProgpuzzGamedata {
 // TODO: Support games with solutions other than Prog?
 // TODO: High scores.
 mod savegame {
-    use chrono::prelude::*;
-    use super::Prog;
-
     #[derive(Debug)]
     pub struct SaveGame {
         num_levels: u16,
@@ -65,12 +62,6 @@ mod savegame {
 
         pub fn get_unlocked_levels(&self) -> std::collections::HashSet<u16> {
             (1..self.num_levels).filter(|lev_idx| self.storage().get(&self.level_unlocked_key(*lev_idx)).is_some()).collect()
-        }
-
-        pub fn _store_solution(&self, lev_idx: u16, datetime: DateTime<Local>, solution: &Prog) {
-            let key = &self._level_solutions_key(lev_idx);
-            let prev = self.storage().get(key).unwrap_or_default();
-            self.storage().set(key, &format!("{prev}{datetime} ({}): {solution}\n", self.current_version()));
         }
     }
 }
