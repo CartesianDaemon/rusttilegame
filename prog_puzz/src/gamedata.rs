@@ -3,6 +3,8 @@ use super::levels;
 
 use tile_engine::for_gamedata::*;
 
+use savegame::*;
+
 #[derive(Debug)]
 pub struct ProgpuzzGamedata {
     levset: levels::ProgpuzzLevset,
@@ -13,56 +15,63 @@ pub struct ProgpuzzGamedata {
     save_game: SaveGame,
 }
 
-#[derive(Debug)]
-pub struct SaveGame {
-    num_levels: u16,
-}
+// TODO: Move into game engine?
+// TODO: Support games with solutions other than Prog?
+// TODO: High scores.
+mod savegame {
+    use chrono::prelude::*;
+    use super::Prog;
 
-use chrono::prelude::*;
-impl SaveGame {
-    fn new(num_levels: u16) -> Self {
-        let mut save_game = Self {num_levels};
-        save_game.unlock_level(1);
-        // TODO: Handle values from previous version?
-        save_game.storage().set(&save_game.version_key(), save_game.current_version());
-        save_game
+    #[derive(Debug)]
+    pub struct SaveGame {
+        num_levels: u16,
     }
 
-    fn current_version(&self) -> &str {
-        // Version based on engine versions.
-        // Expecting 1.6.1: version with plain "Level1" key for unlock and no solution key.
-        // Expecting 1.6.2: version with "Level1_unlocked" and "Level1_solutions"
-        return "1.6.1";
-    }
+    impl SaveGame {
+        pub fn new(num_levels: u16) -> Self {
+            let mut save_game = Self {num_levels};
+            save_game.unlock_level(1);
+            // TODO: Handle values from previous version?
+            save_game.storage().set(&save_game.version_key(), save_game.current_version());
+            save_game
+        }
 
-    fn version_key(&self) -> &str {
-        "version"
-    }
+        fn current_version(&self) -> &str {
+            // Version based on engine versions.
+            // Expecting 1.6.1: version with plain "Level1" key for unlock and no solution key.
+            // Expecting 1.6.2: version with "Level1_unlocked" and "Level1_solutions"
+            return "1.6.1";
+        }
 
-    fn level_unlocked_key(&self, lev_idx: u16) -> String {
-        format!("Level{lev_idx}_unlocked")
-    }
+        fn version_key(&self) -> &str {
+            "version"
+        }
 
-    fn _level_solutions_key(&self, lev_idx: u16) -> String {
-        format!("Level{lev_idx}_solutions")
-    }
+        fn level_unlocked_key(&self, lev_idx: u16) -> String {
+            format!("Level{lev_idx}_unlocked")
+        }
 
-    fn storage(&self) -> std::sync::MutexGuard<quad_storage::LocalStorage> {
-        quad_storage::STORAGE.lock().unwrap()
-    }
+        fn _level_solutions_key(&self, lev_idx: u16) -> String {
+            format!("Level{lev_idx}_solutions")
+        }
 
-    pub fn unlock_level(&mut self, lev_idx: u16) {
-        self.storage().set(&self.level_unlocked_key(lev_idx), "unlocked");
-    }
+        fn storage(&self) -> std::sync::MutexGuard<quad_storage::LocalStorage> {
+            quad_storage::STORAGE.lock().unwrap()
+        }
 
-    pub fn get_unlocked_levels(&self) -> std::collections::HashSet<u16> {
-        (1..self.num_levels).filter(|lev_idx| self.storage().get(&self.level_unlocked_key(*lev_idx)).is_some()).collect()
-    }
+        pub fn unlock_level(&mut self, lev_idx: u16) {
+            self.storage().set(&self.level_unlocked_key(lev_idx), "unlocked");
+        }
 
-    pub fn _store_solution(&self, lev_idx: u16, datetime: DateTime<Local>, solution: &Subprog) {
-        let key = &self._level_solutions_key(lev_idx);
-        let prev = self.storage().get(key).unwrap_or_default();
-        self.storage().set(key, &format!("{prev}{datetime} ({}): {solution}\n", self.current_version()));
+        pub fn get_unlocked_levels(&self) -> std::collections::HashSet<u16> {
+            (1..self.num_levels).filter(|lev_idx| self.storage().get(&self.level_unlocked_key(*lev_idx)).is_some()).collect()
+        }
+
+        pub fn _store_solution(&self, lev_idx: u16, datetime: DateTime<Local>, solution: &Prog) {
+            let key = &self._level_solutions_key(lev_idx);
+            let prev = self.storage().get(key).unwrap_or_default();
+            self.storage().set(key, &format!("{prev}{datetime} ({}): {solution}\n", self.current_version()));
+        }
     }
 }
 
