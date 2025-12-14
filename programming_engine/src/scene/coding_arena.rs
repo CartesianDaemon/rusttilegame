@@ -116,12 +116,6 @@ impl<MovementLogic: for_gamedata::BaseMovementLogic> CodingArena<MovementLogic>
 
     fn finish(&mut self) {
         assert!(self.phase == CodingRunningPhase::Running);
-        self.record_outcome("Fin");
-        self.transition(CodingRunningPhase::Died);
-    }
-
-    fn _died(&mut self) {
-        assert!(self.phase == CodingRunningPhase::Running);
         self.record_outcome("Die");
         self.transition(CodingRunningPhase::Died);
     }
