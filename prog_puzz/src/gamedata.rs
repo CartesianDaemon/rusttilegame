@@ -26,6 +26,10 @@ mod savegame {
 
     impl SaveGame {
         pub fn new(num_levels: u16) -> Self {
+            use quad_timestamp::*;
+            let timestamp = timestamp_utc().unwrap();
+            log::debug!("Timestamp: {timestamp}");
+
             let mut save_game = Self {num_levels};
             save_game.unlock_level(1);
             // TODO: Handle values from previous version?

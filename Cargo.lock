@@ -666,12 +666,12 @@ dependencies = [
 name = "prog_puzz"
 version = "1.6.1"
 dependencies = [
- "chrono",
  "env_logger",
  "log",
  "macroquad",
  "programming_engine",
  "quad-storage",
+ "quad-timestamp",
 ]
 
 [[package]]
@@ -733,6 +733,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1187c77ced2cc6ae79bd6e35cc09e22159164a05c4d867e299bfbf1f801e9157"
 dependencies = [
  "sapp-jsutils",
+]
+
+[[package]]
+name = "quad-timestamp"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8739015e3f8f1478398bddeba9d2fda2124291b04790d76b963663cdcc3ed1be"
+dependencies = [
+ "chrono",
 ]
 
 [[package]]
