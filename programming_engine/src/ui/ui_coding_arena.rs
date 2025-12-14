@@ -370,44 +370,48 @@ impl UiCodingArena
         // That is more like what I had before but makes sense with those values...
         match coding_arena.phase {
             CodingRunningPhase::Coding => {
-                // Start executing on space/enter, or clicking on map.
+                // Continue to execution on: space/enter, or clicking on map.
                 if matches!(was_key_pressed(), Some(Ok)) ||
                     is_mouse_button_pressed(MouseButton::Left) && self.mouse_in_rect(self.fr_pos.arena) {
-                    _ = coding_arena.advance(InputCmd::Continue);
+                    coding_arena.advance(InputCmd::Continue);
                     }
             },
             CodingRunningPhase::Died => {
-                // Return to coding on any input
+                // Continue to coding on: any input
                 if was_any_input() {
-                    _ = coding_arena.advance(InputCmd::Continue);
+                    coding_arena.advance(InputCmd::Continue);
                 }
             },
             CodingRunningPhase::Won => {
-                // Onto next level on any input
-                // TODO: Interpret cancel
-                if was_any_input() {
-                    _ = coding_arena.advance(InputCmd::Continue);
+                // Cancel to coding on: Key cancel, or click on supply (??)
+                // Continue to next level on: any other input
+                if matches!(was_key_pressed(), Some(Escape)) ||
+                    is_mouse_button_pressed(MouseButton::Left) && ! self.mouse_in_rect(self.fr_pos.arena) {
+                    coding_arena.advance(InputCmd::Cancel);
+                } else if was_any_input() {
+                    coding_arena.advance(InputCmd::Continue);
                 }
             },
             CodingRunningPhase::Running => {
-                // While executing, advance map each tick
+                // Advance execution on: tick:
                 if self.ticker.tick_if_ready() {
                     coding_arena.advance(InputCmd::Tick);
                 }
                 self.anim = self.ticker.anim_state();
 
-                // TODO: Turn some input into Input Cmd and move some "what to do" logic into coding arena?
+                // Cancel execution on: Escape, click on supply.
+                // Advance map on: normal key (only useful if we implement pause?)
+                // Switch to a different tick speed on: Space/Enter key, or click in map.
                 if matches!(was_key_pressed(), Some(Escape)) ||
                     is_mouse_button_pressed(MouseButton::Left) && !self.mouse_in_rect(self.fr_pos.arena) {
                         // Cancel execution on Escape/backspace
                         // TODO: Maybe pause
                         coding_arena.advance(InputCmd::Continue);
                 } else if matches!(was_key_pressed(), Some(Normal)) {
-                    // Advance map immediately on any other input
                     self.ticker.reset_tick();
                     _ = coding_arena.advance(InputCmd::Tick);
-                } else if matches!(was_key_pressed(), Some(Ok)) {
-                    // Switch to a different tick speed
+                } else if matches!(was_key_pressed(), Some(Ok)) ||
+                        is_mouse_button_pressed(MouseButton::Left) && self.mouse_in_rect(self.fr_pos.arena) {
                     self.ticker.cycle_tick_intervals();
                 }
             }

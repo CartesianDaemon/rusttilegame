@@ -1,5 +1,12 @@
 ## Unreleased
 
+- Refactor: Using quad_timestamp and chrono.
+- Refactor: Level chooser and save game traits.
+- Refactor: Towards saving outcome of each execution.
+- Feature/refactor: Towards cancel from won screen.
+
+## 13 Dec: presumed 1.6.2
+
 - Gameplay: Else instr.
   - Refactor: .blocked. Test. .prev_ip.
 - Gameplay: Add experimental levels with Else, including Maze.
