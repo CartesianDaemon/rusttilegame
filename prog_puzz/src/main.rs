@@ -28,5 +28,5 @@ use gamedata::*;
 
 #[macroquad::main("Tile Game")]
 async fn main() {
-    tile_engine::run::<ProgpuzzGamedata>().await;
+    tile_engine::run::<ProgpuzzGameData>().await;
 }

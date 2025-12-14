@@ -28,16 +28,16 @@ pub use movement_logic::PushpuzzGameLogic;
 use tile_engine::for_gamedata::*;
 
 #[derive(Debug)]
-pub struct PushpuzzGamedata {
+pub struct PushpuzzGameData {
     levset: levels::PushpuzzLevset,
 }
 
-impl BaseGamedata for PushpuzzGamedata {
+impl BaseGameData for PushpuzzGameData {
     type GameLogic = PushpuzzGameLogic;
     type CustomProps = tile_engine::simple_custom_props::SimpleCustomProps;
 
     fn new() -> Self {
-        PushpuzzGamedata {
+        PushpuzzGameData {
             levset: levels::PushpuzzLevset::new()
         }
     }

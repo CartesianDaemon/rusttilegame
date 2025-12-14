@@ -33,7 +33,7 @@ pub mod for_gamedata {
     pub use super::simple_custom_props::*;
     pub use super::scene::Arena;
     pub use super::scene::arena::RosterIndex;
-    pub use super::savegame::SaveGame;
+    pub use super::savegame::*;
 }
 
 pub mod infra {

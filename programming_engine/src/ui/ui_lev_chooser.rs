@@ -1,7 +1,8 @@
 use macroquad::prelude::*;
 
 use crate::ui::PRect;
-use crate::gamedata::{BaseGamedata};
+use crate::gamedata::{BaseGameData};
+use crate::savegame::BaseSaveGame;
 
 struct DragInfo {
     lev_idx: u16,
@@ -53,7 +54,7 @@ impl LevChooser {
         MouseOverCols {text: LIGHTGRAY, fill: DARKGRAY, border: BLACK, border_width}
     }
 
-    pub fn do_frame<GameData: BaseGamedata>(&mut self, game_state: &mut GameData, draw_coords: (f32, f32)) {
+    pub fn do_frame<GameData: BaseGameData>(&mut self, game_state: &mut GameData, draw_coords: (f32, f32)) {
             let n_levs = game_state.num_levels();
             let buttons_per_row = 10;
 
@@ -84,7 +85,7 @@ impl LevChooser {
                 let rect = PRect { x: curr_x - r, y: curr_y - r, w: r * 2., h: r * 2.};
                 let mouse_in = rect.contains(mouse_position());
 
-                if mouse_in && is_mouse_button_down(MouseButton::Left) && game_state.get_unlocked_levels().contains(&lev_idx) {
+                if mouse_in && is_mouse_button_down(MouseButton::Left) && game_state.save_game().get_unlocked_levels().contains(&lev_idx) {
                     if let Some(drag_info) = &mut self.drag_origin {
                         if drag_info.lev_idx == lev_idx && get_time() > drag_info.mouse_down_time + hold_for {
                             game_state.goto_level(lev_idx);
@@ -109,7 +110,7 @@ impl LevChooser {
                 };
                 let cols = if lev_idx == game_state.get_current_level() {
                     Self::col_active(mouse_over_state)
-                } else if game_state.get_unlocked_levels().contains(&lev_idx) {
+                } else if game_state.save_game().get_unlocked_levels().contains(&lev_idx) {
                     Self::col_unlocked(mouse_over_state)
                 } else {
                     Self::col_locked(mouse_over_state)

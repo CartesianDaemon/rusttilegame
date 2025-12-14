@@ -45,7 +45,7 @@ pub trait BaseGameLogic : Clone + Sized {
 }
 
 /// Manages game-specific state, e.g. which level to go to next.
-pub trait BaseGamedata {
+pub trait BaseGameData {
     type CustomProps : BaseCustomProps;
     type GameLogic : BaseGameLogic;
 

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use macroquad::prelude::*;
 
-use crate::gamedata::BaseGamedata;
+use crate::gamedata::BaseGameData;
 use crate::scene::*;
 
 use super::ui_helpers::*;
@@ -27,7 +27,7 @@ impl Ui {
         }
     }
 
-    pub async fn do_frame<GameData: BaseGamedata>(&mut self, scene: &mut Scene<GameData::GameLogic>, state: &mut GameData) {
+    pub async fn do_frame<GameData: BaseGameData>(&mut self, scene: &mut Scene<GameData::GameLogic>, state: &mut GameData) {
         match scene {
             Scene::Splash(scene_struct) => {
                 UiSplash::advance(scene_struct);

@@ -21,7 +21,7 @@ impl<CustomProps: BaseCustomProps> PartialEq for FreeObj<CustomProps> {
 }
 
 /// Logical properties of object, used for game logic and scripting.
-/// Some of this could be moved into Gamedata? With base trait for required props?
+/// Some of this could be moved into GameData? With base trait for required props?
 #[derive(Clone, Debug, PartialEq)]
 pub struct LogicalProps<CustomProps: BaseCustomProps> {
     /// String representation of object, used internally for debug fmt etc.

@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::gamedata::{BaseGameLogic, BaseGamedata};
+use crate::gamedata::{BaseGameLogic, BaseGameData};
 
 use crate::ui::ui_helpers::{was_any_input, was_key_pressed};
 use crate::scene::*;
@@ -362,7 +362,7 @@ impl UiCodingArena
 
     }
 
-    pub fn advance<GameData: BaseGamedata>(&mut self, coding_arena: &mut CodingArena<GameData::GameLogic>) {
+    pub fn advance<GameData: BaseGameData>(&mut self, coding_arena: &mut CodingArena<GameData::GameLogic>) {
         use crate::ui::KeyType::*;
         // TODO: Want to combine KeyType into InputCmd. Have one function to turn
         // keyboard into that. And have UI generate those based on mouse. Then interpret
@@ -414,7 +414,7 @@ impl UiCodingArena
         }
     }
 
-    pub async fn do_frame<GameData: BaseGamedata>(
+    pub async fn do_frame<GameData: BaseGameData>(
             &mut self,
             coding_arena: &mut CodingArena<GameData::GameLogic>,
             texture_cache: &mut TextureCache,
