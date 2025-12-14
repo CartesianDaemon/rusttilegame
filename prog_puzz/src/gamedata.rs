@@ -27,8 +27,8 @@ mod savegame {
     impl SaveGame {
         pub fn new(num_levels: u16) -> Self {
             let timestamp = quad_timestamp::timestamp_utc().unwrap();
-            log::debug!("Timestamp: {timestamp}");
-            let datetime = chrono::NaiveDateTime::default();
+            let datetime = chrono::DateTime::<chrono::Utc>::from_timestamp_secs(timestamp).unwrap();
+            log::debug!("Timestamp: {datetime}");
 
             let mut save_game = Self {num_levels};
             save_game.unlock_level(1);
