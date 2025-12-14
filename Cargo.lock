@@ -666,6 +666,7 @@ dependencies = [
 name = "prog_puzz"
 version = "1.6.1"
 dependencies = [
+ "chrono",
  "env_logger",
  "log",
  "macroquad",
