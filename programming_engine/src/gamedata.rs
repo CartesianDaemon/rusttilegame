@@ -48,9 +48,10 @@ pub trait BaseGameLogic : Clone + Sized {
 }
 
 /// Manages game-specific state, e.g. which level to go to next.
-pub trait BaseGameData : SaveGame {
+pub trait BaseGameData {
     type CustomProps : BaseCustomProps;
     type GameLogic : BaseGameLogic;
+    type SaveGame : BaseSaveGame;
 
     fn new() -> Self;
 
@@ -61,7 +62,8 @@ pub trait BaseGameData : SaveGame {
 
     fn load_next_scene(&mut self, continuation: SceneConclusion) -> Scene<Self::GameLogic> {
         self.advance_scene(continuation);
-        self.unlock_level(self.get_current_level());
+        let new_lev = self.get_current_level();
+        self.save_game().unlock_level(new_lev);
         self.load_scene()
     }
 
@@ -91,4 +93,6 @@ pub trait BaseGameData : SaveGame {
     fn get_level_str(&self) -> String {
         String::new()
     }
+
+    fn save_game(&mut self) -> &mut Self::SaveGame;
 }
