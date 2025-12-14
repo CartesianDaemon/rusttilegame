@@ -666,13 +666,10 @@ dependencies = [
 name = "prog_puzz"
 version = "1.6.1"
 dependencies = [
- "chrono",
  "env_logger",
  "log",
  "macroquad",
  "programming_engine",
- "quad-storage",
- "quad-timestamp",
 ]
 
 [[package]]
@@ -680,12 +677,15 @@ name = "programming_engine"
 version = "1.6.1"
 dependencies = [
  "assrt",
+ "chrono",
  "culpa",
  "derive_more",
  "env_logger",
  "futures",
  "log",
  "macroquad",
+ "quad-storage",
+ "quad-timestamp",
 ]
 
 [[package]]

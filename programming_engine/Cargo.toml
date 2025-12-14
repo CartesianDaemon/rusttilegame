@@ -11,3 +11,6 @@ assrt = {git = "https://github.com/CartesianDaemon/assrt.git", branch = "v0.2"}
 culpa = "1.0.2"
 log = "0.4.28"
 env_logger = "0.11.8"
+quad-storage = "0.1.0"
+quad-timestamp = "0.1.2"
+chrono = {version = "0.4.42", default-features = false }
