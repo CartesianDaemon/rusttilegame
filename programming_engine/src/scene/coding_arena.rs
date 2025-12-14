@@ -96,48 +96,58 @@ impl<MovementLogic: for_gamedata::BaseMovementLogic> CodingArena<MovementLogic>
     }
 
     pub fn start_execution(&mut self) {
+        assert!(self.phase == CodingRunningPhase::Coding);
         self.transition(CodingRunningPhase::Running);
+
+        // Init interactive arena
+        self.curr_arena = Some(self.init_arena.clone());
+        // Run game-specific logic to copy prog into bot.
+        MovementLogic::harmonise(self);
     }
 
     pub fn won(&mut self) {
+        assert!(self.phase == CodingRunningPhase::Running);
         self.transition(CodingRunningPhase::Won);
     }
 
     pub fn died(&mut self) {
+        assert!(self.phase == CodingRunningPhase::Running);
         self.transition(CodingRunningPhase::Died);
     }
 
     pub fn continue_to_next_level(&mut self) {
+        assert!(self.phase == CodingRunningPhase::Won);
         self.ready_for_next_level = Some(SceneConclusion::Succeed);
     }
 
     pub fn cancel_execution(&mut self) {
+        assert!(self.phase == CodingRunningPhase::Running);
         self.continue_coding();
     }
 
     pub fn continue_coding(&mut self) {
+        assert!(self.phase != CodingRunningPhase::Coding);
         self.transition(CodingRunningPhase::Coding);
+
+        // De-init interactive arena
+        self.curr_arena = None;
     }
 
     fn transition(&mut self, new_phase: CodingRunningPhase) {
         use CodingRunningPhase::*;
         let old_phase = self.phase;
         log::debug!("Coding Arena transition: {old_phase:?} -> {new_phase:?}");
+        assert_ne!(old_phase, new_phase);
         self.phase = new_phase;
         match (old_phase, new_phase) {
-            (Running|Won|Died, Coding) => {
-                // Stopping running. De-init interactive arena
-                self.curr_arena = None;
-            }
-            (Coding, Running) => {
-                // Starting running. Init interactive arena
-                self.curr_arena = Some(self.init_arena.clone());
-                // Starting running. Run game-specific logic to copy prog into bot.
-                MovementLogic::harmonise(self);
-            },
+            // From start_execution()
+            (Coding, Running) => (),
+            // From continue_coding()
+            (Running|Won|Died, Coding) => (),
+            // From won() or died()
             (Running,Won|Died) => (),
+            // An unexpected transition could fail to init or deinit arena.
             _ => panic!("Coding Arena: Unexpected transition!"),
         }
     }
-
 }
