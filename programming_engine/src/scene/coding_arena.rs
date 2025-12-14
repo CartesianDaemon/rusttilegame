@@ -17,6 +17,7 @@ pub struct CodingArena<MovementLogic : for_gamedata::BaseMovementLogic> {
     pub coding: Coding,
     pub phase: CodingRunningPhase,
     ready_for_next_level: Option<SceneConclusion>,
+    outcome_to_store: Option<OutcomeToStore>,
 }
 
 impl<MovementLogic : for_gamedata::BaseMovementLogic> BaseScene for CodingArena<MovementLogic>
@@ -37,8 +38,9 @@ impl<MovementLogic : for_gamedata::BaseMovementLogic> BaseScene for CodingArena<
                         self.curr_arena.as_mut().unwrap().advance(cmd);
                         let conclusion = self.curr_arena.as_ref().unwrap().ready_for_next_level();
                         if conclusion == Some(for_gamedata::SceneConclusion::Fail) {
+                            // TODO: Call died() instead when bot dies for other reasons.
                             log::debug!("Ran off end of program.");
-                            self.died();
+                            self.finish();
                         } else if conclusion == Some(for_gamedata::SceneConclusion::Succeed) {
                             log::debug!("Bot found target!");
                             self.won();
@@ -84,6 +86,7 @@ impl<MovementLogic: for_gamedata::BaseMovementLogic> CodingArena<MovementLogic>
             coding: code,
             phase: CodingRunningPhase::Coding,
             ready_for_next_level: None,
+            outcome_to_store: None,
         }
     }
 
@@ -95,7 +98,7 @@ impl<MovementLogic: for_gamedata::BaseMovementLogic> CodingArena<MovementLogic>
         self.phase == CodingRunningPhase::Coding
     }
 
-    pub fn start_execution(&mut self) {
+    fn start_execution(&mut self) {
         assert!(self.phase == CodingRunningPhase::Coding);
         self.transition(CodingRunningPhase::Running);
 
@@ -105,27 +108,36 @@ impl<MovementLogic: for_gamedata::BaseMovementLogic> CodingArena<MovementLogic>
         MovementLogic::harmonise(self);
     }
 
-    pub fn won(&mut self) {
+    fn won(&mut self) {
         assert!(self.phase == CodingRunningPhase::Running);
+        self.record_outcome("Won");
         self.transition(CodingRunningPhase::Won);
     }
 
-    pub fn died(&mut self) {
+    fn finish(&mut self) {
         assert!(self.phase == CodingRunningPhase::Running);
+        self.record_outcome("Fin");
         self.transition(CodingRunningPhase::Died);
     }
 
-    pub fn continue_to_next_level(&mut self) {
+    fn _died(&mut self) {
+        assert!(self.phase == CodingRunningPhase::Running);
+        self.record_outcome("Die");
+        self.transition(CodingRunningPhase::Died);
+    }
+
+    fn continue_to_next_level(&mut self) {
         assert!(self.phase == CodingRunningPhase::Won);
         self.ready_for_next_level = Some(SceneConclusion::Succeed);
     }
 
-    pub fn cancel_execution(&mut self) {
+    fn cancel_execution(&mut self) {
         assert!(self.phase == CodingRunningPhase::Running);
+        self.record_outcome("Esc");
         self.continue_coding();
     }
 
-    pub fn continue_coding(&mut self) {
+    fn continue_coding(&mut self) {
         assert!(self.phase != CodingRunningPhase::Coding);
         self.transition(CodingRunningPhase::Coding);
 
@@ -149,5 +161,15 @@ impl<MovementLogic: for_gamedata::BaseMovementLogic> CodingArena<MovementLogic>
             // An unexpected transition could fail to init or deinit arena.
             _ => panic!("Coding Arena: Unexpected transition!"),
         }
+    }
+
+    fn record_outcome(&mut self, outcome: &str) {
+        // Record result of execution
+        assert!(self.outcome_to_store.is_none());
+        self.outcome_to_store = Some(OutcomeToStore::new(outcome.to_string(), self.coding.prog.to_string()));
+    }
+
+    pub fn consume_outcome_to_store(&mut self) -> Option<OutcomeToStore> {
+        None
     }
 }

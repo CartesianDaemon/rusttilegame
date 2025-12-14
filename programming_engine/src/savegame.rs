@@ -1,4 +1,3 @@
-use crate::for_gamedata::Prog;
 use quad_timestamp::*;
 use chrono::*;
 
@@ -7,6 +6,8 @@ pub trait BaseSaveGame : std::fmt::Debug {
     fn get_unlocked_levels(&self) -> std::collections::HashSet<u16>;
 
     fn unlock_level(&mut self, _lev_idx: u16);
+
+    fn store_outcome(&mut self, lev_idx: u16, outcome: &str, solution: &str);
 }
 
 #[derive(Debug)]
@@ -19,6 +20,9 @@ impl BaseSaveGame for UnimplementedSaveGame {
     }
 
     fn unlock_level(&mut self, _lev_idx: u16) {
+    }
+
+    fn store_outcome(&mut self, _lev_idx: u16, _outcome: &str, _solution: &str) {
     }
 }
 
@@ -52,7 +56,7 @@ impl GenericProgSaveGame {
         quad_storage::STORAGE.lock().unwrap()
     }
 
-    fn _datetime_str(&self) -> String {
+    fn datetime_str(&self) -> String {
         let datetime = DateTime::<chrono::Utc>::from_timestamp_secs(timestamp_utc().unwrap()).unwrap();
         log::debug!("Timestamp: {datetime}");
         datetime.to_string()
@@ -64,12 +68,6 @@ impl GenericProgSaveGame {
         // Expecting 1.6.2: version with "Level1_unlocked" and "Level1_solutions"
         return "1.6.1";
     }
-
-    fn _store_outcome(&mut self, lev_idx: u16, datetime: DateTime<chrono::Utc>, solution: &Prog) {
-        let key = &self._level_outcomes_key(lev_idx);
-        let prev_val = self.storage().get(key).unwrap_or_default();
-        self.storage().set(key, &format!("{prev_val}{datetime} ({}): {solution}\n", self.current_version()));
-    }
 }
 
 impl BaseSaveGame for GenericProgSaveGame {
@@ -79,5 +77,12 @@ impl BaseSaveGame for GenericProgSaveGame {
 
     fn get_unlocked_levels(&self) -> std::collections::HashSet<u16> {
         (1..self.num_levels).filter(|lev_idx| self.storage().get(&self.level_unlocked_key(*lev_idx)).is_some()).collect()
+    }
+
+    fn store_outcome(&mut self, lev_idx: u16, outcome: &str, solution: &str) {
+        let key = &self._level_outcomes_key(lev_idx);
+        let prev_val = self.storage().get(key).unwrap_or_default();
+        let datetime = self.datetime_str();
+        self.storage().set(key, &format!("{prev_val}{datetime} ({}): {outcome}: {solution}\n", self.current_version()));
     }
 }

@@ -69,6 +69,23 @@ pub trait BaseGameData : LevelChooser {
     fn save_game(&mut self) -> &mut Self::SaveGame;
 }
 
+// Results of level to store in save game.
+#[derive(Clone, Debug)]
+pub struct OutcomeToStore {
+    // pub lev_idx: u16,
+    pub outcome: String,
+    pub solution: String,
+}
+
+impl OutcomeToStore {
+    pub fn new(outcome: String, solution: String) -> Self {
+        Self {
+            outcome,
+            solution,
+        }
+    }
+}
+
 // For games with numbered levels, functions for querying or going to levels.
 // Required for the generic prog SaveGame implementation.
 // Treated as unimplemented if num_levels returns 0.

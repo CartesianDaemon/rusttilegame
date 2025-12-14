@@ -5,6 +5,7 @@ pub use super::coding::*;
 pub use super::splash::*;
 pub use super::coding_arena::*;
 pub use super::super::ui::InputCmd;
+pub use crate::gamedata::OutcomeToStore;
 
 use crate::for_gamedata;
 
@@ -63,6 +64,10 @@ impl<MovementLogic: for_gamedata::BaseMovementLogic> Scene<MovementLogic> {
             Self::Splash(scene) => scene.ready_for_next_level(),
             Self::CodingArena(scene) => scene.ready_for_next_level(),
         }
+    }
+
+    pub fn consume_outcome_to_store(&mut self) -> Option<OutcomeToStore> {
+        None
     }
 
     pub fn as_arena(&self) -> &Arena<MovementLogic> {

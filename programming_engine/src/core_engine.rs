@@ -1,4 +1,5 @@
 use crate::gamedata::BaseGameData;
+use crate::savegame::BaseSaveGame;
 
 use super::gamedata;
 use super::scene::*;
@@ -37,10 +38,23 @@ impl<GameData: gamedata::BaseGameData> Engine<GameData> {
     /// NB: Move into Ui
     pub async fn do_frame(&mut self) {
         self.ui.do_frame(&mut self.state, &mut self.gamedata).await;
+
+        // Record any during scene
+        if let Some(outcome_to_store) = self.state.consume_outcome_to_store() {
+            let lev_idx = self.gamedata.get_current_level();
+            self.gamedata.save_game().store_outcome(
+                lev_idx,
+                &outcome_to_store.outcome,
+                &outcome_to_store. solution
+            );
+        }
+
+        // If scene concluded, calculcate next scene/level
         if let Some(scene_ending) = self.state.ready_for_next_level() {
-            // TODO: Avoid duplication with reload_needed?
             self.state = self.gamedata.load_next_scene(scene_ending);
         }
+
+        // If scene concluded, or level chooser used goto level, load new scene.
         if self.gamedata.reload_needed() {
             self.state = self.gamedata.load_scene();
         }
