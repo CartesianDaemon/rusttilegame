@@ -35,16 +35,15 @@ impl<MovementLogic : for_gamedata::BaseMovementLogic> BaseScene for CodingArena<
                     self.curr_arena.as_mut().unwrap().advance(cmd);
                     let conclusion = self.curr_arena.as_ref().unwrap().ready_for_next_level();
                     if conclusion == Some(for_gamedata::SceneConclusion::Fail) {
-                        log::debug!("Ran off end of program. Stopped.");
-                        self.phase = CodingRunningPhase::Died;
+                        log::debug!("Ran off end of program.");
+                        self.transition(CodingRunningPhase::Died);
                     } else if conclusion == Some(for_gamedata::SceneConclusion::Succeed) {
                         log::debug!("Bot found target!");
-                        self.phase = CodingRunningPhase::Won;
+                        self.transition(CodingRunningPhase::Won);
                     } else if conclusion == None {
                         log::trace!("Bot advanced normally. Continue executing program.");
                     }
                 } else {
-                    log::debug!("Cancelling execution.");
                     self.cancel_execution();
                 }
             },
@@ -86,20 +85,32 @@ impl<MovementLogic: for_gamedata::BaseMovementLogic> CodingArena<MovementLogic>
     }
 
     pub fn start_execution(&mut self) {
-        log::debug!("Start program running.");
-
-        // Init interactive arena
-        self.curr_arena = Some(self.init_arena.clone());
-        // Run game-specific logic for sync'ing different scenes at start of run.
-        MovementLogic::harmonise(self);
-
-        self.phase = CodingRunningPhase::Running;
+        self.transition(CodingRunningPhase::Running);
     }
 
     pub fn cancel_execution(&mut self) {
-        log::debug!("Returning to coding screen");
-        self.phase = CodingRunningPhase::Coding;
-        self.curr_arena = None;
+        self.transition(CodingRunningPhase::Coding);
+    }
+
+    fn transition(&mut self, new_phase: CodingRunningPhase) {
+        use CodingRunningPhase::*;
+        let old_phase = self.phase;
+        log::debug!("Coding Arena transition: {old_phase:?} -> {new_phase:?}");
+        self.phase = new_phase;
+        match (old_phase, new_phase) {
+            (Running|Won|Died, Coding) => {
+                // Stopping running. De-init interactive arena
+                self.curr_arena = None;
+            }
+            (Coding, Running) => {
+                // Starting running. Init interactive arena
+                self.curr_arena = Some(self.init_arena.clone());
+                // Starting running. Run game-specific logic to copy prog into bot.
+                MovementLogic::harmonise(self);
+            },
+            (Running,Won|Died) => (),
+            _ => panic!("Coding Arena: Unexpected transition!"),
+        }
     }
 
 }
