@@ -44,8 +44,7 @@ impl<GameData: gamedata::BaseGameData> Engine<GameData> {
             let lev_idx = self.game_data.get_current_level();
             self.game_data.save_game().store_outcome(
                 lev_idx,
-                &outcome_to_store.outcome,
-                &outcome_to_store. solution
+                outcome_to_store,
             );
         }
 

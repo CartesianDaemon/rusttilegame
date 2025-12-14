@@ -5,7 +5,7 @@ pub use super::coding::*;
 pub use super::splash::*;
 pub use super::coding_arena::*;
 pub use super::super::ui::InputCmd;
-pub use crate::gamedata::OutcomeToStore;
+pub use crate::for_gamedata::OutcomeToStore;
 
 use crate::for_gamedata;
 

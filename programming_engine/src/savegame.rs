@@ -7,7 +7,7 @@ pub trait BaseSaveGame : std::fmt::Debug {
 
     fn unlock_level(&mut self, _lev_idx: u16);
 
-    fn store_outcome(&mut self, lev_idx: u16, outcome: &str, solution: &str);
+    fn store_outcome(&mut self, lev_idx: u16, outcome: OutcomeToStore);
 }
 
 #[derive(Debug)]
@@ -22,7 +22,24 @@ impl BaseSaveGame for UnimplementedSaveGame {
     fn unlock_level(&mut self, _lev_idx: u16) {
     }
 
-    fn store_outcome(&mut self, _lev_idx: u16, _outcome: &str, _solution: &str) {
+    fn store_outcome(&mut self, _lev_idx: u16, _outcome: OutcomeToStore) {
+    }
+}
+
+// Results of level to store in save game.
+#[derive(Clone, Debug)]
+pub struct OutcomeToStore {
+    // pub lev_idx: u16,
+    pub outcome: String,
+    pub solution: String,
+}
+
+impl OutcomeToStore {
+    pub fn new(outcome: String, solution: String) -> Self {
+        Self {
+            outcome,
+            solution,
+        }
     }
 }
 
@@ -79,9 +96,9 @@ impl BaseSaveGame for GenericProgSaveGame {
         (1..self.num_levels).filter(|lev_idx| self.storage().get(&self.level_unlocked_key(*lev_idx)).is_some()).collect()
     }
 
-    fn store_outcome(&mut self, lev_idx: u16, outcome: &str, solution: &str) {
+    fn store_outcome(&mut self, lev_idx: u16, outcome: OutcomeToStore) {
         let datetime = self.datetime_str();
-        let additional_txt = format!("{datetime} ({}): {outcome}: {solution}\n", self.current_version());
+        let additional_txt = format!("{datetime} ({}): {}: {}\n", self.current_version(), outcome.outcome, outcome.solution);
         log::debug!("Storing in save game: {additional_txt}");
         let key = &self._level_outcomes_key(lev_idx);
         let prev_val = self.storage().get(key).unwrap_or_default();
