@@ -19,6 +19,9 @@ pub struct ProgpuzzGamedata {
 // TODO: Support games with solutions other than Prog?
 // TODO: High scores.
 mod savegame {
+    use quad_timestamp::*;
+    use chrono::*;
+
     #[derive(Debug)]
     pub struct SaveGame {
         num_levels: u16,
@@ -26,10 +29,6 @@ mod savegame {
 
     impl SaveGame {
         pub fn new(num_levels: u16) -> Self {
-            let timestamp = quad_timestamp::timestamp_utc().unwrap();
-            let datetime = chrono::DateTime::<chrono::Utc>::from_timestamp_secs(timestamp).unwrap();
-            log::debug!("Timestamp: {datetime}");
-
             let mut save_game = Self {num_levels};
             save_game.unlock_level(1);
             // TODO: Handle values from previous version?
@@ -66,6 +65,12 @@ mod savegame {
 
         pub fn get_unlocked_levels(&self) -> std::collections::HashSet<u16> {
             (1..self.num_levels).filter(|lev_idx| self.storage().get(&self.level_unlocked_key(*lev_idx)).is_some()).collect()
+        }
+
+        fn _datetime_str(&self) -> String {
+            let datetime = DateTime::<chrono::Utc>::from_timestamp_secs(timestamp_utc().unwrap()).unwrap();
+            log::debug!("Timestamp: {datetime}");
+            datetime.to_string()
         }
     }
 }
