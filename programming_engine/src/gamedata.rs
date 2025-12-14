@@ -3,6 +3,7 @@
 /// Trait for interface needed for Games implemented in the Engine
 
 use super::scene::{Scene, Arena, SceneConclusion, CodingArena};
+use super::savegame::*;
 
 // TODO: Don't need to for the first two games, but can move Pass and
 // Effect in here. Or better, make a SimpleObjectInteractions type
@@ -47,7 +48,7 @@ pub trait BaseGameLogic : Clone + Sized {
 }
 
 /// Manages game-specific state, e.g. which level to go to next.
-pub trait BaseGamedata {
+pub trait BaseGamedata : SaveGame {
     type CustomProps : BaseCustomProps;
     type GameLogic : BaseGameLogic;
 
@@ -60,6 +61,7 @@ pub trait BaseGamedata {
 
     fn load_next_scene(&mut self, continuation: SceneConclusion) -> Scene<Self::GameLogic> {
         self.advance_scene(continuation);
+        self.unlock_level(self.get_current_level());
         self.load_scene()
     }
 
@@ -77,12 +79,6 @@ pub trait BaseGamedata {
     fn reload_needed(&self) -> bool {
         assert!(self.num_levels() == 0);
         false
-    }
-
-    // Levels available to go to, if levels are identified by numeric index. Else empty set.
-    fn get_unlocked_levels(&self) -> std::collections::HashSet<u16> {
-        assert!(self.num_levels() == 0);
-        std::collections::HashSet::new()
     }
 
     // Only meaningful if num_levels > 0

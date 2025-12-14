@@ -10,7 +10,13 @@ pub struct ProgpuzzGamedata {
     // TODO: Or better to store "current level" in a higher layer?
     reload_needed: bool,
 
-    save_game: DefaultProgSaveGame,
+    save_game_data: DefaultProgSaveGameData,
+}
+
+impl SaveGame for ProgpuzzGamedata {
+}
+
+impl DefaultProgSaveGame for ProgpuzzGamedata {
 }
 
 impl BaseGamedata for ProgpuzzGamedata {
@@ -23,13 +29,12 @@ impl BaseGamedata for ProgpuzzGamedata {
         ProgpuzzGamedata {
             levset,
             reload_needed: false,
-            save_game: DefaultProgSaveGame::new(num_levels),
+            save_game_data: <ProgpuzzGamedata as DefaultProgSaveGame>::new_data(num_levels),
         }
     }
 
     fn advance_scene(&mut self, continuation: SceneConclusion) {
         self.levset.advance_scene(continuation);
-        self.save_game.unlock_level(self.levset.get_current_level());
     }
 
     fn load_scene(&mut self) -> Scene::<Self::GameLogic> {
@@ -58,7 +63,7 @@ impl BaseGamedata for ProgpuzzGamedata {
     }
 
     fn get_unlocked_levels(&self) -> std::collections::HashSet<u16> {
-        self.save_game.get_unlocked_levels()
+        self.save_game_data.get_unlocked_levels()
     }
 
     fn goto_level(&mut self, lev_idx: u16) {
