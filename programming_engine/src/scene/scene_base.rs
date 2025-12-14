@@ -67,7 +67,10 @@ impl<MovementLogic: for_gamedata::BaseMovementLogic> Scene<MovementLogic> {
     }
 
     pub fn consume_outcome_to_store(&mut self) -> Option<OutcomeToStore> {
-        None
+        match self {
+            Self::Splash(_splash) => None,
+            Self::CodingArena(scene) => scene.consume_outcome_to_store(),
+        }
     }
 
     pub fn as_arena(&self) -> &Arena<MovementLogic> {

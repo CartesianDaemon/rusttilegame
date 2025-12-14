@@ -164,7 +164,7 @@ impl<MovementLogic: for_gamedata::BaseMovementLogic> CodingArena<MovementLogic>
     }
 
     fn record_outcome(&mut self, outcome: &str) {
-        // Record result of execution
+        log::debug!("Coding Arena: Recording outcome to store: {outcome}");
         assert!(self.outcome_to_store.is_none());
         self.outcome_to_store = Some(OutcomeToStore::new(outcome.to_string(), self.coding.prog.to_string()));
     }
