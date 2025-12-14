@@ -2,11 +2,11 @@ use std::collections::HashMap;
 
 use tile_engine::for_gamedata::{arena::MapObj, *};
 use tile_engine::infra::initialise_logging_for_tests;
-use crate::game_logic::{ProgpuzzCustomProps, ProgpuzzGameLogic};
+use crate::movement_logic::{ProgpuzzCustomProps, ProgpuzzMovementLogic};
 
 use super::objs::*;
 
-fn basic_test_key() -> HashMap<char, Vec<FreeObj<crate::game_logic::ProgpuzzCustomProps>>> {
+fn basic_test_key() -> HashMap<char, Vec<FreeObj<crate::movement_logic::ProgpuzzCustomProps>>> {
     use prog_ops::*;
     let prog = Prog::from(vec![F,F,R,F]);
     HashMap::from([
@@ -20,7 +20,7 @@ fn basic_test_key() -> HashMap<char, Vec<FreeObj<crate::game_logic::ProgpuzzCust
     ])
 }
 
-fn basic_map(turn: usize) -> Arena<super::game_logic::ProgpuzzGameLogic> {
+fn basic_map(turn: usize) -> Arena<super::movement_logic::ProgpuzzMovementLogic> {
     let face = match turn {
         0..=2 => '^',
         3..=5 => '>',
@@ -53,7 +53,7 @@ fn basic_map(turn: usize) -> Arena<super::game_logic::ProgpuzzGameLogic> {
     Arena::from_map_and_key(&ascii, key)
 }
 
-fn get_basic_lev() -> Scene<super::game_logic::ProgpuzzGameLogic> {
+fn get_basic_lev() -> Scene<super::movement_logic::ProgpuzzMovementLogic> {
     use supply_ops::*;
     Scene::CodingArena(CodingArena::new::<16>(
         basic_map(0),
@@ -61,7 +61,7 @@ fn get_basic_lev() -> Scene<super::game_logic::ProgpuzzGameLogic> {
     ))
 }
 
-fn get_basic_lev_with_prog(prog: Prog) -> Scene<super::game_logic::ProgpuzzGameLogic> {
+fn get_basic_lev_with_prog(prog: Prog) -> Scene<super::movement_logic::ProgpuzzMovementLogic> {
     let mut state = get_basic_lev();
     if let Scene::CodingArena(coding_arena)= &mut state {
         coding_arena.coding.prog =  prog;
@@ -69,21 +69,21 @@ fn get_basic_lev_with_prog(prog: Prog) -> Scene<super::game_logic::ProgpuzzGameL
     state
 }
 
-fn coding_arena<'a>(state: &'a Scene<ProgpuzzGameLogic>) -> &'a CodingArena<ProgpuzzGameLogic> {
+fn coding_arena<'a>(state: &'a Scene<ProgpuzzMovementLogic>) -> &'a CodingArena<ProgpuzzMovementLogic> {
     match state {
         Scene::CodingArena(coding_arena) => &coding_arena,
         _ => panic!("Can't find hero. Arena may not be running."),
     }
 }
 
-fn hero<'a>(state: &'a Scene<ProgpuzzGameLogic>) -> &'a MapObj<ProgpuzzCustomProps> {
+fn hero<'a>(state: &'a Scene<ProgpuzzMovementLogic>) -> &'a MapObj<ProgpuzzCustomProps> {
     match state {
         Scene::CodingArena(CodingArena {curr_arena: Some(arena), .. }) => &arena[arena.hero()],
         _ => panic!("Can't find hero. Arena may not be running."),
     }
 }
 
-fn hero_prog<'a>(state: &'a Scene<ProgpuzzGameLogic>) -> &'a Prog {
+fn hero_prog<'a>(state: &'a Scene<ProgpuzzMovementLogic>) -> &'a Prog {
     &hero(state).logical_props.custom_props.prog
 }
 
@@ -95,36 +95,36 @@ fn basic_move() {
     let mut state = get_basic_lev_with_prog(Prog::from(vec![F,F,R,F]));
     assert!(matches!(state, Scene::CodingArena(CodingArena{phase: CodingRunningPhase::Coding, ..})));
     assert_eq!(state.as_ascii_rows(), get_basic_lev().as_ascii_rows());
-    assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)), None);
+    assert_eq!(ProgpuzzMovementLogic::get_active_idx(coding_arena(&state)), None);
 
     // Start running, no other effect
     state.advance(InputCmd::Continue); assert_eq!(state.ready_for_next_level(), None); 
     assert!(matches!(state, Scene::CodingArena(CodingArena{phase: CodingRunningPhase::Running, ..})));
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 4));
-    assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)).unwrap(), 0);
+    assert_eq!(ProgpuzzMovementLogic::get_active_idx(coding_arena(&state)).unwrap(), 0);
 
     // F
     state.advance(InputCmd::Tick); assert_eq!(state.ready_for_next_level(), None);
-    assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)).unwrap(), 0);
+    assert_eq!(ProgpuzzMovementLogic::get_active_idx(coding_arena(&state)).unwrap(), 0);
     assert_eq!(hero_prog(&state).unwrap_curr_op(), &F);
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 3));
 
     // F
     state.advance(InputCmd::Tick); assert_eq!(state.ready_for_next_level(), None);
-    assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)).unwrap(), 1);
+    assert_eq!(ProgpuzzMovementLogic::get_active_idx(coding_arena(&state)).unwrap(), 1);
     assert_eq!(hero_prog(&state).unwrap_curr_op(), &F);
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 2));
 
     // R
     state.advance(InputCmd::Tick); assert_eq!(state.ready_for_next_level(), None);
-    assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)).unwrap(), 2);
+    assert_eq!(ProgpuzzMovementLogic::get_active_idx(coding_arena(&state)).unwrap(), 2);
     assert_eq!(hero_prog(&state).unwrap_curr_op(), &R);
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(4, 2));
     assert_eq!(hero(&state).logical_props.dir, CoordDelta::from_xy(1, 0));
 
     // F
     state.advance(InputCmd::Tick); assert_eq!(state.ready_for_next_level(), None);
-    assert_eq!(ProgpuzzGameLogic::get_active_idx(coding_arena(&state)).unwrap(), 3);
+    assert_eq!(ProgpuzzMovementLogic::get_active_idx(coding_arena(&state)).unwrap(), 3);
     assert_eq!(hero_prog(&state).unwrap_curr_op(), &F);
     assert_eq!(hero(&state).pos(), MapCoord::from_xy(5, 2));
 }

@@ -3,7 +3,7 @@ use macroquad::prelude::*;
 use assrt::rsst;
 use crate::scene::arena::MapObj;
 use crate::scene::Arena;
-use crate::gamedata::BaseGameLogic;
+use crate::gamedata::BaseMovementLogic;
 
 use super::*;
 
@@ -26,8 +26,8 @@ pub struct UiArena<'a> {
 }
 
 impl<'a> UiArena<'a> {
-    pub async fn render<GameLogic: BaseGameLogic>(
-        state: &Arena<GameLogic>,
+    pub async fn render<MovementLogic: BaseMovementLogic>(
+        state: &Arena<MovementLogic>,
         texture_cache: &mut TextureCache,
         // Whole screen, or smaller area, in which to fit a square map.
         draw_area: PRect,
@@ -60,8 +60,8 @@ impl<'a> UiArena<'a> {
         render_lev.draw_map(state).await;
     }
 
-    pub async fn draw_map<GameLogic: BaseGameLogic>(
-        self: &mut Self, state: &Arena<GameLogic>,
+    pub async fn draw_map<MovementLogic: BaseMovementLogic>(
+        self: &mut Self, state: &Arena<MovementLogic>,
     ) {
         // Coords of first visible tile. Currently always 0,0.
         let (ox, oy) = (0, 0);

@@ -27,7 +27,7 @@ impl Ui {
         }
     }
 
-    pub async fn do_frame<GameData: BaseGameData>(&mut self, scene: &mut Scene<GameData::GameLogic>, state: &mut GameData) {
+    pub async fn do_frame<GameData: BaseGameData>(&mut self, scene: &mut Scene<GameData::MovementLogic>, state: &mut GameData) {
         match scene {
             Scene::Splash(scene_struct) => {
                 UiSplash::advance(scene_struct);

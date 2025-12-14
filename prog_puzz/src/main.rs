@@ -19,7 +19,7 @@
 mod gamedata;
 mod levels;
 mod objs;
-mod game_logic;
+mod movement_logic;
 
 #[cfg(test)]
 mod prog_puzz_tests;

@@ -50,9 +50,9 @@ pub enum ProgpuzzAI {
 }
 
 #[derive(Clone)]
-pub struct ProgpuzzGameLogic;
+pub struct ProgpuzzMovementLogic;
 
-impl BaseGameLogic for ProgpuzzGameLogic
+impl BaseMovementLogic for ProgpuzzMovementLogic
 {
     type CustomProps = ProgpuzzCustomProps;
 
@@ -141,7 +141,7 @@ impl BaseGameLogic for ProgpuzzGameLogic
                 return SceneContinuation::Continue(());
             },
             ProgpuzzAI::Stay => {
-                log::trace!("ProgpuzzGameLogic::move_mov: Stay\n");
+                log::trace!("ProgpuzzMovementLogic::move_mov: Stay\n");
                 // Do nothing
             },
             }

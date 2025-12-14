@@ -6,9 +6,9 @@ use super::scene::{Scene, Arena, SceneConclusion, CodingArena};
 
 // TODO: Don't need to for the first two games, but can move Pass and
 // Effect in here. Or better, make a SimpleObjectInteractions type
-// which isn't required but different GameLogic customisations can
+// which isn't required but different MovementLogic customisations can
 // use.
-// TODO: Could merge CustomProps into GameLogic, as CustomLogic.
+// TODO: Could merge CustomProps into MovementLogic, as CustomLogic.
 // Defn would be mostly props. Impl would be mostly logic.
 // Is that where fns like "all(Passable)" live?
 pub trait BaseCustomProps : Clone + std::fmt::Debug + PartialEq {
@@ -27,7 +27,7 @@ use crate::for_gamedata::MoveCmd;
 use super::scene::SceneContinuation;
 
 // NB: Fns only applicable to some scenes. Should be in type related to those.
-pub trait BaseGameLogic : Clone + Sized {
+pub trait BaseMovementLogic : Clone + Sized {
     // For games with an Arena, game-specific data stored in each obj.
     type CustomProps : BaseCustomProps;
 
@@ -47,15 +47,15 @@ pub trait BaseGameLogic : Clone + Sized {
 /// Manages game-specific state, e.g. which level to go to next.
 pub trait BaseGameData {
     type CustomProps : BaseCustomProps;
-    type GameLogic : BaseGameLogic;
+    type MovementLogic : BaseMovementLogic;
 
     fn new() -> Self;
 
     fn advance_scene(&mut self, continuation: SceneConclusion);
 
-    fn load_scene(&self) -> Scene<Self::GameLogic>;
+    fn load_scene(&self) -> Scene<Self::MovementLogic>;
 
-    fn load_next_scene(&mut self, continuation: SceneConclusion) -> Scene<Self::GameLogic> {
+    fn load_next_scene(&mut self, continuation: SceneConclusion) -> Scene<Self::MovementLogic> {
         self.advance_scene(continuation);
         self.load_scene()
     }

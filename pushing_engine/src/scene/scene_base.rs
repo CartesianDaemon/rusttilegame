@@ -36,15 +36,15 @@ pub trait BaseScene {
 /// Could make game-specific state more modularly include which scenes it
 /// wants to use.
 #[derive(Clone, Debug)]
-pub enum Scene<GameLogic: for_gamedata::BaseGameLogic> {
-    Arena(Arena<GameLogic>),
+pub enum Scene<MovementLogic: for_gamedata::BaseMovementLogic> {
+    Arena(Arena<MovementLogic>),
     Splash(Splash),
-    CodingArena(CodingArena<GameLogic>),
+    CodingArena(CodingArena<MovementLogic>),
     // Could be defined but not used separately:
     //  Code(Code)
 }
 
-impl<GameLogic: for_gamedata::BaseGameLogic> Scene<GameLogic> {
+impl<MovementLogic: for_gamedata::BaseMovementLogic> Scene<MovementLogic> {
     pub fn from_splash_string(txt: String) -> Self {
         Scene::Splash(Splash::from_string(txt))
     }
@@ -55,7 +55,7 @@ impl<GameLogic: for_gamedata::BaseGameLogic> Scene<GameLogic> {
 
     pub fn from_play_ascii_map<const HEIGHT: usize>(
         ascii_map: &[&str; HEIGHT],
-        map_key: HashMap<char, Vec<FreeObj<GameLogic::CustomProps>>>,
+        map_key: HashMap<char, Vec<FreeObj<MovementLogic::CustomProps>>>,
     ) -> Self {
         Scene::Arena(Arena::from_map_and_key(ascii_map, map_key))
     }
@@ -80,7 +80,7 @@ impl<GameLogic: for_gamedata::BaseGameLogic> Scene<GameLogic> {
         }
     }
 
-    pub fn as_arena(&self) -> &Arena<GameLogic> {
+    pub fn as_arena(&self) -> &Arena<MovementLogic> {
         match self {
             Self::Arena(arena) => &arena,
             Self::Splash(_splash) => panic!(),

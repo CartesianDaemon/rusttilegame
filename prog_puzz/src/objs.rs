@@ -1,9 +1,9 @@
 use macroquad::prelude::*;
 
 use tile_engine::for_gamedata::*;
-use super::game_logic::ProgpuzzAI;
+use super::movement_logic::ProgpuzzAI;
 
-type CustomProps = super::game_logic::ProgpuzzCustomProps;
+type CustomProps = super::movement_logic::ProgpuzzCustomProps;
 
 pub fn new_progbot_with_prog(dir: CoordDelta, prog: &Prog) -> FreeObj<CustomProps> {
     FreeObj {

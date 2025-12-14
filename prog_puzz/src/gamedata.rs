@@ -1,4 +1,4 @@
-use super::game_logic::{ProgpuzzGameLogic, ProgpuzzCustomProps};
+use super::movement_logic::{ProgpuzzMovementLogic};
 use super::levels;
 
 use tile_engine::for_gamedata::*;
@@ -14,8 +14,7 @@ pub struct ProgpuzzGameData {
 }
 
 impl BaseGameData for ProgpuzzGameData {
-    type GameLogic = ProgpuzzGameLogic;
-    type CustomProps = ProgpuzzCustomProps;
+    type MovementLogic = ProgpuzzMovementLogic;
     type SaveGame = GenericProgSaveGame;
 
     fn new() -> Self {
@@ -32,7 +31,7 @@ impl BaseGameData for ProgpuzzGameData {
         self.levset.advance_scene(continuation);
     }
 
-    fn load_scene(&mut self) -> Scene::<Self::GameLogic> {
+    fn load_scene(&mut self) -> Scene::<Self::MovementLogic> {
         log::debug!("Progpuzz loading scene");
         self.reload_needed = false;
         self.levset.load_scene()

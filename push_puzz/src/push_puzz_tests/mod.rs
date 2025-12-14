@@ -13,7 +13,7 @@ use tile_engine::for_gamedata::*;
 mod basic_tests {
     use super::*;
 
-    fn get_lev(n: i32) -> Scene<super::super::pushpuzz::PushpuzzGameLogic> {
+    fn get_lev(n: i32) -> Scene<super::super::pushpuzz::PushpuzzMovementLogic> {
         let test_key = HashMap::from([
             (' ', vec![ new_floor() ]),
             ('#', vec![ new_floor(), new_wall() ]),

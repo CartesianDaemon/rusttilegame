@@ -23,7 +23,7 @@ mod objs;
 
 mod movement_logic;
 
-pub use movement_logic::PushpuzzGameLogic;
+pub use movement_logic::PushpuzzMovementLogic;
 
 use tile_engine::for_gamedata::*;
 
@@ -33,7 +33,7 @@ pub struct PushpuzzGameData {
 }
 
 impl BaseGameData for PushpuzzGameData {
-    type GameLogic = PushpuzzGameLogic;
+    type MovementLogic = PushpuzzMovementLogic;
     type CustomProps = tile_engine::simple_custom_props::SimpleCustomProps;
 
     fn new() -> Self {
@@ -46,7 +46,7 @@ impl BaseGameData for PushpuzzGameData {
         self.levset.advance_scene(continuation)
     }
 
-    fn load_scene(&self) -> Scene<Self::GameLogic> {
+    fn load_scene(&self) -> Scene<Self::MovementLogic> {
         self.levset.load_scene()
     }
 }

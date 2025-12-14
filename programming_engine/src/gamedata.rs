@@ -7,9 +7,9 @@ use super::savegame::*;
 
 // TODO: Don't need to for the first two games, but can move Pass and
 // Effect in here. Or better, make a SimpleObjectInteractions type
-// which isn't required but different GameLogic customisations can
+// which isn't required but different MovementLogic customisations can
 // use.
-// TODO: Could merge CustomProps into GameLogic, as CustomLogic.
+// TODO: Could merge CustomProps into MovementLogic, as CustomLogic.
 // Defn would be mostly props. Impl would be mostly logic.
 // Is that where fns like "all(Passable)" live?
 pub trait BaseCustomProps : Clone + std::fmt::Debug + PartialEq {
@@ -27,8 +27,8 @@ use super::scene::arena::RosterIndex;
 use crate::for_gamedata::InputCmd;
 use super::scene::SceneContinuation;
 
-// NB: Fns only applicable to some scenes. Should be in type related to those.
-pub trait BaseGameLogic : Clone + Sized {
+// Fns applicable to games with Arena and/or CodingArena
+pub trait BaseMovementLogic : Clone + Sized {
     // For games with an Arena, game-specific data stored in each obj.
     type CustomProps : BaseCustomProps;
 
@@ -49,8 +49,7 @@ pub trait BaseGameLogic : Clone + Sized {
 
 /// Manages game-specific state, e.g. which level to go to next.
 pub trait BaseGameData : LevelChooser {
-    type CustomProps : BaseCustomProps;
-    type GameLogic : BaseGameLogic;
+    type MovementLogic : BaseMovementLogic;
     type SaveGame : BaseSaveGame;
 
     fn new() -> Self;
@@ -58,9 +57,9 @@ pub trait BaseGameData : LevelChooser {
     fn advance_scene(&mut self, continuation: SceneConclusion);
 
     // TODO: Would using RefCell be better than being mutable?
-    fn load_scene(&mut self) -> Scene<Self::GameLogic>;
+    fn load_scene(&mut self) -> Scene<Self::MovementLogic>;
 
-    fn load_next_scene(&mut self, continuation: SceneConclusion) -> Scene<Self::GameLogic> {
+    fn load_next_scene(&mut self, continuation: SceneConclusion) -> Scene<Self::MovementLogic> {
         self.advance_scene(continuation);
         let new_lev = self.get_current_level();
         self.save_game().unlock_level(new_lev);

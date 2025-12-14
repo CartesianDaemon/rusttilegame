@@ -16,7 +16,7 @@ use culpa::try_fn;
 use super::scene_base::{BaseScene, SceneConclusion, SceneContinuation};
 use crate::simple_custom_props;
 use crate::for_gamedata;
-use for_gamedata::BaseGameLogic;
+use for_gamedata::BaseMovementLogic;
 
 use crate::map_coords::*;
 
@@ -29,15 +29,15 @@ pub struct RosterIndex {
 
 /// Grid together with Ros. Those are two separate classes so they can more easily be borrowed separately.
 #[derive(Clone, Debug)]
-pub struct Arena<GameLogic: for_gamedata::BaseGameLogic> {
-    map: Grid<GameLogic>,
+pub struct Arena<MovementLogic: for_gamedata::BaseMovementLogic> {
+    map: Grid<MovementLogic>,
     roster: Roster,
     // Used to represent map as ascii for init and debugging. Not comprehensive.
-    map_key: std::collections::HashMap<char, Vec<FreeObj<GameLogic::CustomProps>>>,
+    map_key: std::collections::HashMap<char, Vec<FreeObj<MovementLogic::CustomProps>>>,
     ready_for_next_level: Option<SceneConclusion>,
 }
 
-impl<GameLogic : for_gamedata::BaseGameLogic> BaseScene for Arena<GameLogic>
+impl<MovementLogic : for_gamedata::BaseMovementLogic> BaseScene for Arena<MovementLogic>
 {
     fn advance(&mut self, cmd: crate::ui::InputCmd)  {
         self.ready_for_next_level = self.advance_map(cmd).break_value();
@@ -48,7 +48,7 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseScene for Arena<GameLogic>
     }
 }
 
-impl<GameLogic: BaseGameLogic> Arena<GameLogic> {
+impl<MovementLogic: BaseMovementLogic> Arena<MovementLogic> {
     /////////////////
     /// Helpers for BaseScene fns
     fn advance_map(&mut self, cmd: crate::ui::InputCmd) -> SceneContinuation  {
@@ -62,7 +62,7 @@ impl<GameLogic: BaseGameLogic> Arena<GameLogic> {
         self[hero].refs.prev_pos = self[hero].refs.pos;
         self[hero].logical_props.prev_dir = self[hero].logical_props.dir;
 
-        GameLogic::move_mov(self, hero, cmd)?;
+        MovementLogic::move_mov(self, hero, cmd)?;
         log::trace!("After mov, hero facing changed {} -> {}", self[hero].logical_props.prev_dir, self[hero].logical_props.dir);
 
         for mov in self.roster.all_movs() {
@@ -73,7 +73,7 @@ impl<GameLogic: BaseGameLogic> Arena<GameLogic> {
             self[mov].refs.prev_pos = self[mov].refs.pos;
             self[mov].logical_props.prev_dir = self[mov].logical_props.prev_dir;
 
-            GameLogic::move_mov(self, mov, cmd)?;
+            MovementLogic::move_mov(self, mov, cmd)?;
         }
         SceneContinuation::Continue(())
     }
@@ -91,7 +91,7 @@ impl<GameLogic: BaseGameLogic> Arena<GameLogic> {
 
     pub fn from_map_and_key<const HEIGHT: usize, StrLike>(
         ascii_map: &[StrLike; HEIGHT],
-        map_key: HashMap<char, Vec<FreeObj<GameLogic::CustomProps>>>,
+        map_key: HashMap<char, Vec<FreeObj<MovementLogic::CustomProps>>>,
     ) -> Self
         where StrLike: Into<String> + Clone
     {
@@ -123,7 +123,7 @@ impl<GameLogic: BaseGameLogic> Arena<GameLogic> {
     }
 
     // TODO: Any better way to expose this for iterating?
-    pub fn map_locs(&self) -> LocIterator<GameLogic> {
+    pub fn map_locs(&self) -> LocIterator<MovementLogic> {
         self.map.locs()
     }
 
@@ -138,7 +138,7 @@ impl<GameLogic: BaseGameLogic> Arena<GameLogic> {
     /// TODO: Actually, add some interface there to avoid &mut Backref
 
     /// Spawn new object.
-    pub fn spawn_obj_at(&mut self, x: i16, y:i16, template_obj: FreeObj<GameLogic::CustomProps>)
+    pub fn spawn_obj_at(&mut self, x: i16, y:i16, template_obj: FreeObj<MovementLogic::CustomProps>)
     {
         let pos = MapCoord::from_xy(x, y);
         let h = self.map[pos].objs.len() as u16;
@@ -148,7 +148,7 @@ impl<GameLogic: BaseGameLogic> Arena<GameLogic> {
             pos,
             prev_pos: pos,
         };
-        let obj = MapObj::<GameLogic::CustomProps>{
+        let obj = MapObj::<MovementLogic::CustomProps>{
             refs: mappos,
             logical_props: template_obj.logical_props,
             visual_props: template_obj.visual_props,
@@ -246,8 +246,8 @@ impl<GameLogic: BaseGameLogic> Arena<GameLogic> {
     }
 }
 
-impl<GameLogic: BaseGameLogic> Index<RosterIndex> for Arena<GameLogic> {
-    type Output = MapObj<GameLogic::CustomProps>;
+impl<MovementLogic: BaseMovementLogic> Index<RosterIndex> for Arena<MovementLogic> {
+    type Output = MapObj<MovementLogic::CustomProps>;
 
     fn index(&self, roster_idx: RosterIndex) -> &Self::Output {
         let mapref = self.roster[roster_idx];
@@ -255,7 +255,7 @@ impl<GameLogic: BaseGameLogic> Index<RosterIndex> for Arena<GameLogic> {
     }
 }
 
-impl<GameLogic: BaseGameLogic> IndexMut<RosterIndex> for Arena<GameLogic> {
+impl<MovementLogic: BaseMovementLogic> IndexMut<RosterIndex> for Arena<MovementLogic> {
     fn index_mut(&mut self, roster_idx: RosterIndex) -> &mut Self::Output {
         let mapref = self.roster[roster_idx];
         &mut self.map.locs[mapref.x as usize][mapref.y as usize][mapref.h]
@@ -273,13 +273,13 @@ pub struct Refs {
 /// "Grid": Grid of locations. Represents state of current level.
 /// NOTE: Could currently be moved back into Arena. Not borrowed separately.
 #[derive(Clone)]
-struct Grid<GameLogic: BaseGameLogic> {
+struct Grid<MovementLogic: BaseMovementLogic> {
     // Stored as a collection of columns, e.g. map.locs[x][y]
     // Must always be rectangular.
-    locs: Vec<Vec<Loc<GameLogic::CustomProps>>>,
+    locs: Vec<Vec<Loc<MovementLogic::CustomProps>>>,
 }
 
-impl<GameLogic: BaseGameLogic> Grid<GameLogic> {
+impl<MovementLogic: BaseMovementLogic> Grid<MovementLogic> {
     pub fn new(w: u16, h: u16) -> Self {
         Self {
             locs: vec!(vec!(Loc::new(); h.into()); w.into()),
@@ -294,7 +294,7 @@ impl<GameLogic: BaseGameLogic> Grid<GameLogic> {
         self.locs[0].len() as u16
     }
 
-    pub fn locs(&self) -> LocIterator<GameLogic> {
+    pub fn locs(&self) -> LocIterator<MovementLogic> {
         LocIterator {
             w: self.w(),
             h: self.h(),
@@ -305,21 +305,21 @@ impl<GameLogic: BaseGameLogic> Grid<GameLogic> {
     }
 }
 
-impl<GameLogic: BaseGameLogic> Index<MapCoord> for Grid<GameLogic> {
-    type Output = Loc<GameLogic::CustomProps>;
+impl<MovementLogic: BaseMovementLogic> Index<MapCoord> for Grid<MovementLogic> {
+    type Output = Loc<MovementLogic::CustomProps>;
 
     fn index(&self, pos: MapCoord) -> &Self::Output {
         &self.locs[pos.x as usize][pos.y as usize]
     }
 }
 
-impl<GameLogic: BaseGameLogic> IndexMut<MapCoord> for Grid<GameLogic> {
+impl<MovementLogic: BaseMovementLogic> IndexMut<MapCoord> for Grid<MovementLogic> {
     fn index_mut(&mut self, pos: MapCoord) -> &mut Self::Output {
         &mut self.locs[pos.x as usize][pos.y as usize]
     }
 }
 
-impl<GameLogic: BaseGameLogic> std::fmt::Debug for Grid<GameLogic> {
+impl<MovementLogic: BaseMovementLogic> std::fmt::Debug for Grid<MovementLogic> {
     #[try_fn]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         write!(f, "Arena[")?;
@@ -342,7 +342,7 @@ pub struct CoordIterator {
     y: i16,
 }
 
-pub struct LocIterator<'a, GameLogic: BaseGameLogic> {
+pub struct LocIterator<'a, MovementLogic: BaseMovementLogic> {
     // Original dimensions to iterate up to
     w: u16,
     h: u16,
@@ -350,7 +350,7 @@ pub struct LocIterator<'a, GameLogic: BaseGameLogic> {
     x: i16,
     y: i16,
     // Pointer back to original collection
-    map: &'a Grid<GameLogic>,
+    map: &'a Grid<MovementLogic>,
 }
 
 impl Iterator for CoordIterator {
@@ -374,8 +374,8 @@ impl Iterator for CoordIterator {
     }
 }
 
-impl<'a, GameLogic: BaseGameLogic> Iterator for LocIterator<'a, GameLogic> {
-    type Item = (i16, i16, &'a Loc<GameLogic::CustomProps>);
+impl<'a, MovementLogic: BaseMovementLogic> Iterator for LocIterator<'a, MovementLogic> {
+    type Item = (i16, i16, &'a Loc<MovementLogic::CustomProps>);
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.y < (self.h-1) as i16 {

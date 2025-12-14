@@ -43,7 +43,7 @@ impl ProgpuzzLevset {
         };
     }
 
-    fn levels(&self) -> Vec<CodingArena<super::game_logic::ProgpuzzGameLogic>> {
+    fn levels(&self) -> Vec<CodingArena<super::movement_logic::ProgpuzzMovementLogic>> {
         let progpuzz_key = HashMap::from([
             // NB: Better to move this into obj? Combined with obj.char types?
             (' ', vec![ new_floor() ]),
@@ -401,7 +401,7 @@ impl ProgpuzzLevset {
         self.levels().len() as u16
     }
 
-    pub fn load_scene(&self) -> Scene<super::game_logic::ProgpuzzGameLogic> {
+    pub fn load_scene(&self) -> Scene<super::movement_logic::ProgpuzzMovementLogic> {
         // NB: Would like to implement thin walls between squares, not walls filling whole squares.
         match self.current_levid {
             ProgpuzzSceneId::LevCodingArena(n) => Scene::CodingArena(self.levels()[n as usize -1].clone()),

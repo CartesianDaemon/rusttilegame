@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::gamedata::{BaseGameLogic, BaseGameData};
+use crate::gamedata::{BaseMovementLogic, BaseGameData};
 
 use crate::scene::*;
 
@@ -348,13 +348,13 @@ impl UiCodingArena
 
     pub async fn render<GameData: BaseGameData>(
             &mut self,
-            coding_arena: &mut CodingArena<GameData::GameLogic>,
+            coding_arena: &mut CodingArena<GameData::MovementLogic>,
             texture_cache: &mut TextureCache,
             anim: AnimState,
             game_state: &GameData,
         ) {
         // TODO: Get prog from arena or from coding scene as appropriate?
-        self.active_idx = GameData::GameLogic::get_active_idx(coding_arena);
+        self.active_idx = GameData::MovementLogic::get_active_idx(coding_arena);
         self.initialise_frame_coords(coding_arena.phase, coding_arena.coding.prog.v_len());
 
         crate::ui::clear_background_for_current_platform(self.background_col());

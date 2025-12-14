@@ -16,7 +16,7 @@ struct Engine<GameData: BaseGameData> {
     pub gamedata: GameData,
 
     /// Current state of gameplay, current level, mostly map etc.
-    state: Scene<GameData::GameLogic>,
+    state: Scene<GameData::MovementLogic>,
 
     ///
     ui: Ui,

@@ -12,15 +12,15 @@ pub enum CodingRunningPhase {
 
 // NB: Move into Prog Puzz. Or make into a general multi-scene scene.
 #[derive(Clone, Debug)]
-pub struct CodingArena<GameLogic : for_gamedata::BaseGameLogic> {
-    pub init_arena: Arena<GameLogic>,
+pub struct CodingArena<MovementLogic : for_gamedata::BaseMovementLogic> {
+    pub init_arena: Arena<MovementLogic>,
     // Maybe move into Running state, not core data?
-    pub curr_arena: Option<Arena<GameLogic>>,
+    pub curr_arena: Option<Arena<MovementLogic>>,
     pub coding: Coding,
     pub phase: CodingRunningPhase,
 }
 
-impl<GameLogic : for_gamedata::BaseGameLogic> BaseScene for CodingArena<GameLogic>
+impl<MovementLogic : for_gamedata::BaseMovementLogic> BaseScene for CodingArena<MovementLogic>
 {
     fn advance(&mut self, cmd: MoveCmd) -> SceneContinuation {
         match self.phase {
@@ -69,10 +69,10 @@ impl<GameLogic : for_gamedata::BaseGameLogic> BaseScene for CodingArena<GameLogi
     }
 }
 
-impl<GameLogic: for_gamedata::BaseGameLogic> CodingArena<GameLogic>
+impl<MovementLogic: for_gamedata::BaseMovementLogic> CodingArena<MovementLogic>
 {
     pub fn new<const HEIGHT: usize>(
-        arena: Arena<GameLogic>,
+        arena: Arena<MovementLogic>,
         code: Coding,
     ) -> Self {
         Self {
@@ -97,7 +97,7 @@ impl<GameLogic: for_gamedata::BaseGameLogic> CodingArena<GameLogic>
         // Init interactive arena
         self.curr_arena = Some(self.init_arena.clone());
         // Run game-specific logic for sync'ing different scenes at start of run.
-        GameLogic::harmonise(self);
+        MovementLogic::harmonise(self);
 
         self.phase = CodingRunningPhase::Running;
     }

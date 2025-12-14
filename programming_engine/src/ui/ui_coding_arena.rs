@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::gamedata::{BaseGameLogic, BaseGameData};
+use crate::gamedata::{BaseMovementLogic, BaseGameData};
 
 use crate::ui::ui_helpers::{was_any_input, was_key_pressed};
 use crate::scene::*;
@@ -362,7 +362,7 @@ impl UiCodingArena
 
     }
 
-    pub fn advance<GameData: BaseGameData>(&mut self, coding_arena: &mut CodingArena<GameData::GameLogic>) {
+    pub fn advance<GameData: BaseGameData>(&mut self, coding_arena: &mut CodingArena<GameData::MovementLogic>) {
         use crate::ui::KeyType::*;
         // TODO: Want to combine KeyType into InputCmd. Have one function to turn
         // keyboard into that. And have UI generate those based on mouse. Then interpret
@@ -416,11 +416,11 @@ impl UiCodingArena
 
     pub async fn do_frame<GameData: BaseGameData>(
             &mut self,
-            coding_arena: &mut CodingArena<GameData::GameLogic>,
+            coding_arena: &mut CodingArena<GameData::MovementLogic>,
             texture_cache: &mut TextureCache,
             game_state: &mut GameData,
         ) {
-        self.active_idx = GameData::GameLogic::get_active_idx(coding_arena);
+        self.active_idx = GameData::MovementLogic::get_active_idx(coding_arena);
         self.initialise_frame_coords(coding_arena.phase, coding_arena.coding.prog.v_len());
 
         crate::ui::clear_background_for_current_platform(self.background_col());
@@ -431,14 +431,14 @@ impl UiCodingArena
             UiArena::render(coding_arena.curr_arena.as_mut().unwrap(), texture_cache, self.fr_pos.arena, self.anim).await;
         }
 
-        self.draw_prog(GameData::GameLogic::current_prog(coding_arena));
+        self.draw_prog(GameData::MovementLogic::current_prog(coding_arena));
         if self.is_coding {
             self.draw_supply(&mut coding_arena.coding);
             self.lev_chooser.do_frame(game_state, (self.fr_pos.supply_x + 10., self.fr_pos.supply_y + 20.));
             self.draw_dragging();
         }
 
-        self.interact_prog(GameData::GameLogic::current_prog(coding_arena));
+        self.interact_prog(GameData::MovementLogic::current_prog(coding_arena));
         if self.is_coding {
             self.interact_supply(&mut coding_arena.coding);
             self.interact_dragging(&mut coding_arena.coding);

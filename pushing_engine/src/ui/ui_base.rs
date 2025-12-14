@@ -48,7 +48,7 @@ impl UiBase {
 
     // NB: Move into Scene. Need to move reset_tick into Ui. First need to move
     // gamedata (ie levidx) into state scene?
-    fn advance<GameData: gamedata::BaseGameData>(&mut self, scene: &mut Scene<GameData::GameLogic>, cmd: MoveCmd) -> SceneContinuation {
+    fn advance<GameData: gamedata::BaseGameData>(&mut self, scene: &mut Scene<GameData::MovementLogic>, cmd: MoveCmd) -> SceneContinuation {
         let scene_continuation = scene.advance(cmd);
         if let SceneContinuation::Break(_) = scene_continuation {
             self.ticker.reset_tick();
@@ -58,7 +58,7 @@ impl UiBase {
 
     /// Draw current gameplay to screen.
     /// TODO: Avoid passing slide and anim through so many layers? Add to struct?
-    pub async fn do_frame<GameData: BaseGameData>(&mut self, scene: &mut Scene<GameData::GameLogic>, state: &GameData) -> SceneContinuation {
+    pub async fn do_frame<GameData: BaseGameData>(&mut self, scene: &mut Scene<GameData::MovementLogic>, state: &GameData) -> SceneContinuation {
         self.input.read_input();
 
         let mut scene_continuation = SceneContinuation::Continue(());
