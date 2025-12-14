@@ -82,9 +82,10 @@ impl GenericProgSaveGame {
 
     fn current_version(&self) -> &str {
         // Version based on engine versions.
-        // Expecting 1.6.1: version with plain "Level1" key for unlock and no solution key.
-        // Expecting 1.6.2: version with "Level1_unlocked" and "Level1_solutions"
-        return "1.6.1";
+        // Expecting 1.6.1: Plain key "Level1" key for unlock and no solution key.
+        // Expecting 1.6.2: With keys "Level1_unlocked" and "Level1_solutions"
+        // Expecting 1.6.3: Actually recording solutions for levels.
+        return "1.6.3";
     }
 }
 

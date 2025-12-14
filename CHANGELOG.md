@@ -1,9 +1,13 @@
 ## Unreleased
 
+## 1.6.3
+
+Dec 14:
+
 - Refactor: Using quad_timestamp and chrono.
 - Refactor: Level chooser and save game traits.
-- Refactor: Towards saving outcome of each execution.
-- Feature/refactor: Towards cancel from won screen.
+- Refactor: Save outcome of each execution. Including abbreviating repeats.
+- Feature/refactor: Cancel from won screen. Simplify other run/cancel controls.
 
 ## 13 Dec: presumed 1.6.2
 
