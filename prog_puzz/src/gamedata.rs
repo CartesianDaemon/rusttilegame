@@ -19,6 +19,7 @@ pub struct ProgpuzzGamedata {
 // TODO: Support games with solutions other than Prog?
 // TODO: High scores.
 mod savegame {
+    use super::Prog;
     use quad_timestamp::*;
     use chrono::*;
 
@@ -51,8 +52,8 @@ mod savegame {
             format!("Level{lev_idx}_unlocked")
         }
 
-        fn _level_solutions_key(&self, lev_idx: u16) -> String {
-            format!("Level{lev_idx}_solutions")
+        fn _level_outcomes_key(&self, lev_idx: u16) -> String {
+            format!("Level{lev_idx}_outcomes")
         }
 
         fn storage(&self) -> std::sync::MutexGuard<quad_storage::LocalStorage> {
@@ -71,6 +72,12 @@ mod savegame {
             let datetime = DateTime::<chrono::Utc>::from_timestamp_secs(timestamp_utc().unwrap()).unwrap();
             log::debug!("Timestamp: {datetime}");
             datetime.to_string()
+        }
+
+        pub fn store_outcome(&self, lev_idx: u16, datetime: DateTime<Local>, solution: &Prog) {
+            let key = &self._level_outcomes_key(lev_idx);
+            let prev_val = self.storage().get(key).unwrap_or_default();
+            self.storage().set(key, &format!("{prev_val}{datetime} ({}): {solution}\n", self.current_version()));
         }
     }
 }
