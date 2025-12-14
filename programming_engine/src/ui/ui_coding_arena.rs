@@ -385,8 +385,7 @@ impl UiCodingArena
             CodingRunningPhase::Won => {
                 // Cancel to coding on: Key cancel, or click on supply (??)
                 // Continue to next level on: any other input
-                if matches!(was_key_pressed(), Some(Escape)) ||
-                    is_mouse_button_pressed(MouseButton::Left) && ! self.mouse_in_rect(self.fr_pos.arena) {
+                if matches!(was_key_pressed(), Some(Escape)) || is_mouse_button_pressed(MouseButton::Right) {
                     coding_arena.advance(InputCmd::Cancel);
                 } else if was_any_input() {
                     coding_arena.advance(InputCmd::Continue);
