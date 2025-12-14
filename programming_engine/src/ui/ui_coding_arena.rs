@@ -384,8 +384,8 @@ impl UiCodingArena
             },
             CodingRunningPhase::Won => {
                 // Onto next level on any input
+                // TODO: Interpret cancel
                 if was_any_input() {
-                    // TODO: This one needs to be propagated
                     _ = coding_arena.advance(InputCmd::Continue);
                 }
             },

@@ -22,36 +22,47 @@ pub struct CodingArena<MovementLogic : for_gamedata::BaseMovementLogic> {
 impl<MovementLogic : for_gamedata::BaseMovementLogic> BaseScene for CodingArena<MovementLogic>
 {
     fn advance(&mut self, cmd: InputCmd) {
+        use InputCmd::*;
         match self.phase {
             CodingRunningPhase::Coding => {
-                if cmd == InputCmd::Continue {
+                if cmd == Continue {
                     self.start_execution();
                 }
             },
             CodingRunningPhase::Running => {
-                if cmd == InputCmd::Tick {
-                    log::debug!("Advance bot program.");
+                match cmd {
+                    Tick => {
+                        log::debug!("Advance bot program.");
 
-                    self.curr_arena.as_mut().unwrap().advance(cmd);
-                    let conclusion = self.curr_arena.as_ref().unwrap().ready_for_next_level();
-                    if conclusion == Some(for_gamedata::SceneConclusion::Fail) {
-                        log::debug!("Ran off end of program.");
-                        self.transition(CodingRunningPhase::Died);
-                    } else if conclusion == Some(for_gamedata::SceneConclusion::Succeed) {
-                        log::debug!("Bot found target!");
-                        self.transition(CodingRunningPhase::Won);
-                    } else if conclusion == None {
-                        log::trace!("Bot advanced normally. Continue executing program.");
-                    }
-                } else {
-                    self.cancel_execution();
+                        self.curr_arena.as_mut().unwrap().advance(cmd);
+                        let conclusion = self.curr_arena.as_ref().unwrap().ready_for_next_level();
+                        if conclusion == Some(for_gamedata::SceneConclusion::Fail) {
+                            log::debug!("Ran off end of program.");
+                            self.died();
+                        } else if conclusion == Some(for_gamedata::SceneConclusion::Succeed) {
+                            log::debug!("Bot found target!");
+                            self.won();
+                        } else if conclusion == None {
+                            log::trace!("Bot advanced normally. Continue executing program.");
+                        }
+                    },
+                    Continue | Cancel => {
+                        self.cancel_execution();
+                    },
                 }
             },
             CodingRunningPhase::Won => {
-                self.ready_for_next_level = Some(SceneConclusion::Succeed);
+                match cmd {
+                    Continue => self.continue_to_next_level(),
+                    Cancel => self.continue_coding(),
+                    Tick => (), // unreachable!(),
+                }
             },
             CodingRunningPhase::Died => {
-                self.cancel_execution();
+                match cmd {
+                    Continue | Cancel => self.continue_coding(),
+                    Tick => (), // unreachable!(),
+                }
             },
         }
     }
@@ -88,7 +99,23 @@ impl<MovementLogic: for_gamedata::BaseMovementLogic> CodingArena<MovementLogic>
         self.transition(CodingRunningPhase::Running);
     }
 
+    pub fn won(&mut self) {
+        self.transition(CodingRunningPhase::Won);
+    }
+
+    pub fn died(&mut self) {
+        self.transition(CodingRunningPhase::Died);
+    }
+
+    pub fn continue_to_next_level(&mut self) {
+        self.ready_for_next_level = Some(SceneConclusion::Succeed);
+    }
+
     pub fn cancel_execution(&mut self) {
+        self.continue_coding();
+    }
+
+    pub fn continue_coding(&mut self) {
         self.transition(CodingRunningPhase::Coding);
     }
 
