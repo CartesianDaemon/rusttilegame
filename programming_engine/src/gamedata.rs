@@ -48,7 +48,7 @@ pub trait BaseGameLogic : Clone + Sized {
 }
 
 /// Manages game-specific state, e.g. which level to go to next.
-pub trait BaseGameData {
+pub trait BaseGameData : LevelChooser {
     type CustomProps : BaseCustomProps;
     type GameLogic : BaseGameLogic;
     type SaveGame : BaseSaveGame;
@@ -67,14 +67,19 @@ pub trait BaseGameData {
         self.load_scene()
     }
 
-    // Number of levels, if levels are identified by numeric index. Else 0.
-    // TODO: Move into optional level-chooser widget.
+    fn save_game(&mut self) -> &mut Self::SaveGame;
+}
+
+// For games with numbered levels, functions for querying or going to levels.
+// Required for the generic prog SaveGame implementation.
+// Treated as unimplemented if num_levels returns 0.
+pub trait LevelChooser {
     fn num_levels(&self) -> u16 {
         0
     }
 
-    // Current level, if levels are identified by numeric index. Else 0.
     fn get_current_level(&self) -> u16 {
+        assert!(self.num_levels() == 0);
         0
     }
 
@@ -83,9 +88,7 @@ pub trait BaseGameData {
         false
     }
 
-    // Only meaningful if num_levels > 0
-    #[allow(unused)]
-    fn goto_level(&mut self, lev_idx: u16) {
+    fn goto_level(&mut self, _lev_idx: u16) {
         assert!(self.num_levels() == 0)
     }
 
@@ -93,6 +96,4 @@ pub trait BaseGameData {
     fn get_level_str(&self) -> String {
         String::new()
     }
-
-    fn save_game(&mut self) -> &mut Self::SaveGame;
 }

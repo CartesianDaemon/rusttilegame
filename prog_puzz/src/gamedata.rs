@@ -10,13 +10,13 @@ pub struct ProgpuzzGameData {
     // TODO: Or better to store "current level" in a higher layer?
     reload_needed: bool,
 
-    save_game_data: DefaultProgSaveGame,
+    save_game_data: GenericProgSaveGame,
 }
 
 impl BaseGameData for ProgpuzzGameData {
     type GameLogic = ProgpuzzGameLogic;
     type CustomProps = ProgpuzzCustomProps;
-    type SaveGame = DefaultProgSaveGame;
+    type SaveGame = GenericProgSaveGame;
 
     fn new() -> Self {
         let levset = levels::ProgpuzzLevset::new();
@@ -24,7 +24,7 @@ impl BaseGameData for ProgpuzzGameData {
         ProgpuzzGameData {
             levset,
             reload_needed: false,
-            save_game_data: DefaultProgSaveGame::new(num_levels),
+            save_game_data: GenericProgSaveGame::new(num_levels),
         }
     }
 
@@ -38,6 +38,12 @@ impl BaseGameData for ProgpuzzGameData {
         self.levset.load_scene()
     }
 
+    fn save_game(&mut self) -> &mut Self::SaveGame {
+        &mut self.save_game_data
+    }
+}
+
+impl LevelChooser for ProgpuzzGameData {
     fn get_level_str(&self) -> String {
         match self.levset.current_levid {
             levels::ProgpuzzSceneId::LevCodingArena(lev_num) => format!("Level: {}", lev_num),
@@ -61,9 +67,5 @@ impl BaseGameData for ProgpuzzGameData {
         log::debug!("Progpuzz going to level {lev_idx}");
         self.levset.goto_level(lev_idx);
         self.reload_needed = true;
-    }
-
-    fn save_game(&mut self) -> &mut Self::SaveGame {
-        &mut self.save_game_data
     }
 }

@@ -23,11 +23,11 @@ impl BaseSaveGame for UnimplementedSaveGame {
 }
 
 #[derive(Debug)]
-pub struct DefaultProgSaveGame {
+pub struct GenericProgSaveGame {
     num_levels: u16,
 }
 
-impl DefaultProgSaveGame {
+impl GenericProgSaveGame {
     pub fn new(num_levels: u16) -> Self {
         let mut save_game_data = Self {num_levels};
         save_game_data.unlock_level(1);
@@ -72,7 +72,7 @@ impl DefaultProgSaveGame {
     }
 }
 
-impl BaseSaveGame for DefaultProgSaveGame {
+impl BaseSaveGame for GenericProgSaveGame {
     fn unlock_level(&mut self, lev_idx: u16) {
         self.storage().set(&self.level_unlocked_key(lev_idx), "unlocked");
     }
