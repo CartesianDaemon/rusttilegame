@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 
 use crate::ui::PRect;
-use crate::gamedata::{BaseGamedata};
+use crate::gamedata::{BaseGameData};
 
 struct DragInfo {
     lev_idx: u16,
@@ -53,7 +53,7 @@ impl LevChooser {
         MouseOverCols {text: LIGHTGRAY, fill: DARKGRAY, border: BLACK, border_width}
     }
 
-    pub fn do_frame<GameData: BaseGamedata>(&mut self, game_state: &mut GameData, draw_coords: (f32, f32)) {
+    pub fn do_frame<GameData: BaseGameData>(&mut self, game_state: &mut GameData, draw_coords: (f32, f32)) {
             let n_levs = game_state.num_levels();
             let buttons_per_row = 10;
 

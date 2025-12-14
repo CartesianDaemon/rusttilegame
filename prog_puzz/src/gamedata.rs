@@ -4,7 +4,7 @@ use super::levels;
 use tile_engine::for_gamedata::*;
 
 #[derive(Debug)]
-pub struct ProgpuzzGamedata {
+pub struct ProgpuzzGameData {
     levset: levels::ProgpuzzLevset,
 
     // TODO: Or better to store "current level" in a higher layer?
@@ -13,23 +13,23 @@ pub struct ProgpuzzGamedata {
     save_game_data: DefaultProgSaveGameData,
 }
 
-impl SaveGame for ProgpuzzGamedata {
+impl SaveGame for ProgpuzzGameData {
 }
 
-impl DefaultProgSaveGame for ProgpuzzGamedata {
+impl DefaultProgSaveGame for ProgpuzzGameData {
 }
 
-impl BaseGamedata for ProgpuzzGamedata {
+impl BaseGameData for ProgpuzzGameData {
     type GameLogic = ProgpuzzGameLogic;
     type CustomProps = ProgpuzzCustomProps;
 
     fn new() -> Self {
         let levset = levels::ProgpuzzLevset::new();
         let num_levels = levset.num_levels();
-        ProgpuzzGamedata {
+        ProgpuzzGameData {
             levset,
             reload_needed: false,
-            save_game_data: <ProgpuzzGamedata as DefaultProgSaveGame>::new_data(num_levels),
+            save_game_data: <ProgpuzzGameData as DefaultProgSaveGame>::new_data(num_levels),
         }
     }
 

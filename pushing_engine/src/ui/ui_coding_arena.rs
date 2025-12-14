@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::gamedata::{BaseGameLogic, BaseGamedata};
+use crate::gamedata::{BaseGameLogic, BaseGameData};
 
 use crate::scene::*;
 
@@ -346,7 +346,7 @@ impl UiCodingArena
 
     }
 
-    pub async fn render<GameData: BaseGamedata>(
+    pub async fn render<GameData: BaseGameData>(
             &mut self,
             coding_arena: &mut CodingArena<GameData::GameLogic>,
             texture_cache: &mut TextureCache,
@@ -433,7 +433,7 @@ impl UiCodingArena
     }
 
     /// Draw supply area and all supply bins
-    fn draw_supply<GameData: BaseGamedata>(&self, coding: &mut Coding, game_state: &GameData,) {
+    fn draw_supply<GameData: BaseGameData>(&self, coding: &mut Coding, game_state: &GameData,) {
         draw_text(game_state.get_level_str().as_str(), self.fr_pos.supply_x + 10., 20., 20., self.font_col());
 
         for (idx, bin) in coding.supply.iter().enumerate() {

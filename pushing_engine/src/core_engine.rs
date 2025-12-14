@@ -1,4 +1,4 @@
-use crate::gamedata::BaseGamedata;
+use crate::gamedata::BaseGameData;
 
 use super::gamedata;
 use super::scene::*;
@@ -11,22 +11,22 @@ use super::ui::UiBase;
 /// Templated on Game (either a  builtin Game, or a load-from-file Game).
 /// Could instead take a &dyn Game trait object so that it could load a Game object
 /// from a library, but that probably doesn't help that much.
-struct Engine<Gamedata: BaseGamedata> {
+struct Engine<GameData: BaseGameData> {
     /// Level set currently playing through, e.g. the biobot Engine.
-    pub gamedata: Gamedata,
+    pub gamedata: GameData,
 
     /// Current state of gameplay, current level, mostly map etc.
-    state: Scene<Gamedata::GameLogic>,
+    state: Scene<GameData::GameLogic>,
 
     ///
     ui: UiBase,
 }
 
-impl<Gamedata: gamedata::BaseGamedata> Engine<Gamedata> {
-    pub fn new() -> Engine<Gamedata> {
-        let gamedata = Gamedata::new();
+impl<GameData: gamedata::BaseGameData> Engine<GameData> {
+    pub fn new() -> Engine<GameData> {
+        let gamedata = GameData::new();
         let scene = gamedata.load_scene();
-        Engine::<Gamedata> {
+        Engine::<GameData> {
             gamedata: gamedata,
             state: scene,
             ui: UiBase::new(),
@@ -64,13 +64,13 @@ pub fn get_arg(prefix: &str) -> Option<String> {
 ///  --rust-log=...
 ///  --debug-coding=...
 ///  --start-at=...
-pub async fn run<Gamedata: gamedata::BaseGamedata>()
+pub async fn run<GameData: gamedata::BaseGameData>()
 {
     if let Some(log_opts) = get_arg("--rust-log=") {
         crate::logging::enable_logging(&log_opts);
     }
 
-    let mut engine = Engine::<Gamedata>::new();
+    let mut engine = Engine::<GameData>::new();
 
     loop {
         engine.do_frame().await;
