@@ -170,6 +170,6 @@ impl<MovementLogic: for_gamedata::BaseMovementLogic> CodingArena<MovementLogic>
     }
 
     pub fn consume_outcome_to_store(&mut self) -> Option<OutcomeToStore> {
-        None
+        self.outcome_to_store.take()
     }
 }

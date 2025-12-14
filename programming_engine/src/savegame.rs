@@ -80,9 +80,11 @@ impl BaseSaveGame for GenericProgSaveGame {
     }
 
     fn store_outcome(&mut self, lev_idx: u16, outcome: &str, solution: &str) {
+        let datetime = self.datetime_str();
+        let additional_txt = format!("{datetime} ({}): {outcome}: {solution}\n", self.current_version());
+        log::debug!("{additional_txt}");
         let key = &self._level_outcomes_key(lev_idx);
         let prev_val = self.storage().get(key).unwrap_or_default();
-        let datetime = self.datetime_str();
-        self.storage().set(key, &format!("{prev_val}{datetime} ({}): {outcome}: {solution}\n", self.current_version()));
+        self.storage().set(key, &(prev_val + &additional_txt));
     }
 }
