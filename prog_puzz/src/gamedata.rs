@@ -10,7 +10,7 @@ pub struct ProgpuzzGamedata {
     // TODO: Or better to store "current level" in a higher layer?
     reload_needed: bool,
 
-    save_game: SaveGame,
+    save_game: DefaultProgSaveGame,
 }
 
 impl BaseGamedata for ProgpuzzGamedata {
@@ -23,7 +23,7 @@ impl BaseGamedata for ProgpuzzGamedata {
         ProgpuzzGamedata {
             levset,
             reload_needed: false,
-            save_game: SaveGame::new(num_levels),
+            save_game: DefaultProgSaveGame::new(num_levels),
         }
     }
 

@@ -3,11 +3,11 @@ use quad_timestamp::*;
 use chrono::*;
 
 #[derive(Debug)]
-pub struct SaveGame {
+pub struct DefaultProgSaveGame {
     num_levels: u16,
 }
 
-impl SaveGame {
+impl DefaultProgSaveGame {
     pub fn new(num_levels: u16) -> Self {
         let mut save_game = Self {num_levels};
         save_game.unlock_level(1);
