@@ -9,7 +9,6 @@ pub enum CodingRunningPhase {
     Won,
 }
 
-// NB: Move into Prog Puzz. Or make into a general multi-scene scene.
 #[derive(Clone, Debug)]
 pub struct CodingArena<GameLogic : for_gamedata::BaseGameLogic> {
     pub init_arena: Arena<GameLogic>,

@@ -1,3 +1,8 @@
+// State of user interaction.
+//
+// Engine chooses a Ui type appropriate to the current scene. Currently each
+// scene only has one Ui, but could have a different GUI and TUI.
+
 mod ui_base;
 mod ui_helpers;
 mod ui_arena;
