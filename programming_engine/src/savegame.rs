@@ -27,7 +27,7 @@ impl BaseSaveGame for UnimplementedSaveGame {
 }
 
 // Results of level to store in save game.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct OutcomeToStore {
     // pub lev_idx: u16,
     pub outcome: String,
@@ -46,11 +46,12 @@ impl OutcomeToStore {
 #[derive(Debug)]
 pub struct GenericProgSaveGame {
     num_levels: u16,
+    most_recent: Option<OutcomeToStore>,
 }
 
 impl GenericProgSaveGame {
     pub fn new(num_levels: u16) -> Self {
-        let mut save_game_data = Self {num_levels};
+        let mut save_game_data = Self {num_levels, most_recent: None};
         save_game_data.unlock_level(1);
         // TODO: Handle values from previous version?
         save_game_data.storage().set(&save_game_data.version_key(), save_game_data.current_version());
@@ -98,10 +99,17 @@ impl BaseSaveGame for GenericProgSaveGame {
 
     fn store_outcome(&mut self, lev_idx: u16, outcome: OutcomeToStore) {
         let datetime = self.datetime_str();
-        let additional_txt = format!("{datetime} ({}): {}: {}", self.current_version(), outcome.outcome, outcome.solution);
+        let additional_txt = if Some(&outcome) == self.most_recent.as_ref() {
+            ".".to_string()
+        } else {
+            format!("\n{datetime} ({}): {}: {}", self.current_version(), outcome.outcome, outcome.solution)
+        };
         log::debug!("Storing in save game: {additional_txt}");
+
         let key = &self._level_outcomes_key(lev_idx);
         let prev_val = self.storage().get(key).unwrap_or_default();
-        self.storage().set(key, &(prev_val + &"\n" + &additional_txt));
+        self.storage().set(key, &(prev_val + &additional_txt));
+
+        self.most_recent = Some(outcome);
     }
 }
