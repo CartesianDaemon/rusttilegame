@@ -821,7 +821,7 @@ impl UiCodingArena
         let fdx = idx as f32;
         OpCoords {
             x: self.fr_pos.supply.x + self.fr_pos.supply_op.spacing + fdx * (self.fr_pos.supply_op.w + self.fr_pos.supply_op.spacing),
-            y: self.fr_pos.supply.y + self.fr_pos.supply.h - self.fr_pos.supply_op.h - self.fr_pos.supply_op.spacing,
+            y: self.fr_pos.supply.y + self.fr_pos.supply_op.spacing,
             w: self.fr_pos.supply_op.h,
             h: self.fr_pos.supply_op.h,
             rect_spacing: 0.,
