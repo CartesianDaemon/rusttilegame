@@ -295,6 +295,17 @@ impl UiCodingArena
         }
     }
 
+    fn supply_op_sz(&self, supply_w: f32, supply_h: f32, flow_n: f32) -> OpSize {
+        let spacing_pc = 0.5;
+        let supply_op_w_max = (supply_h * 0.8).min(supply_w / (spacing_pc + flow_n*(1.+spacing_pc)));
+        let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(self.fr_pos.prog.w, self.fr_pos.prog.h, 6.).w);
+        OpSize {
+            w: supply_op_w,
+            h: supply_op_w,
+            spacing: supply_op_w * spacing_pc,
+        }
+    }
+
     fn initialise_frame_coords(&mut self, coding_arena_phase: CodingRunningPhase, prog_n: usize) {
         self.is_coding = coding_arena_phase == CodingRunningPhase::Coding;
         self.is_won = coding_arena_phase == CodingRunningPhase::Won;
@@ -330,18 +341,11 @@ impl UiCodingArena
                 h: screen_height() - lev_chooser.h - prog.h,
             };
 
-            let spacing_pc = 0.5;
             let prog_n = prog_n.max(6) as f32;
             let prog_instr = self.prog_instr_sz(prog.w, prog.h, prog_n);
 
             let flow_n = 2.;
-            let supply_op_w_max = (supply.h * 0.8).min(supply.w / (spacing_pc + flow_n*(1.+spacing_pc)));
-            let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog.w, prog.h, 6.).w);
-            let supply_op = OpSize {
-                w: supply_op_w,
-                h: supply_op_w,
-                spacing: supply_op_w * spacing_pc,
-            };
+            let supply_op = self.supply_op_sz(supply.w, supply.h, flow_n);
 
             self.fr_pos = FrameCoords {
                 arena,
@@ -380,18 +384,11 @@ impl UiCodingArena
                 h: screen_height() - arena.h - supply.h,
             };
 
-            let spacing_pc = 0.5;
             let prog_n = prog_n.max(6) as f32;
             let prog_instr = self.prog_instr_sz(prog.w, prog.h, prog_n);
 
             let flow_n = 2.;
-            let supply_op_w_max = (supply.h * 0.8).min(supply.w / (spacing_pc + flow_n*(1.+spacing_pc)));
-            let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog.w, prog.h, 6.).w);
-            let supply_op = OpSize {
-                w: supply_op_w,
-                h: supply_op_w,
-                spacing: supply_op_w * spacing_pc,
-            };
+            let supply_op = self.supply_op_sz(supply.w, supply.h, flow_n);
 
             self.fr_pos = FrameCoords {
                 arena,
