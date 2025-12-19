@@ -306,7 +306,7 @@ impl UiCodingArena
         }
     }
 
-    fn initialise_frame_coords(&mut self, coding_arena_phase: CodingRunningPhase, prog_n: usize) {
+    fn initialise_frame_coords(&mut self, coding_arena_phase: CodingRunningPhase, prog_n: usize, flow_n: usize) {
         self.is_coding = coding_arena_phase == CodingRunningPhase::Coding;
         self.is_won = coding_arena_phase == CodingRunningPhase::Won;
         self.is_dead = coding_arena_phase == CodingRunningPhase::Died;
@@ -344,7 +344,7 @@ impl UiCodingArena
             let prog_n = prog_n.max(6) as f32;
             let prog_instr = self.prog_instr_sz(prog.w, prog.h, prog_n);
 
-            let flow_n = 2.;
+            let flow_n = flow_n.max(2) as f32;
             let supply_op = self.supply_op_sz(supply.w, supply.h, flow_n);
 
             self.fr_pos = FrameCoords {
@@ -387,7 +387,7 @@ impl UiCodingArena
             let prog_n = prog_n.max(6) as f32;
             let prog_instr = self.prog_instr_sz(prog.w, prog.h, prog_n);
 
-            let flow_n = 2.;
+            let flow_n = flow_n.max(2) as f32;
             let supply_op = self.supply_op_sz(supply.w, supply.h, flow_n);
 
             self.fr_pos = FrameCoords {
@@ -464,7 +464,7 @@ impl UiCodingArena
             game_state: &mut GameData,
         ) {
         self.active_idx = GameData::MovementLogic::get_active_idx(coding_arena);
-        self.initialise_frame_coords(coding_arena.phase, coding_arena.coding.prog.v_len());
+        self.initialise_frame_coords(coding_arena.phase, coding_arena.coding.prog.v_len(), coding_arena.coding.supply.len());
 
         crate::ui::clear_background_for_current_platform(self.background_col());
 
