@@ -33,6 +33,7 @@ struct FrameCoords {
     arena: PRect,
     supply: PRect,
     prog: PRect,
+    lev_chooser: PRect,
 
     supply_op_w: f32,
     supply_op_h: f32,
@@ -301,20 +302,25 @@ impl UiCodingArena
                 h: screen_height(),
             };
 
-            // Prog
+            let lev_chooser = PRect {
+                x: arena.w,
+                y: 0.,
+                w: screen_width() - arena.w,
+                h: if self.is_coding {screen_height() * 0.1} else {0.},
+            };
+
             let prog = PRect {
                 x: arena.w,
                 y: 0.,
                 w: screen_width() - arena.w,
-                h: if self.is_coding {screen_height() * 0.7} else {screen_height()},
+                h: if self.is_coding {screen_height() * 0.6} else {screen_height()},
             };
 
-            // Supply
             let supply = PRect {
                 x: arena.w,
                 y: prog.h,
                 w: screen_width() - arena.w,
-                h: screen_height() - prog.h,
+                h: screen_height() - lev_chooser.h - prog.h,
             };
 
             // Prog instrs
@@ -336,6 +342,7 @@ impl UiCodingArena
                 arena,
                 supply,
                 prog,
+                lev_chooser,
 
                 supply_op_w,
                 supply_op_h,
@@ -347,7 +354,6 @@ impl UiCodingArena
                 prog_instr_spacing,
             }
         } else {
-            // Arena
             let arena = PRect {
                 x: 0.,
                 y: 0.,
@@ -355,7 +361,6 @@ impl UiCodingArena
                 h: if self.is_coding {screen_height() * 0.75} else {screen_height()},
             };
 
-            // Prog
             let prog = PRect {
                 x: arena.w,
                 y: 0.,
@@ -363,12 +368,18 @@ impl UiCodingArena
                 h: arena.h,
             };
 
-            // Supply
             let supply = PRect {
                 x: 0.,
                 y: arena.h,
                 w: arena.w,
-                h: screen_height() - arena.h,
+                h: if self.is_coding {screen_height() * 0.15} else {0.},
+            };
+
+            let lev_chooser = PRect {
+                x: 0.,
+                y: supply.y + supply.h,
+                w: arena.w,
+                h: screen_height() - arena.h - supply.h,
             };
 
             // Prog instrs
@@ -390,6 +401,7 @@ impl UiCodingArena
                 arena,
                 supply,
                 prog,
+                lev_chooser,
 
                 supply_op_w,
                 supply_op_h,
@@ -479,7 +491,7 @@ impl UiCodingArena
         self.draw_prog(GameData::MovementLogic::current_prog(coding_arena));
         if self.is_coding {
             self.draw_supply(&mut coding_arena.coding);
-            self.lev_chooser.do_frame(game_state, (self.fr_pos.supply.x + 10., self.fr_pos.supply.y + 20.));
+            self.lev_chooser.do_frame(game_state, self.fr_pos.lev_chooser);
             self.draw_dragging();
         }
 
