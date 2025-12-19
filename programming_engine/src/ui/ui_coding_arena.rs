@@ -306,7 +306,7 @@ impl UiCodingArena
             let arena = PRect {
                 x: 0.,
                 y: 0.,
-                w: screen_width() * if self.is_coding {0.8} else {0.9},
+                w: screen_height(),
                 h: screen_height(),
             };
 
