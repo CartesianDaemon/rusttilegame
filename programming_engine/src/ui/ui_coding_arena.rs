@@ -361,13 +361,6 @@ impl UiCodingArena
                 h: if self.is_coding {screen_height() * 0.75} else {screen_height()},
             };
 
-            let prog = PRect {
-                x: arena.w,
-                y: 0.,
-                w: screen_width() - arena.w,
-                h: arena.h,
-            };
-
             let supply = PRect {
                 x: 0.,
                 y: arena.h,
@@ -375,10 +368,17 @@ impl UiCodingArena
                 h: if self.is_coding {screen_height() * 0.15} else {0.},
             };
 
+            let prog = PRect {
+                x: arena.w,
+                y: 0.,
+                w: screen_width() - arena.w,
+                h: arena.h + supply.h,
+            };
+
             let lev_chooser = PRect {
                 x: 0.,
                 y: supply.y + supply.h,
-                w: arena.w,
+                w: screen_width(),
                 h: screen_height() - arena.h - supply.h,
             };
 
