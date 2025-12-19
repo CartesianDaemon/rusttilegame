@@ -301,63 +301,122 @@ impl UiCodingArena
         self.is_won = coding_arena_phase == CodingRunningPhase::Won;
         self.is_dead = coding_arena_phase == CodingRunningPhase::Died;
 
-        // Arena
-        let arena = PRect {
-            x: 0.,
-            y: 0.,
-            w: screen_height().min(screen_width() * if self.is_coding {0.8} else {0.9} ) ,
-            h: screen_height(),
-        };
-        let arena_w = arena.w;
+        if screen_width() > screen_height() {
+            // Arena
+            let arena = PRect {
+                x: 0.,
+                y: 0.,
+                w: screen_width() * if self.is_coding {0.8} else {0.9},
+                h: screen_height(),
+            };
 
-        // Supply
-        let supply_x = arena_w;
-        let supply_y = 0.;
-        let supply_w = screen_width() - arena_w;
-        let supply_h = if self.is_coding {screen_height() * 0.3} else { 0. };
+            // Supply
+            let supply_x = arena.w;
+            let supply_y = 0.;
+            let supply_w = screen_width() - arena.w;
+            let supply_h = if self.is_coding {screen_height() * 0.3} else { 0. };
 
-        // Prog
-        let spacing_pc = 0.5;
-        let prog_x = arena_w;
-        let prog_y = supply_h;
-        let prog_w = screen_width() - arena_w;
-        let prog_h = screen_height() - supply_h;
+            // Prog
+            let prog_x = arena.w;
+            let prog_y = supply_h;
+            let prog_w = screen_width() - arena.w;
+            let prog_h = screen_height() - supply_h;
 
-        // Prog instrs
-        let prog_n = prog_n.max(6) as f32;
-        let prog_instr_h = self.prog_instr_sz(prog_w, prog_h, spacing_pc, prog_n);
-        let prog_instr_w = prog_instr_h;
-        let prog_instr_spacing =  prog_instr_w * spacing_pc;
+            // Prog instrs
+            let spacing_pc = 0.5;
+            let prog_n = prog_n.max(6) as f32;
+            let prog_instr_h = self.prog_instr_sz(prog_w, prog_h, spacing_pc, prog_n);
+            let prog_instr_w = prog_instr_h;
+            let prog_instr_spacing =  prog_instr_w * spacing_pc;
 
-        // Supply op
-        let flow_n = 2.;
-        let supply_op_w_max = (supply_h * 0.8).min(supply_w / (spacing_pc + flow_n*(1.+spacing_pc)));
-        let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog_w, prog_h, spacing_pc, 6.));
-        let supply_op_h = supply_op_w;
-        let supply_op_font_sz = supply_op_h * 1.35;
-        let supply_op_spacing = supply_op_w * spacing_pc;
+            // Supply op
+            let flow_n = 2.;
+            let supply_op_w_max = (supply_h * 0.8).min(supply_w / (spacing_pc + flow_n*(1.+spacing_pc)));
+            let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog_w, prog_h, spacing_pc, 6.));
+            let supply_op_h = supply_op_w;
+            let supply_op_font_sz = supply_op_h * 1.35;
+            let supply_op_spacing = supply_op_w * spacing_pc;
 
-        self.fr_pos = FrameCoords {
-            arena,
+            self.fr_pos = FrameCoords {
+                arena,
 
-            supply_x,
-            supply_y,
-            supply_w,
-            supply_h,
+                supply_x,
+                supply_y,
+                supply_w,
+                supply_h,
 
-            supply_op_w,
-            supply_op_h,
-            supply_op_font_sz,
-            supply_op_spacing,
+                supply_op_w,
+                supply_op_h,
+                supply_op_font_sz,
+                supply_op_spacing,
 
-            prog_x,
-            prog_y,
-            prog_w,
-            prog_h,
+                prog_x,
+                prog_y,
+                prog_w,
+                prog_h,
 
-            prog_instr_w,
-            prog_instr_h,
-            prog_instr_spacing,
+                prog_instr_w,
+                prog_instr_h,
+                prog_instr_spacing,
+            }
+        } else {
+            // Supply
+            let supply_x = 0.;
+            let supply_y = 0.;
+            let supply_w = screen_width();
+            let supply_h = if self.is_coding {screen_height() * 0.3} else { 0. };
+
+            // Arena
+            let arena = PRect {
+                x: 0.,
+                y: supply_h,
+                w: screen_width() * 0.75,
+                h: screen_height() - supply_h,
+            };
+
+            // Prog
+            let prog_x = arena.w;
+            let prog_y = supply_h;
+            let prog_w = screen_width() - prog_x;
+            let prog_h = arena.h;
+
+            // Prog instrs
+            let spacing_pc = 0.5;
+            let prog_n = prog_n.max(6) as f32;
+            let prog_instr_h = self.prog_instr_sz(prog_w, prog_h, spacing_pc, prog_n);
+            let prog_instr_w = prog_instr_h;
+            let prog_instr_spacing =  prog_instr_w * spacing_pc;
+
+            // Supply op
+            let flow_n = 2.;
+            let supply_op_w_max = (supply_h * 0.8).min(supply_w / (spacing_pc + flow_n*(1.+spacing_pc)));
+            let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog_w, prog_h, spacing_pc, 6.));
+            let supply_op_h = supply_op_w;
+            let supply_op_font_sz = supply_op_h * 1.35;
+            let supply_op_spacing = supply_op_w * spacing_pc;
+
+            self.fr_pos = FrameCoords {
+                arena,
+
+                supply_x,
+                supply_y,
+                supply_w,
+                supply_h,
+
+                supply_op_w,
+                supply_op_h,
+                supply_op_font_sz,
+                supply_op_spacing,
+
+                prog_x,
+                prog_y,
+                prog_w,
+                prog_h,
+
+                prog_instr_w,
+                prog_instr_h,
+                prog_instr_spacing,
+            }
         }
 
     }
