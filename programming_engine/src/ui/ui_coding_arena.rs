@@ -37,7 +37,6 @@ struct FrameCoords {
 
     supply_op_w: f32,
     supply_op_h: f32,
-    supply_op_font_sz: f32,
     supply_op_spacing: f32,
 
     prog_instr_w: f32,
@@ -335,7 +334,6 @@ impl UiCodingArena
             let supply_op_w_max = (supply.h * 0.8).min(supply.w / (spacing_pc + flow_n*(1.+spacing_pc)));
             let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog.w, prog.h, spacing_pc, 6.));
             let supply_op_h = supply_op_w;
-            let supply_op_font_sz = supply_op_h * 1.35;
             let supply_op_spacing = supply_op_w * spacing_pc;
 
             self.fr_pos = FrameCoords {
@@ -346,7 +344,6 @@ impl UiCodingArena
 
                 supply_op_w,
                 supply_op_h,
-                supply_op_font_sz,
                 supply_op_spacing,
 
                 prog_instr_w,
@@ -357,7 +354,7 @@ impl UiCodingArena
             let arena = PRect {
                 x: 0.,
                 y: 0.,
-                w: screen_width() * 0.75,
+                w: screen_width() * 0.85,
                 h: if self.is_coding {screen_height() * 0.75} else {screen_height()},
             };
 
@@ -394,7 +391,6 @@ impl UiCodingArena
             let supply_op_w_max = (supply.h * 0.8).min(supply.w / (spacing_pc + flow_n*(1.+spacing_pc)));
             let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog.w, prog.h, spacing_pc, 6.));
             let supply_op_h = supply_op_w;
-            let supply_op_font_sz = supply_op_h * 1.35;
             let supply_op_spacing = supply_op_w * spacing_pc;
 
             self.fr_pos = FrameCoords {
@@ -405,7 +401,6 @@ impl UiCodingArena
 
                 supply_op_w,
                 supply_op_h,
-                supply_op_font_sz,
                 supply_op_spacing,
 
                 prog_instr_w,
@@ -593,7 +588,8 @@ impl UiCodingArena
 
         // Draw count
         let count_txt = format!("{}/{}", bin.curr_count, bin.orig_count);
-        draw_text(&count_txt, coords.x + 0.5*self.fr_pos.supply_op_w, coords.y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, self.font_col());
+        let supply_count_font_sz = self.fr_pos.supply_op_h * 0.34;
+        draw_text(&count_txt, coords.x + 0.5*self.fr_pos.supply_op_w, coords.y+1.25*self.fr_pos.supply_op_h, supply_count_font_sz, self.font_col());
     }
 
     /// Interact supply area and all supply bins
