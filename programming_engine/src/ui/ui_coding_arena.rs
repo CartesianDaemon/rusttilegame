@@ -35,13 +35,15 @@ struct FrameCoords {
     prog: PRect,
     lev_chooser: PRect,
 
-    supply_op_w: f32,
-    supply_op_h: f32,
-    supply_op_spacing: f32,
+    supply_op: OpSize,
+    prog_instr: OpSize,
+}
 
-    prog_instr_w: f32,
-    prog_instr_h: f32,
-    prog_instr_spacing: f32,
+#[derive(Copy, Clone, Default)]
+pub struct OpSize {
+    pub w: f32,
+    pub h: f32,
+    pub spacing: f32,
 }
 
 #[derive(Copy, Clone, Default)]
@@ -322,33 +324,31 @@ impl UiCodingArena
                 h: screen_height() - lev_chooser.h - prog.h,
             };
 
-            // Prog instrs
             let spacing_pc = 0.5;
             let prog_n = prog_n.max(6) as f32;
-            let prog_instr_h = self.prog_instr_sz(prog.w, prog.h, spacing_pc, prog_n);
-            let prog_instr_w = prog_instr_h;
-            let prog_instr_spacing =  prog_instr_w * spacing_pc;
+            let prog_instr_w = self.prog_instr_sz(prog.w, prog.h, spacing_pc, prog_n);
+            let prog_instr = OpSize {
+                w: prog_instr_w,
+                h: prog_instr_w,
+                spacing: prog_instr_w * spacing_pc,
+            };
 
-            // Supply op
             let flow_n = 2.;
             let supply_op_w_max = (supply.h * 0.8).min(supply.w / (spacing_pc + flow_n*(1.+spacing_pc)));
             let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog.w, prog.h, spacing_pc, 6.));
-            let supply_op_h = supply_op_w;
-            let supply_op_spacing = supply_op_w * spacing_pc;
+            let supply_op = OpSize {
+                w: supply_op_w,
+                h: supply_op_w,
+                spacing: supply_op_w * spacing_pc,
+            };
 
             self.fr_pos = FrameCoords {
                 arena,
                 supply,
                 prog,
                 lev_chooser,
-
-                supply_op_w,
-                supply_op_h,
-                supply_op_spacing,
-
-                prog_instr_w,
-                prog_instr_h,
-                prog_instr_spacing,
+                supply_op,
+                prog_instr,
             }
         } else {
             let arena = PRect {
@@ -379,33 +379,31 @@ impl UiCodingArena
                 h: screen_height() - arena.h - supply.h,
             };
 
-            // Prog instrs
             let spacing_pc = 0.5;
             let prog_n = prog_n.max(6) as f32;
-            let prog_instr_h = self.prog_instr_sz(prog.w, prog.h, spacing_pc, prog_n);
-            let prog_instr_w = prog_instr_h;
-            let prog_instr_spacing =  prog_instr_w * spacing_pc;
+            let prog_instr_w = self.prog_instr_sz(prog.w, prog.h, spacing_pc, prog_n);
+            let prog_instr = OpSize {
+                w: prog_instr_w,
+                h: prog_instr_w,
+                spacing: prog_instr_w * spacing_pc,
+            };
 
-            // Supply op
             let flow_n = 2.;
             let supply_op_w_max = (supply.h * 0.8).min(supply.w / (spacing_pc + flow_n*(1.+spacing_pc)));
             let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog.w, prog.h, spacing_pc, 6.));
-            let supply_op_h = supply_op_w;
-            let supply_op_spacing = supply_op_w * spacing_pc;
+            let supply_op = OpSize {
+                w: supply_op_w,
+                h: supply_op_w,
+                spacing: supply_op_w * spacing_pc,
+            };
 
             self.fr_pos = FrameCoords {
                 arena,
                 supply,
                 prog,
                 lev_chooser,
-
-                supply_op_w,
-                supply_op_h,
-                supply_op_spacing,
-
-                prog_instr_w,
-                prog_instr_h,
-                prog_instr_spacing,
+                supply_op,
+                prog_instr,
             }
         }
 
@@ -588,8 +586,8 @@ impl UiCodingArena
 
         // Draw count
         let count_txt = format!("{}/{}", bin.curr_count, bin.orig_count);
-        let supply_count_font_sz = self.fr_pos.supply_op_h * 0.34;
-        draw_text(&count_txt, coords.x + 0.5*self.fr_pos.supply_op_w, coords.y+1.25*self.fr_pos.supply_op_h, supply_count_font_sz, self.font_col());
+        let supply_count_font_sz = self.fr_pos.supply_op.h * 0.34;
+        draw_text(&count_txt, coords.x + 0.5*self.fr_pos.supply_op.w, coords.y+1.25*self.fr_pos.supply_op.h, supply_count_font_sz, self.font_col());
     }
 
     /// Interact supply area and all supply bins
@@ -829,20 +827,20 @@ impl UiCodingArena
     fn supply_op_coords(&self, idx: usize) -> OpCoords {
         let fdx = idx as f32;
         OpCoords {
-            x: self.fr_pos.supply.x + self.fr_pos.supply_op_spacing + fdx * (self.fr_pos.supply_op_w + self.fr_pos.supply_op_spacing),
-            y: self.fr_pos.supply.y + self.fr_pos.supply.h - self.fr_pos.supply_op_h - self.fr_pos.supply_op_spacing,
-            w: self.fr_pos.supply_op_h,
-            h: self.fr_pos.supply_op_h,
+            x: self.fr_pos.supply.x + self.fr_pos.supply_op.spacing + fdx * (self.fr_pos.supply_op.w + self.fr_pos.supply_op.spacing),
+            y: self.fr_pos.supply.y + self.fr_pos.supply.h - self.fr_pos.supply_op.h - self.fr_pos.supply_op.spacing,
+            w: self.fr_pos.supply_op.h,
+            h: self.fr_pos.supply_op.h,
             rect_spacing: 0.,
         }
     }
 
     fn prog_instr_coords(&self, xidx: usize, yidx: usize) -> OpCoords {
         let (xfdx, yfdx) = (xidx as f32, yidx as f32);
-        let x = self.fr_pos.prog.x + self.fr_pos.prog_instr_spacing + xfdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
-        let y = self.fr_pos.prog.y + self.fr_pos.prog_instr_spacing + yfdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
+        let x = self.fr_pos.prog.x + self.fr_pos.prog_instr.spacing + xfdx * (self.fr_pos.prog_instr.h + self.fr_pos.prog_instr.spacing);
+        let y = self.fr_pos.prog.y + self.fr_pos.prog_instr.spacing + yfdx * (self.fr_pos.prog_instr.h + self.fr_pos.prog_instr.spacing);
 
-        OpCoords {x, y, w: self.fr_pos.prog_instr_w, h: self.fr_pos.prog_instr_h, rect_spacing: self.fr_pos.prog_instr_spacing}
+        OpCoords {x, y, w: self.fr_pos.prog_instr.w, h: self.fr_pos.prog_instr.h, rect_spacing: self.fr_pos.prog_instr.spacing}
     }
 
     fn dragging_op_coords(&self) -> Option<OpCoords> {
@@ -850,7 +848,7 @@ impl UiCodingArena
             Some(DragOrigin{orig_offset_x, orig_offset_y,..}) => {
                 let (mx, my) = mouse_position();
                 let (x,y) = (mx - orig_offset_x, my - orig_offset_y);
-                Some(OpCoords {x, y, w:self.fr_pos.prog_instr_w, h:self.fr_pos.prog_instr_h, rect_spacing: 0.})
+                Some(OpCoords {x, y, w:self.fr_pos.prog_instr.w, h:self.fr_pos.prog_instr.h, rect_spacing: 0.})
             },
             _ => None,
         }
@@ -924,8 +922,8 @@ impl UiCodingArena
             Some(DragOrigin {
                 instr: Instr::from_opcode(bin.op),
                 op_ref: InstrRef::Supply { idx },
-                orig_offset_x: orig_offset_x * self.fr_pos.prog_instr_w / self.fr_pos.supply_op_w,
-                orig_offset_y: orig_offset_y * self.fr_pos.prog_instr_w / self.fr_pos.supply_op_w
+                orig_offset_x: orig_offset_x * self.fr_pos.prog_instr.w / self.fr_pos.supply_op.w,
+                orig_offset_y: orig_offset_y * self.fr_pos.prog_instr.w / self.fr_pos.supply_op.w
             })
         } else {
             None
