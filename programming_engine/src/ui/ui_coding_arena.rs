@@ -360,25 +360,25 @@ impl UiCodingArena
                 prog_instr_spacing,
             }
         } else {
-            // Supply
-            let supply_x = 0.;
-            let supply_y = 0.;
-            let supply_w = screen_width();
-            let supply_h = if self.is_coding {screen_height() * 0.3} else { 0. };
-
             // Arena
             let arena = PRect {
                 x: 0.,
-                y: supply_h,
+                y: 0.,
                 w: screen_width() * 0.75,
-                h: screen_height() - supply_h,
+                h: if self.is_coding {screen_height()} else {screen_height() * 0.7 },
             };
 
             // Prog
             let prog_x = arena.w;
-            let prog_y = supply_h;
+            let prog_y = 0.;
             let prog_w = screen_width() - prog_x;
             let prog_h = arena.h;
+
+            // Supply
+            let supply_x = 0.;
+            let supply_y = arena.h;
+            let supply_w = arena.w;
+            let supply_h = screen_height() - arena.h;
 
             // Prog instrs
             let spacing_pc = 0.5;
