@@ -310,17 +310,17 @@ impl UiCodingArena
                 h: screen_height(),
             };
 
-            // Supply
-            let supply_x = arena.w;
-            let supply_y = 0.;
-            let supply_w = screen_width() - arena.w;
-            let supply_h = if self.is_coding {screen_height() * 0.3} else { 0. };
-
             // Prog
             let prog_x = arena.w;
-            let prog_y = supply_h;
+            let prog_y = 0.;
             let prog_w = screen_width() - arena.w;
-            let prog_h = screen_height() - supply_h;
+            let prog_h = if self.is_coding {screen_height()} else {screen_height() * 0.7};
+
+            // Supply
+            let supply_x = arena.w;
+            let supply_y = 100.;
+            let supply_w = screen_width() - arena.w;
+            let supply_h = screen_height() - prog_h;
 
             // Prog instrs
             let spacing_pc = 0.5;
