@@ -31,22 +31,13 @@ struct DragOrigin {
 #[derive(Default)]
 struct FrameCoords {
     arena: PRect,
-
-    supply_x: f32,
-    supply_y: f32,
-    supply_w: f32,
-    supply_h: f32,
+    supply: PRect,
+    prog: PRect,
 
     supply_op_w: f32,
     supply_op_h: f32,
     supply_op_font_sz: f32,
     supply_op_spacing: f32,
-
-    // TODO: Rename prog -> prog
-    prog_x: f32,
-    prog_y: f32,
-    prog_w: f32,
-    prog_h: f32,
 
     prog_instr_w: f32,
     prog_instr_h: f32,
@@ -311,49 +302,45 @@ impl UiCodingArena
             };
 
             // Prog
-            let prog_x = arena.w;
-            let prog_y = 0.;
-            let prog_w = screen_width() - arena.w;
-            let prog_h = if self.is_coding {screen_height() * 0.7} else {screen_height()};
+            let prog = PRect {
+                x: arena.w,
+                y: 0.,
+                w: screen_width() - arena.w,
+                h: if self.is_coding {screen_height() * 0.7} else {screen_height()},
+            };
 
             // Supply
-            let supply_x = arena.w;
-            let supply_y = prog_h;
-            let supply_w = screen_width() - arena.w;
-            let supply_h = screen_height() - prog_h;
+            let supply = PRect {
+                x: arena.w,
+                y: prog.h,
+                w: screen_width() - arena.w,
+                h: screen_height() - prog.h,
+            };
 
             // Prog instrs
             let spacing_pc = 0.5;
             let prog_n = prog_n.max(6) as f32;
-            let prog_instr_h = self.prog_instr_sz(prog_w, prog_h, spacing_pc, prog_n);
+            let prog_instr_h = self.prog_instr_sz(prog.w, prog.h, spacing_pc, prog_n);
             let prog_instr_w = prog_instr_h;
             let prog_instr_spacing =  prog_instr_w * spacing_pc;
 
             // Supply op
             let flow_n = 2.;
-            let supply_op_w_max = (supply_h * 0.8).min(supply_w / (spacing_pc + flow_n*(1.+spacing_pc)));
-            let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog_w, prog_h, spacing_pc, 6.));
+            let supply_op_w_max = (supply.h * 0.8).min(supply.w / (spacing_pc + flow_n*(1.+spacing_pc)));
+            let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog.w, prog.h, spacing_pc, 6.));
             let supply_op_h = supply_op_w;
             let supply_op_font_sz = supply_op_h * 1.35;
             let supply_op_spacing = supply_op_w * spacing_pc;
 
             self.fr_pos = FrameCoords {
                 arena,
-
-                supply_x,
-                supply_y,
-                supply_w,
-                supply_h,
+                supply,
+                prog,
 
                 supply_op_w,
                 supply_op_h,
                 supply_op_font_sz,
                 supply_op_spacing,
-
-                prog_x,
-                prog_y,
-                prog_w,
-                prog_h,
 
                 prog_instr_w,
                 prog_instr_h,
@@ -369,49 +356,45 @@ impl UiCodingArena
             };
 
             // Prog
-            let prog_x = arena.w;
-            let prog_y = 0.;
-            let prog_w = screen_width() - prog_x;
-            let prog_h = arena.h;
+            let prog = PRect {
+                x: arena.w,
+                y: 0.,
+                w: screen_width() - arena.w,
+                h: arena.h,
+            };
 
             // Supply
-            let supply_x = 0.;
-            let supply_y = arena.h;
-            let supply_w = arena.w;
-            let supply_h = screen_height() - arena.h;
+            let supply = PRect {
+                x: 0.,
+                y: arena.h,
+                w: arena.w,
+                h: screen_height() - arena.h,
+            };
 
             // Prog instrs
             let spacing_pc = 0.5;
             let prog_n = prog_n.max(6) as f32;
-            let prog_instr_h = self.prog_instr_sz(prog_w, prog_h, spacing_pc, prog_n);
+            let prog_instr_h = self.prog_instr_sz(prog.w, prog.h, spacing_pc, prog_n);
             let prog_instr_w = prog_instr_h;
             let prog_instr_spacing =  prog_instr_w * spacing_pc;
 
             // Supply op
             let flow_n = 2.;
-            let supply_op_w_max = (supply_h * 0.8).min(supply_w / (spacing_pc + flow_n*(1.+spacing_pc)));
-            let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog_w, prog_h, spacing_pc, 6.));
+            let supply_op_w_max = (supply.h * 0.8).min(supply.w / (spacing_pc + flow_n*(1.+spacing_pc)));
+            let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog.w, prog.h, spacing_pc, 6.));
             let supply_op_h = supply_op_w;
             let supply_op_font_sz = supply_op_h * 1.35;
             let supply_op_spacing = supply_op_w * spacing_pc;
 
             self.fr_pos = FrameCoords {
                 arena,
-
-                supply_x,
-                supply_y,
-                supply_w,
-                supply_h,
+                supply,
+                prog,
 
                 supply_op_w,
                 supply_op_h,
                 supply_op_font_sz,
                 supply_op_spacing,
-
-                prog_x,
-                prog_y,
-                prog_w,
-                prog_h,
 
                 prog_instr_w,
                 prog_instr_h,
@@ -496,7 +479,7 @@ impl UiCodingArena
         self.draw_prog(GameData::MovementLogic::current_prog(coding_arena));
         if self.is_coding {
             self.draw_supply(&mut coding_arena.coding);
-            self.lev_chooser.do_frame(game_state, (self.fr_pos.supply_x + 10., self.fr_pos.supply_y + 20.));
+            self.lev_chooser.do_frame(game_state, (self.fr_pos.supply.x + 10., self.fr_pos.supply.y + 20.));
             self.draw_dragging();
         }
 
@@ -509,10 +492,10 @@ impl UiCodingArena
 
     fn supply_rect(&self) -> PRect {
         PRect {
-            x: self.fr_pos.supply_x,
-            y: self.fr_pos.supply_y,
-            w: self.fr_pos.supply_w,
-            h: self.fr_pos.supply_h,
+            x: self.fr_pos.supply.x,
+            y: self.fr_pos.supply.y,
+            w: self.fr_pos.supply.w,
+            h: self.fr_pos.supply.h,
         }
     }
 
@@ -586,7 +569,7 @@ impl UiCodingArena
             self.draw_supply_op(idx, bin);
         }
 
-        draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., self.border_cols());
+        draw_rectangle_lines(self.fr_pos.supply.x, self.fr_pos.supply.y, self.fr_pos.supply.w, self.fr_pos.supply.h+1., 2., self.border_cols());
     }
 
     fn draw_supply_op(&self, idx: usize, bin: &Bin)
@@ -628,7 +611,7 @@ impl UiCodingArena
     }
 
     fn draw_prog(&self, prog: &Subprog) {
-        draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., self.border_cols());
+        draw_rectangle_lines(self.fr_pos.prog.x, self.fr_pos.prog.y, self.fr_pos.prog.w, self.fr_pos.prog.h, 2., self.border_cols());
 
         if prog.instrs.len() == 0 {
             // Draw "Start" instr.
@@ -838,8 +821,8 @@ impl UiCodingArena
     fn supply_op_coords(&self, idx: usize) -> OpCoords {
         let fdx = idx as f32;
         OpCoords {
-            x: self.fr_pos.supply_x + self.fr_pos.supply_op_spacing + fdx * (self.fr_pos.supply_op_w + self.fr_pos.supply_op_spacing),
-            y: self.fr_pos.supply_y + self.fr_pos.supply_h - self.fr_pos.supply_op_h - self.fr_pos.supply_op_spacing,
+            x: self.fr_pos.supply.x + self.fr_pos.supply_op_spacing + fdx * (self.fr_pos.supply_op_w + self.fr_pos.supply_op_spacing),
+            y: self.fr_pos.supply.y + self.fr_pos.supply.h - self.fr_pos.supply_op_h - self.fr_pos.supply_op_spacing,
             w: self.fr_pos.supply_op_h,
             h: self.fr_pos.supply_op_h,
             rect_spacing: 0.,
@@ -848,8 +831,8 @@ impl UiCodingArena
 
     fn prog_instr_coords(&self, xidx: usize, yidx: usize) -> OpCoords {
         let (xfdx, yfdx) = (xidx as f32, yidx as f32);
-        let x = self.fr_pos.prog_x + self.fr_pos.prog_instr_spacing + xfdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
-        let y = self.fr_pos.prog_y + self.fr_pos.prog_instr_spacing + yfdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
+        let x = self.fr_pos.prog.x + self.fr_pos.prog_instr_spacing + xfdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
+        let y = self.fr_pos.prog.y + self.fr_pos.prog_instr_spacing + yfdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
 
         OpCoords {x, y, w: self.fr_pos.prog_instr_w, h: self.fr_pos.prog_instr_h, rect_spacing: self.fr_pos.prog_instr_spacing}
     }
