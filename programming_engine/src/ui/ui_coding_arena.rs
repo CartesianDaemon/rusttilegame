@@ -314,11 +314,11 @@ impl UiCodingArena
             let prog_x = arena.w;
             let prog_y = 0.;
             let prog_w = screen_width() - arena.w;
-            let prog_h = if self.is_coding {screen_height()} else {screen_height() * 0.7};
+            let prog_h = if self.is_coding {screen_height() * 0.7} else {screen_height()};
 
             // Supply
             let supply_x = arena.w;
-            let supply_y = 100.;
+            let supply_y = prog_h;
             let supply_w = screen_width() - arena.w;
             let supply_h = screen_height() - prog_h;
 
@@ -365,7 +365,7 @@ impl UiCodingArena
                 x: 0.,
                 y: 0.,
                 w: screen_width() * 0.75,
-                h: if self.is_coding {screen_height()} else {screen_height() * 0.7 },
+                h: if self.is_coding {screen_height() * 0.75} else {screen_height()},
             };
 
             // Prog
