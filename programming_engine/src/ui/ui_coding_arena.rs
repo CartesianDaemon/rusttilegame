@@ -284,9 +284,15 @@ impl UiCodingArena
         DARKGRAY
     }
 
-    fn prog_instr_sz(&self, prog_w: f32, prog_h: f32, spacing_pc: f32, prog_n: f32) -> f32 {
+    fn prog_instr_sz(&self, prog_w: f32, prog_h: f32, prog_n: f32) -> OpSize {
+        let spacing_pc = 0.5;
         // Space for 6 instructions, 7 gaps, and half a 7th instruction (for placeholder)
-        (prog_w * 0.8).min(prog_h / (spacing_pc + prog_n*(1.+spacing_pc) + 0.5))
+        let prog_instr_w = (prog_w * 0.8).min(prog_h / (spacing_pc + prog_n*(1.+spacing_pc) + 0.5));
+        OpSize {
+            w: prog_instr_w,
+            h: prog_instr_w,
+            spacing: prog_instr_w * spacing_pc,
+        }
     }
 
     fn initialise_frame_coords(&mut self, coding_arena_phase: CodingRunningPhase, prog_n: usize) {
@@ -326,16 +332,11 @@ impl UiCodingArena
 
             let spacing_pc = 0.5;
             let prog_n = prog_n.max(6) as f32;
-            let prog_instr_w = self.prog_instr_sz(prog.w, prog.h, spacing_pc, prog_n);
-            let prog_instr = OpSize {
-                w: prog_instr_w,
-                h: prog_instr_w,
-                spacing: prog_instr_w * spacing_pc,
-            };
+            let prog_instr = self.prog_instr_sz(prog.w, prog.h, prog_n);
 
             let flow_n = 2.;
             let supply_op_w_max = (supply.h * 0.8).min(supply.w / (spacing_pc + flow_n*(1.+spacing_pc)));
-            let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog.w, prog.h, spacing_pc, 6.));
+            let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog.w, prog.h, 6.).w);
             let supply_op = OpSize {
                 w: supply_op_w,
                 h: supply_op_w,
@@ -381,16 +382,11 @@ impl UiCodingArena
 
             let spacing_pc = 0.5;
             let prog_n = prog_n.max(6) as f32;
-            let prog_instr_w = self.prog_instr_sz(prog.w, prog.h, spacing_pc, prog_n);
-            let prog_instr = OpSize {
-                w: prog_instr_w,
-                h: prog_instr_w,
-                spacing: prog_instr_w * spacing_pc,
-            };
+            let prog_instr = self.prog_instr_sz(prog.w, prog.h, prog_n);
 
             let flow_n = 2.;
             let supply_op_w_max = (supply.h * 0.8).min(supply.w / (spacing_pc + flow_n*(1.+spacing_pc)));
-            let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog.w, prog.h, spacing_pc, 6.));
+            let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog.w, prog.h, 6.).w);
             let supply_op = OpSize {
                 w: supply_op_w,
                 h: supply_op_w,
