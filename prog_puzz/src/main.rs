@@ -16,7 +16,7 @@
 /// As long as the game is under development you are encouraged to arena it.
 /// If I finish the game I will specify how the game is distributed.
 
-mod gamedata;
+mod game_data;
 mod levels;
 mod objs;
 mod movement_logic;
@@ -24,7 +24,7 @@ mod movement_logic;
 #[cfg(test)]
 mod prog_puzz_tests;
 
-use gamedata::*;
+use game_data::*;
 
 #[macroquad::main("Tile Game")]
 async fn main() {
