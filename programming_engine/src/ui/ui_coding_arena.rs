@@ -346,7 +346,7 @@ impl UiCodingArena
             let supply_op_max_sz_from_h = (screen_height() - lev_chooser.h) / self.length_in_units_with_spacing(supply_n_h);
             let supply_frac = supply_n_w as f32 / (supply_n_w + prog_n_w) as f32;
             let supply_max_w_from_sharing_w = (screen_width() - arena.w) * supply_frac;
-            let supply_max_w_from_height_restriction = supply_op_max_sz_from_h * (supply_n_w as f32 + (supply_n_w as f32 + 1.) * self.spacing_pc());
+            let supply_max_w_from_height_restriction = supply_op_max_sz_from_h * self.length_in_units_with_spacing(supply_n_w);
             let supply_w = supply_max_w_from_sharing_w.min(supply_max_w_from_height_restriction);
 
             let supply = PRect {
