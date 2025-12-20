@@ -301,14 +301,14 @@ impl UiCodingArena
         0.5
     }
 
-    fn divide_length_into_n_rects_with_spacing(&self, length: f32, n: usize) -> f32 {
+    fn length_in_units_with_spacing(&self, n: usize) -> f32 {
         let n = n as f32;
-        length / (n + (n+1.) * self.spacing_pc())
+        n + (n+1.) * self.spacing_pc()
     }
 
     fn choose_op_sz(&self, area_w: f32, area_h: f32, n_w: usize, n_h: usize) -> OpSize {
-        let max_sz_from_w = self.divide_length_into_n_rects_with_spacing(area_w, n_w);
-        let max_sz_from_h = self.divide_length_into_n_rects_with_spacing(area_h, n_h);
+        let max_sz_from_w = area_w / self.length_in_units_with_spacing(n_w);
+        let max_sz_from_h = area_h / self.length_in_units_with_spacing(n_h);
         let sz = max_sz_from_w.min(max_sz_from_h);
         OpSize {
             w: sz,
@@ -343,7 +343,7 @@ impl UiCodingArena
                 h: if self.is_coding {70.} else {0.},
             };
 
-            let supply_op_max_sz_from_h = self.divide_length_into_n_rects_with_spacing(screen_height() - lev_chooser.h, supply_n_h);
+            let supply_op_max_sz_from_h = (screen_height() - lev_chooser.h) / self.length_in_units_with_spacing(supply_n_h);
             let supply_frac = supply_n_w as f32 / (supply_n_w + prog_n_w) as f32;
             let supply_max_w_from_sharing_w = (screen_width() - arena.w) * supply_frac;
             let supply_max_w_from_height_restriction = supply_op_max_sz_from_h * (supply_n_w as f32 + (supply_n_w as f32 + 1.) * self.spacing_pc());
