@@ -302,8 +302,7 @@ impl UiCodingArena
         length / (n + (n+1.) * spacing_pc)
     }
 
-    fn choose_op_sz(&self, area_w: f32, area_h: f32, n_w: usize, n_h: usize) -> OpSize {
-        let spacing_pc = 0.5;
+    fn choose_op_sz(&self, area_w: f32, area_h: f32, n_w: usize, n_h: usize, spacing_pc: f32) -> OpSize {
         let max_sz_from_w = self.divide_length_into_n_rects_with_spacing(area_w, n_w, spacing_pc);
         let max_sz_from_h = self.divide_length_into_n_rects_with_spacing(area_h, n_h, spacing_pc);
         let sz = max_sz_from_w.min(max_sz_from_h);
@@ -319,12 +318,12 @@ impl UiCodingArena
         self.is_won = coding_arena_phase == CodingRunningPhase::Won;
         self.is_dead = coding_arena_phase == CodingRunningPhase::Died;
 
+        let spacing_pc = 0.5;
+
         let supply_n_w = 1;
         let supply_n_h = flow_n.max(2);
         let prog_n_w = prog_n_w.max(2);
         let prog_n_h = prog_n_h.max(6);
-
-        let supply_frac = supply_n_w as f32 / (supply_n_w + prog_n_w) as f32;
 
         if true || screen_width() > screen_height() {
             // Arena
@@ -342,10 +341,15 @@ impl UiCodingArena
                 h: if self.is_coding {70.} else {0.},
             };
 
+            let supply_op_max_sz_from_h = self.divide_length_into_n_rects_with_spacing(screen_height() - lev_chooser.h, supply_n_h, spacing_pc);
+            let supply_max_w_from_sharing_w = (screen_width() - arena.w) * (supply_n_w as f32 / (supply_n_w + prog_n_w) as f32);
+            let supply_max_w_from_height_restriction = supply_op_max_sz_from_h * (supply_n_w as f32 + (supply_n_w as f32 + 1.) * spacing_pc);
+            let supply_w = supply_max_w_from_sharing_w.min(supply_max_w_from_height_restriction);
+
             let supply = PRect {
                 x: arena.w,
                 y: lev_chooser.h,
-                w: if self.is_coding {(screen_width() - arena.w) * supply_frac} else {0.},
+                w: if self.is_coding {supply_w} else {0.},
                 h: screen_height() - lev_chooser.h,
             };
 
@@ -356,9 +360,9 @@ impl UiCodingArena
                 h: screen_height() - lev_chooser.h,
             };
 
-            let prog_instr = self.choose_op_sz(prog.w, prog.h, prog_n_w, prog_n_h);
+            let prog_instr = self.choose_op_sz(prog.w, prog.h, prog_n_w, prog_n_h, spacing_pc);
 
-            let supply_op = self.choose_op_sz(supply.w, supply.h, supply_n_w, supply_n_h);
+            let supply_op = self.choose_op_sz(supply.w, supply.h, supply_n_w, supply_n_h, spacing_pc);
 
             self.fr_pos = FrameCoords {
                 arena,
@@ -397,9 +401,9 @@ impl UiCodingArena
                 h: screen_height() - arena.h - supply.h,
             };
 
-            let prog_instr = self.choose_op_sz(prog.w, prog.h, prog_n_w, prog_n_h);
+            let prog_instr = self.choose_op_sz(prog.w, prog.h, prog_n_w, prog_n_h, spacing_pc);
 
-            let supply_op = self.choose_op_sz(supply.w, supply.h, supply_n_w, supply_n_h);
+            let supply_op = self.choose_op_sz(supply.w, supply.h, supply_n_w, supply_n_h, spacing_pc);
 
             self.fr_pos = FrameCoords {
                 arena,
