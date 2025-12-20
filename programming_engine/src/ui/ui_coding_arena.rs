@@ -343,15 +343,15 @@ impl UiCodingArena
             let supply = PRect {
                 x: arena.w,
                 y: lev_chooser.h,
-                w: screen_width() - arena.w,
-                h: if self.is_coding {screen_height() * 0.3} else {screen_height()},
+                w: if self.is_coding {(screen_width() - arena.w) * 0.25} else {0.},
+                h: screen_height() - lev_chooser.h,
             };
 
             let prog = PRect {
-                x: arena.w,
-                y: supply.y + supply.h,
-                w: screen_width() - arena.w,
-                h: screen_height() - lev_chooser.h - supply.h,
+                x: supply.x + supply.w,
+                y: lev_chooser.h,
+                w: screen_width() - arena.w - supply.w,
+                h: screen_height() - lev_chooser.h,
             };
 
             let prog_n = prog_n.max(6) as f32;
