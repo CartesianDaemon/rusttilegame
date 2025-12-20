@@ -326,7 +326,7 @@ impl UiCodingArena
 
         let supply_frac = supply_n_w as f32 / (supply_n_w + prog_n_w) as f32;
 
-        if screen_width() > screen_height() {
+        if true || screen_width() > screen_height() {
             // Arena
             let arena = PRect {
                 x: 0.,
