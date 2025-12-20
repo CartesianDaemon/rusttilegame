@@ -11,7 +11,7 @@
 // TODO: Need to move assets into each game folder?
 
 mod core_engine;
-mod gamedata;
+mod game_data;
 mod logging;
 mod map_coords;
 mod savegame;
@@ -27,7 +27,7 @@ pub use core_engine::run;
 // NB: Check which things ought to be exported, which shouldn't be needed.
 pub mod for_gamedata {
     pub use super::obj::*;
-    pub use super::gamedata::*;
+    pub use super::game_data::*;
     pub use super::scene::*;
     pub use super::map_coords::*;
     pub use super::simple_custom_props::*;

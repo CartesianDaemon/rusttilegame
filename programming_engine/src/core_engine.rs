@@ -1,7 +1,7 @@
-use crate::gamedata::BaseGameData;
+use crate::game_data::BaseGameData;
 use crate::savegame::BaseSaveGame;
 
-use super::gamedata;
+use super::game_data;
 use super::scene::*;
 use super::ui::Ui;
 
@@ -23,7 +23,7 @@ struct Engine<GameData: BaseGameData> {
     ui: Ui,
 }
 
-impl<GameData: gamedata::BaseGameData> Engine<GameData> {
+impl<GameData: game_data::BaseGameData> Engine<GameData> {
     pub fn new() -> Engine<GameData> {
         let mut game_data = GameData::new();
         let scene = game_data.load_scene();
@@ -81,7 +81,7 @@ pub fn get_arg(prefix: &str) -> Option<String> {
 ///  --rust-log=...
 ///  --debug-coding=...
 ///  --start-at=...
-pub async fn run<GameData: gamedata::BaseGameData>()
+pub async fn run<GameData: game_data::BaseGameData>()
 {
     if let Some(log_opts) = get_arg("--rust-log=") {
         crate::logging::enable_logging(&log_opts);
