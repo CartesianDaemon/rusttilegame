@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use macroquad::prelude::*;
 
-use crate::gamedata::BaseGameData;
+use crate::game_data::BaseGameData;
 use crate::scene::*;
 
 use super::ui_helpers::*;

@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::gamedata::{BaseMovementLogic, BaseGameData};
+use crate::game_data::{BaseMovementLogic, BaseGameData};
 
 use crate::ui::ui_helpers::{was_any_input, was_key_pressed};
 use crate::scene::*;

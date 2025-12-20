@@ -3,7 +3,7 @@ use macroquad::prelude::*;
 use assrt::rsst;
 use crate::scene::arena::MapObj;
 use crate::scene::Arena;
-use crate::gamedata::BaseMovementLogic;
+use crate::game_data::BaseMovementLogic;
 
 use super::*;
 

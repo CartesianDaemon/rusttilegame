@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 
 use crate::ui::PRect;
-use crate::gamedata::{BaseGameData};
+use crate::game_data::{BaseGameData};
 use crate::savegame::BaseSaveGame;
 
 struct DragInfo {
