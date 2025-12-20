@@ -297,11 +297,12 @@ impl UiCodingArena
         DARKGRAY
     }
 
-    fn divide_length_into_n_rects_with_spacing(&self, length: f32, n: f32, spacing_pc: f32) -> f32 {
+    fn divide_length_into_n_rects_with_spacing(&self, length: f32, n: usize, spacing_pc: f32) -> f32 {
+        let n = n as f32;
         length / (n + (n+1.) * spacing_pc)
     }
 
-    fn choose_op_sz(&self, area_w: f32, area_h: f32, n_w: f32, n_h: f32) -> OpSize {
+    fn choose_op_sz(&self, area_w: f32, area_h: f32, n_w: usize, n_h: usize) -> OpSize {
         let spacing_pc = 0.5;
         let max_sz_from_w = self.divide_length_into_n_rects_with_spacing(area_w, n_w, spacing_pc);
         let max_sz_from_h = self.divide_length_into_n_rects_with_spacing(area_h, n_h, spacing_pc);
@@ -313,7 +314,7 @@ impl UiCodingArena
         }
     }
 
-    fn initialise_frame_coords(&mut self, coding_arena_phase: CodingRunningPhase, prog_n: usize, flow_n: usize) {
+    fn initialise_frame_coords(&mut self, coding_arena_phase: CodingRunningPhase, prog_n_w: usize, prog_n_h: usize, flow_n: usize) {
         self.is_coding = coding_arena_phase == CodingRunningPhase::Coding;
         self.is_won = coding_arena_phase == CodingRunningPhase::Won;
         self.is_dead = coding_arena_phase == CodingRunningPhase::Died;
@@ -348,11 +349,11 @@ impl UiCodingArena
                 h: screen_height() - lev_chooser.h,
             };
 
-            let prog_n = prog_n.max(6) as f32;
-            let prog_instr = self.choose_op_sz(prog.w, prog.h, 1., prog_n);
+            let prog_n_h = prog_n_h.max(6);
+            let prog_instr = self.choose_op_sz(prog.w, prog.h, prog_n_w, prog_n_h);
 
-            let flow_n = flow_n.max(2) as f32;
-            let supply_op = self.choose_op_sz(supply.w, supply.h, 1., flow_n);
+            let flow_n = flow_n.max(2);
+            let supply_op = self.choose_op_sz(supply.w, supply.h, 1, flow_n);
 
             self.fr_pos = FrameCoords {
                 arena,
@@ -391,11 +392,11 @@ impl UiCodingArena
                 h: screen_height() - arena.h - supply.h,
             };
 
-            let prog_n = prog_n.max(6) as f32;
-            let prog_instr = self.choose_op_sz(prog.w, prog.h, 1., prog_n);
+            let prog_n_h = prog_n_h.max(6);
+            let prog_instr = self.choose_op_sz(prog.w, prog.h, prog_n_w, prog_n_h);
 
-            let flow_n = flow_n.max(2) as f32;
-            let supply_op = self.choose_op_sz(supply.w, supply.h, 1., flow_n);
+            let flow_n = flow_n.max(2);
+            let supply_op = self.choose_op_sz(supply.w, supply.h, 1, flow_n);
 
             self.fr_pos = FrameCoords {
                 arena,
@@ -471,7 +472,12 @@ impl UiCodingArena
             game_state: &mut GameData,
         ) {
         self.active_idx = GameData::MovementLogic::get_active_idx(coding_arena);
-        self.initialise_frame_coords(coding_arena.phase, coding_arena.coding.prog.v_len(), coding_arena.coding.supply.len());
+        self.initialise_frame_coords(
+            coding_arena.phase,
+            coding_arena.coding.prog.h_len(),
+            coding_arena.coding.prog.v_len(),
+            coding_arena.coding.supply.len())
+        ;
 
         crate::ui::clear_background_for_current_platform(self.background_col());
 

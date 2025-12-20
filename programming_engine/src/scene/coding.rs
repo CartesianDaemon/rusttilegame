@@ -247,6 +247,13 @@ impl Instr {
         }
     }
 
+    pub fn h_len(&self) -> usize {
+        match &self {
+            Instr::Parent(_, subprog) => 1 + subprog.h_len(),
+            _ => 1,
+        }
+    }
+
     pub fn v_len(&self) -> usize {
         match &self {
             Instr::Parent(_, subprog) => subprog.v_len(),
@@ -523,6 +530,12 @@ impl std::ops::IndexMut<i16> for Subprog {
 impl Subprog {
     pub const fn default() -> Self {
         Subprog {counter: 0, curr_ip: 0, prev_ip: 0, instrs: vec![]}
+    }
+
+    // Number of instructions wide if laid out vertically. i.e. nesting depth.
+    // Used for drawing.
+    pub fn h_len(&self) -> usize {
+        self.instrs.iter().map(|node| node.h_len()).max().unwrap_or(1)
     }
 
     // Number of instructions within if laid out vertically. Used for drawing.
