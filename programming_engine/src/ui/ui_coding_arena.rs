@@ -327,18 +327,18 @@ impl UiCodingArena
                 h: if self.is_coding {70.} else {0.},
             };
 
-            let prog = PRect {
+            let supply = PRect {
                 x: arena.w,
                 y: lev_chooser.h,
                 w: screen_width() - arena.w,
-                h: if self.is_coding {screen_height() * 0.6} else {screen_height()},
+                h: if self.is_coding {screen_height() * 0.3} else {screen_height()},
             };
 
-            let supply = PRect {
+            let prog = PRect {
                 x: arena.w,
-                y: prog.y + prog.h,
+                y: supply.y + supply.h,
                 w: screen_width() - arena.w,
-                h: screen_height() - lev_chooser.h - prog.h,
+                h: screen_height() - lev_chooser.h - supply.h,
             };
 
             let prog_n = prog_n.max(6) as f32;
@@ -827,7 +827,7 @@ impl UiCodingArena
         let fdx = idx as f32;
         OpCoords {
             x: self.fr_pos.supply.x + self.fr_pos.supply_op.spacing + fdx * (self.fr_pos.supply_op.w + self.fr_pos.supply_op.spacing),
-            y: self.fr_pos.supply.y + self.fr_pos.supply_op.spacing,
+            y: self.fr_pos.supply.y + self.fr_pos.supply.h - self.fr_pos.supply_op.h - self.fr_pos.supply_op.spacing,
             w: self.fr_pos.supply_op.h,
             h: self.fr_pos.supply_op.h,
             rect_spacing: 0.,
