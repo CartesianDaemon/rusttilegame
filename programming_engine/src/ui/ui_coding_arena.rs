@@ -335,8 +335,8 @@ impl UiCodingArena
                 h: if self.is_coding {70.} else {0.},
             };
 
-            let supply_n_w = 1.;
-            let supply_frac = supply_n_w / (supply_n_w + prog_n_w as f32);
+            let supply_n_w = 1;
+            let supply_frac = supply_n_w as f32 / (supply_n_w + prog_n_w) as f32;
 
             let supply = PRect {
                 x: arena.w,
@@ -355,8 +355,8 @@ impl UiCodingArena
             let prog_n_h = prog_n_h.max(6);
             let prog_instr = self.choose_op_sz(prog.w, prog.h, prog_n_w, prog_n_h);
 
-            let flow_n = flow_n.max(2);
-            let supply_op = self.choose_op_sz(supply.w, supply.h, 1, flow_n);
+            let supply_n_h = flow_n.max(2);
+            let supply_op = self.choose_op_sz(supply.w, supply.h, supply_n_w, supply_n_h);
 
             self.fr_pos = FrameCoords {
                 arena,
