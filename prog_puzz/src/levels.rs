@@ -138,14 +138,14 @@ impl ProgpuzzLevset {
                     "#              #",
                     "################",
                 ], progpuzz_key.clone()),
-                Coding::from_vec(&[(F, 5), (L, 3)]),
+                Coding::from_vec(&[(F, 5), (R, 1)]),
             ),
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
                     "################",
                     "#              #",
                     "#              #", // RFFLFFFRF
-                    "#              #",
+                    "#              #", // ??
                     "#              #",
                     "#              #",
                     "#     #  w     #",
@@ -180,7 +180,7 @@ impl ProgpuzzLevset {
                     "#              #",
                     "################",
                 ], progpuzz_key.clone()),
-                Coding::from_vec(&[(F, 4), (L, 2), (R, 2), (LOOP, 1)]),
+                Coding::from_vec(&[(F, 3), (L, 2), (R, 2), (LOOP, 1)]),
             ),
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
@@ -201,7 +201,7 @@ impl ProgpuzzLevset {
                     "#              #",
                     "################",
                 ], progpuzz_key.clone()),
-                Coding::from_vec(&[(F, 9), (L, 1), (R, 1), (LOOP, 1)]),
+                Coding::from_vec(&[(F, 6), (L, 1), (R, 1), (LOOP, 1)]),
             ),
 
 
@@ -269,13 +269,13 @@ impl ProgpuzzLevset {
                     "#    #^# #     #",
                     "#  #     #     #",
                     "#  #  ###  #   #",
-                    "#       #      #",
+                    "#          #   #",
                     "#   ###   #    #",
                     "####   ###   # #",
                     "#w             #",
                     "################",
                 ], progpuzz_key.clone()),
-                Coding::from_vec(&[(F, 15), (L, 2), (R, 2), (LOOP, 1)]),
+                Coding::from_vec(&[(F, 13), (L, 2), (R, 2), (LOOP, 1)]),
             ),
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
@@ -302,12 +302,12 @@ impl ProgpuzzLevset {
                 Arena::from_map_and_key(&[
                     "################",
                     "#              #",  // For this and L11 review number of F and x2 available..
+                    "#              #",  // Did Mum solve this level this way? I can't remember. I can't.
                     "#              #",
                     "#              #",
                     "#              #",
-                    "#              #",
-                    "###            #",
                     "# #            #",
+                    "###            #",
                     "#w#   v        #",
                     "# #            #",
                     "# #            #",
@@ -341,8 +341,8 @@ impl ProgpuzzLevset {
                     "# #            #",
                     "# #            #",
                     "#w#   v        #",
-                    "# #            #",
                     "###            #",
+                    "# #            #",
                     "#              #",
                     "#              #",
                     "#              #",
