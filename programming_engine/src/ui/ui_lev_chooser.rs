@@ -54,7 +54,7 @@ impl LevChooser {
         MouseOverCols {text: LIGHTGRAY, fill: DARKGRAY, border: BLACK, border_width}
     }
 
-    pub fn do_frame<GameData: BaseGameData>(&mut self, game_state: &mut GameData, draw_coords: (f32, f32)) {
+    pub fn do_frame<GameData: BaseGameData>(&mut self, game_state: &mut GameData, coords: PRect) {
             let n_levs = game_state.num_levels();
             let buttons_per_row = 10;
 
@@ -71,9 +71,9 @@ impl LevChooser {
                 self.drag_origin = None;
             }
 
-            let init_x = draw_coords.0 + 15.;
+            let init_x = coords.x + 25.;
             let mut curr_x = init_x;
-            let init_y = 20.;
+            let init_y = coords.y + 20.;
             for lev_idx in 1..=n_levs {
                 if lev_idx % buttons_per_row == 1 {
                     curr_x = init_x;

@@ -27,30 +27,23 @@ struct DragOrigin {
     orig_offset_y: f32,
 }
 
-// NB: This approaches implementing a UI with nested controls inheriting from a control trait.
-#[derive(Default)]
-struct FrameCoords {
-    arena: PRect,
+#[derive(Copy, Clone, Default)]
+pub struct OpSize {
+    pub w: f32,
+    pub h: f32,
+    pub spacing_frac: f32,
+}
 
-    supply_x: f32,
-    supply_y: f32,
-    supply_w: f32,
-    supply_h: f32,
+impl OpSize {
+    pub fn spacing(&self) -> f32 {
+        assert_eq!(self.w, self.h);
+        self.w * self.spacing_frac
+    }
 
-    supply_op_w: f32,
-    supply_op_h: f32,
-    supply_op_font_sz: f32,
-    supply_op_spacing: f32,
-
-    // TODO: Rename prog -> prog
-    prog_x: f32,
-    prog_y: f32,
-    prog_w: f32,
-    prog_h: f32,
-
-    prog_instr_w: f32,
-    prog_instr_h: f32,
-    prog_instr_spacing: f32,
+    pub fn stride(&self) -> f32 {
+        assert_eq!(self.w, self.h);
+        self.w + self.spacing()
+    }
 }
 
 #[derive(Copy, Clone, Default)]
@@ -59,7 +52,20 @@ pub struct OpCoords {
     pub y: f32,
     pub w: f32,
     pub h: f32,
+    // Used when drawing connectors.
     pub rect_spacing: f32,
+}
+
+// NB: This approaches implementing a UI with nested controls inheriting from a control trait.
+#[derive(Default)]
+struct FrameCoords {
+    arena: PRect,
+    supply: PRect,
+    prog: PRect,
+    lev_chooser: PRect,
+
+    supply_op: OpSize,
+    prog_instr: OpSize,
 }
 
 impl OpCoords {
@@ -291,73 +297,125 @@ impl UiCodingArena
         DARKGRAY
     }
 
-    fn prog_instr_sz(&self, prog_w: f32, prog_h: f32, spacing_pc: f32, prog_n: f32) -> f32 {
-        // Space for 6 instructions, 7 gaps, and half a 7th instruction (for placeholder)
-        (prog_w * 0.8).min(prog_h / (spacing_pc + prog_n*(1.+spacing_pc) + 0.5))
+    fn spacing_frac(&self) -> f32 {
+        0.5
     }
 
-    fn initialise_frame_coords(&mut self, coding_arena_phase: CodingRunningPhase, prog_n: usize) {
+    fn length_in_units_with_spacing(&self, n: usize) -> f32 {
+        let n = n as f32;
+        n + (n+1.) * self.spacing_frac()
+    }
+
+    fn choose_op_sz(&self, area_w: f32, area_h: f32, n_w: usize, n_h: usize) -> OpSize {
+        let max_sz_from_w = area_w / self.length_in_units_with_spacing(n_w);
+        let max_sz_from_h = area_h / self.length_in_units_with_spacing(n_h);
+        let sz = max_sz_from_w.min(max_sz_from_h);
+        OpSize {
+            w: sz,
+            h: sz,
+            spacing_frac: self.spacing_frac(),
+        }
+    }
+
+    fn initialise_frame_coords(&mut self, coding_arena_phase: CodingRunningPhase, prog_n_w: usize, prog_n_h: usize, flow_n: usize) {
         self.is_coding = coding_arena_phase == CodingRunningPhase::Coding;
         self.is_won = coding_arena_phase == CodingRunningPhase::Won;
         self.is_dead = coding_arena_phase == CodingRunningPhase::Died;
 
-        // Arena
-        let arena = PRect {
-            x: 0.,
-            y: 0.,
-            w: screen_height().min(screen_width() * if self.is_coding {0.8} else {0.9} ) ,
-            h: screen_height(),
-        };
-        let arena_w = arena.w;
+        let supply_n_w = 1;
+        let supply_n_h = flow_n.max(6);
+        let prog_n_w = prog_n_w.max(2);
+        let prog_n_h = prog_n_h.max(6);
 
-        // Supply
-        let supply_x = arena_w;
-        let supply_y = 0.;
-        let supply_w = screen_width() - arena_w;
-        let supply_h = if self.is_coding {screen_height() * 0.3} else { 0. };
+        if true || screen_width() > screen_height() {
+            // Arena
+            let arena = PRect {
+                x: 0.,
+                y: 0.,
+                w: screen_height().min(screen_width() * 0.7),
+                h: screen_height(),
+            };
 
-        // Prog
-        let spacing_pc = 0.5;
-        let prog_x = arena_w;
-        let prog_y = supply_h;
-        let prog_w = screen_width() - arena_w;
-        let prog_h = screen_height() - supply_h;
+            let lev_chooser = PRect {
+                x: arena.w,
+                y: 0.,
+                w: screen_width() - arena.w,
+                h: if self.is_coding {70.} else {0.},
+            };
 
-        // Prog instrs
-        let prog_n = prog_n.max(6) as f32;
-        let prog_instr_h = self.prog_instr_sz(prog_w, prog_h, spacing_pc, prog_n);
-        let prog_instr_w = prog_instr_h;
-        let prog_instr_spacing =  prog_instr_w * spacing_pc;
+            let supply_op_max_sz_from_h = (screen_height() - lev_chooser.h) / self.length_in_units_with_spacing(supply_n_h);
+            let supply_frac = self.length_in_units_with_spacing(supply_n_w) / (self.length_in_units_with_spacing(supply_n_w) + self.length_in_units_with_spacing(prog_n_w));
+            let supply_max_w_from_sharing_w = (screen_width() - arena.w) * supply_frac;
+            let supply_max_w_from_height_restriction = supply_op_max_sz_from_h * self.length_in_units_with_spacing(supply_n_w);
+            let supply_w = supply_max_w_from_sharing_w.min(supply_max_w_from_height_restriction);
 
-        // Supply op
-        let flow_n = 2.;
-        let supply_op_w_max = (supply_h * 0.8).min(supply_w / (spacing_pc + flow_n*(1.+spacing_pc)));
-        let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog_w, prog_h, spacing_pc, 6.));
-        let supply_op_h = supply_op_w;
-        let supply_op_font_sz = supply_op_h * 1.35;
-        let supply_op_spacing = supply_op_w * spacing_pc;
+            let supply = PRect {
+                x: arena.w,
+                y: lev_chooser.h,
+                w: if self.is_coding {supply_w} else {0.},
+                h: screen_height() - lev_chooser.h,
+            };
 
-        self.fr_pos = FrameCoords {
-            arena,
+            let prog = PRect {
+                x: supply.x + supply.w,
+                y: lev_chooser.h,
+                w: screen_width() - arena.w - supply.w,
+                h: screen_height() - lev_chooser.h,
+            };
 
-            supply_x,
-            supply_y,
-            supply_w,
-            supply_h,
+            let prog_instr = self.choose_op_sz(prog.w, prog.h, prog_n_w, prog_n_h);
 
-            supply_op_w,
-            supply_op_h,
-            supply_op_font_sz,
-            supply_op_spacing,
+            let supply_op = self.choose_op_sz(supply.w, supply.h, supply_n_w, supply_n_h);
 
-            prog_x,
-            prog_y,
-            prog_w,
-            prog_h,
+            self.fr_pos = FrameCoords {
+                arena,
+                supply,
+                prog,
+                lev_chooser,
+                supply_op,
+                prog_instr,
+            }
+        } else {
+            let arena = PRect {
+                x: 0.,
+                y: 0.,
+                w: screen_width() * 0.85,
+                h: if self.is_coding {screen_height() * 0.75} else {screen_height()},
+            };
 
-            prog_instr_w,
-            prog_instr_h,
-            prog_instr_spacing,
+            let supply = PRect {
+                x: 0.,
+                y: arena.h,
+                w: arena.w,
+                h: if self.is_coding {screen_height() * 0.15} else {0.},
+            };
+
+            let prog = PRect {
+                x: arena.w,
+                y: 0.,
+                w: screen_width() - arena.w,
+                h: arena.h + supply.h,
+            };
+
+            let lev_chooser = PRect {
+                x: 0.,
+                y: supply.y + supply.h,
+                w: screen_width(),
+                h: screen_height() - arena.h - supply.h,
+            };
+
+            let prog_instr = self.choose_op_sz(prog.w, prog.h, prog_n_w, prog_n_h);
+
+            let supply_op = self.choose_op_sz(supply.w, supply.h, supply_n_w, supply_n_h);
+
+            self.fr_pos = FrameCoords {
+                arena,
+                supply,
+                prog,
+                lev_chooser,
+                supply_op,
+                prog_instr,
+            }
         }
 
     }
@@ -424,7 +482,12 @@ impl UiCodingArena
             game_state: &mut GameData,
         ) {
         self.active_idx = GameData::MovementLogic::get_active_idx(coding_arena);
-        self.initialise_frame_coords(coding_arena.phase, coding_arena.coding.prog.v_len());
+        self.initialise_frame_coords(
+            coding_arena.phase,
+            coding_arena.coding.prog.h_len(),
+            coding_arena.coding.prog.v_len(),
+            coding_arena.coding.supply.len())
+        ;
 
         crate::ui::clear_background_for_current_platform(self.background_col());
 
@@ -437,7 +500,8 @@ impl UiCodingArena
         self.draw_prog(GameData::MovementLogic::current_prog(coding_arena));
         if self.is_coding {
             self.draw_supply(&mut coding_arena.coding);
-            self.lev_chooser.do_frame(game_state, (self.fr_pos.supply_x + 10., self.fr_pos.supply_y + 20.));
+            self.draw_widget_outline(self.fr_pos.lev_chooser, self.border_cols());
+            self.lev_chooser.do_frame(game_state, self.fr_pos.lev_chooser);
             self.draw_dragging();
         }
 
@@ -450,10 +514,10 @@ impl UiCodingArena
 
     fn supply_rect(&self) -> PRect {
         PRect {
-            x: self.fr_pos.supply_x,
-            y: self.fr_pos.supply_y,
-            w: self.fr_pos.supply_w,
-            h: self.fr_pos.supply_h,
+            x: self.fr_pos.supply.x,
+            y: self.fr_pos.supply.y,
+            w: self.fr_pos.supply.w,
+            h: self.fr_pos.supply.h,
         }
     }
 
@@ -521,13 +585,18 @@ impl UiCodingArena
         draw_line(x, y,  x + c.rect_spacing, y, line_style.border_width, line_style.border_col);
     }
 
+    fn draw_widget_outline(&self, rect: PRect, col: Color) {
+        let border_width = 2.;
+        draw_rectangle_lines(rect.x, rect.y, rect.w+1., rect.h+1., border_width, col);
+    }
+
     /// Draw supply area and all supply bins
     fn draw_supply(&self, coding: &mut Coding) {
         for (idx, bin) in coding.supply.iter().enumerate() {
             self.draw_supply_op(idx, bin);
         }
 
-        draw_rectangle_lines(self.fr_pos.supply_x, self.fr_pos.supply_y, self.fr_pos.supply_w, self.fr_pos.supply_h+1., 2., self.border_cols());
+        self.draw_widget_outline(self.fr_pos.supply, self.border_cols());
     }
 
     fn draw_supply_op(&self, idx: usize, bin: &Bin)
@@ -539,7 +608,8 @@ impl UiCodingArena
 
         // Draw count
         let count_txt = format!("{}/{}", bin.curr_count, bin.orig_count);
-        draw_text(&count_txt, coords.x + 0.5*self.fr_pos.supply_op_w, coords.y+1.25*self.fr_pos.supply_op_h, self.fr_pos.supply_op_font_sz * 0.25, self.font_col());
+        let supply_count_font_sz = self.fr_pos.supply_op.h * 0.34;
+        draw_text(&count_txt, coords.x + 0.5*self.fr_pos.supply_op.w, coords.y+1.25*self.fr_pos.supply_op.h, supply_count_font_sz, self.font_col());
     }
 
     /// Interact supply area and all supply bins
@@ -569,7 +639,7 @@ impl UiCodingArena
     }
 
     fn draw_prog(&self, prog: &Subprog) {
-        draw_rectangle_lines(self.fr_pos.prog_x, self.fr_pos.prog_y, self.fr_pos.prog_w, self.fr_pos.prog_h, 2., self.border_cols());
+        self.draw_widget_outline(self.fr_pos.prog, self.border_cols());
 
         if prog.instrs.len() == 0 {
             // Draw "Start" instr.
@@ -777,22 +847,21 @@ impl UiCodingArena
     }
 
     fn supply_op_coords(&self, idx: usize) -> OpCoords {
-        let fdx = idx as f32;
         OpCoords {
-            x: self.fr_pos.supply_x + self.fr_pos.supply_op_spacing + fdx * (self.fr_pos.supply_op_w + self.fr_pos.supply_op_spacing),
-            y: self.fr_pos.supply_y + self.fr_pos.supply_h - self.fr_pos.supply_op_h - self.fr_pos.supply_op_spacing,
-            w: self.fr_pos.supply_op_h,
-            h: self.fr_pos.supply_op_h,
+            x: self.fr_pos.supply.x + self.fr_pos.supply.w - self.fr_pos.supply_op.w - self.fr_pos.supply_op.spacing(),
+            y: self.fr_pos.supply.y + self.fr_pos.supply_op.spacing() + (idx as f32) * self.fr_pos.supply_op.stride(),
+            w: self.fr_pos.supply_op.w,
+            h: self.fr_pos.supply_op.h,
             rect_spacing: 0.,
         }
     }
 
     fn prog_instr_coords(&self, xidx: usize, yidx: usize) -> OpCoords {
         let (xfdx, yfdx) = (xidx as f32, yidx as f32);
-        let x = self.fr_pos.prog_x + self.fr_pos.prog_instr_spacing + xfdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
-        let y = self.fr_pos.prog_y + self.fr_pos.prog_instr_spacing + yfdx * (self.fr_pos.prog_instr_h + self.fr_pos.prog_instr_spacing);
+        let x = self.fr_pos.prog.x + self.fr_pos.prog_instr.spacing() + xfdx * (self.fr_pos.prog_instr.h + self.fr_pos.prog_instr.spacing());
+        let y = self.fr_pos.prog.y + self.fr_pos.prog_instr.spacing() + yfdx * (self.fr_pos.prog_instr.h + self.fr_pos.prog_instr.spacing());
 
-        OpCoords {x, y, w: self.fr_pos.prog_instr_w, h: self.fr_pos.prog_instr_h, rect_spacing: self.fr_pos.prog_instr_spacing}
+        OpCoords {x, y, w: self.fr_pos.prog_instr.w, h: self.fr_pos.prog_instr.h, rect_spacing: self.fr_pos.prog_instr.spacing()}
     }
 
     fn dragging_op_coords(&self) -> Option<OpCoords> {
@@ -800,7 +869,7 @@ impl UiCodingArena
             Some(DragOrigin{orig_offset_x, orig_offset_y,..}) => {
                 let (mx, my) = mouse_position();
                 let (x,y) = (mx - orig_offset_x, my - orig_offset_y);
-                Some(OpCoords {x, y, w:self.fr_pos.prog_instr_w, h:self.fr_pos.prog_instr_h, rect_spacing: 0.})
+                Some(OpCoords {x, y, w:self.fr_pos.prog_instr.w, h:self.fr_pos.prog_instr.h, rect_spacing: 0.})
             },
             _ => None,
         }
@@ -874,8 +943,8 @@ impl UiCodingArena
             Some(DragOrigin {
                 instr: Instr::from_opcode(bin.op),
                 op_ref: InstrRef::Supply { idx },
-                orig_offset_x: orig_offset_x * self.fr_pos.prog_instr_w / self.fr_pos.supply_op_w,
-                orig_offset_y: orig_offset_y * self.fr_pos.prog_instr_w / self.fr_pos.supply_op_w
+                orig_offset_x: orig_offset_x * self.fr_pos.prog_instr.w / self.fr_pos.supply_op.w,
+                orig_offset_y: orig_offset_y * self.fr_pos.prog_instr.w / self.fr_pos.supply_op.w
             })
         } else {
             None
