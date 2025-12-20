@@ -561,13 +561,18 @@ impl UiCodingArena
         draw_line(x, y,  x + c.rect_spacing, y, line_style.border_width, line_style.border_col);
     }
 
+    fn draw_widget_outline(&self, rect: PRect, col: Color) {
+        let border_width = 2.;
+        draw_rectangle_lines(rect.x, rect.y, rect.w+1., rect.h+1., border_width, col);
+    }
+
     /// Draw supply area and all supply bins
     fn draw_supply(&self, coding: &mut Coding) {
         for (idx, bin) in coding.supply.iter().enumerate() {
             self.draw_supply_op(idx, bin);
         }
 
-        draw_rectangle_lines(self.fr_pos.supply.x, self.fr_pos.supply.y, self.fr_pos.supply.w, self.fr_pos.supply.h+1., 2., self.border_cols());
+        self.draw_widget_outline(self.fr_pos.supply, self.border_cols());
     }
 
     fn draw_supply_op(&self, idx: usize, bin: &Bin)
@@ -610,7 +615,7 @@ impl UiCodingArena
     }
 
     fn draw_prog(&self, prog: &Subprog) {
-        draw_rectangle_lines(self.fr_pos.prog.x, self.fr_pos.prog.y, self.fr_pos.prog.w, self.fr_pos.prog.h, 2., self.border_cols());
+        self.draw_widget_outline(self.fr_pos.prog, self.border_cols());
 
         if prog.instrs.len() == 0 {
             // Draw "Start" instr.
