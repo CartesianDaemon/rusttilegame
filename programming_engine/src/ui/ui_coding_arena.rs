@@ -39,6 +39,11 @@ impl OpSize {
         assert_eq!(self.w, self.h);
         self.w * self.spacing_pc
     }
+
+    pub fn stride(&self) -> f32 {
+        assert_eq!(self.w, self.h);
+        self.w + self.spacing()
+    }
 }
 
 #[derive(Copy, Clone, Default)]
@@ -47,6 +52,7 @@ pub struct OpCoords {
     pub y: f32,
     pub w: f32,
     pub h: f32,
+    // Used when drawing connectors.
     pub rect_spacing: f32,
 }
 
@@ -831,11 +837,10 @@ impl UiCodingArena
     }
 
     fn supply_op_coords(&self, idx: usize) -> OpCoords {
-        let fdx = idx as f32;
         OpCoords {
-            x: self.fr_pos.supply.x + self.fr_pos.supply_op.spacing() + fdx * (self.fr_pos.supply_op.w + self.fr_pos.supply_op.spacing()),
-            y: self.fr_pos.supply.y + self.fr_pos.supply.h - self.fr_pos.supply_op.h - self.fr_pos.supply_op.spacing(),
-            w: self.fr_pos.supply_op.h,
+            x: self.fr_pos.supply.x + self.fr_pos.supply.w - self.fr_pos.supply_op.w - self.fr_pos.supply_op.spacing(),
+            y: self.fr_pos.supply.y + self.fr_pos.supply_op.spacing() + (idx as f32) * self.fr_pos.supply_op.stride(),
+            w: self.fr_pos.supply_op.w,
             h: self.fr_pos.supply_op.h,
             rect_spacing: 0.,
         }
