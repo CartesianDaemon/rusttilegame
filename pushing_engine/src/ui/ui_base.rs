@@ -82,7 +82,7 @@ impl UiBase {
                     scene_continuation = self.advance::<GameData>(scene, cmd);
                 }
                 // Treat any movement as completed
-                self.anim = AnimState { slide_pc: 1., .. self.ticker.anim_state() }
+                self.anim = AnimState { slide_frac: 1., .. self.ticker.anim_state() }
             }
         }
 

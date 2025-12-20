@@ -275,9 +275,9 @@ impl UiCodingArena
         DARKGRAY
     }
 
-    fn prog_instr_sz(&self, prog_w: f32, prog_h: f32, spacing_pc: f32, prog_n: f32) -> f32 {
+    fn prog_instr_sz(&self, prog_w: f32, prog_h: f32, spacing_frac: f32, prog_n: f32) -> f32 {
         // Space for 6 instructions, 7 gaps, and half a 7th instruction (for placeholder)
-        (prog_w * 0.8).min(prog_h / (spacing_pc + prog_n*(1.+spacing_pc) + 0.5))
+        (prog_w * 0.8).min(prog_h / (spacing_frac + prog_n*(1.+spacing_frac) + 0.5))
     }
 
     fn initialise_frame_coords(&mut self, coding: CodingRunningPhase, prog_n: usize) {
@@ -301,7 +301,7 @@ impl UiCodingArena
         let supply_h = if self.is_coding {screen_height() * 0.3} else { 0. };
 
         // Prog
-        let spacing_pc = 0.5;
+        let spacing_frac = 0.5;
         let prog_x = arena_w;
         let prog_y = supply_h;
         let prog_w = screen_width() - arena_w;
@@ -309,17 +309,17 @@ impl UiCodingArena
 
         // Prog instrs
         let prog_n = prog_n.max(6) as f32;
-        let prog_instr_h = self.prog_instr_sz(prog_w, prog_h, spacing_pc, prog_n);
+        let prog_instr_h = self.prog_instr_sz(prog_w, prog_h, spacing_frac, prog_n);
         let prog_instr_w = prog_instr_h;
-        let prog_instr_spacing =  prog_instr_w * spacing_pc;
+        let prog_instr_spacing =  prog_instr_w * spacing_frac;
 
         // Supply op
         let flow_n = 2.;
-        let supply_op_w_max = (supply_h * 0.8).min(supply_w / (spacing_pc + flow_n*(1.+spacing_pc)));
-        let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog_w, prog_h, spacing_pc, 6.));
+        let supply_op_w_max = (supply_h * 0.8).min(supply_w / (spacing_frac + flow_n*(1.+spacing_frac)));
+        let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(prog_w, prog_h, spacing_frac, 6.));
         let supply_op_h = supply_op_w;
         let supply_op_font_sz = supply_op_h * 1.35;
-        let supply_op_spacing = supply_op_w * spacing_pc;
+        let supply_op_spacing = supply_op_w * spacing_frac;
 
         self.fr_pos = FrameCoords {
             arena,

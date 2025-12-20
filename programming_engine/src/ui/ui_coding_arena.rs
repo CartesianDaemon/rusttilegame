@@ -31,13 +31,13 @@ struct DragOrigin {
 pub struct OpSize {
     pub w: f32,
     pub h: f32,
-    pub spacing_pc: f32,
+    pub spacing_frac: f32,
 }
 
 impl OpSize {
     pub fn spacing(&self) -> f32 {
         assert_eq!(self.w, self.h);
-        self.w * self.spacing_pc
+        self.w * self.spacing_frac
     }
 
     pub fn stride(&self) -> f32 {
@@ -297,13 +297,13 @@ impl UiCodingArena
         DARKGRAY
     }
 
-    fn spacing_pc(&self) -> f32 {
+    fn spacing_frac(&self) -> f32 {
         0.5
     }
 
     fn length_in_units_with_spacing(&self, n: usize) -> f32 {
         let n = n as f32;
-        n + (n+1.) * self.spacing_pc()
+        n + (n+1.) * self.spacing_frac()
     }
 
     fn choose_op_sz(&self, area_w: f32, area_h: f32, n_w: usize, n_h: usize) -> OpSize {
@@ -313,7 +313,7 @@ impl UiCodingArena
         OpSize {
             w: sz,
             h: sz,
-            spacing_pc: self.spacing_pc(),
+            spacing_frac: self.spacing_frac(),
         }
     }
 

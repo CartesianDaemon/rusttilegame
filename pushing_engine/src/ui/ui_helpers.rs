@@ -24,10 +24,10 @@ impl PRect {
 pub struct AnimState {
     // How far to slide drawing elements from screen coordinates for previous posn to
     // scren coordinates for current posn. Between 0 and 1.0.
-    pub slide_pc: f32,
+    pub slide_frac: f32,
     // How far through an animation sequence we are. Between 0 and 1.0 if the game is
     // advanced on tick. >1 if move complete but game not advanced, ie all idle.
-    pub anim_pc: f32
+    pub anim_frac: f32
 }
 
 
@@ -70,8 +70,8 @@ impl Ticker {
     pub fn anim_state(&self) -> AnimState {
         let pc_through_tick = ((get_time() - self.last_tick_time) / self.tick_interval) as f32;
         AnimState {
-            anim_pc: pc_through_tick % 1.0,
-            slide_pc: pc_through_tick.min(1.0),
+            anim_frac: pc_through_tick % 1.0,
+            slide_frac: pc_through_tick.min(1.0),
         }
     }
 }
