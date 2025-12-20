@@ -1,5 +1,10 @@
 ## Unreleased
 
+Dec 19/20
+
+- Fix proportions of lev_chooser, supply and prog for mobile screen.
+  Also for different widths and lengths of supply and programs.
+
 ## 1.6.3
 
 Dec 14:
