@@ -301,10 +301,10 @@ impl UiCodingArena
         length / (n + (n+1.) * spacing_pc)
     }
 
-    fn choose_op_sz(&self, area_w: f32, area_h: f32, n: f32) -> OpSize {
+    fn choose_op_sz(&self, area_w: f32, area_h: f32, n_w: f32, n_h: f32) -> OpSize {
         let spacing_pc = 0.5;
-        let max_sz_from_w = self.divide_length_into_n_rects_with_spacing(area_w, 1., spacing_pc);
-        let max_sz_from_h = self.divide_length_into_n_rects_with_spacing(area_h, n, spacing_pc);
+        let max_sz_from_w = self.divide_length_into_n_rects_with_spacing(area_w, n_w, spacing_pc);
+        let max_sz_from_h = self.divide_length_into_n_rects_with_spacing(area_h, n_h, spacing_pc);
         let sz = max_sz_from_w.min(max_sz_from_h);
         OpSize {
             w: sz,
@@ -349,10 +349,10 @@ impl UiCodingArena
             };
 
             let prog_n = prog_n.max(6) as f32;
-            let prog_instr = self.choose_op_sz(prog.w, prog.h, prog_n);
+            let prog_instr = self.choose_op_sz(prog.w, prog.h, 1., prog_n);
 
             let flow_n = flow_n.max(2) as f32;
-            let supply_op = self.choose_op_sz(supply.w, supply.h, flow_n);
+            let supply_op = self.choose_op_sz(supply.w, supply.h, 1., flow_n);
 
             self.fr_pos = FrameCoords {
                 arena,
@@ -392,10 +392,10 @@ impl UiCodingArena
             };
 
             let prog_n = prog_n.max(6) as f32;
-            let prog_instr = self.choose_op_sz(prog.w, prog.h, prog_n);
+            let prog_instr = self.choose_op_sz(prog.w, prog.h, 1., prog_n);
 
             let flow_n = flow_n.max(2) as f32;
-            let supply_op = self.choose_op_sz(supply.w, supply.h, flow_n);
+            let supply_op = self.choose_op_sz(supply.w, supply.h, 1., flow_n);
 
             self.fr_pos = FrameCoords {
                 arena,
