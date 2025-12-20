@@ -324,7 +324,7 @@ impl UiCodingArena
                 x: arena.w,
                 y: 0.,
                 w: screen_width() - arena.w,
-                h: if self.is_coding {screen_height() * 0.1} else {0.},
+                h: if self.is_coding {70.} else {0.},
             };
 
             let prog = PRect {
@@ -477,6 +477,7 @@ impl UiCodingArena
         self.draw_prog(GameData::MovementLogic::current_prog(coding_arena));
         if self.is_coding {
             self.draw_supply(&mut coding_arena.coding);
+            self.draw_widget_outline(self.fr_pos.lev_chooser, self.border_cols());
             self.lev_chooser.do_frame(game_state, self.fr_pos.lev_chooser);
             self.draw_dragging();
         }
