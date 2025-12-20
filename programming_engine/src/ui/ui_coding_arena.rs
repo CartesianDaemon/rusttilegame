@@ -27,6 +27,29 @@ struct DragOrigin {
     orig_offset_y: f32,
 }
 
+#[derive(Copy, Clone, Default)]
+pub struct OpSize {
+    pub w: f32,
+    pub h: f32,
+    pub spacing_pc: f32,
+}
+
+impl OpSize {
+    pub fn spacing(&self) -> f32 {
+        assert_eq!(self.w, self.h);
+        self.w * self.spacing_pc
+    }
+}
+
+#[derive(Copy, Clone, Default)]
+pub struct OpCoords {
+    pub x: f32,
+    pub y: f32,
+    pub w: f32,
+    pub h: f32,
+    pub rect_spacing: f32,
+}
+
 // NB: This approaches implementing a UI with nested controls inheriting from a control trait.
 #[derive(Default)]
 struct FrameCoords {
@@ -37,22 +60,6 @@ struct FrameCoords {
 
     supply_op: OpSize,
     prog_instr: OpSize,
-}
-
-#[derive(Copy, Clone, Default)]
-pub struct OpSize {
-    pub w: f32,
-    pub h: f32,
-    pub spacing: f32,
-}
-
-#[derive(Copy, Clone, Default)]
-pub struct OpCoords {
-    pub x: f32,
-    pub y: f32,
-    pub w: f32,
-    pub h: f32,
-    pub rect_spacing: f32,
 }
 
 impl OpCoords {
@@ -291,7 +298,7 @@ impl UiCodingArena
         OpSize {
             w: prog_instr_w,
             h: prog_instr_w,
-            spacing: prog_instr_w * spacing_pc,
+            spacing_pc,
         }
     }
 
@@ -302,7 +309,7 @@ impl UiCodingArena
         OpSize {
             w: supply_op_w,
             h: supply_op_w,
-            spacing: supply_op_w * spacing_pc,
+            spacing_pc,
         }
     }
 
@@ -826,8 +833,8 @@ impl UiCodingArena
     fn supply_op_coords(&self, idx: usize) -> OpCoords {
         let fdx = idx as f32;
         OpCoords {
-            x: self.fr_pos.supply.x + self.fr_pos.supply_op.spacing + fdx * (self.fr_pos.supply_op.w + self.fr_pos.supply_op.spacing),
-            y: self.fr_pos.supply.y + self.fr_pos.supply.h - self.fr_pos.supply_op.h - self.fr_pos.supply_op.spacing,
+            x: self.fr_pos.supply.x + self.fr_pos.supply_op.spacing() + fdx * (self.fr_pos.supply_op.w + self.fr_pos.supply_op.spacing()),
+            y: self.fr_pos.supply.y + self.fr_pos.supply.h - self.fr_pos.supply_op.h - self.fr_pos.supply_op.spacing(),
             w: self.fr_pos.supply_op.h,
             h: self.fr_pos.supply_op.h,
             rect_spacing: 0.,
@@ -836,10 +843,10 @@ impl UiCodingArena
 
     fn prog_instr_coords(&self, xidx: usize, yidx: usize) -> OpCoords {
         let (xfdx, yfdx) = (xidx as f32, yidx as f32);
-        let x = self.fr_pos.prog.x + self.fr_pos.prog_instr.spacing + xfdx * (self.fr_pos.prog_instr.h + self.fr_pos.prog_instr.spacing);
-        let y = self.fr_pos.prog.y + self.fr_pos.prog_instr.spacing + yfdx * (self.fr_pos.prog_instr.h + self.fr_pos.prog_instr.spacing);
+        let x = self.fr_pos.prog.x + self.fr_pos.prog_instr.spacing() + xfdx * (self.fr_pos.prog_instr.h + self.fr_pos.prog_instr.spacing());
+        let y = self.fr_pos.prog.y + self.fr_pos.prog_instr.spacing() + yfdx * (self.fr_pos.prog_instr.h + self.fr_pos.prog_instr.spacing());
 
-        OpCoords {x, y, w: self.fr_pos.prog_instr.w, h: self.fr_pos.prog_instr.h, rect_spacing: self.fr_pos.prog_instr.spacing}
+        OpCoords {x, y, w: self.fr_pos.prog_instr.w, h: self.fr_pos.prog_instr.h, rect_spacing: self.fr_pos.prog_instr.spacing()}
     }
 
     fn dragging_op_coords(&self) -> Option<OpCoords> {
