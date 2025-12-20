@@ -331,7 +331,7 @@ impl UiCodingArena
             let arena = PRect {
                 x: 0.,
                 y: 0.,
-                w: screen_height(),
+                w: screen_height().min(screen_width() * 0.7),
                 h: screen_height(),
             };
 
