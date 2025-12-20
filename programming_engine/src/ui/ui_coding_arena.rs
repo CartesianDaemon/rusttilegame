@@ -297,24 +297,33 @@ impl UiCodingArena
         DARKGRAY
     }
 
+    fn divide_length_into_n_rects_with_spacing(&self, length: f32, n: f32, spacing_pc: f32) -> f32 {
+        length / (n + (n+1.) * spacing_pc)
+    }
+
     fn prog_instr_sz(&self, prog_w: f32, prog_h: f32, prog_n: f32) -> OpSize {
         let spacing_pc = 0.5;
-        // Space for 6 instructions, 7 gaps, and half a 7th instruction (for placeholder)
-        let prog_instr_w = (prog_w * 0.8).min(prog_h / (spacing_pc + prog_n*(1.+spacing_pc) + 0.5));
+        let max_sz_from_w = self.divide_length_into_n_rects_with_spacing(prog_w, 1., spacing_pc);
+        let max_sz_from_h = self.divide_length_into_n_rects_with_spacing(prog_h, prog_n, spacing_pc);
+        let sz = max_sz_from_w.min(max_sz_from_h);
+
+        // let prog_instr_w = (prog_w * 0.8).min(prog_h / (spacing_pc + prog_n*(1.+spacing_pc) + 0.5));
         OpSize {
-            w: prog_instr_w,
-            h: prog_instr_w,
+            w: sz,
+            h: sz,
             spacing_pc,
         }
     }
 
     fn supply_op_sz(&self, supply_w: f32, supply_h: f32, flow_n: f32) -> OpSize {
         let spacing_pc = 0.5;
-        let supply_op_w_max = (supply_h * 0.8).min(supply_w / (spacing_pc + flow_n*(1.+spacing_pc)));
-        let supply_op_w = supply_op_w_max.min(self.prog_instr_sz(self.fr_pos.prog.w, self.fr_pos.prog.h, 6.).w);
+
+        let max_sz_from_w = self.divide_length_into_n_rects_with_spacing(supply_w, 1., spacing_pc);
+        let max_sz_from_h = self.divide_length_into_n_rects_with_spacing(supply_h, flow_n, spacing_pc);
+        let sz = max_sz_from_w.min(max_sz_from_h);
         OpSize {
-            w: supply_op_w,
-            h: supply_op_w,
+            w: sz,
+            h: sz,
             spacing_pc,
         }
     }
