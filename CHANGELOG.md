@@ -4,6 +4,7 @@ Dec 19/20
 
 - Fix proportions of lev_chooser, supply and prog for mobile screen.
   Also for different widths and lengths of supply and programs.
+- Towards menu overlay screens for help, etc.
 
 ## 1.6.3
 
