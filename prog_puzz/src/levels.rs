@@ -101,7 +101,7 @@ impl ProgpuzzLevset {
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
                     "################",
-                    "#              #",
+                    "#              #", // FF
                     "#              #",
                     "#              #",
                     "#              #",
@@ -123,7 +123,7 @@ impl ProgpuzzLevset {
                 Arena::from_map_and_key(&[
                     "################",
                     "#              #",
-                    "#              #",
+                    "#              #", // FFFLLLFF
                     "#              #",
                     "#              #",
                     "#              #",
@@ -144,11 +144,11 @@ impl ProgpuzzLevset {
                 Arena::from_map_and_key(&[
                     "################",
                     "#              #",
+                    "#              #", // RFFLFFFRF
                     "#              #",
                     "#              #",
                     "#              #",
-                    "#              #",
-                    "#     # #w     #",
+                    "#     #  w     #",
                     "#      #       #",
                     "#     #        #",
                     "#     ^  #     #",
@@ -159,14 +159,14 @@ impl ProgpuzzLevset {
                     "#              #",
                     "################",
                 ], progpuzz_key.clone()),
-                Coding::from_vec(&[(F, 6), (L, 2), (R, 2)]),
+                Coding::from_vec(&[(F, 6), (L, 1), (R, 2)]),
             ),
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
                     "################",
-                    "#              #", // Maybe introduce an easier loop first?
                     "#              #",
-                    "#              #", // Maybe restrict further so you need to do FFRFL?
+                    "#              #", // LOOP(FFRFL)
+                    "#              #", // Maybe introduce an easier loop first?
                     "#        w     #",
                     "#       #      #",
                     "#              #",
@@ -187,8 +187,8 @@ impl ProgpuzzLevset {
                     "################",
                     "#              #",
                     "#              #",
-                    "#              #",
-                    "# # ### #      #",
+                    "#              #", // LOOP(FFRFFFFFF)
+                    "# # ### #      #", // Maybe swap with following level again?
                     "#^#     #      #",
                     " #  # # #      #",
                     " w#   # #      #",
@@ -218,9 +218,9 @@ impl ProgpuzzLevset {
                 Arena::from_map_and_key(&[
                     "                ",
                     " ############## ",
-                    " ############## ", // Any less brute-force-y?
+                    " ############## ", // Something like LOOP(FRFLRF)
                     " ############## ",
-                    " ##### ######## ",
+                    " ##### ######## ", // Any less brute-force-y?
                     " #####   ###### ",
                     " ####  #  ##### ",
                     " ####^### ##### ",
@@ -239,8 +239,8 @@ impl ProgpuzzLevset {
                 Arena::from_map_and_key(&[
                     "################",
                     "#              #",
-                    "#   #          #", // Any less brute-force-y?
-                    "#         #    #",
+                    "#   #          #", // RFFFL LOOP(FFFFFFFFFFR)
+                    "#         #    #", // Now less brute-forcy?
                     "#          #   #",
                     "#   #       # ##",
                     "# #           w#",
@@ -260,8 +260,8 @@ impl ProgpuzzLevset {
                 Arena::from_map_and_key(&[
                     "################",
                     "#              #",
-                    "##            ##",  // Any less brute-force-y?
-                    "#              #",
+                    "##            ##",  // LOOP(FFFFFFFFFFFFFFFFFFFFFFFR)
+                    "#              #",  // Successfully requiring spiral?
                     "#   #   # #    #",
                     "#          #   #",
                     "#     ##       #",
