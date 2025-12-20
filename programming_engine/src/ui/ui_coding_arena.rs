@@ -492,6 +492,7 @@ impl UiCodingArena
         crate::ui::clear_background_for_current_platform(self.background_col());
 
         if self.is_coding {
+            self.anim = AnimState { slide_frac: 1., anim_frac: 0. };
             UiArena::render(&coding_arena.init_arena, texture_cache, self.fr_pos.arena, self.anim).await;
         } else {
             UiArena::render(coding_arena.curr_arena.as_mut().unwrap(), texture_cache, self.fr_pos.arena, self.anim).await;
