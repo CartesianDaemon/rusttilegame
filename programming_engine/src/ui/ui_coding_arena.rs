@@ -321,7 +321,7 @@ impl UiCodingArena
         let spacing_pc = 0.5;
 
         let supply_n_w = 1;
-        let supply_n_h = flow_n.max(2);
+        let supply_n_h = flow_n.max(6);
         let prog_n_w = prog_n_w.max(2);
         let prog_n_h = prog_n_h.max(6);
 
