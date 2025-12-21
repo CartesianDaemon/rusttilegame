@@ -217,24 +217,24 @@ impl ProgpuzzLevset {
 
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
-                    "################",
-                    "#              #",
-                    "#              #",
-                    "#              #", // LOOP(FFRFFFFFF)
-                    "# # ### #      #", // Maybe swap with following level again?
-                    "#^#     #      #",
-                    " #  # # #      #",
-                    " w#   # #      #",
-                    "# ###          #",
+                    "# ##############",
+                    " #>     #      #",
+                    "#w##### #      #",
+                    "# #     #      #",
+                    "# #   # #      #",
+                    "# #   # #      #",
+                    "# # #          #",
+                    "# # #          #",
                     "#       #      #",
                     " # #### #      #",
                     "#              #",
                     "#              #",
                     "#              #",
                     "#              #",
+                    "#              #",
                     "################",
                 ], progpuzz_key.clone()),
-                Coding::from_vec(&[(F, 6), (L, 1), (R, 1), (LOOP, 1)]),
+                Coding::from_vec(&[(F, 8), (L, 1), (R, 1), (LOOP, 1)]),
             ),
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
