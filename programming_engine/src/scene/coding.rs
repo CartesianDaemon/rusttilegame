@@ -63,7 +63,7 @@ impl ParentOpcode {
             LOOP => 999,
             x2 => 1,
             loop5 => 5,
-            Else => 2,
+            Else => 999,
         }
     }
 

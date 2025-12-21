@@ -298,18 +298,39 @@ impl ProgpuzzLevset {
                 ], progpuzz_key.clone()),
                 Coding::from_vec(&[(F, 3), (L, 0), (R, 2), (x2, 3)]),
             ),
+            // CodingArena::new::<16>(
+            //     Arena::from_map_and_key(&[
+            //         "################",
+            //         "#              #",  // For this and L11 review number of F and x2 available..
+            //         "#              #",  // Did Mum solve this level this way? I can't remember. I can't.
+            //         "#              #",
+            //         "#              #",
+            //         "#              #",
+            //         "# #            #",
+            //         "###            #",
+            //         "#w#   v        #",
+            //         "# #            #",
+            //         "# #            #",
+            //         "#              #",
+            //         "#              #",
+            //         "#              #",
+            //         "#              #",
+            //         "################",
+            //     ], progpuzz_key.clone()),
+            //     Coding::from_vec(&[(F, 6), (L, 3), (R, 0), (x2, 5)]),
+            // ),
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
                     "################",
-                    "#              #",  // For this and L11 review number of F and x2 available..
-                    "#              #",  // Did Mum solve this level this way? I can't remember. I can't.
+                    "#              #",
+                    "#              #",  // For this and L10 review number of F and x2 available..
                     "#              #",
                     "#              #",
                     "#              #",
                     "# #            #",
-                    "###            #",
+                    "# #            #",
                     "#w#   v        #",
-                    "# #            #",
+                    "###            #",
                     "# #            #",
                     "#              #",
                     "#              #",
@@ -333,23 +354,23 @@ impl ProgpuzzLevset {
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
                     "################",
-                    "#              #",
-                    "#              #",  // For this and L10 review number of F and x2 available..
-                    "#              #",
-                    "#              #",
-                    "#              #",
-                    "# #            #",
-                    "# #            #",
-                    "#w#   v        #",
-                    "###            #",
-                    "# #            #",
+                    "#              #",  // Need more instr in loop, or a group?
+                    "#     w        #",  // LOOP(F ELSE(RFLFF))
+                    "#     #        #",
                     "#              #",
                     "#              #",
                     "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "#     ^        #",
                     "#              #",
                     "################",
                 ], progpuzz_key.clone()),
-                Coding::from_vec(&[(F, 6), (L, 3), (R, 0), (x2, 5)]),
+                Coding::from_vec(&[(F, 5), (L, 2), (R, 2), (Else, 1), (LOOP, 1)]),
             ),
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
@@ -375,24 +396,43 @@ impl ProgpuzzLevset {
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
                     "################",
-                    "#>             #",  // Difficult use of else?
-                    "############ ###",
-                    "#         #  # #",
+                    "#              #",
+                    "#>            ##",  // ...
+                    "#  ###         #",
+                    "#              #",
+                    "###            #",
+                    "#            ###",
+                    "#      ##      #",
+                    "#      ##      #",
+                    "#           #  #",
+                    "####        #  #",
+                    "#           #  #",
+                    "###         #  #",
+                    "#  w       ##  #",
+                    "#              #",
+                    "################",
+                ], progpuzz_key.clone()),
+                Coding::from_vec(&[(F, 4), (L, 2), (R, 2), (Else, 4), (LOOP, 1)]),
+            ),            CodingArena::new::<16>(
+                Arena::from_map_and_key(&[
+                    "################",
+                    "#>             #",
+                    "############ ###", // loop(group(L,F),else(R,F),else(R,F))
+                    "#         #  # #", // Difficult use of else?
                     "#### ###### ## #",
                     "#         # #  #",
                     "# #######     ##",
                     "# #    #  #### #",
                     "# # ##         #",
                     "# # #  # #######",
-                    "# # ####       #",
+                    "# # w###       #",
                     "# ###   #####  #",
                     "# #   #        #",
                     "# ## ###########",
-                    "#  #          w#",
+                    "#  #           #",
                     "################",
                 ], progpuzz_key.clone()),
                 Coding::from_vec(&[(F, 4), (L, 2), (R, 2), (Else, 2), (LOOP, 1), (group, 1)]),
-                // Try solution loop(group(L,F),else(R,F),else(R,F))
             ),
         ]
     }
