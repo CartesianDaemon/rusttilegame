@@ -1,5 +1,11 @@
 ## Unreleased
 
+Dec 21 (1.6.4 engine, 1.6.9 puzz?)
+
+- Reduce surplus instructions in existing levels.
+- Hard Else levels 11-15.
+- Swap back levels 5 and 6.
+
 Dec 19/20
 
 - Fix proportions of lev_chooser, supply and prog for mobile screen.
