@@ -185,6 +185,39 @@ impl ProgpuzzLevset {
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
                     "################",
+                    "#      #       #",
+                    "#      #       #",
+                    "#     w#>      #",
+                    "#   ########   #",
+                    "#   #      #   #",
+                    "#   #      #   #",
+                    "#   #      #   #",
+                    "#   #      #   #",
+                    "#   #      #   #",
+                    "#   #      #   #",
+                    "#   ########   #",
+                    "#              #",
+                    "#              #",
+                    "#              #",
+                    "################",
+                ], progpuzz_key.clone()),
+                Coding::from_vec(&[(F, 9), (L, 1), (R, 1), (LOOP, 1)]),
+            ),
+
+
+
+
+
+
+
+
+
+
+
+
+            CodingArena::new::<16>(
+                Arena::from_map_and_key(&[
+                    "################",
                     "#              #",
                     "#              #",
                     "#              #", // LOOP(FFRFFFFFF)
@@ -202,38 +235,6 @@ impl ProgpuzzLevset {
                     "################",
                 ], progpuzz_key.clone()),
                 Coding::from_vec(&[(F, 6), (L, 1), (R, 1), (LOOP, 1)]),
-            ),
-
-
-
-
-
-
-
-
-
-
-
-            CodingArena::new::<16>(
-                Arena::from_map_and_key(&[
-                    "                ",
-                    " ############## ",
-                    " ############## ", // Something like LOOP(FRFLRF)
-                    " ############## ",
-                    " ##### ######## ", // Any less brute-force-y?
-                    " #####   ###### ",
-                    " ####  #  ##### ",
-                    " ####^### ##### ",
-                    " ######w  ##### ",
-                    " ######  ###### ",
-                    " ############## ",
-                    " ############## ",
-                    " ############## ",
-                    " ############## ",
-                    " ############## ",
-                    "                ",
-                ], progpuzz_key.clone()),
-                Coding::from_vec(&[(F, 4), (L, 2), (R, 2), (LOOP, 1)]),
             ),
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
@@ -375,7 +376,7 @@ impl ProgpuzzLevset {
             CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
                     "################",
-                    "#              #",
+                    "#              #",  // LOOP(F ELSE(R))
                     "#              #",  // Example of else. Does it need to be any more restricted?
                     "#              #",
                     "#       #      #",
@@ -398,7 +399,7 @@ impl ProgpuzzLevset {
                     "################",
                     "#              #",
                     "#>            ##",  // LOOP(F ELSE(R) F ELSE(LF) )
-                    "#  ###         #",
+                    "#  ###         #",  // Should it show an easier path?
                     "#              #",
                     "###            #",
                     "#            ###",
@@ -413,7 +414,8 @@ impl ProgpuzzLevset {
                     "################",
                 ], progpuzz_key.clone()),
                 Coding::from_vec(&[(F, 4), (L, 2), (R, 2), (Else, 4), (LOOP, 1)]),
-            ),            CodingArena::new::<16>(
+            ),
+            CodingArena::new::<16>(
                 Arena::from_map_and_key(&[
                     "################",
                     "#>             #",
@@ -433,6 +435,27 @@ impl ProgpuzzLevset {
                     "################",
                 ], progpuzz_key.clone()),
                 Coding::from_vec(&[(F, 4), (L, 2), (R, 2), (Else, 2), (LOOP, 1), (group, 1)]),
+            ),
+            CodingArena::new::<16>(
+                Arena::from_map_and_key(&[
+                    "################",
+                    "#              #",
+                    "# ############ #", // LOOP[R,F,F,Else[L,F],L,F,L,F,Else[L,F,L,LOOP[F]],R,R,F]
+                    "# #          # #",
+                    "# #          # #",
+                    "# #    w     # #",
+                    "# #          # #",
+                    "# #          # #",
+                    "# #          # #",
+                    "# #          # #",
+                    "# #          # #",
+                    "# #          # #",
+                    "#^#          # #",
+                    "####### ###### #",
+                    "#              #",
+                    "################",
+                ], progpuzz_key.clone()),
+                Coding::from_vec(&[(F, 8), (L, 6), (R, 6), (Else, 4), (LOOP, 2), (group, 2)]),
             ),
         ]
     }

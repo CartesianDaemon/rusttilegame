@@ -71,7 +71,7 @@ impl ParentOpcode {
     pub fn as_text(&self) -> String {
         use ParentOpcode::*;
         match self {
-            group => "{...}",
+            group => "group",
             LOOP => "LOOP",
             x2 => "x2",
             loop5 => "loop5",
