@@ -76,8 +76,8 @@ pub struct Ticker {
 impl Ticker {
     pub fn new() -> Ticker {
         Ticker {
-            tick_interval_set: vec![0.5, 0.3, 0.15, 0.05],
-            tick_interval_idx: 0,
+            tick_interval_set: vec![0.6, 0.4, 0.15, 0.025],
+            tick_interval_idx: 1,
             last_tick_time: get_time(),
         }
     }
