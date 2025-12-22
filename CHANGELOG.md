@@ -1,5 +1,11 @@
 ## Unreleased
 
+## 1.6.5 engine, 1.7 puzz
+
+Dec 22
+
+- Add four tick speeds.
+
 Dec 21 (1.6.4 engine, 1.6.9 puzz?)
 
 - Reduce surplus instructions in existing levels.

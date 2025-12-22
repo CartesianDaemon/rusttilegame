@@ -664,7 +664,7 @@ dependencies = [
 
 [[package]]
 name = "prog_puzz"
-version = "1.6.3"
+version = "1.7.0"
 dependencies = [
  "env_logger",
  "log",
@@ -674,7 +674,7 @@ dependencies = [
 
 [[package]]
 name = "programming_engine"
-version = "1.6.3"
+version = "1.6.5"
 dependencies = [
  "assrt",
  "chrono",
